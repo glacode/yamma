@@ -1,0 +1,22 @@
+{
+	"name": "yamma-client",
+	"description": "Client server for yamma extension",
+	"author": "Glauco Siliprandi",
+	"license": "MIT",
+	"version": "0.0.1",
+	"publisher": "vscode",
+	"repository": {
+		"type": "git"
+	},
+	"engines": {
+		"vscode": "^1.52.0"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^7.0.0"
+	},
+	"devDependencies": {
+		"@types/mocha": "^9.1.1",
+		"@types/vscode": "^1.52.0",
+		"@vscode/test-electron": "^1.6.1"
+	}
+}

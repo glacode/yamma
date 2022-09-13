@@ -1,0 +1,115 @@
+{
+	"name": "yamma",
+	"description": "A language server example",
+	"author": "Microsoft Corporation",
+	"license": "MIT",
+	"version": "1.0.0",
+	"repository": {
+		"type": "git"
+	},
+	"publisher": "Glauco Siliprandi",
+	"categories": [],
+	"keywords": [
+		"multi-root ready"
+	],
+	"engines": {
+		"vscode": "^1.43.0"
+	},
+	"activationEvents": [
+		"onLanguage:yamma"
+	],
+	"main": "./client/out/extension",
+	"contributes": {
+		"languages": [
+			{
+				"id": "yamma",
+				"aliases": [
+					"Yamma",
+					"Metamath"
+				],
+				"extensions": [
+					".mmp"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "yamma",
+				"scopeName": "source.mmp",
+				"path": "./syntaxes/mmp.tmLanguage.json"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Yamma",
+			"properties": {
+				"yamma.mmFileFullPath": {
+					"scope": "resource",
+					"type": "string",
+					"default": "",
+					"description": "The .mm file containing the main theory."
+				},
+				"yamma.proofMode": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"normal",
+						"compressed"
+					],
+					"default": "normal",
+					"description": "Determines the format of the proof generated"
+				},
+				"yamma.maxNumberOfProblems": {
+					"scope": "resource",
+					"type": "number",
+					"default": 100,
+					"description": "Controls the maximum number of problems produced by the server."
+				},
+				"yamma.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the language server."
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "yamma.storeInMMTfolder",
+				"title": "Unify + Store in MMT Folder"
+			},
+			{
+				"command": "yamma.loadFromMMTfolder",
+				"title": "Load Theorems from MMT Folder"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "editor.action.formatDocument",
+				"key": "ctrl+u"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"test": "sh ./scripts/e2e.sh"
+	},
+	"devDependencies": {
+		"@types/node": "^12.12.0",
+		"@typescript-eslint/eslint-plugin": "^4.23.0",
+		"@typescript-eslint/parser": "^4.23.0",
+		"eslint": "^7.26.0",
+		"mocha": "^8.3.2",
+		"typescript": "^4.4.3"
+	}
+}
