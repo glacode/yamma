@@ -66,10 +66,10 @@ export function activate(context: ExtensionContext) {
 	// const mmtCommandHandler: MmtCommandHandler = new MmtCommandHandler(client);
 	//Glauco
 	client.onReady().then(() => {
-		let disposable: Disposable = commands.registerCommand('languageServerExample.storeInMMTfolder',
+		let disposable: Disposable = commands.registerCommand('yamma.storeInMMTfolder',
 			storeMmtFileCommandHandler, client);
 		context.subscriptions.push(disposable);
-		disposable = commands.registerCommand('languageServerExample.loadFromMMTfolder',
+		disposable = commands.registerCommand('yamma.loadFromMMTfolder',
 			loadMmtFilesCommandHandler, client);
 		context.subscriptions.push(disposable);
 

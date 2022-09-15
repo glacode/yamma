@@ -23,7 +23,6 @@ import {
 	WorkDoneProgress,
 	SemanticTokensParams,
 	SemanticTokens,
-	SemanticTokenTypes,
 	SemanticTokenModifiers,
 } from 'vscode-languageserver/node';
 
@@ -39,7 +38,7 @@ import { OnHoverHandler } from "./languageServerHandlers/OnHoverHandler";
 import { OnDocumentFormattingHandler } from './languageServerHandlers/OnDocumentFormattingHandler';
 import { OnDidChangeContentHandler } from './languageServerHandlers/OnDidChangeContentHandler';
 import { OnCodeActionHandler } from './languageServerHandlers/OnCodeActionHandler';
-import { ConfigurationManager, ExampleSettings, ProofMode } from './mm/ConfigurationManager';
+import { ConfigurationManager, defaultSettings, IExtensionSettings } from './mm/ConfigurationManager';
 import { MmtSaver, PathAndUri } from './mmt/MmtSaver';
 
 import * as path from 'path';
@@ -48,7 +47,7 @@ import { MmtLoader } from './mmt/MmtLoader';
 import { OnCompletionHandler } from './languageServerHandlers/OnCompletionHandler';
 import { GlobalState } from './general/GlobalState';
 import { OnCompletionResolveHandler } from './languageServerHandlers/OnCompletionResolveHandler';
-import { OnSemanticTokensHandler } from './languageServerHandlers/OnSemanticTokensHandler';
+import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHandlers/OnSemanticTokensHandler';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -148,19 +147,6 @@ async function parseMainMMfile(textDocumentUri: string) {
 }
 // parseMainMMfile();
 
-const semanticTokenTypes : SemanticTokenTypes[] = [
-	SemanticTokenTypes.comment,  // comment
-	SemanticTokenTypes.variable,  // wff
-	SemanticTokenTypes.string,  // set
-	SemanticTokenTypes.keyword,  // class
-	SemanticTokenTypes.parameter,
-	SemanticTokenTypes.property,
-	SemanticTokenTypes.namespace,
-	SemanticTokenTypes.class,
-	SemanticTokenTypes.macro,
-	SemanticTokenTypes.operator
-];
-
 connection.onInitialize((params: InitializeParams) => {
 	const capabilities = params.capabilities;
 
@@ -259,7 +245,7 @@ connection.onRequest('yamma/loadmmt', (fsPath: string) => {
 		const errorMessage: string = mmtLoader.diagnostics[0].message;
 		notifyError(errorMessage);
 	}
-	console.log('Method saveMmt() has been invoked 2');
+	console.log('Method loadmmt() has been invoked');
 
 });
 
@@ -280,16 +266,10 @@ connection.onInitialized(() => {
 // 	maxNumberOfProblems: number;
 // }
 
-// The global settings, used when the `workspace/configuration` request is not supported by the client.
-// Please note that this is not the case when using this server with the client provided in this example
-// but could happen with other clients.
-const defaultSettings: ExampleSettings = {
-	maxNumberOfProblems: 1000, proofMode: ProofMode.normal, mmFileFullPath: ""
-};
-let globalSettings: ExampleSettings = defaultSettings;
+let globalSettings: IExtensionSettings = defaultSettings;
 
 // Cache the settings of all open documents
-const documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
+const documentSettings: Map<string, Thenable<IExtensionSettings>> = new Map();
 
 let configurationManager: ConfigurationManager;
 
@@ -299,8 +279,8 @@ connection.onDidChangeConfiguration(change => {
 		documentSettings.clear();
 		configurationManager.didChangeConfiguration(change);
 	} else {
-		globalSettings = <ExampleSettings>(
-			(change.settings.languageServerExample || defaultSettings)
+		globalSettings = <IExtensionSettings>(
+			(change.settings.yamma || defaultSettings)
 		);
 	}
 
@@ -430,10 +410,10 @@ connection.onHover(async (params): Promise<Hover | undefined> => {
 //connection.onHover(OnHoverHandler);
 //#endregion onHover
 
-connection.languages.semanticTokens.on((semanticTokenParams: SemanticTokensParams) => {
+connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticTokensParams) => {
 	const onSemanticTokensHandler: OnSemanticTokensHandler =
-		new OnSemanticTokensHandler(semanticTokenParams,semanticTokenTypes);
-	const result: SemanticTokens = onSemanticTokensHandler.semanticTokens();
+		new OnSemanticTokensHandler(semanticTokenParams,semanticTokenTypes,configurationManager);
+	const result: SemanticTokens = await onSemanticTokensHandler.semanticTokens();
 	return result;
 });
 
