@@ -40,7 +40,6 @@ export class RpnSyntaxTreeBuilder {
 	buildRpnSyntaxTreeFromFormula(assertionStatementWithSubstitution: string[], grammar: Grammar): string {
 		// const parseNode: ParseNode = assertionStatementProofStep.parseNode;
 		// const grammar: Grammar = assertionStatementProofStep.outermostBlock!.grammar!;
-		// grammar.start = 'wff';
 		grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
 		const parser = new Parser(grammar);
 		parser.feed('');

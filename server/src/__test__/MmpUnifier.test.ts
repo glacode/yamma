@@ -1,6 +1,6 @@
 import { Connection } from 'vscode-languageserver';
 import { TextEdit } from 'vscode-languageserver-textdocument';
-import { ConfigurationManager, ExampleSettings, ProofMode } from '../mm/ConfigurationManager';
+import { ConfigurationManager, IExtensionSettings, ProofMode, VariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UProof } from '../mmp/UProof';
@@ -32,10 +32,11 @@ class TestMmpUnifier extends MmpUnifier {
 	}
 }
 
-const exampleSettings: ExampleSettings = {
+const exampleSettings: IExtensionSettings = {
 	maxNumberOfProblems: 100,
 	proofMode: ProofMode.normal,
-	mmFileFullPath: ''
+	mmFileFullPath: '',
+	variableKindsConfiguration: new Map<string,VariableKindConfiguration>()
 };
 
 let dummyConnection: unknown;

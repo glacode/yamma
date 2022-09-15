@@ -1,6 +1,6 @@
 import { Connection, Diagnostic, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { ExampleSettings } from '../mm/ConfigurationManager';
+import { IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { consoleLogWithTimestamp } from '../mm/Utils';
@@ -11,13 +11,13 @@ export class OnDidChangeContentHandler {
 	connection: Connection;
 	hasConfigurationCapability: boolean;
 	hasDiagnosticRelatedInformationCapability: boolean;
-	globalSettings: ExampleSettings;
-	documentSettings: Map<string, Thenable<ExampleSettings>>;
+	globalSettings: IExtensionSettings;
+	documentSettings: Map<string, Thenable<IExtensionSettings>>;
 	mmParser: MmParser;
 
 	constructor(connection: Connection, hasConfigurationCapability: boolean,
-		hasDiagnosticRelatedInformationCapability: boolean, globalSettings: ExampleSettings,
-		documentSettings: Map<string, Thenable<ExampleSettings>>, mmParser: MmParser) {
+		hasDiagnosticRelatedInformationCapability: boolean, globalSettings: IExtensionSettings,
+		documentSettings: Map<string, Thenable<IExtensionSettings>>, mmParser: MmParser) {
 		this.connection = connection;
 		this.hasConfigurationCapability = hasConfigurationCapability;
 		this.hasDiagnosticRelatedInformationCapability = hasDiagnosticRelatedInformationCapability;
@@ -28,7 +28,7 @@ export class OnDidChangeContentHandler {
 
 	// private mmParser: MmParser | undefined;
 
-	private getDocumentSettings(resource: string): Thenable<ExampleSettings> {
+	private getDocumentSettings(resource: string): Thenable<IExtensionSettings> {
 		if (!this.hasConfigurationCapability) {
 			return Promise.resolve(this.globalSettings);
 		}
@@ -36,7 +36,7 @@ export class OnDidChangeContentHandler {
 		if (!result) {
 			result = this.connection.workspace.getConfiguration({
 				scopeUri: resource,
-				section: 'languageServerExample'
+				section: 'yamma'
 			});
 			this.documentSettings.set(resource, result);
 		}

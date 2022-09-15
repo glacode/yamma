@@ -1,12 +1,31 @@
 import { Range, SemanticTokenModifiers, SemanticTokens, SemanticTokensParams, SemanticTokenTypes, uinteger } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
+import { ConfigurationManager, VariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { UProofStep } from '../mmp/UProofStep';
 import { IUStatement, UComment } from '../mmp/UStatement';
 
+
+export const semanticTokenTypes : SemanticTokenTypes[] = [
+	SemanticTokenTypes.comment,  // comment
+	SemanticTokenTypes.variable,  // wff
+	SemanticTokenTypes.string,  // set
+	SemanticTokenTypes.keyword,  // class
+	SemanticTokenTypes.parameter,
+	SemanticTokenTypes.property,
+	SemanticTokenTypes.namespace,
+	SemanticTokenTypes.class,
+	SemanticTokenTypes.macro,
+	SemanticTokenTypes.operator
+];
+
 export class OnSemanticTokensHandler {
+
+	private semanticTokenParams: SemanticTokensParams;
+	private configurationManager: ConfigurationManager;
+
 
 	semanticTokensData: uinteger[];
 
@@ -15,9 +34,18 @@ export class OnSemanticTokensHandler {
 	/** this is used to compute relative character */
 	private previousTokenStartCharacter: number;
 
-	private semanticTokenTypesMap: Map<SemanticTokenTypes, number>;
+	// private semanticTokenTypesMap: Map<SemanticTokenTypes, number>;
+	private semanticTokenTypesMap: Map<string, number>;
+	private variableKindsConfiguration: Map<string, VariableKindConfiguration>;
 
-	constructor(_semanticTokenParams: SemanticTokensParams, semanticTokenTypes: SemanticTokenTypes[]) {
+
+	constructor(semanticTokenParams: SemanticTokensParams, semanticTokenTypes: SemanticTokenTypes[],
+		configurationManager: ConfigurationManager) {
+		this.semanticTokenParams = semanticTokenParams;
+		this.configurationManager = configurationManager;
+		this.variableKindsConfiguration = new Map<string, VariableKindConfiguration>();
+
+
 		this.semanticTokensData = [];
 
 		this.previousTokenStartLine = 0;
@@ -35,10 +63,17 @@ export class OnSemanticTokensHandler {
 	}
 	//#region semanticTokens
 
+	async setVariableKindsConfiguration() {
+		this.variableKindsConfiguration =
+			await this.configurationManager.variableKindsConfiguration(this.semanticTokenParams.textDocument.uri);
+	}
+
 	//#region buildSemanticTokens
 	// addSemanticToken(startLine: number, startCharacter: number, length: number,
+	// addSemanticToken(tokenRange: Range,
+	// 	semanticTokenType: SemanticTokenTypes, _semanticTokenModifier?: SemanticTokenModifiers) {
 	addSemanticToken(tokenRange: Range,
-		semanticTokenType: SemanticTokenTypes, _semanticTokenModifier?: SemanticTokenModifiers) {
+		semanticTokenType: string, _semanticTokenModifier?: SemanticTokenModifiers) {
 		const numSemanticTokenType: number | undefined = this.semanticTokenTypesMap.get(semanticTokenType);
 		if (numSemanticTokenType != undefined) {
 			const relativeStartLine: number = tokenRange.start.line - this.previousTokenStartLine;
@@ -77,20 +112,36 @@ export class OnSemanticTokensHandler {
 		// ]);
 
 	}
+
+	//#region addSemanticTokenForProofStep
+	async addSemanticTokenForKind(range: Range, kind: string) {
+		if (this.variableKindsConfiguration != undefined) {
+			const semanticTokenType: VariableKindConfiguration | undefined = this.variableKindsConfiguration.get(kind);
+			if (semanticTokenType != undefined)
+				// the configuration contains the given variable kind
+				this.addSemanticToken(range, semanticTokenType.lspSemantictokenType);
+		}
+
+		// if (kind == 'wff')
+		// 	this.addSemanticToken(token.range, SemanticTokenTypes.variable);
+		// else if (kind == 'setvar')
+		// 	this.addSemanticToken(token.range, SemanticTokenTypes.string);
+		// else if (kind == 'class')
+		// 	this.addSemanticToken(token.range, SemanticTokenTypes.keyword);
+	}
 	addSemanticTokenForProofStep(uProofStep: UProofStep, mmParser: MmParser) {
 		const formula: MmToken[] | undefined = uProofStep.formula;
 		if (formula != undefined)
 			formula.forEach((token: MmToken) => {
 				const kind: string | undefined = mmParser.outermostBlock.kindOf(token.value);
-				if (kind == 'wff')
-					this.addSemanticToken(token.range, SemanticTokenTypes.variable);
-				else if (kind == 'setvar')
-					this.addSemanticToken(token.range, SemanticTokenTypes.string);
-				else if (kind == 'class')
-					this.addSemanticToken(token.range, SemanticTokenTypes.keyword);
+				if (kind != undefined)
+					// current token is for a variable in the theory
+					this.addSemanticTokenForKind(token.range, kind);
+
 
 			});
 	}
+	//#endregion addSemanticTokenForProofStep
 	buildSemanticTokens(mmParser: MmParser, mmpParser: MmpParser): SemanticTokens {
 		// const mmTokens: MmToken = mmpParser.mmTokens;
 		mmpParser.uProof?.uStatements.forEach((uStatement: IUStatement) => {
@@ -107,7 +158,10 @@ export class OnSemanticTokensHandler {
 		return semanticTokens;
 	}
 	//#endregion buildSemanticTokens
-	semanticTokens(): SemanticTokens {
+
+	async semanticTokens(): Promise<SemanticTokens> {
+		await this.setVariableKindsConfiguration();
+		
 		this.semanticTokensData = [];
 		const mmParser: MmParser = GlobalState.mmParser;
 		const mmpParser: MmpParser = GlobalState.lastMmpParser;
