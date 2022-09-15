@@ -50,6 +50,35 @@
 					"default": "",
 					"description": "The .mm file containing the main theory."
 				},
+				"yamma.kindConfigurations": {
+					"scope": "resource",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"title": "Variable kinds configuration",
+						"properties": {
+							"variablekind": {
+								"type": "string",
+								"description": "Variable kind"
+							},
+							"workingvarprefix": {
+								"type": "string",
+								"description": "Working var prefix"
+							},
+							"lspsemantictokentype": {
+								"type": "string",
+								"description": "LSP semantic token type"
+							}
+						}
+					},
+					"default": [
+						{ "variablekind": "wff" , "workingvarprefix": "W" , "lspsemantictokentype": "variable" } ,
+						{ "variablekind": "setvar" , "workingvarprefix": "S" , "lspsemantictokentype": "string" } ,
+						{ "variablekind": "class" , "workingvarprefix": "C" , "lspsemantictokentype": "keyword" }
+					],
+					"description": "Variable kinds configuration"
+				},
+
 				"yamma.proofMode": {
 					"scope": "resource",
 					"type": "string",
