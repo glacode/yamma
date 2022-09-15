@@ -3,3 +3,11 @@ node_modules
 client/server
 .vscode-test
 *.OLD
+client/src/test/completion.test.ts
+client/src/test/diagnostics.test.ts
+client/src/test/helper.ts
+client/src/test/index.ts
+client/src/test/runTest.ts
+client/testFixture/*
+scripts/e2e.sh
+syntaxes/*
