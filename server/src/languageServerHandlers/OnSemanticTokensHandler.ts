@@ -1,7 +1,7 @@
 import { Range, SemanticTokenModifiers, SemanticTokens, SemanticTokensParams, SemanticTokenTypes, uinteger } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
-import { ConfigurationManager, VariableKindConfiguration } from '../mm/ConfigurationManager';
+import { ConfigurationManager, IVariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { UProofStep } from '../mmp/UProofStep';
@@ -36,14 +36,14 @@ export class OnSemanticTokensHandler {
 
 	// private semanticTokenTypesMap: Map<SemanticTokenTypes, number>;
 	private semanticTokenTypesMap: Map<string, number>;
-	private variableKindsConfiguration: Map<string, VariableKindConfiguration>;
+	private variableKindsConfiguration: Map<string, IVariableKindConfiguration>;
 
 
 	constructor(semanticTokenParams: SemanticTokensParams, semanticTokenTypes: SemanticTokenTypes[],
 		configurationManager: ConfigurationManager) {
 		this.semanticTokenParams = semanticTokenParams;
 		this.configurationManager = configurationManager;
-		this.variableKindsConfiguration = new Map<string, VariableKindConfiguration>();
+		this.variableKindsConfiguration = new Map<string, IVariableKindConfiguration>();
 
 
 		this.semanticTokensData = [];
@@ -116,7 +116,7 @@ export class OnSemanticTokensHandler {
 	//#region addSemanticTokenForProofStep
 	async addSemanticTokenForKind(range: Range, kind: string) {
 		if (this.variableKindsConfiguration != undefined) {
-			const semanticTokenType: VariableKindConfiguration | undefined = this.variableKindsConfiguration.get(kind);
+			const semanticTokenType: IVariableKindConfiguration | undefined = this.variableKindsConfiguration.get(kind);
 			if (semanticTokenType != undefined)
 				// the configuration contains the given variable kind
 				this.addSemanticToken(range, semanticTokenType.lspSemantictokenType);

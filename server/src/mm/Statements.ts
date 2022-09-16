@@ -102,7 +102,7 @@ export abstract class LabeledStatement extends NonBlockStatement {
         if (this._parseNode == undefined)
             // this._parseNode = <InternalNode>this.parseStrArray(this.formula, grammar, new WorkingVars());
             this._parseNode = <InternalNode>this.parseStrArray(
-                this.formula, this.outermostBlock!.grammar!, new WorkingVars());
+                this.formula, this.outermostBlock!.grammar!, this.outermostBlock!.mmParser!.workingVars);
         return this._parseNode;
     }
 
@@ -115,7 +115,7 @@ export abstract class LabeledStatement extends NonBlockStatement {
      */
     parseForTypecode(typecode: string, strToParse: string, grammar: Grammar): InternalNode {
         let parseNode: ParseNode | undefined;
-        grammar.lexer = new MmLexer(new WorkingVars());
+        grammar.lexer = new MmLexer(this.outermostBlock!.mmParser!.workingVars);
         grammar.start = typecode;
         const parser: Parser = new Parser(grammar);
         // Parse something!

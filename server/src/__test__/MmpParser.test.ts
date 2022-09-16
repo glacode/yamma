@@ -12,7 +12,7 @@ import { wiGrammar } from './GrammarManager.test';
 import { axmpTheory } from './MmParser.test';
 import { vexTheoryMmParser } from './MmpProofStatement.test';
 import { doesDiagnosticsContain } from '../mm/Utils';
-import { eqeq1iMmParser, impbiiMmParser } from './GlobalForTest.test';
+import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
 
 
 const emptyLabelStatement = new AxiomStatement('x', [], new BlockStatement());
@@ -29,7 +29,7 @@ class TestMmpParser extends MmpParser {
 
 function testParser(): MmpParser {
 	const mmpParser: MmpParser = new MmpParser('', new Map<string, LabeledStatement>(), new BlockStatement(), wiGrammar(),
-		new WorkingVars());
+		new WorkingVars(kindToPrefixMap));
 	return mmpParser;
 }
 
@@ -123,7 +123,7 @@ test('createMmpStatements', () => {
 	// const mockMmParser: MmParser = jest.createMockFromModule('../mmparser/MmParser');
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	const outermostBlock: BlockStatement = new BlockStatement();
-	const mmpParser: MmpParser = new MmpParser(mmptext, labelToStatementMap, outermostBlock, wiGrammar(), new WorkingVars());
+	const mmpParser: MmpParser = new MmpParser(mmptext, labelToStatementMap, outermostBlock, wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
 	// const mmpStatements: MmpStatement[] = mmpParser.mmpStatements;
@@ -144,7 +144,7 @@ test('diagnostic gt2colon', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	const outermostBlock: BlockStatement = new BlockStatement();
 	const mmpParser: MmpParser = new MmpParser('55:50,51:ax-mp:a |- ph', labelToStatementMap,
-		outermostBlock, wiGrammar(), new WorkingVars());
+		outermostBlock, wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBe(1);
@@ -158,7 +158,7 @@ test('diagnostic gt2colon', () => {
 test('diagnostic comma	', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	const mmpParser: TestMmpParser = new TestMmpParser('55,52:50,51:ax-mp |- ph', labelToStatementMap,
-		new BlockStatement(), wiGrammar(), new WorkingVars());
+		new BlockStatement(), wiGrammar(), new WorkingVars(kindToPrefixMap));
 	labelToStatementMap.set('ax-mp', emptyLabelStatement);
 	mmpParser.createMmpStatements();
 	// mmpParser.createMmpStatements(mmptext);
@@ -175,7 +175,7 @@ test('diagnostic comma	', () => {
 test('diagnostic missing label', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	const outermostBlock: BlockStatement = new BlockStatement();
-	const mmpParser: MmpParser = new MmpParser('55::  |- ph', labelToStatementMap, outermostBlock, wiGrammar(), new WorkingVars());
+	const mmpParser: MmpParser = new MmpParser('55::  |- ph', labelToStatementMap, outermostBlock, wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBe(1);
@@ -189,7 +189,7 @@ test('diagnostic missing label', () => {
 test('diagnostic unknownLabel', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	const mmpParser: TestMmpParser = new TestMmpParser('55::idontexist  |- ph', labelToStatementMap,
-		new BlockStatement(), wiGrammar(), new WorkingVars());
+		new BlockStatement(), wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.createMmpStatements();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBe(1);
@@ -204,7 +204,7 @@ test('formula error', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	labelToStatementMap.set('ax-mp', emptyLabelStatement);
 	const mmpParser: TestMmpParser = new TestMmpParser('55:50,51:ax-mp |- ( ph -> A )', labelToStatementMap,
-		new BlockStatement(), wiGrammar(), new WorkingVars());
+		new BlockStatement(), wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.createMmpStatements();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(4);
@@ -224,7 +224,7 @@ test('formula 2 error', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	labelToStatementMap.set('ax-mp', emptyLabelStatement);
 	const mmpParser: TestMmpParser = new TestMmpParser('55:50,51:ax-mp |- ( ph -> ( ( ps -> ch ) -> ( ch -> ) ) )', labelToStatementMap,
-		new BlockStatement(), wiGrammar(), new WorkingVars());
+		new BlockStatement(), wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.createMmpStatements();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBeGreaterThan(3);
@@ -242,7 +242,7 @@ test('Unexpected end of formula', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	labelToStatementMap.set('ax-mp', emptyLabelStatement);
 	const mmpParser: TestMmpParser = new TestMmpParser('55:50,51:ax-mp |- ( ph -> ( ( ps -> ch ) -> ( ch -> ph ) )', labelToStatementMap,
-		new BlockStatement(), wiGrammar(), new WorkingVars());
+		new BlockStatement(), wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.createMmpStatements();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBeGreaterThan(3);
@@ -266,7 +266,7 @@ test('Expect |- |- ph to raise an error', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	// labelToStatementMap.set('ax-mp', emptyLabelStatement);
 	const mmpParser: TestMmpParser = new TestMmpParser('55:50,51:ax-mp |- |- ph', labelToStatementMap,
-		new BlockStatement(), wiGrammar(), new WorkingVars());
+		new BlockStatement(), wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.createMmpStatements();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.formulaSyntaxError)).toBeTruthy();
@@ -279,7 +279,7 @@ test('Syntax ok', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	labelToStatementMap.set('ax-mp', emptyLabelStatement);
 	const mmpParser: TestMmpParser = new TestMmpParser('55:50,51:ax-mp |- ( ph -> ( ( ps -> ch ) -> ( ch -> ph ) ) )', labelToStatementMap,
-		new BlockStatement(), wiGrammar(), new WorkingVars());
+		new BlockStatement(), wiGrammar(), new WorkingVars(kindToPrefixMap));
 	mmpParser.createMmpStatements();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.formulaSyntaxError)).toBeFalsy();
@@ -301,7 +301,7 @@ test('should be accepted |- x = A ', () => {
 	labelToStatementMap.set('ax-mp', emptyLabelStatement);
 
 	const mmpParser: TestMmpParser = new TestMmpParser('55:50,51:ax-mp |- x = A ', labelToStatementMap,
-		new BlockStatement(), grammar, new WorkingVars());
+		new BlockStatement(), grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.createMmpStatements();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBe(3);
@@ -317,7 +317,7 @@ test('expect reference statement unification error', () => {
 		'55:50,51:ax-mp |- ph';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars());
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
@@ -334,7 +334,7 @@ test('expect missing ref error', () => {
 	const mmpSource = '55:51:ax-mp |- ps';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars());
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
@@ -373,7 +373,7 @@ test('expect label only to be parsed', () => {
 		'qed:: |- ps';
 	// const mp2Parser: MmParser = new MmParser();
 	// mp2Parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap, mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars());
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap, mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.uProof?.uStatements.length).toBe(2);
@@ -389,7 +389,7 @@ test('expect 2 hyp refs', () => {
 		'qed:,50: |- ps';
 	// const mp2Parser: MmParser = new MmParser();
 	// mp2Parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap, mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars());
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap, mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.uProof?.uStatements.length).toBe(1);
@@ -404,7 +404,7 @@ test('Expect Working Var unification error', () => {
 		'qed:d1,d2:ax-mp |- ph';
 	// const mp2Parser: MmParser = new MmParser();
 	// mp2Parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap, mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars());
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap, mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.workingVarUnificationError)).toBeTruthy();
@@ -428,7 +428,7 @@ test('Expect v3x to parse', () => {
 		'52:51:abeq2i |- ( x e. _V <-> x = x )\n' +
 		'qed:50,52:mpbir |- x e. _V';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap,
-		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars());
+		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBe(0);
 	expect(mmpParser.diagnostics.length).toBe(0);
@@ -443,7 +443,7 @@ test('Expect v3x to parse', () => {
 // 		'qed:51,53:ax-mp |- ch';
 // 	const parser: MmParser = new MmParser();
 // 	parser.ParseText(mp2Theory);
-// 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars());
+// 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars(kindToPrefixMap));
 // 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 // 	mmpParser.parse();
 // 	expect(mmpParser.diagnostics.length).toBe(0);
@@ -461,7 +461,7 @@ test('expect mmp2 proof to be parsed', () => {
 	// const mp2Parser: MmParser = new MmParser();
 	// mp2Parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap,
-		mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars());
+		mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBe(0);
@@ -474,7 +474,7 @@ test('expect proper diagnostic proof to be parsed', () => {
 	// const impbiiMmParser: MmParser = new MmParser();
 	// impbiiMmParser.ParseText(impbiiTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser.labelToStatementMap,
-		eqeq1iMmParser.outermostBlock, eqeq1iMmParser.grammar, new WorkingVars());
+		eqeq1iMmParser.outermostBlock, eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unificationError)).toBeTruthy();
@@ -506,7 +506,7 @@ test('working vars unification should be parsed with minimal warnings', () => {
 	// const impbiiMmParser: MmParser = new MmParser();
 	// impbiiMmParser.ParseText(impbiiTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser.labelToStatementMap,
-		eqeq1iMmParser.outermostBlock, eqeq1iMmParser.grammar, new WorkingVars());
+		eqeq1iMmParser.outermostBlock, eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	//TODO it will become 3, with additional check
 	expect(mmpParser.diagnostics.length).toBe(2);
@@ -522,7 +522,7 @@ test('impbi partial proof should be parsed with minimal warnings', () => {
 	// const impbiiMmParser: MmParser = new MmParser();
 	// impbiiMmParser.ParseText(impbiiTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser.labelToStatementMap,
-		eqeq1iMmParser.outermostBlock, eqeq1iMmParser.grammar, new WorkingVars());
+		eqeq1iMmParser.outermostBlock, eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	//TODO it will become 3, with additional check
 	expect(mmpParser.diagnostics.length).toBe(1);
@@ -541,7 +541,7 @@ test('proof statement parsed without warnings/errors', () => {
 	// const mp2Parser: MmParser = new MmParser();
 	// mp2Parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap,
-		mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars());
+		mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	//TODO it will become 3, with additional check
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unknownLabel)).toBeFalsy();
@@ -549,6 +549,7 @@ test('proof statement parsed without warnings/errors', () => {
 
 });
 
+//QUI!!!
 test('expect x to unify with &S1', () => {
 	const mmpSource =
 		'd2:: |- x = &C2\n' +
@@ -557,7 +558,7 @@ test('expect x to unify with &S1', () => {
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser.labelToStatementMap,
-		eqeq1iMmParser.outermostBlock, eqeq1iMmParser.grammar, new WorkingVars());
+		eqeq1iMmParser.outermostBlock, eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unificationError)).toBeFalsy();
 	// expect(mmpParser.diagnostics.length).toBe(0);
@@ -572,7 +573,7 @@ test('expect no unification error for working vars', () => {
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser.labelToStatementMap,
-		mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars());
+		mp2Parser.outermostBlock, mp2Parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unificationError)).toBeFalsy();
 	// expect(mmpParser.diagnostics.length).toBe(0);
@@ -586,7 +587,7 @@ test('expect vex to be parsed without loop', () => {
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap,
-		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars());
+		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unificationError)).toBeFalsy();
 });
@@ -601,7 +602,7 @@ test('expect 2 already existing (identical) theorem can be added', () => {
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars());
+		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBe(0);
 });
@@ -616,7 +617,7 @@ test('expect first label wrong impbii w.r.t. already existing theorem', () => {
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars());
+		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBe(1);
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.eHypLabelNotCoherent)).toBeTruthy();
@@ -637,7 +638,7 @@ test('expect second label wrong impbii w.r.t. already existing theorem', () => {
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars());
+		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// const impbiiStatement = impbiiMmParser.labelToStatementMap.get('impbii');
 	// const theoremCoherenceChecker: TheoremCoherenceChecker = new TheoremCoherenceChecker(
@@ -661,7 +662,7 @@ test('expect first hyp wrong formula w.r.t. already existing theorem', () => {
 		'52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
 		'qed:50,51,52:mp2   |- ( ph <-> ps )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars());
+		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.doesntMatchTheoryFormula)).toBeTruthy();
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
@@ -685,7 +686,7 @@ test('expect second hyp wrong formula w.r.t. already existing theorem', () => {
 		'52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
 		'qed:50,51,52:mp2   |- ( ph <-> ps )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars());
+		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.doesntMatchTheoryFormula)).toBeTruthy();
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
@@ -709,7 +710,7 @@ test('expect qed formula wrong formula w.r.t. already existing theorem', () => {
 		// in order to match the theory, the formula below should be |- ( ph <-> ps )
 		'qed:50,51,52:mp2   |- ( ph <-> ph )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars());
+		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.doesntMatchTheoryFormula)).toBeTruthy();
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
@@ -733,7 +734,7 @@ test('missing qed statement for already existing theorem impbii', () => {
 		// diagnostic error, because below it should be qed:
 		'qe:50,51,52:mp2   |- ( ph <-> ps )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars());
+		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBe(1);
 	expect(doesDiagnosticsContain(
@@ -756,7 +757,7 @@ test('wrong number of eHyps for already existing theorem impbii', () => {
 		// diagnostic error, because below it should be qed:
 		'qed:50,51,52:mp2   |- ( ph <-> ps )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars());
+		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// expect(mmpParser.diagnostics.length).toBe(1);
 	expect(doesDiagnosticsContain(
@@ -785,7 +786,7 @@ test("axext3 good - is already existing, but it should not add diagnostic for di
 		'$d y z\n' +
 		'$d w z\n';
 	const mmpParser: MmpParser = new MmpParser(mmtFileForAxext3, vexTheoryMmParser.labelToStatementMap,
-		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars());
+		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(
 		mmpParser.diagnostics, MmpParserErrorCode.missingQedStatementForAlreadyExistingTheorem)).toBeFalsy();
@@ -804,23 +805,23 @@ test("axext3 bad 1 - it's already existing, but x y is not an existing constrain
 		// the following one should raise a Diagnostic (as a matter of fact, two diagnostics, one for each variable)
 		'$d x y\n';
 	const mmpParser: MmpParser = new MmpParser(mmtFileForAxext3, vexTheoryMmParser.labelToStatementMap,
-		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars());
+		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(
 		mmpParser.diagnostics, MmpParserErrorCode.disjVarConstraintNotInTheTheory)).toBeTruthy();
-		let numOfDisjVarDiagnostic = 0;
-		mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
-			if (diagnostic.code == MmpParserErrorCode.disjVarConstraintNotInTheTheory) {
-				numOfDisjVarDiagnostic++;
-				const expectedMessage =
+	let numOfDisjVarDiagnostic = 0;
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserErrorCode.disjVarConstraintNotInTheTheory) {
+			numOfDisjVarDiagnostic++;
+			const expectedMessage =
 				`The theorem axext3 is already in the theory, and it does not have ` +
 				`a disjoint constraint for <x,y>, but this new version of the theorem has such constraint. It cannot ` +
 				`be accepted if this constraint is not removed`;
-				expect(diagnostic.message).toEqual(expectedMessage);
-				expect(diagnostic.range.start.line).toBe(6);
-				expect(diagnostic.range.start.character == 3 || diagnostic.range.start.character == 5).toBeTruthy();
-				expect(diagnostic.range.end.character).toBe(diagnostic.range.start.character + 1);
-			}
-		});
-		expect(numOfDisjVarDiagnostic).toBe(2);
+			expect(diagnostic.message).toEqual(expectedMessage);
+			expect(diagnostic.range.start.line).toBe(6);
+			expect(diagnostic.range.start.character == 3 || diagnostic.range.start.character == 5).toBeTruthy();
+			expect(diagnostic.range.end.character).toBe(diagnostic.range.start.character + 1);
+		}
+	});
+	expect(numOfDisjVarDiagnostic).toBe(2);
 });

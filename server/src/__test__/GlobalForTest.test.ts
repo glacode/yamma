@@ -1,5 +1,16 @@
+import { GlobalState } from '../general/GlobalState';
+import { IVariableKindConfiguration, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { readTestFile } from '../mm/Utils';
+
+const variableKindsConfiguration: Map<string, IVariableKindConfiguration> = new Map<string, IVariableKindConfiguration>();
+variableKindsConfiguration.set('wff', { workingVarPrefix: 'W', lspSemantictokenType: 'variable' });
+variableKindsConfiguration.set('setvar', { workingVarPrefix: 'S', lspSemantictokenType: 'string' });
+variableKindsConfiguration.set('class', { workingVarPrefix: 'C', lspSemantictokenType: 'keyword' });
+GlobalState.lastFetchedSettings = {
+	maxNumberOfProblems: 100, mmFileFullPath: '', proofMode: ProofMode.normal,
+	variableKindsConfiguration: variableKindsConfiguration
+};
 
 export function createMmParser(fileName: string): MmParser {
 	const theoryText: string = readTestFile(fileName);
@@ -24,6 +35,11 @@ export const mp2Theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. '
 	'${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}';
 export const mp2MmParser: MmParser = new MmParser();
 mp2MmParser.ParseText(mp2Theory);
+
+export const kindToPrefixMap: Map<string,string> = new Map<string,string>();
+kindToPrefixMap.set('wff', 'W');
+kindToPrefixMap.set('class', 'C');
+kindToPrefixMap.set('setvar', 'S');
 
 test('dummy test to avoid "Your test suite must contain at least one test" error message' , () => {
 	expect(mp2MmParser.isParsingComplete).toBeTruthy();

@@ -12,6 +12,7 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { Range } from 'vscode-languageserver-textdocument';
 import { Diagnostic } from 'vscode-languageserver';
 import { WorkingVars } from '../mmp/WorkingVars';
+import { GlobalState } from '../general/GlobalState';
 
 
 export enum MmParserErrorCode {
@@ -41,15 +42,27 @@ export class MmParser {
 
     public get grammar() {
         if (this._grammar == undefined)
+            //QUI!!!
             this._grammar = GrammarManager.CreateGrammar(this.labelToStatementMap, this.workingVars);
         return this._grammar;
     }
 
     private _workingVars: WorkingVars | undefined;
 
+    //TODO now we are passing working vars defined in the configuration file, but in the future
+    //this could/should be driven from $j comments in the theory itself
+    /** returns the WorkingVars class for this theory */
     public get workingVars() {
-        if (this._workingVars == undefined)
-            this._workingVars = new WorkingVars();
+        if (this._workingVars == undefined) {
+            let kindToPrefixMap: Map<string, string> = new Map<string, string>();
+            if (GlobalState.lastFetchedSettings != undefined && GlobalState.lastFetchedSettings.variableKindsConfiguration != undefined)
+                kindToPrefixMap = WorkingVars.getKindToWorkingVarPrefixMap(GlobalState.lastFetchedSettings.variableKindsConfiguration);
+            // GlobalState.lastFetchedSettings.variableKindsConfiguration.forEach((variableKindConfiguration: IVariableKindConfiguration,
+            //     kind: string) => {
+            //     kindToPrefixMap.set(kind, variableKindConfiguration.workingVarPrefix);
+            // });
+            this._workingVars = new WorkingVars(kindToPrefixMap);
+        }
         return this._workingVars;
     }
 
@@ -143,7 +156,7 @@ export class MmParser {
         }
         const statementContent = toks.readstat();
         this.checkEveryVarIsInActiveFStatement(statementContent, currentBlock);
-        const statement: AxiomStatement = new AxiomStatement(label.value, statementContent, currentBlock,toks.lastComment);
+        const statement: AxiomStatement = new AxiomStatement(label.value, statementContent, currentBlock, toks.lastComment);
         Frame.createFrame(statement);
         currentBlock.labelToStatementMap.set(label.value, statement);
         this.labelToStatementMap.set(label.value, statement);
@@ -180,7 +193,7 @@ export class MmParser {
         }
         const proof = statementContentStrings.slice(i + 1);
         const statement: ProvableStatement =
-            new ProvableStatement(label.value, statementContent, currentBlock,toks.lastComment);
+            new ProvableStatement(label.value, statementContent, currentBlock, toks.lastComment);
         Frame.createFrame(statement);
         const verifier: Verifier = new Verifier(this.diagnostics);
         verifier.verify(statement, proof, this.labelToStatementMap);

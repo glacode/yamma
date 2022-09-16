@@ -1,3 +1,4 @@
+import { IVariableKindConfiguration } from '../mm/ConfigurationManager';
 
 export class WorkingVars {
 	kindToPrefixMap: Map<string, string> = new Map<string, string>();
@@ -9,15 +10,19 @@ export class WorkingVars {
 	private _alreadyCreatedWorkingVars: Set<string> = new Set<string>();
 
 	//#region constructor
-	addMap(varKind: string, workinVarPrefix: string) {
+	private addMap(varKind: string, workinVarPrefix: string) {
 		this.kindToPrefixMap.set(varKind, workinVarPrefix);
 		this.prefixToKindMap.set(workinVarPrefix, varKind);
 	}
 
-	constructor() {
-		this.addMap("wff", "W");
-		this.addMap("class", "C");
-		this.addMap("setvar", "S");
+	constructor(kindToPrefixMap: Map<string, string>) {
+		if (kindToPrefixMap != undefined)
+			kindToPrefixMap.forEach((prefix: string, variableKind: string) => {
+				this.addMap(variableKind, prefix);
+			});
+		// this.addMap("wff", "W");
+		// this.addMap("class", "C");
+		// this.addMap("setvar", "S");
 
 		this.kindToPrefixMap.forEach((value: string, key: string) => {
 			this._maxIndex.set(key, 0);
@@ -28,6 +33,17 @@ export class WorkingVars {
 		// });
 	}
 	//#endregion constructor
+
+	/** creates a map from theory variable's kinds to working var prefix, given the
+	 * configuration for working vars
+	 */
+	static getKindToWorkingVarPrefixMap(variableKindsConfiguration: Map<string, IVariableKindConfiguration>): Map<string, string> {
+		const kindToWorkingVarPrefixMapesult: Map<string, string> = new Map<string, string>();
+		variableKindsConfiguration.forEach((variableKindConfiguration: IVariableKindConfiguration, variableKind: string) => {
+			kindToWorkingVarPrefixMapesult.set(variableKind,variableKindConfiguration.workingVarPrefix);
+		});
+		return kindToWorkingVarPrefixMapesult;
+	}
 
 	//TODO this is note used by anything, and _value is not use. What
 	//did you want to do?

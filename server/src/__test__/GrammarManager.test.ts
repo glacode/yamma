@@ -8,8 +8,9 @@ import { AxiomStatement, FHyp, LabeledStatement } from '../mm/Statements';
 import { splitToTokensDefault } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { axmpTheory } from './MmParser.test';
-import { opelcnMmParser } from './GlobalForTest.test';
+import { kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
 import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
+import { GlobalState } from '../general/GlobalState';
 
 
 /**
@@ -29,12 +30,12 @@ export function wiGrammar(): Grammar {
 	return grammar;
 }
 
-// export const workingVarsForTest: WorkingVars = new WorkingVars();
+// export const workingVarsForTest: WorkingVars = new WorkingVars(kindToPrefixMap);
 
 test("buildStringArray and buildStringFormula", () => {
 
 	const grammar: Grammar = wiGrammar();
-	const workingVars: WorkingVars = new WorkingVars();
+	const workingVars: WorkingVars = new WorkingVars(new Map<string, string>());
 
 	grammar.lexer = new MmLexer(workingVars);
 	const parser: Parser = new Parser(grammar);
@@ -70,7 +71,10 @@ test("GrammarManager.CreateGrammar", () => {
 	labelToStatementMap.set("wi", wi);
 
 	// outerBlock.fHyps.push(wps);
-	const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars());
+	// const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars(new Map<string, string>()));
+	const kindToPrefixMap: Map<string, string> = WorkingVars.getKindToWorkingVarPrefixMap(
+		GlobalState.lastFetchedSettings.variableKindsConfiguration);
+	const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars(kindToPrefixMap));
 	const rules = grammar.rules;
 	expect(rules.length).toBe(7);
 
@@ -127,7 +131,7 @@ test("GrammarManager.CreateGrammar for '|- x = A'", () => {
 	labelToStatementMap.set("wceq", wceq);
 
 	// outerBlock.fHyps.push(wps);
-	const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars());
+	const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars(kindToPrefixMap));
 	const rules = grammar.rules;
 	expect(rules.length).toBe(10);   // 3 are added by the "standard" working vars
 
@@ -161,11 +165,11 @@ test("Nearly.js for working vars", () => {
 	rules.push(rule2);
 	const grammar: Grammar = new Grammar(rules);
 	grammar.start = "wff";
-	grammar.lexer = new MmLexer(new WorkingVars());
+	grammar.lexer = new MmLexer(new WorkingVars(kindToPrefixMap));
 	let parser: Parser = new Parser(grammar);
 	parser.feed('&W22');
 	expect(parser.results.length).toBe(1);
-	grammar.lexer = new MmLexer(new WorkingVars());
+	grammar.lexer = new MmLexer(new WorkingVars(kindToPrefixMap));
 	parser = new Parser(grammar);
 	let path = 0;
 	try {
@@ -174,9 +178,9 @@ test("Nearly.js for working vars", () => {
 		path = 1;
 		expect(parser.results).toBeUndefined;
 	}
-	
+
 	expect(path).toBe(1);
-	grammar.lexer = new MmLexer(new WorkingVars());
+	grammar.lexer = new MmLexer(new WorkingVars(kindToPrefixMap));
 	parser = new Parser(grammar);
 	// grammar.lexer.reset("&C2");
 	// parser.lexer.reset("&C2");
@@ -194,7 +198,7 @@ test("expect statement with working var to be parsed", () => {
 	// 	"qed:51,53:ax-mp |- ch";
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(axmpTheory);
-	mmParser.grammar.lexer = new MmLexer(new WorkingVars());
+	mmParser.grammar.lexer = new MmLexer(new WorkingVars(kindToPrefixMap));
 	const parser = new Parser(mmParser.grammar);
 	parser.feed('|- &W1');
 	expect(parser.results.length).toBe(1);
@@ -208,8 +212,8 @@ test("expect no ambiguity", () => {
 	// 	"h52::mp2.3   |- ( ph -> ( ps -> ch ) )\n" +
 	// 	"53:50,52:ax-mp |- ( ps -> ch )\n" +
 	// 	"qed:51,53:ax-mp |- ch";
-	
-	opelcnMmParser.grammar.lexer = new MmLexer(new WorkingVars());
+
+	opelcnMmParser.grammar.lexer = new MmLexer(new WorkingVars(kindToPrefixMap));
 	const parser = new Parser(opelcnMmParser.grammar);
 	parser.feed('|- A e. CC');
 	expect(parser.results.length).toBe(1);
@@ -218,7 +222,7 @@ test("expect no ambiguity", () => {
 test("MmLexerFromStringArray ok", () => {
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(axmpTheory);
-	const stringArray = [ '|-', '(', 'ph', '->', 'ps', ')' ];
+	const stringArray = ['|-', '(', 'ph', '->', 'ps', ')'];
 	mmParser.grammar.lexer = new MmLexerFromStringArray(stringArray);
 	const parser = new Parser(mmParser.grammar);
 	parser.feed('');

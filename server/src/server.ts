@@ -179,7 +179,7 @@ connection.onInitialize((params: InitializeParams) => {
 			documentFormattingProvider: true,
 			codeActionProvider: true,
 			// below it implements SemanticTokensOptions
-			semanticTokensProvider : {
+			semanticTokensProvider: {
 				full: {
 					delta: false
 				},
@@ -209,6 +209,7 @@ connection.onInitialize((params: InitializeParams) => {
 	// parse(params)
 	configurationManager = new ConfigurationManager(hasConfigurationCapability,
 		hasDiagnosticRelatedInformationCapability, defaultSettings, globalSettings, connection);
+	GlobalState.configurationManager = configurationManager;
 	// connection.onDidChangeConfiguration(configurationManager.onDidChangeConfiguration);
 
 	// parseMainMMfile(params);
@@ -412,7 +413,7 @@ connection.onHover(async (params): Promise<Hover | undefined> => {
 
 connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticTokensParams) => {
 	const onSemanticTokensHandler: OnSemanticTokensHandler =
-		new OnSemanticTokensHandler(semanticTokenParams,semanticTokenTypes,configurationManager);
+		new OnSemanticTokensHandler(semanticTokenParams, semanticTokenTypes, configurationManager);
 	const result: SemanticTokens = await onSemanticTokensHandler.semanticTokens();
 	return result;
 });

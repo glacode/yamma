@@ -58,7 +58,7 @@ export class MmtParser {
 	constructor(text: string) {
 		this.parseFailed = false;
 		this._text = text;
-		this.mmLexer = new MmLexer(new WorkingVars());
+		this.mmLexer = new MmLexer(new WorkingVars(new Map<string, string>()));
 		this._disjVarUStatementTokens = [];
 		this._disjVars = new DisjointVarMap();
 		this._eHyps = [];

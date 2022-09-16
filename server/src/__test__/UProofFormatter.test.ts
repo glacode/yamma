@@ -7,7 +7,7 @@ import { UProofFormatter } from '../mmp/UProofFormatter';
 import { UProofStep } from '../mmp/UProofStep';
 import { IUStatement } from '../mmp/UStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { mp2MmParser } from './GlobalForTest.test';
+import { kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
 
 class TestUProofFormatter extends UProofFormatter {
 	public computeIndentationLevels() {
@@ -24,7 +24,7 @@ test("Test UProofFormatter.computeIndentationLevels()", () => {
 		"qed:51,53:ax-mp |- ch";
 
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap,
-		mp2MmParser.outermostBlock, mp2MmParser.grammar, new WorkingVars());
+		mp2MmParser.outermostBlock, mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const uProofFormatter: TestUProofFormatter = new TestUProofFormatter(mmpParser.uProof!);
 	uProofFormatter.computeIndentationLevels();
@@ -55,7 +55,7 @@ test("Test simple indentation", () => {
 	// const parser: MmParser = mp2MmParser;
 	// parser.ParseText(mp2Theory);
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
-		mp2MmParser.grammar, new WorkingVars(), ProofMode.normal);
+		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
 	mmpUnifier.unify(mmpSource);
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);

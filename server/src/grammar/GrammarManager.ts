@@ -160,8 +160,6 @@ export abstract class GrammarManager {
 	}
 
 	static addRulesForWorkingVars(workingVars: WorkingVars, rules: Rule[]) {
-		// const rule1: Rule = { id: 1, "name": "wff", "symbols": [{ type: "workvar_wff" }] };
-		// const rule2: Rule = { id: 2, "name": "wff", "symbols": [{ type: "workvar_class" }] };
 		workingVars.prefixToKindMap.forEach((kind: string) => {
 			const tokenType = workingVars.tokenTypeFromKind(kind);
 			const rule: Rule =

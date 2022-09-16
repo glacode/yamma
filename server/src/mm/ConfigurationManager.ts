@@ -1,11 +1,12 @@
 import { Connection, DidChangeConfigurationParams } from 'vscode-languageserver';
+import { GlobalState } from '../general/GlobalState';
 
 export enum ProofMode {
 	normal = "normal",
 	compressed = "compressed"
 }
 
-export interface VariableKindConfiguration {
+export interface IVariableKindConfiguration {
 	workingVarPrefix: string,
 	lspSemantictokenType: string
 }
@@ -37,7 +38,7 @@ export interface IExtensionSettings {
 	mmFileFullPath: string;
 	maxNumberOfProblems: number;
 	proofMode: ProofMode;
-	variableKindsConfiguration: Map<string, VariableKindConfiguration>
+	variableKindsConfiguration: Map<string, IVariableKindConfiguration>
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
@@ -47,7 +48,7 @@ export const defaultSettings: IExtensionSettings = {
 	maxNumberOfProblems: 1000,
 	proofMode: ProofMode.normal,
 	mmFileFullPath: "",
-	variableKindsConfiguration: new Map<string, VariableKindConfiguration>()
+	variableKindsConfiguration: new Map<string, IVariableKindConfiguration>()
 };
 
 export class ConfigurationManager {
@@ -94,10 +95,10 @@ export class ConfigurationManager {
 	}
 
 	//#region getScopeUriSettings
-	buildMap(kindConfigurations: IKindConfiguration[]): Map<string, VariableKindConfiguration> {
-		const map: Map<string, VariableKindConfiguration>  = new Map<string, VariableKindConfiguration>();
+	buildMap(kindConfigurations: IKindConfiguration[]): Map<string, IVariableKindConfiguration> {
+		const map: Map<string, IVariableKindConfiguration>  = new Map<string, IVariableKindConfiguration>();
 		kindConfigurations.forEach((kindConfiguration: IKindConfiguration) => {
-			const variableKindConfiguration: VariableKindConfiguration = {
+			const variableKindConfiguration: IVariableKindConfiguration = {
 				workingVarPrefix: kindConfiguration.workingvarprefix,
 				lspSemantictokenType: kindConfiguration.lspsemantictokentype
 			};
@@ -124,6 +125,7 @@ export class ConfigurationManager {
 			};
 			result = new Promise<IExtensionSettings>((resolve)=>{resolve(extensionSettings);});
 			this._documentSettings.set(scopeUri, <Thenable<IExtensionSettings>>result);
+			GlobalState.lastFetchedSettings = extensionSettings;
 		}
 		return <Thenable<IExtensionSettings>>result;
 	}
@@ -140,7 +142,7 @@ export class ConfigurationManager {
 		return settings.mmFileFullPath;
 	}
 
-	async variableKindsConfiguration(textDocumentUri: string): Promise<Map<string, VariableKindConfiguration>> {
+	async variableKindsConfiguration(textDocumentUri: string): Promise<Map<string, IVariableKindConfiguration>> {
 		const settings: IExtensionSettings = await this.getScopeUriSettings(textDocumentUri);
 		return settings.variableKindsConfiguration;
 	}
