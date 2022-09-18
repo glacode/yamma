@@ -6,9 +6,10 @@ import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { UProofStep } from '../mmp/UProofStep';
 import { IUStatement, UComment } from '../mmp/UStatement';
+import { WorkingVars } from '../mmp/WorkingVars';
 
 
-export const semanticTokenTypes : SemanticTokenTypes[] = [
+export const semanticTokenTypes: SemanticTokenTypes[] = [
 	SemanticTokenTypes.comment,  // comment
 	SemanticTokenTypes.variable,  // wff
 	SemanticTokenTypes.string,  // set
@@ -25,6 +26,7 @@ export class OnSemanticTokensHandler {
 
 	private semanticTokenParams: SemanticTokensParams;
 	private configurationManager: ConfigurationManager;
+	private workingVars: WorkingVars;
 
 
 	semanticTokensData: uinteger[];
@@ -40,11 +42,12 @@ export class OnSemanticTokensHandler {
 
 
 	constructor(semanticTokenParams: SemanticTokensParams, semanticTokenTypes: SemanticTokenTypes[],
-		configurationManager: ConfigurationManager) {
+		configurationManager: ConfigurationManager, workingVars: WorkingVars) {
 		this.semanticTokenParams = semanticTokenParams;
 		this.configurationManager = configurationManager;
-		this.variableKindsConfiguration = new Map<string, IVariableKindConfiguration>();
+		this.workingVars = workingVars;
 
+		this.variableKindsConfiguration = new Map<string, IVariableKindConfiguration>();
 
 		this.semanticTokensData = [];
 
@@ -129,16 +132,24 @@ export class OnSemanticTokensHandler {
 		// else if (kind == 'class')
 		// 	this.addSemanticToken(token.range, SemanticTokenTypes.keyword);
 	}
+
+	getKindForVariable(symbol: string, mmParser: MmParser): string | undefined {
+		let kind: string | undefined = mmParser.outermostBlock.kindOf(symbol);
+		if (kind == undefined)
+			// the given symbol is not a variable in the theory
+			kind = this.workingVars.kindOf(symbol);
+		return kind;
+	}
+
 	addSemanticTokenForProofStep(uProofStep: UProofStep, mmParser: MmParser) {
 		const formula: MmToken[] | undefined = uProofStep.formula;
 		if (formula != undefined)
 			formula.forEach((token: MmToken) => {
-				const kind: string | undefined = mmParser.outermostBlock.kindOf(token.value);
+				const kind: string | undefined = this.getKindForVariable(token.value, mmParser);
+				// const kind: string | undefined = mmParser.outermostBlock.kindOf(token.value);
 				if (kind != undefined)
 					// current token is for a variable in the theory
 					this.addSemanticTokenForKind(token.range, kind);
-
-
 			});
 	}
 	//#endregion addSemanticTokenForProofStep
@@ -161,7 +172,7 @@ export class OnSemanticTokensHandler {
 
 	async semanticTokens(): Promise<SemanticTokens> {
 		await this.setVariableKindsConfiguration();
-		
+
 		this.semanticTokensData = [];
 		const mmParser: MmParser = GlobalState.mmParser;
 		const mmpParser: MmpParser = GlobalState.lastMmpParser;

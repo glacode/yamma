@@ -413,7 +413,8 @@ connection.onHover(async (params): Promise<Hover | undefined> => {
 
 connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticTokensParams) => {
 	const onSemanticTokensHandler: OnSemanticTokensHandler =
-		new OnSemanticTokensHandler(semanticTokenParams, semanticTokenTypes, configurationManager);
+		new OnSemanticTokensHandler(semanticTokenParams, semanticTokenTypes, configurationManager,
+			GlobalState.lastMmpParser.workingVars);
 	const result: SemanticTokens = await onSemanticTokensHandler.semanticTokens();
 	return result;
 });
