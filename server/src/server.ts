@@ -110,7 +110,6 @@ async function parseMainMMfile(textDocumentUri: string) {
 			const message = `The theory file ${mmFilePath} does not exist. Thus the extension Yamma ` +
 				`cannot work properly. To fix this, either input another .mm file in the Workspace configuration ` +
 				`or copy a set.mm file in ${textDocumentDir}`;
-			//QUI!!! below it must become a notifyError
 			notifyError(message);
 			// connection.sendNotification('yamma/showinformation', message);
 		} else {

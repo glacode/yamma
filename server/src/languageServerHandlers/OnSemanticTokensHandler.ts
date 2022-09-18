@@ -3,6 +3,7 @@ import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
 import { ConfigurationManager, IVariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
+import { DisjVarUStatement } from '../mm/Statements';
 import { MmpParser } from '../mmp/MmpParser';
 import { UProofStep } from '../mmp/UProofStep';
 import { IUStatement, UComment } from '../mmp/UStatement';
@@ -116,7 +117,7 @@ export class OnSemanticTokensHandler {
 
 	}
 
-	//#region addSemanticTokenForProofStep
+	//#region addSemanticTokensForArrayOfSymbols
 	async addSemanticTokenForKind(range: Range, kind: string) {
 		if (this.variableKindsConfiguration != undefined) {
 			const semanticTokenType: IVariableKindConfiguration | undefined = this.variableKindsConfiguration.get(kind);
@@ -141,10 +142,10 @@ export class OnSemanticTokensHandler {
 		return kind;
 	}
 
-	addSemanticTokenForProofStep(uProofStep: UProofStep, mmParser: MmParser) {
-		const formula: MmToken[] | undefined = uProofStep.formula;
-		if (formula != undefined)
-			formula.forEach((token: MmToken) => {
+	addSemanticTokensForArrayOfSymbols(symbols: MmToken[] | undefined, mmParser: MmParser) {
+		// const symbols: MmToken[] | undefined = symbols.formula;
+		if (symbols != undefined)
+			symbols.forEach((token: MmToken) => {
 				const kind: string | undefined = this.getKindForVariable(token.value, mmParser);
 				// const kind: string | undefined = mmParser.outermostBlock.kindOf(token.value);
 				if (kind != undefined)
@@ -152,7 +153,8 @@ export class OnSemanticTokensHandler {
 					this.addSemanticTokenForKind(token.range, kind);
 			});
 	}
-	//#endregion addSemanticTokenForProofStep
+	//#endregion addSemanticTokensForArrayOfSymbols
+
 	buildSemanticTokens(mmParser: MmParser, mmpParser: MmpParser): SemanticTokens {
 		// const mmTokens: MmToken = mmpParser.mmTokens;
 		mmpParser.uProof?.uStatements.forEach((uStatement: IUStatement) => {
@@ -160,7 +162,9 @@ export class OnSemanticTokensHandler {
 			if (uStatement instanceof UComment)
 				this.addSemanticTokensForComment(uStatement);
 			else if (uStatement instanceof UProofStep)
-				this.addSemanticTokenForProofStep(uStatement, mmParser);
+				this.addSemanticTokensForArrayOfSymbols(uStatement.formula, mmParser);
+			else if (uStatement instanceof DisjVarUStatement)
+				this.addSemanticTokensForArrayOfSymbols(uStatement.disjointVars, mmParser);
 		});
 		// this.semanticTokensData = [ 1 , 0 , 1 , 0 , 0 , 0 , 2 , 2 , 0 , 0];
 		const semanticTokens: SemanticTokens = {
