@@ -51,7 +51,12 @@ export const defaultSettings: IExtensionSettings = {
 	variableKindsConfiguration: new Map<string, IVariableKindConfiguration>()
 };
 
-export class ConfigurationManager {
+// this is mainly used for testing without mocking
+export interface IConfigurationManager {
+	variableKindsConfiguration(uri: string): Map<string, IVariableKindConfiguration> | PromiseLike<Map<string, IVariableKindConfiguration>>;
+}
+
+export class ConfigurationManager implements IConfigurationManager {
 	hasConfigurationCapability: boolean;
 	hasDiagnosticRelatedInformationCapability: boolean;
 	defaultSettings: IExtensionSettings;
