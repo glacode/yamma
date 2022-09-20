@@ -9,7 +9,7 @@ import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { BlockStatement } from '../mm/BlockStatement';
 import { ILabeledStatementSignature } from '../mmt/MmtParser';
 import { Range } from 'vscode-languageserver';
-import { MmpProofStep } from './MmpStatements';
+// import { MmpProofStep } from './MmpStatements';
 
 /**
  * UProofStep's are used by the unifier. They are "similar" to the MmpProofStep's, but they don't
@@ -24,6 +24,7 @@ export class UProofStep implements IUStatement, ILabeledStatementSignature {
 	stepRef: string;
 	eHypUSteps: (UProofStep | undefined)[];
 	eHypRefs?: MmToken[];
+	stepLabelToken?: MmToken;
 	// eHypRefsRanges: Range[]
 	stepLabel?: string
 	// stepLabelRange: Range
@@ -87,11 +88,9 @@ export class UProofStep implements IUStatement, ILabeledStatementSignature {
 		// we keep eHypRefs in UProof because if there is a ref to a non existent proof step,
 		// we've decided to leave the ref unchanged
 		eHypRefs?: MmToken[],
-		// eHypRefsRanges: Range[],
-		stepLabel?: string,
-		// stepLabelRange: Range,
+		// stepLabel?: string,
+		stepLabelToken?: MmToken,
 		stepFormula?: MmToken[],
-		// mmpTokenizer: MmpTokenizer, indexOfFirstToken: number, indexOfLastToken: number
 		parseNode?: InternalNode
 	) {
 		this.uProof = uProof;
@@ -100,7 +99,8 @@ export class UProofStep implements IUStatement, ILabeledStatementSignature {
 		this.stepRef = stepRef;
 		this.eHypUSteps = eHypUSteps;
 		this.eHypRefs = eHypRefs;
-		this.stepLabel = stepLabel;
+		// this.stepLabel = stepLabel;
+		this.stepLabel = stepLabelToken?.value;
 		this.stepFormula = stepFormula;
 		this.parseNode = parseNode;
 
@@ -108,10 +108,11 @@ export class UProofStep implements IUStatement, ILabeledStatementSignature {
 		this.skipUnification = false;
 	}
 	get label(): MmToken | undefined {
-		let result: MmToken | undefined;
-		if (this instanceof MmpProofStep)
-			result = this.stepLabelToken;
-		return result;
+		// let result: MmToken | undefined;
+		// if (this instanceof MmpProofStep)
+		// 	result = this.stepLabelToken;
+		// return result;
+		return this.stepLabelToken;
 	}
 	get formula(): MmToken[] | undefined {
 		return this.stepFormula;

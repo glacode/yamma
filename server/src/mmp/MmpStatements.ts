@@ -93,7 +93,8 @@ export class MmpProofStep extends UProofStep {
 		//TODO most of this properties are a duplication of UProofStep properties, try to remove them
 		const actualEHypMmpSteps: (MmpProofStep | undefined)[] = (eHypMmpSteps == undefined ? [] : eHypMmpSteps);
 		super(uProof, isFirstTokenParsable, isEHyp, stepRefToken?.value, actualEHypMmpSteps,
-			eHypRefs, stepLabelToken?.value, stepFormula, formulaParseNode);
+			// eHypRefs, stepLabelToken?.value, stepFormula, formulaParseNode);
+			eHypRefs, stepLabelToken, stepFormula, formulaParseNode);
 		this.firstTokenInfo = firstTokenInfo;
 		// this.isEHyp = isEHyp;
 		this.stepRefToken = stepRefToken;
