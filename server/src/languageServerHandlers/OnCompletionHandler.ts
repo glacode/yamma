@@ -45,7 +45,6 @@ export class CursorContext {
 		let i = 0;
 		let uProofStep: MmpProofStep | undefined;
 		while (i < uStatements.length && uProofStep == undefined) {
-			//QUI!!! to fix this if condition, consider adding range property to MmpProofStep(s)
 			if (uStatements[i] instanceof MmpProofStep &&
 				(<MmpProofStep>uStatements[i]).startPosition.line <= this.cursorLine &&
 				this.cursorLine <= (<MmpProofStep>uStatements[i]).endPosition.line)
@@ -213,7 +212,6 @@ export class OnCompletionHandler {
 	// 	return completionItems;
 	// }
 
-	//QUI!!!
 	//#region completionItems
 	async completionItems(): Promise<CompletionItem[]> {
 		const mmParser: MmParser = GlobalState.mmParser;
@@ -255,6 +253,7 @@ export class OnCompletionHandler {
 					//TODO below I'm using a hardwired logic (the model for .mm becomes the same file with .mms); you should
 					//add a configuration parameter, instead
 					// the model has not been loaded, yet
+					//QUI!!!
 					const modelDataFullPath: string = await this.configurationManager.mmFileFullPath(this.textDocumentPosition.textDocument.uri) + 's';
 					GlobalState.stepSuggestionMap = ModelBuilder.loadSuggestionsMap(modelDataFullPath);
 				}

@@ -121,7 +121,6 @@ export class ConfigurationManager implements IConfigurationManager {
 				scopeUri: scopeUri,
 				section: 'yamma'
 			});
-			// QUI!!! setta la variableKindsConfiguration che è una map
 			const extensionSettings: IExtensionSettings = {
 				maxNumberOfProblems: currentConfiguration.maxNumberOfProblems,
 				mmFileFullPath: currentConfiguration.mmFileFullPath,

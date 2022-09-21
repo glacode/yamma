@@ -160,7 +160,6 @@ export class OnSemanticTokensHandler {
 		variableKindsConfiguration: Map<string, IVariableKindConfiguration>): SemanticTokens {
 		// const mmTokens: MmToken = mmpParser.mmTokens;
 		mmpParser.uProof?.uStatements.forEach((uStatement: IUStatement) => {
-			//QUI!!!
 			if (uStatement instanceof UComment)
 				this.addSemanticTokensForComment(uStatement);
 			else if (uStatement instanceof UProofStep)

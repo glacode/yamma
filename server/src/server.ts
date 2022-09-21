@@ -120,8 +120,8 @@ async function parseMainMMfile(textDocumentUri: string) {
 			void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'begin', title: 'Loading the theory...' });
 			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'report', percentage: 50, message: 'Halfway!' });
 			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: 'Completed!' });
+			//QUI!!! add buildModel() and do a single call that's invoked for configuration changes, also
 			mmParser.ParseFileSync(mmFilePath);
-			//QUI!!! use error and information below
 			let message: string;
 			if (mmParser.parseFailed) {
 				message = `The theory file ${mmFilePath} has NOT been successfully parsed`;

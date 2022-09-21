@@ -46,7 +46,6 @@ test('dummy test to avoid "Your test suite must contain at least one test" error
 	expect(mp2MmParser.parseFailed).toBeFalsy();
 });
 
-//QUI!!!
 test('impbii ok' , () => {
 	const impbiiMmParser2: MmParser = createMmParser('impbii.mm');
 	expect(impbiiMmParser2.isParsingComplete).toBeTruthy();

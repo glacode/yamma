@@ -118,7 +118,7 @@ export class UProofStep implements IUStatement, ILabeledStatementSignature {
 		return this.stepFormula;
 	}
 
-	//QUI!!! see if it's needed and in the case, implement it
+	//TODO see if it's needed and in the case, implement it
 	// needed to implement ILabeledStatementSignature
 	rangeIfBothLabelAndFormulaAreEmpty?: Range | undefined;
 

@@ -549,7 +549,6 @@ test('proof statement parsed without warnings/errors', () => {
 
 });
 
-//QUI!!!
 test('expect x to unify with &S1', () => {
 	const mmpSource =
 		'd2:: |- x = &C2\n' +
