@@ -19,11 +19,11 @@ import {
 	MarkupKind,
 	CodeAction,
 	CodeActionParams,
-	WorkDoneProgressCreateRequest,
-	WorkDoneProgress,
 	SemanticTokensParams,
 	SemanticTokens,
 	SemanticTokenModifiers,
+	_Connection,
+	Connection,
 } from 'vscode-languageserver/node';
 
 import {
@@ -33,7 +33,6 @@ import {
 
 
 
-import { MmParser } from "./mm/MmParser";
 import { OnHoverHandler } from "./languageServerHandlers/OnHoverHandler";
 import { OnDocumentFormattingHandler } from './languageServerHandlers/OnDocumentFormattingHandler';
 import { OnDidChangeContentHandler } from './languageServerHandlers/OnDidChangeContentHandler';
@@ -48,10 +47,12 @@ import { OnCompletionHandler } from './languageServerHandlers/OnCompletionHandle
 import { GlobalState } from './general/GlobalState';
 import { OnCompletionResolveHandler } from './languageServerHandlers/OnCompletionResolveHandler';
 import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHandlers/OnSemanticTokensHandler';
+import { TheoryLoader } from './mm/TheoryLoader';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
-const connection = createConnection(ProposedFeatures.all);
+// const connection = createConnection(ProposedFeatures.all);
+const connection: Connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -65,21 +66,22 @@ let hasDiagnosticRelatedInformationCapability = false;
 //#region onInitialize
 
 //Glauco
-let mmParser: MmParser;
+// let mmParser: MmParser;
 /** true iff a unify() has been performed, but the cursor has not been updated yet*/
 let unifyDoneButCursorPositionNotUpdatedYet = false;
 
-function notifyProgress(percentageOfWorkDone: number): void {
-	// connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
-	// 	{ kind: 'report', percentage: percentageOfWorkDone, message: 'Halfway!' });
-	console.log(percentageOfWorkDone + '%');
-	const strMessage: string = percentageOfWorkDone + '%';
-	connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
-		{ kind: 'report', message: strMessage });
-	// connection.sendProgress()
-}
+// function notifyProgress(percentageOfWorkDone: number): void {
+// 	// connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
+// 	// 	{ kind: 'report', percentage: percentageOfWorkDone, message: 'Halfway!' });
+// 	console.log(percentageOfWorkDone + '%');
+// 	const strMessage: string = percentageOfWorkDone + '%';
+// 	connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
+// 		{ kind: 'report', message: strMessage });
+// 	// connection.sendProgress()
+// }
 async function parseMainMMfile(textDocumentUri: string) {
-	if (mmParser == undefined) {
+	// if (mmParser == undefined) {
+	if (GlobalState.mmParser == undefined) {
 		// the main .mm file has not been parsed, yet
 		// const textDocumentPath = fileURLToPath(textDocumentUri)
 		// const workingDirPath : string = path.dirname(textDocumentPath)
@@ -110,30 +112,30 @@ async function parseMainMMfile(textDocumentUri: string) {
 			const message = `The theory file ${mmFilePath} does not exist. Thus the extension Yamma ` +
 				`cannot work properly. To fix this, either input another .mm file in the Workspace configuration ` +
 				`or copy a set.mm file in ${textDocumentDir}`;
-			notifyError(message);
+			notifyError(message, connection);
 			// connection.sendNotification('yamma/showinformation', message);
 		} else {
-			mmParser = new MmParser();
-			mmParser.progressListener = notifyProgress;
-			const progressToken = 'TEST-PROGRESS-TOKEN';
-			await connection.sendRequest(WorkDoneProgressCreateRequest.type, { token: progressToken });
-			void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'begin', title: 'Loading the theory...' });
-			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'report', percentage: 50, message: 'Halfway!' });
-			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: 'Completed!' });
-			//QUI!!! add buildModel() and do a single call that's invoked for configuration changes, also
-			mmParser.ParseFileSync(mmFilePath);
-			let message: string;
-			if (mmParser.parseFailed) {
-				message = `The theory file ${mmFilePath} has NOT been successfully parsed`;
-				notifyError(message);
-			}
-			else {
-				message = `The theory file ${mmFilePath} has been successfully parsed`;
-				notifyInformation(message);
-			}
-			void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
-			// notifyInformation(message);
-			// connection.sendNotification('yamma/showinformation', message);
+			const theoryLoader: TheoryLoader = new TheoryLoader(mmFilePath, GlobalState.connection);
+			await theoryLoader.loadNewTheoryIfNeeded();
+			// mmParser = new MmParser();
+			// mmParser.progressListener = notifyProgress;
+			// const progressToken = 'TEST-PROGRESS-TOKEN';
+			// await connection.sendRequest(WorkDoneProgressCreateRequest.type, { token: progressToken });
+			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'begin', title: 'Loading the theory...' });
+			// //QUI!!! add buildModel() and do a single call that's invoked for configuration changes, also
+			// mmParser.ParseFileSync(mmFilePath);
+			// let message: string;
+			// if (mmParser.parseFailed) {
+			// 	message = `The theory file ${mmFilePath} has NOT been successfully parsed`;
+			// 	notifyError(message);
+			// }
+			// else {
+			// 	message = `The theory file ${mmFilePath} has been successfully parsed`;
+			// 	notifyInformation(message);
+			// }
+			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
+			// mmParser = theoryLoader.mmParser!;
+			GlobalState.mmParser = theoryLoader.mmParser!;
 		}
 
 		// mmParser.outermostBlock.grammar = mmParser.grammar;
@@ -209,6 +211,7 @@ connection.onInitialize((params: InitializeParams) => {
 	configurationManager = new ConfigurationManager(hasConfigurationCapability,
 		hasDiagnosticRelatedInformationCapability, defaultSettings, globalSettings, connection);
 	GlobalState.configurationManager = configurationManager;
+	GlobalState.connection = connection;
 	// connection.onDidChangeConfiguration(configurationManager.onDidChangeConfiguration);
 
 	// parseMainMMfile(params);
@@ -231,7 +234,7 @@ connection.onInitialize((params: InitializeParams) => {
 // });
 connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 	const text: string = <string>documents.get(pathAndUri.uri)?.getText();
-	const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, mmParser);
+	const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, GlobalState.mmParser);
 	// const mmtSaver: MmtSaver = new MmtSaver(fsPath, mmParser);
 	mmtSaver.saveMmt();
 	console.log('Method saveMmt() has been invoked 2');
@@ -239,11 +242,11 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 });
 
 connection.onRequest('yamma/loadmmt', (fsPath: string) => {
-	const mmtLoader: MmtLoader = new MmtLoader(fsPath, mmParser);
+	const mmtLoader: MmtLoader = new MmtLoader(fsPath, GlobalState.mmParser);
 	mmtLoader.loadMmt();
 	if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
 		const errorMessage: string = mmtLoader.diagnostics[0].message;
-		notifyError(errorMessage);
+		notifyError(errorMessage, connection);
 	}
 	console.log('Method loadmmt() has been invoked');
 
@@ -299,7 +302,7 @@ documents.onDidClose(e => {
 function newValidateTextDocument(textDocument: TextDocument) {
 	const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
 		hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
-		globalSettings, documentSettings, mmParser);
+		globalSettings, documentSettings, GlobalState.mmParser);
 	onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
 	unifyDoneButCursorPositionNotUpdatedYet = false;
 }
@@ -309,7 +312,7 @@ function newValidateTextDocument(textDocument: TextDocument) {
 documents.onDidChangeContent(async change => {
 	// validateTextDocument(change.document);
 	await parseMainMMfile(change.document.uri);
-	GlobalState.mmParser = mmParser;
+	// GlobalState.mmParser = mmParser;
 	newValidateTextDocument(change.document);
 });
 //#endregion onDidChangeContent
@@ -367,7 +370,7 @@ connection.onDocumentFormatting(
 	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
 		//return OnDocumentFormattingHandler.formatToLowerCase(params,documents)
 		const onDocumentFormattingHandler: OnDocumentFormattingHandler =
-			new OnDocumentFormattingHandler(params, documents, mmParser, configurationManager);
+			new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager);
 		const result: Promise<TextEdit[]> = onDocumentFormattingHandler.unify();
 		unifyDoneButCursorPositionNotUpdatedYet = true;
 		// return onDocumentFormattingHandler.unify();
@@ -391,7 +394,8 @@ connection.onCodeAction(onCodeActionHandler);
 connection.onHover(async (params): Promise<Hover | undefined> => {
 	let hoverResult: Hover | undefined;
 
-	const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, mmParser);
+	// const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, mmParser);
+	const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, GlobalState.mmParser);
 	let content: MarkupContent | undefined;
 	if (contentValue != undefined) {
 		// const content : MarkupContent = { kind: MarkupKind.Markdown ,value: contentValue};
@@ -418,11 +422,11 @@ connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticToken
 	return result;
 });
 
-function notifyInformation(errorMessage: string) {
+export function notifyInformation(errorMessage: string, connection: Connection) {
 	connection.sendNotification('yamma/showinformation', errorMessage);
 }
 
-function notifyError(errorMessage: string) {
+export function notifyError(errorMessage: string, connection: Connection) {
 	connection.sendNotification('yamma/showerror', errorMessage);
 }
 

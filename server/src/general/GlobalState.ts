@@ -2,6 +2,7 @@
  * to be passed to many classes / methods
  */
 
+import { Connection } from 'vscode-languageserver';
 import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
@@ -23,5 +24,6 @@ export abstract class GlobalState {
 
 	/** last settings fetched by the configuration manager from the workspace configuration */
 	static lastFetchedSettings: IExtensionSettings;
-	
+
+	static connection: Connection;
 }
