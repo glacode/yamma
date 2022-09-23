@@ -1,5 +1,4 @@
 import { Range, SemanticTokenModifiers, SemanticTokens, SemanticTokensParams, SemanticTokenTypes, uinteger } from 'vscode-languageserver';
-import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
 import { IConfigurationManager, IVariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
@@ -27,6 +26,8 @@ export class OnSemanticTokensHandler {
 
 	private semanticTokenParams: SemanticTokensParams;
 	private configurationManager: IConfigurationManager;
+	private mmParser: MmParser;
+	private mmpParser: MmpParser;
 	private workingVars: WorkingVars;
 
 
@@ -43,10 +44,12 @@ export class OnSemanticTokensHandler {
 
 
 	constructor(semanticTokenParams: SemanticTokensParams, semanticTokenTypes: SemanticTokenTypes[],
-		configurationManager: IConfigurationManager, workingVars: WorkingVars) {
+		configurationManager: IConfigurationManager, mmParser: MmParser, mmpParser: MmpParser) {
 		this.semanticTokenParams = semanticTokenParams;
 		this.configurationManager = configurationManager;
-		this.workingVars = workingVars;
+		this.mmParser = mmParser;
+		this.mmpParser = mmpParser;
+		this.workingVars = mmpParser.workingVars;
 
 		// this.variableKindsConfiguration = new Map<string, IVariableKindConfiguration>();
 
@@ -67,9 +70,9 @@ export class OnSemanticTokensHandler {
 	}
 	//#region semanticTokens
 
-	async setVariableKindsConfiguration() : Promise<Map<string, IVariableKindConfiguration>>{
+	async setVariableKindsConfiguration(): Promise<Map<string, IVariableKindConfiguration>> {
 		// this.variableKindsConfiguration =
-			return await this.configurationManager.variableKindsConfiguration(this.semanticTokenParams.textDocument.uri);
+		return await this.configurationManager.variableKindsConfiguration(this.semanticTokenParams.textDocument.uri);
 	}
 
 	//#region buildSemanticTokens
@@ -176,13 +179,13 @@ export class OnSemanticTokensHandler {
 	//#endregion buildSemanticTokens
 
 	async semanticTokens(): Promise<SemanticTokens> {
-		const  variableKindsConfiguration: Map<string, IVariableKindConfiguration> = await this.setVariableKindsConfiguration();
-
+		const variableKindsConfiguration: Map<string, IVariableKindConfiguration> = await this.setVariableKindsConfiguration();
 		this.semanticTokensData = [];
-		const mmParser: MmParser = GlobalState.mmParser;
-		const mmpParser: MmpParser = GlobalState.lastMmpParser;
-		if (mmpParser != undefined) {
-			this.buildSemanticTokens(mmParser, mmpParser, variableKindsConfiguration);
+		// const mmParser: MmParser = GlobalState.mmParser;
+		// const mmpParser: MmpParser = GlobalState.lastMmpParser;
+		if (this.mmParser != undefined && this.mmpParser != undefined) {
+			// this.buildSemanticTokens(mmParser, mmpParser, variableKindsConfiguration);
+			this.buildSemanticTokens(this.mmParser, this.mmpParser, variableKindsConfiguration);
 		}
 		const result: SemanticTokens = {
 			data: this.semanticTokensData

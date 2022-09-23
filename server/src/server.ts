@@ -116,7 +116,7 @@ async function parseMainMMfile(textDocumentUri: string) {
 			// connection.sendNotification('yamma/showinformation', message);
 		} else {
 			const theoryLoader: TheoryLoader = new TheoryLoader(mmFilePath, GlobalState.connection);
-			await theoryLoader.loadNewTheoryIfNeeded();
+			await theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
 			// mmParser = new MmParser();
 			// mmParser.progressListener = notifyProgress;
 			// const progressToken = 'TEST-PROGRESS-TOKEN';
@@ -135,7 +135,7 @@ async function parseMainMMfile(textDocumentUri: string) {
 			// }
 			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
 			// mmParser = theoryLoader.mmParser!;
-			GlobalState.mmParser = theoryLoader.mmParser!;
+			// GlobalState.mmParser = theoryLoader.mmParser!;
 		}
 
 		// mmParser.outermostBlock.grammar = mmParser.grammar;
@@ -415,10 +415,20 @@ connection.onHover(async (params): Promise<Hover | undefined> => {
 //#endregion onHover
 
 connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticTokensParams) => {
-	const onSemanticTokensHandler: OnSemanticTokensHandler =
-		new OnSemanticTokensHandler(semanticTokenParams, semanticTokenTypes, configurationManager,
-			GlobalState.lastMmpParser.workingVars);
-	const result: SemanticTokens = await onSemanticTokensHandler.semanticTokens();
+	// this handler computes semantic tokens only when the MmpParser
+	// has already been run on the current document
+	let result: SemanticTokens = { data: [] };
+	console.log('connection.languages.semanticTokens.on1');
+	if (GlobalState.lastMmpParser != undefined && GlobalState.lastMmpParser.workingVars != undefined) {
+		// the handler has been invoked after the .mmp file has been parsed
+		const onSemanticTokensHandler: OnSemanticTokensHandler =
+			// new OnSemanticTokensHandler(semanticTokenParams, semanticTokenTypes, configurationManager,
+			// 	GlobalState.lastMmpParser.workingVars);
+			new OnSemanticTokensHandler(semanticTokenParams, semanticTokenTypes, configurationManager,
+				GlobalState.mmParser, GlobalState.lastMmpParser);
+		console.log('connection.languages.semanticTokens.on2');
+		result = await onSemanticTokensHandler.semanticTokens();
+	}
 	return result;
 });
 

@@ -10,11 +10,14 @@ import { IStepSuggestion } from '../stepSuggestion/ModelBuilder';
 
 export abstract class GlobalState {
 
+	/** the path of the .mm file containing the current theory */
+	static mmFilePath?: string;
+
 	/** the mmParser containing the current theory */
 	static mmParser: MmParser;
 
 	/** the last MmpParser used for a validation of the current .mmp file */
-	static lastMmpParser: MmpParser;
+	static lastMmpParser?: MmpParser;
 
 	/** maps every rpnSyntaxTree to a list of suggestion */
 	static stepSuggestionMap: Map<string, IStepSuggestion[]>;

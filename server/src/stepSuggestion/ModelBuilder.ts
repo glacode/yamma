@@ -16,8 +16,6 @@ export interface IStepSuggestion {
 }
 
 export class ModelBuilder {
-
-
 	private mmFilePath: string;
 
 	// used just for performance
@@ -275,8 +273,12 @@ export class ModelBuilder {
 	}
 	//#endregion buildModel
 
+	static buildModelFileFullPath(mmFilePath: string): any {
+		return mmFilePath + 's';
+	}
+
 	//QUI!!! add test
-	static loadSuggestionsMap(modelFullPath: string): Map<string, IStepSuggestion[]> {
+	static async loadSuggestionsMap(modelFullPath: string): Promise<Map<string, IStepSuggestion[]>> {
 		const suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
 		const model: string = fs.readFileSync(modelFullPath, 'utf-8');
 		const modelRows: string[] = model.split('\n');

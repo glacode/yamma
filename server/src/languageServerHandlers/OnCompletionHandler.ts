@@ -214,66 +214,57 @@ export class OnCompletionHandler {
 
 	//#region completionItems
 	async completionItems(): Promise<CompletionItem[]> {
-		const mmParser: MmParser = GlobalState.mmParser;
-		const mmpParser: MmpParser = GlobalState.lastMmpParser;
-		// let completionItems: CompletionItem[] = [
-		// 	{
-		// 		label: 'TypeScript',
-		// 		kind: CompletionItemKind.Text,
-		// 		data: 1
-		// 	},
-		// 	{
-		// 		label: 'JavaScript',
-		// 		kind: CompletionItemKind.Text,
-		// 		data: 2
-		// 	}
-		// ];	
-		let completionItems: CompletionItem[] = [
-			{
-				label: 'TypeScript',
-				kind: CompletionItemKind.Text,
-				data: 1
-			},
-			{
-				label: 'JavaScript',
-				kind: CompletionItemKind.Text,
-				data: 2
-			}
-		];
-		const cursorContext: CursorContext = new CursorContext(this.cursorLine, this.cursorCharacter, mmpParser);
-		cursorContext.buildContext();
-		switch (cursorContext.contextForCompletion) {
-			case CursorContextForCompletion.stepFormula: {
-				const syntaxCompletion = new SyntaxCompletion(cursorContext, mmParser, mmpParser);
-				completionItems = syntaxCompletion.completionItems();
-			}
-				break;
-			case CursorContextForCompletion.stepLabel: {
-				if (GlobalState.stepSuggestionMap == undefined) {
-					//TODO below I'm using a hardwired logic (the model for .mm becomes the same file with .mms); you should
-					//add a configuration parameter, instead
-					// the model has not been loaded, yet
-					//QUI!!!
-					const modelDataFullPath: string = await this.configurationManager.mmFileFullPath(this.textDocumentPosition.textDocument.uri) + 's';
-					GlobalState.stepSuggestionMap = ModelBuilder.loadSuggestionsMap(modelDataFullPath);
+		let completionItems: CompletionItem[] = [];
+		if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined) {
+			const mmParser: MmParser = GlobalState.mmParser;
+			const mmpParser: MmpParser = GlobalState.lastMmpParser;
+			completionItems = [
+				{
+					label: 'TypeScript',
+					kind: CompletionItemKind.Text,
+					data: 1
+				},
+				{
+					label: 'JavaScript',
+					kind: CompletionItemKind.Text,
+					data: 2
 				}
-				else {
-					// the model has already been loaded
-					const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
-						GlobalState.mmParser);
-					completionItems = stepSuggestion.completionItems();
+			];
+			const cursorContext: CursorContext = new CursorContext(this.cursorLine, this.cursorCharacter, mmpParser);
+			cursorContext.buildContext();
+			switch (cursorContext.contextForCompletion) {
+				case CursorContextForCompletion.stepFormula: {
+					const syntaxCompletion = new SyntaxCompletion(cursorContext, mmParser, mmpParser);
+					completionItems = syntaxCompletion.completionItems();
 				}
+					break;
+				case CursorContextForCompletion.stepLabel: {
+					if (GlobalState.stepSuggestionMap == undefined) {
+						//TODO below I'm using a hardwired logic (the model for .mm becomes the same file with .mms); you should
+						//add a configuration parameter, instead
+						// the model has not been loaded, yet
+						//QUI!!!
+						const modelDataFullPath: string = await this.configurationManager.mmFileFullPath(this.textDocumentPosition.textDocument.uri) + 's';
+						GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelDataFullPath);
+					}
+					else {
+						// the model has already been loaded
+						const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
+							GlobalState.mmParser);
+						completionItems = stepSuggestion.completionItems();
+					}
+				}
+					break;
+				default:
+					break;
 			}
-				break;
-			default:
-				break;
+
+			// const symbols: string[] | undefined = this.getSymbols();
+
+			// if (symbols != undefined)
+			// 	// the formula was not succesfully completed: symbols are the possible next symbols
+			// 	completionItems = this.getCompletionItems(symbols);
 		}
-
-		// const symbols: string[] | undefined = this.getSymbols();
-
-		// if (symbols != undefined)
-		// 	// the formula was not succesfully completed: symbols are the possible next symbols
-		// 	completionItems = this.getCompletionItems(symbols);
 
 
 		return completionItems;

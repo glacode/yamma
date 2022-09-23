@@ -1,6 +1,7 @@
 import { Connection, WorkDoneProgress, WorkDoneProgressCreateRequest } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { notifyError, notifyInformation } from '../server';
+import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
 import { MmParser } from './MmParser';
 
 /** loads a new .mm file and updates the step suggestions model */
@@ -18,7 +19,7 @@ export class TheoryLoader {
 		console.log('TheoryLoader_constructor_connection:' + this.connection);
 	}
 
-	//#region loadNewTheoryIfNeeded
+	//#region loadNewTheoryIfNeededAndThenTheStepSuggestionModel
 	notifyProgress(percentageOfWorkDone: number): void {
 		// connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
 		// 	{ kind: 'report', percentage: percentageOfWorkDone, message: 'Halfway!' });
@@ -35,14 +36,7 @@ export class TheoryLoader {
 		// connection.sendProgress()
 	}
 
-	/** checks if the current mmFilePath is different from the one stored in the GlobalState: if that's the
-	 * case, then:
-	 * 1. loads the new theory
-	 * 2. starts the async update of the step suggestion model
-	 * 3. updates statistics for the theory (TODO later)
-	 * 
-	 */
-	async loadNewTheoryIfNeeded() {
+	private async loadNewTheorySync() {
 		this.mmParser = new MmParser();
 		this.mmParser.progressListener = this.notifyProgress;
 		const progressToken = 'TEST-PROGRESS-TOKEN';
@@ -50,7 +44,6 @@ export class TheoryLoader {
 		console.log('loadNewTheoryIfNeeded_1');
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'begin', title: 'Loading the theory...' });
 		console.log('loadNewTheoryIfNeeded_2');
-		//QUI!!! add buildModel() and do a single call that's invoked for configuration changes, also
 		this.mmParser.ParseFileSync(this.mmFilePath);
 		let message: string;
 		if (this.mmParser.parseFailed) {
@@ -62,6 +55,28 @@ export class TheoryLoader {
 			notifyInformation(message, this.connection);
 		}
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
+		GlobalState.mmParser = this.mmParser!;
 	}
-	//#endregion loadNewTheoryIfNeeded
+
+	/** starts a thread to load a step suggestion model  */
+	private async loadStepSuggestionModelAsync() {
+		const modelFilePath: string = ModelBuilder.buildModelFileFullPath(this.mmFilePath);
+		GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelFilePath);
+	}
+
+	/** checks if the current mmFilePath is different from the one stored in the GlobalState: if that's the
+	 * case, then:
+	 * 1. loads the new theory
+	 * 2. starts the async update of the step suggestion model
+	 * 3. updates statistics for the theory (TODO later)
+	 * 
+	 */
+	async loadNewTheoryIfNeededAndThenTheStepSuggestionModel() {
+		if ( GlobalState.mmFilePath != this.mmFilePath ) {
+			this.loadNewTheorySync();
+			//TODO consider using worker threads, I'm afraid this one is 'blocking', not really async
+			this.loadStepSuggestionModelAsync();
+		}
+	}
+	//#endregion loadNewTheoryIfNeededAndThenTheStepSuggestionModel
 }

@@ -49,7 +49,7 @@ test('semantic tokens', () => {
 	varKindsConfiguration.set('setvar', { workingVarPrefix: 'S', lspSemantictokenType: 'string' });
 	varKindsConfiguration.set('class', { workingVarPrefix: 'C', lspSemantictokenType: 'keyword' });
 	const testOnSemanticTokensHandler: TestOnSemanticTokensHandler = new TestOnSemanticTokensHandler(
-		semanticTokenParams, semanticTokenTypes, dummyConfigurationManager, mmpParser.workingVars);
+		semanticTokenParams, semanticTokenTypes, dummyConfigurationManager, opelcnMmParser, mmpParser);
 	const semanticTokens: SemanticTokens = testOnSemanticTokensHandler.buildSemanticTokens(opelcnMmParser,
 		mmpParser, varKindsConfiguration);
 	expect(semanticTokens.data.length).toBe(5 * 10);
