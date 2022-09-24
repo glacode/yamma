@@ -1,5 +1,6 @@
 import { Connection, DidChangeConfigurationParams } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
+import { TheoryLoader } from './TheoryLoader';
 
 export enum ProofMode {
 	normal = "normal",
@@ -88,26 +89,40 @@ export class ConfigurationManager implements IConfigurationManager {
 	// 	}
 	// }
 
+	//#region didChangeConfiguration
+	async updateTheoryIfTheCase(_change: DidChangeConfigurationParams) {
+		const settings: any = await this._connection.workspace.getConfiguration('yamma');
+		// const settings: IExtensionSettings = await this._connection.workspace.getConfiguration();
+		// const settings: IExtensionSettings = _change.settings;
+		const previousMmFilePath = GlobalState.mmFilePath;
+		if (settings.mmFileFullPath != previousMmFilePath) {
+			const theoryLoader: TheoryLoader = new TheoryLoader(settings.mmFileFullPath, GlobalState.connection);
+			theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
+		}
+	}
 	didChangeConfiguration(change: DidChangeConfigurationParams) {
 		if (this.hasConfigurationCapability) {
 			// Reset all cached document settings
 			this._documentSettings.clear();
+			this.updateTheoryIfTheCase(change);
 		} else {
 			this.globalSettings = <IExtensionSettings>(
 				(change.settings.yamma || this.defaultSettings)
 			);
 		}
 	}
+	//#endregion didChangeConfiguration
+
 
 	//#region getScopeUriSettings
 	buildMap(kindConfigurations: IKindConfiguration[]): Map<string, IVariableKindConfiguration> {
-		const map: Map<string, IVariableKindConfiguration>  = new Map<string, IVariableKindConfiguration>();
+		const map: Map<string, IVariableKindConfiguration> = new Map<string, IVariableKindConfiguration>();
 		kindConfigurations.forEach((kindConfiguration: IKindConfiguration) => {
 			const variableKindConfiguration: IVariableKindConfiguration = {
 				workingVarPrefix: kindConfiguration.workingvarprefix,
 				lspSemantictokenType: kindConfiguration.lspsemantictokentype
 			};
-			map.set(kindConfiguration.variablekind,variableKindConfiguration);
+			map.set(kindConfiguration.variablekind, variableKindConfiguration);
 		});
 		return map;
 	}
@@ -117,7 +132,7 @@ export class ConfigurationManager implements IConfigurationManager {
 		}
 		let result: Thenable<IExtensionSettings> | undefined = this._documentSettings.get(scopeUri);
 		if (!result) {
-			const currentConfiguration : IExtensionConfiguration = await this._connection.workspace.getConfiguration({
+			const currentConfiguration: IExtensionConfiguration = await this._connection.workspace.getConfiguration({
 				scopeUri: scopeUri,
 				section: 'yamma'
 			});
@@ -127,7 +142,7 @@ export class ConfigurationManager implements IConfigurationManager {
 				proofMode: currentConfiguration.proofMode,
 				variableKindsConfiguration: this.buildMap(currentConfiguration.kindConfigurations)
 			};
-			result = new Promise<IExtensionSettings>((resolve)=>{resolve(extensionSettings);});
+			result = new Promise<IExtensionSettings>((resolve) => { resolve(extensionSettings); });
 			this._documentSettings.set(scopeUri, <Thenable<IExtensionSettings>>result);
 			GlobalState.lastFetchedSettings = extensionSettings;
 		}

@@ -1,4 +1,4 @@
-import { Diagnostic, Position, Range } from 'vscode-languageserver';
+import { Connection, Diagnostic, Position, Range } from 'vscode-languageserver';
 import { MmToken } from '../grammar/MmLexer';
 import * as fs from 'fs';
 import { MmpParserErrorCode } from '../mmp/MmpParser';
@@ -295,4 +295,12 @@ export function arrayRange(tokens: MmToken[]): Range {
     const range = { start: start, end: end };
     // }
     return range;
+}
+
+export function notifyInformation(errorMessage: string, connection: Connection) {
+	connection.sendNotification('yamma/showinformation', errorMessage);
+}
+
+export function notifyError(errorMessage: string, connection: Connection) {
+	connection.sendNotification('yamma/showerror', errorMessage);
 }

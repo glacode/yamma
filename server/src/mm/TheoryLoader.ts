@@ -1,8 +1,8 @@
 import { Connection, WorkDoneProgress, WorkDoneProgressCreateRequest } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
-import { notifyError, notifyInformation } from '../server';
 import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
 import { MmParser } from './MmParser';
+import { notifyError, notifyInformation } from './Utils';
 
 /** loads a new .mm file and updates the step suggestions model */
 export class TheoryLoader {
@@ -56,6 +56,7 @@ export class TheoryLoader {
 		}
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
 		GlobalState.mmParser = this.mmParser!;
+		GlobalState.mmFilePath = this.mmFilePath;
 	}
 
 	/** starts a thread to load a step suggestion model  */

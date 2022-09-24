@@ -48,6 +48,7 @@ import { GlobalState } from './general/GlobalState';
 import { OnCompletionResolveHandler } from './languageServerHandlers/OnCompletionResolveHandler';
 import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHandlers/OnSemanticTokensHandler';
 import { TheoryLoader } from './mm/TheoryLoader';
+import { notifyError } from './mm/Utils';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -431,15 +432,6 @@ connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticToken
 	}
 	return result;
 });
-
-export function notifyInformation(errorMessage: string, connection: Connection) {
-	connection.sendNotification('yamma/showinformation', errorMessage);
-}
-
-export function notifyError(errorMessage: string, connection: Connection) {
-	connection.sendNotification('yamma/showerror', errorMessage);
-}
-
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events
