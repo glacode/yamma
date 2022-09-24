@@ -273,14 +273,14 @@ connection.onInitialized(() => {
 let globalSettings: IExtensionSettings = defaultSettings;
 
 // Cache the settings of all open documents
-const documentSettings: Map<string, Thenable<IExtensionSettings>> = new Map();
+// const documentSettings: Map<string, Thenable<IExtensionSettings>> = new Map();
 
 let configurationManager: ConfigurationManager;
 
 connection.onDidChangeConfiguration(change => {
 	if (hasConfigurationCapability) {
 		// Reset all cached document settings
-		documentSettings.clear();
+		// documentSettings.clear();
 		configurationManager.didChangeConfiguration(change);
 	} else {
 		globalSettings = <IExtensionSettings>(
@@ -296,14 +296,17 @@ connection.onDidChangeConfiguration(change => {
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
-	documentSettings.delete(e.document.uri);
+	if (GlobalState.configurationManager != undefined)
+		GlobalState.configurationManager.delete(e.document.uri);
+	// documentSettings.delete(e.document.uri);
 });
 
 //#region onDidChangeContent
 function newValidateTextDocument(textDocument: TextDocument) {
 	const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
 		hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
-		globalSettings, documentSettings, GlobalState.mmParser);
+		// globalSettings, documentSettings, GlobalState.mmParser);
+		globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
 	onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
 	unifyDoneButCursorPositionNotUpdatedYet = false;
 }

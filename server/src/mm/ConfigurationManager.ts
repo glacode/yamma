@@ -150,6 +150,16 @@ export class ConfigurationManager implements IConfigurationManager {
 	}
 	//#endregion getScopeUriSettings
 
+	/** deletes from the cache the settings for the given document */
+	delete(uri: string) {
+		this._documentSettings.delete(uri);
+	}
+
+	async maxNumberOfProblems(textDocumentUri: string): Promise<number> {
+		const settings = await this.getScopeUriSettings(textDocumentUri);
+		return settings.maxNumberOfProblems;
+	}
+
 	async proofMode(textDocumentUri: string): Promise<ProofMode> {
 		const settings = await this.getScopeUriSettings(textDocumentUri);
 		return settings.proofMode;

@@ -1,6 +1,6 @@
 import { Connection, Diagnostic, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { IExtensionSettings } from '../mm/ConfigurationManager';
+import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { consoleLogWithTimestamp } from '../mm/Utils';
@@ -12,36 +12,39 @@ export class OnDidChangeContentHandler {
 	hasConfigurationCapability: boolean;
 	hasDiagnosticRelatedInformationCapability: boolean;
 	globalSettings: IExtensionSettings;
-	documentSettings: Map<string, Thenable<IExtensionSettings>>;
+	// documentSettings: Map<string, Thenable<IExtensionSettings>>;
+	configurationManager: ConfigurationManager;
 	mmParser: MmParser;
 
 	constructor(connection: Connection, hasConfigurationCapability: boolean,
 		hasDiagnosticRelatedInformationCapability: boolean, globalSettings: IExtensionSettings,
-		documentSettings: Map<string, Thenable<IExtensionSettings>>, mmParser: MmParser) {
+		// documentSettings: Map<string, Thenable<IExtensionSettings>>, mmParser: MmParser) {
+			configurationManager: ConfigurationManager, mmParser: MmParser) {
 		this.connection = connection;
 		this.hasConfigurationCapability = hasConfigurationCapability;
 		this.hasDiagnosticRelatedInformationCapability = hasDiagnosticRelatedInformationCapability;
 		this.globalSettings = globalSettings;
-		this.documentSettings = documentSettings;
+		// this.documentSettings = documentSettings;
+		this.configurationManager = configurationManager;
 		this.mmParser = mmParser;
 	}
 
 	// private mmParser: MmParser | undefined;
 
-	private getDocumentSettings(resource: string): Thenable<IExtensionSettings> {
-		if (!this.hasConfigurationCapability) {
-			return Promise.resolve(this.globalSettings);
-		}
-		let result = this.documentSettings.get(resource);
-		if (!result) {
-			result = this.connection.workspace.getConfiguration({
-				scopeUri: resource,
-				section: 'yamma'
-			});
-			this.documentSettings.set(resource, result);
-		}
-		return result;
-	}
+	// private getDocumentSettings(resource: string): Thenable<IExtensionSettings> {
+	// 	if (!this.hasConfigurationCapability) {
+	// 		return Promise.resolve(this.globalSettings);
+	// 	}
+	// 	let result = this.documentSettings.get(resource);
+	// 	if (!result) {
+	// 		result = this.connection.workspace.getConfiguration({
+	// 			scopeUri: resource,
+	// 			section: 'yamma'
+	// 		});
+	// 		this.documentSettings.set(resource, result);
+	// 	}
+	// 	return result;
+	// }
 
 
 
@@ -71,9 +74,11 @@ export class OnDidChangeContentHandler {
 
 
 		// In this simple example we get the settings for every validate run.
-		const settings = await this.getDocumentSettings(textDocument.uri);
+		// const settings = await this.getDocumentSettings(textDocument.uri);
+		// const settings = await this.getDocumentSettings(textDocument.uri);
 		//TODO the following two lines are just to avoid warnings (because we are not using settings; see the TODO below)
-		let maxNumOfProblems = settings.maxNumberOfProblems;
+		// let maxNumOfProblems = settings.maxNumberOfProblems;
+		let maxNumOfProblems : number = await this.configurationManager.maxNumberOfProblems(textDocument.uri);
 		maxNumOfProblems = maxNumOfProblems + 1 - 1;
 
 		consoleLogWithTimestamp("Glauco_1: validateTextDocument started");
