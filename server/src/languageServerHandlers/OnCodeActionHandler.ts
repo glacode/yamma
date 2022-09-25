@@ -65,7 +65,7 @@ export class CodeActionForDiagnostic {
 		const var2 = dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar2;
 
 		// const statementText = `$. ${var1} ${var2}`;
-		const statementText = DisjVarUStatement.textForTwoVars(var1,var2);
+		const statementText = DisjVarUStatement.textForTwoVars(var1, var2);
 
 
 		//TODO add test for this text
@@ -151,30 +151,10 @@ export class OnCodeActionHandler {
 
 		// const codeActions: CodeAction[] = [];
 		const codeActions: CodeAction[] = codeActionForDiagnostic.buildCodeActions();
-		// params.context.diagnostics.forEach((diagnostic: Diagnostic) => {
-		// 	if (diagnostic.code == MmpParserWarningCode.missingDjVarsStatement) {
-		// 		const textEdit: TextEdit = {
-		// 			range: { start: { line: 1, character: 1 }, end: { line: 1, character: 2 } },
-		// 			newText: "UUUUUUUUUUUUU"
-		// 		};
-		// 		const uri2: string = params.textDocument.uri;
-		// 		const changesObj: {
-		// 			[uri: string]: TextEdit[];
-		// 		} = {};
-		// 		changesObj[uri2] = [textEdit];
-		// 		const codeAction: CodeAction = {
-		// 			title: "Add disjoint var constraint",
-		// 			edit: {
-		// 				// changes: {
-		// 				// 	"file:///home/mionome/Documents/mmpPerTestareTirix/_daCanc.mmp": [textEdit]
-		// 				// }
-		// 				changes: changesObj
-		// 			},
-		// 			kind: CodeActionKind.QuickFix
-		// 		};
-		// 		codeActions.push(codeAction);
-		// 	}
-		// });
+
+		//TODO1
+		// if (GlobalState.mmParser == undefined)
+		// 	this.validateDocument();
 		return codeActions;
 	}
 }

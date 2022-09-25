@@ -40,14 +40,11 @@ import { OnCodeActionHandler } from './languageServerHandlers/OnCodeActionHandle
 import { ConfigurationManager, defaultSettings, IExtensionSettings } from './mm/ConfigurationManager';
 import { MmtSaver, PathAndUri } from './mmt/MmtSaver';
 
-import * as path from 'path';
-import * as fs from "fs";
 import { MmtLoader } from './mmt/MmtLoader';
 import { OnCompletionHandler } from './languageServerHandlers/OnCompletionHandler';
 import { GlobalState } from './general/GlobalState';
 import { OnCompletionResolveHandler } from './languageServerHandlers/OnCompletionResolveHandler';
 import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHandlers/OnSemanticTokensHandler';
-import { TheoryLoader } from './mm/TheoryLoader';
 import { notifyError } from './mm/Utils';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -71,83 +68,8 @@ let hasDiagnosticRelatedInformationCapability = false;
 /** true iff a unify() has been performed, but the cursor has not been updated yet*/
 let unifyDoneButCursorPositionNotUpdatedYet = false;
 
-// function notifyProgress(percentageOfWorkDone: number): void {
-// 	// connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
-// 	// 	{ kind: 'report', percentage: percentageOfWorkDone, message: 'Halfway!' });
-// 	console.log(percentageOfWorkDone + '%');
-// 	const strMessage: string = percentageOfWorkDone + '%';
-// 	connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
-// 		{ kind: 'report', message: strMessage });
-// 	// connection.sendProgress()
-// }
-async function parseMainMMfile(textDocumentUri: string) {
-	// if (mmParser == undefined) {
-	if (GlobalState.mmParser == undefined) {
-		// the main .mm file has not been parsed, yet
-		// const textDocumentPath = fileURLToPath(textDocumentUri)
-		// const workingDirPath : string = path.dirname(textDocumentPath)
-		// const mmFilePath: string = path.join(workingDirPath,"setShorter.mm")
-		//TODO use paramater
-		// const mmFilePath = __dirname.concat("/mmparser/mmp2.mm");
-		// const mmFilePath = __dirname.concat("/mmparser/dmsnop.mm");
-		// const mmFilePath = __dirname.concat("/mmparser/set.mm");
 
-		// const forLog: string = JSON.stringify(params);
-		// console.log(forLog);
 
-		// const workSpaceFolderUri: string = params.workspaceFolders![0].uri;
-		// console.log(workSpaceFolderUri);
-
-		let mmFilePath = await configurationManager.mmFileFullPath(textDocumentUri);
-		console.log("mmFilePath: " + mmFilePath);
-		const textDocumentDir: string = path.dirname(textDocumentUri);
-		if (mmFilePath == '') {
-			// the main theory mm file has not been defined
-			const defaultTheory = "set.mm";
-			// mmFilePath = __dirname.concat("/mmparser/dmsnop.mm");
-			mmFilePath = path.join(textDocumentDir, defaultTheory);
-		}
-
-		const fileExist: boolean = fs.existsSync(mmFilePath);
-		if (!fileExist) {
-			const message = `The theory file ${mmFilePath} does not exist. Thus the extension Yamma ` +
-				`cannot work properly. To fix this, either input another .mm file in the Workspace configuration ` +
-				`or copy a set.mm file in ${textDocumentDir}`;
-			notifyError(message, connection);
-			// connection.sendNotification('yamma/showinformation', message);
-		} else {
-			const theoryLoader: TheoryLoader = new TheoryLoader(mmFilePath, GlobalState.connection);
-			await theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
-			// mmParser = new MmParser();
-			// mmParser.progressListener = notifyProgress;
-			// const progressToken = 'TEST-PROGRESS-TOKEN';
-			// await connection.sendRequest(WorkDoneProgressCreateRequest.type, { token: progressToken });
-			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'begin', title: 'Loading the theory...' });
-			// //QUI!!! add buildModel() and do a single call that's invoked for configuration changes, also
-			// mmParser.ParseFileSync(mmFilePath);
-			// let message: string;
-			// if (mmParser.parseFailed) {
-			// 	message = `The theory file ${mmFilePath} has NOT been successfully parsed`;
-			// 	notifyError(message);
-			// }
-			// else {
-			// 	message = `The theory file ${mmFilePath} has been successfully parsed`;
-			// 	notifyInformation(message);
-			// }
-			// void connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
-			// mmParser = theoryLoader.mmParser!;
-			// GlobalState.mmParser = theoryLoader.mmParser!;
-		}
-
-		// mmParser.outermostBlock.grammar = mmParser.grammar;
-		// mmParser.ParseFile(mmFilePath);
-	}
-	// connection.console.log("Initialization : " + params.workspaceFolders);
-	// log_paramsWorkspaceFolders = params.workspaceFolders
-	// log_doYouGetHere = textDocumentUri
-	// parser.ParseFile(".")	
-}
-// parseMainMMfile();
 
 connection.onInitialize((params: InitializeParams) => {
 	const capabilities = params.capabilities;
@@ -308,20 +230,52 @@ function validateTextDocument(textDocument: TextDocument) {
 	// 	// globalSettings, documentSettings, GlobalState.mmParser);
 	// 	globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
 	// onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
-	OnDidChangeContentHandler.validateTextDocument(textDocument,connection,hasConfigurationCapability,
-		hasDiagnosticRelatedInformationCapability,globalSettings,unifyDoneButCursorPositionNotUpdatedYet);
+	OnDidChangeContentHandler.validateTextDocument(textDocument, connection, hasConfigurationCapability,
+		hasDiagnosticRelatedInformationCapability, globalSettings, unifyDoneButCursorPositionNotUpdatedYet);
 	unifyDoneButCursorPositionNotUpdatedYet = false;
 }
+
+//TODO1 move this to ConfigurationManager
+// async function parseMainMMfile(textDocumentUri: string) {
+// 	if (GlobalState.mmParser == undefined) {
+// 		let mmFilePath = await configurationManager.mmFileFullPath(textDocumentUri);
+// 		console.log("mmFilePath: " + mmFilePath);
+// 		const textDocumentDir: string = path.dirname(textDocumentUri);
+// 		if (mmFilePath == '') {
+// 			// the main theory mm file has not been defined
+// 			const defaultTheory = "set.mm";
+// 			mmFilePath = path.join(textDocumentDir, defaultTheory);
+// 		}
+// 		const fileExist: boolean = fs.existsSync(mmFilePath);
+// 		if (!fileExist) {
+// 			const message = `The theory file ${mmFilePath} does not exist. Thus the extension Yamma ` +
+// 				`cannot work properly. To fix this, either input another .mm file in the Workspace configuration ` +
+// 				`or copy a set.mm file in ${textDocumentDir}`;
+// 			notifyError(message, connection);
+// 		} else {
+// 			const theoryLoader: TheoryLoader = new TheoryLoader(mmFilePath, GlobalState.connection);
+// 			await theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
+// 		}
+// 	}
+// }
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(async change => {
-	// validateTextDocument(change.document);
-	await parseMainMMfile(change.document.uri);
-	// GlobalState.mmParser = mmParser;
+	// await parseMainMMfile(change.document.uri);
+	if (GlobalState.mmParser == undefined)
+		await configurationManager.updateTheoryIfTheCase();
 	validateTextDocument(change.document);
 });
 //#endregion onDidChangeContent
+
+//TODO I believe this is not triggered by a tab click
+documents.onDidOpen(async change => {
+	console.log('documents.onDidOpen : ' + change.document.uri);
+	// await parseMainMMfile(change.document.uri);
+	if (GlobalState.mmParser != undefined)
+		validateTextDocument(change.document);
+});
 
 connection.onDidChangeWatchedFiles(_change => {
 	// Monitored files have change in VSCode

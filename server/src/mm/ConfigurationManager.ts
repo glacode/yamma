@@ -90,7 +90,7 @@ export class ConfigurationManager implements IConfigurationManager {
 	// }
 
 	//#region didChangeConfiguration
-	async updateTheoryIfTheCase(_change: DidChangeConfigurationParams) {
+	async updateTheoryIfTheCase(_change?: DidChangeConfigurationParams) {
 		const settings: any = await this._connection.workspace.getConfiguration('yamma');
 		// const settings: IExtensionSettings = await this._connection.workspace.getConfiguration();
 		// const settings: IExtensionSettings = _change.settings;

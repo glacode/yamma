@@ -1,8 +1,10 @@
-import { Connection, WorkDoneProgress, WorkDoneProgressCreateRequest } from 'vscode-languageserver';
+import path = require('path');
+import { Connection, WorkDoneProgress, WorkDoneProgressCreateRequest, WorkspaceFolder } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
 import { MmParser } from './MmParser';
 import { notifyError, notifyInformation } from './Utils';
+import * as fs from "fs";
 
 /** loads a new .mm file and updates the step suggestions model */
 export class TheoryLoader {
@@ -31,7 +33,20 @@ export class TheoryLoader {
 			{ kind: 'report', message: strMessage });
 	}
 
-	private async loadNewTheorySync() {
+	//#region loadNewTheorySync
+	async getCurrentDocumentDir(): Promise<string | undefined> {
+		let currentDir: string | undefined;
+		const workspaceFolders: WorkspaceFolder[] | null = await this.connection.workspace.getWorkspaceFolders();
+		if ( workspaceFolders != null ) {
+			const workspaceFolder: WorkspaceFolder = workspaceFolders[0];
+			currentDir = workspaceFolder.name;
+			// const workSpaceDir: string = path.dirname(workspaceFolder.uri);
+		}
+		return currentDir;
+	}
+
+	//#region loadNewTheorySync
+	async loadTheoryFromMmFile(mmFilePath: string) {
 		this.mmParser = new MmParser();
 		this.mmParser.progressListener = this.notifyProgress;
 		const progressToken = 'TEST-PROGRESS-TOKEN';
@@ -39,20 +54,41 @@ export class TheoryLoader {
 		console.log('loadNewTheoryIfNeeded_1');
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'begin', title: 'Loading the theory...' });
 		console.log('loadNewTheoryIfNeeded_2');
-		this.mmParser.ParseFileSync(this.mmFilePath);
+		// this.mmParser.ParseFileSync(this.mmFilePath);
+		this.mmParser.ParseFileSync(mmFilePath);
 		let message: string;
 		if (this.mmParser.parseFailed) {
-			message = `The theory file ${this.mmFilePath} has NOT been successfully parsed`;
+			// message = `The theory file ${this.mmFilePath} has NOT been successfully parsed`;
+			message = `The theory file ${mmFilePath} has NOT been successfully parsed`;
 			notifyError(message, this.connection);
 		}
 		else {
-			message = `The theory file ${this.mmFilePath} has been successfully parsed`;
+			message = `The theory file ${mmFilePath} has been successfully parsed`;
 			notifyInformation(message, this.connection);
 		}
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
 		GlobalState.mmParser = this.mmParser!;
-		GlobalState.mmFilePath = this.mmFilePath;
 	}
+	private async loadNewTheorySync() {
+		const currentDocumentDir: string | undefined = await this.getCurrentDocumentDir(); 
+		let mmFilePath : string = this.mmFilePath;
+		if ( mmFilePath == '' ) {
+			// the main theory mm file has not been defined
+			const defaultTheory = 'set.mm';
+			if ( currentDocumentDir != undefined ) {
+				mmFilePath = path.join(currentDocumentDir,defaultTheory);
+			}
+		}
+		const fileExist: boolean = fs.existsSync(mmFilePath);
+		if (!fileExist) {			
+			const message = `The theory file ${mmFilePath} does not exist. Thus the extension Yamma ` +
+				`cannot work properly. To fix this, either input another .mm file in the Workspace configuration ` +
+				`or copy a set.mm file in ${currentDocumentDir}`;
+			notifyError(message, this.connection);
+		} else
+		this.loadTheoryFromMmFile(mmFilePath);
+	}	
+	//#endregion loadNewTheorySync
 
 	/** starts a thread to load a step suggestion model  */
 	private async loadStepSuggestionModelAsync() {
