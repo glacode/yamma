@@ -23,20 +23,6 @@ export class TokenReader {
         // console.log("fine prova");
     }
 
-    // provaSplit(readLines: string[]): string[] {
-    //     const prova: string[] = [];
-    //     this.lines_buf.forEach(line => {
-    //         // const lineTokens = line.split(/(\s+)/).filter(e => e.trim().length > 0);
-    //         const lineTokens = splitTo
-    //         line.split(/(\s+)/).filter(e => e.trim().length > 0);
-
-    //         lineTokens.forEach(token => {
-    //             prova.push(token);
-    //         });
-    //     });
-    //     return prova;
-    // }
-
     provaSplit(): MmToken[] {
         const prova: MmToken[] = [];
         for (let i = 0; i < this.lines_buf.length; i++) {

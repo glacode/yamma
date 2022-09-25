@@ -3,8 +3,8 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpValidator } from '../mmp/MmpValidator';
-import { consoleLogWithTimestamp } from '../mm/Utils';
 import { MmpParserWarningCode } from '../mmp/MmpParser';
+import { GlobalState } from '../general/GlobalState';
 
 
 export class OnDidChangeContentHandler {
@@ -81,17 +81,7 @@ export class OnDidChangeContentHandler {
 		let maxNumOfProblems : number = await this.configurationManager.maxNumberOfProblems(textDocument.uri);
 		maxNumOfProblems = maxNumOfProblems + 1 - 1;
 
-		consoleLogWithTimestamp("Glauco_1: validateTextDocument started");
-
 		//Glauco
-		// parseMainMMfile(textDocument.uri)
-		// this.parseMainMMfile(textDocument);
-
-		consoleLogWithTimestamp(`Glauco_2: parse complete for document`);
-
-		//TODO you are not using settings.maxNumberOfProblems
-		// let problems = 0;
-
 		const mmpValidator: MmpValidator = new MmpValidator(this.mmParser!);
 		mmpValidator.validateFullDocument(textDocument);
 		const diagnostics: Diagnostic[] = mmpValidator.diagnostics;
@@ -105,4 +95,15 @@ export class OnDidChangeContentHandler {
 			this.updateCursorPosition(diagnostics);
 	}
 	//#endregion validateTextDocument
+
+	static validateTextDocument(textDocument: TextDocument,connection: Connection,
+		hasConfigurationCapability:boolean,hasDiagnosticRelatedInformationCapability: boolean,
+		globalSettings:IExtensionSettings, unifyDoneButCursorPositionNotUpdatedYet: boolean	) {
+		const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
+			hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
+			// globalSettings, documentSettings, GlobalState.mmParser);
+			globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
+		onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
+		unifyDoneButCursorPositionNotUpdatedYet = false;
+	}
 }

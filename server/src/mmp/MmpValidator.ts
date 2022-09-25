@@ -84,13 +84,16 @@ export class MmpValidator {
 		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
 		// const mmpTokenizer = new MmpTokenizer(textToValidate);
 		const mmpParser: MmpParser = new MmpParser(textToValidate, labelToStatementMap, outermostBlock, grammar, workingVars);
+		console.log('before mmpParser.parse()');
 		mmpParser.parse();
+		console.log('after mmpParser.parse()');
 		GlobalState.lastMmpParser = mmpParser;
 		this.diagnostics = mmpParser.diagnostics;
 	}
 
 	validateFullDocument(textDocument: TextDocument): Diagnostic[] {
 		this.diagnostics = [];
+		console.log('validateFullDocument - this.mmParser:' + this.mmParser);
 		if (this.mmParser != undefined && this.mmParser.isParsingComplete) {
 			// the parser has analyzed all the main .mm
 			const textToValidate: string = textDocument.getText();

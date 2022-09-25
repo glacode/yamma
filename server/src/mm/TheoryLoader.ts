@@ -16,24 +16,19 @@ export class TheoryLoader {
 	constructor(mmFilePath: string, connection: Connection) {
 		this.mmFilePath = mmFilePath;
 		this.connection = connection;
-		console.log('TheoryLoader_constructor_connection:' + this.connection);
+		// console.log('TheoryLoader_constructor_connection:' + this.connection);
 	}
 
 	//#region loadNewTheoryIfNeededAndThenTheStepSuggestionModel
 	notifyProgress(percentageOfWorkDone: number): void {
 		// connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
 		// 	{ kind: 'report', percentage: percentageOfWorkDone, message: 'Halfway!' });
-		console.log(percentageOfWorkDone + '%');
+		// console.log(percentageOfWorkDone + '%');
 		const strMessage: string = percentageOfWorkDone + '%';
-		// console.log('notifyProgress_1');
-		// console.log('connection:\n' + this.connection);
-		// console.log('connection.sendProgress:\n' + this.connection.sendProgress.toString());
 		GlobalState.connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
 			{ kind: 'report', message: strMessage });
 		GlobalState.connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
 			{ kind: 'report', message: strMessage });
-		console.log('notifyProgress_2');
-		// connection.sendProgress()
 	}
 
 	private async loadNewTheorySync() {
@@ -74,9 +69,12 @@ export class TheoryLoader {
 	 */
 	async loadNewTheoryIfNeededAndThenTheStepSuggestionModel() {
 		if ( GlobalState.mmFilePath != this.mmFilePath ) {
+			console.log('before loadNewTheorySync');
 			this.loadNewTheorySync();
 			//TODO consider using worker threads, I'm afraid this one is 'blocking', not really async
+			console.log('before loadStepSuggestionModelAsync');
 			this.loadStepSuggestionModelAsync();
+			console.log('after loadStepSuggestionModelAsync');
 		}
 	}
 	//#endregion loadNewTheoryIfNeededAndThenTheStepSuggestionModel

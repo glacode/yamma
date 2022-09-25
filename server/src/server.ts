@@ -290,7 +290,7 @@ connection.onDidChangeConfiguration(change => {
 
 	// Revalidate all open text documents
 	// documents.all().forEach(validateTextDocument);
-	documents.all().forEach(newValidateTextDocument);
+	documents.all().forEach(validateTextDocument);
 });
 
 
@@ -302,12 +302,14 @@ documents.onDidClose(e => {
 });
 
 //#region onDidChangeContent
-function newValidateTextDocument(textDocument: TextDocument) {
-	const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
-		hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
-		// globalSettings, documentSettings, GlobalState.mmParser);
-		globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
-	onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
+function validateTextDocument(textDocument: TextDocument) {
+	// const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
+	// 	hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
+	// 	// globalSettings, documentSettings, GlobalState.mmParser);
+	// 	globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
+	// onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
+	OnDidChangeContentHandler.validateTextDocument(textDocument,connection,hasConfigurationCapability,
+		hasDiagnosticRelatedInformationCapability,globalSettings,unifyDoneButCursorPositionNotUpdatedYet);
 	unifyDoneButCursorPositionNotUpdatedYet = false;
 }
 
@@ -317,7 +319,7 @@ documents.onDidChangeContent(async change => {
 	// validateTextDocument(change.document);
 	await parseMainMMfile(change.document.uri);
 	// GlobalState.mmParser = mmParser;
-	newValidateTextDocument(change.document);
+	validateTextDocument(change.document);
 });
 //#endregion onDidChangeContent
 
