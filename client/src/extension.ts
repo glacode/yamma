@@ -6,7 +6,7 @@
 import { getVSCodeDownloadUrl } from '@vscode/test-electron/out/util';
 import * as path from 'path';
 import { chdir } from 'process';
-import { workspace, ExtensionContext, commands, window, Selection, Position } from 'vscode';
+import { commands, ExtensionContext, MessageOptions, Position, Selection, window, workspace } from 'vscode';
 // import {  } from "../../server/src/mmt/MmtSaver";
 
 import {
@@ -75,7 +75,14 @@ export function activate(context: ExtensionContext) {
 
 		//QUI!!! vedi se puoi ingrandire le finestre
 		client.onNotification('yamma/showinformation', (message: string) => {
-			window.showInformationMessage(message);
+			// the header 'Header caption' is not displayed because modal is false
+			// I leave it there anyway, as a reference, if in the future I want a model message
+			const options: MessageOptions = { detail: 'Header caption', modal: false };
+			window.showInformationMessage(message, options, ...["Ok"]);
+			// window.showInformationMessage(message, options, ...["Ok"]).then((item) => {
+			// 	console.log(item);
+			// });
+			// window.showInformationMessage(message);
 		});
 
 		client.onNotification('yamma/showerror', (message: string) => {
@@ -87,8 +94,8 @@ export function activate(context: ExtensionContext) {
 		// });
 		client.onNotification('yamma/movecursor', (range: Range) => {
 			// line++;
-			const start: Position = new Position(range.start.line,range.start.character);
-			const end: Position = new Position(range.end.line,range.end.character);
+			const start: Position = new Position(range.start.line, range.start.character);
+			const end: Position = new Position(range.end.line, range.end.character);
 			window.activeTextEditor.selection = new Selection(start, end);
 		});
 	});
