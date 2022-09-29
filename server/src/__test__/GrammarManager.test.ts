@@ -73,7 +73,7 @@ test("GrammarManager.CreateGrammar", () => {
 	// outerBlock.fHyps.push(wps);
 	// const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars(new Map<string, string>()));
 	const kindToPrefixMap: Map<string, string> = WorkingVars.getKindToWorkingVarPrefixMap(
-		GlobalState.lastFetchedSettings.variableKindsConfiguration);
+		GlobalState.lastFetchedSettings!.variableKindsConfiguration);
 	const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars(kindToPrefixMap));
 	const rules = grammar.rules;
 	expect(rules.length).toBe(7);

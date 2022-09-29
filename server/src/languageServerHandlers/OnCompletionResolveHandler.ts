@@ -10,13 +10,15 @@ export class OnCompletionResolveHandler {
 		// this.item = item;
 	}
 	addDocumentationIfPossible(item: CompletionItem) {
-		const mmParser: MmParser = GlobalState.mmParser;
-		const labeledStatement: LabeledStatement | undefined = mmParser.labelToStatementMap.get(item.label);
-		if (labeledStatement != undefined) {
-			const documentationString: string = OnHoverHandler.getContentValueForLabeledStatement(labeledStatement);
-			// item.documentation = OnHoverHandler.getContentValueForLabeledStatement(labeledStatement);
-			const markupContent: MarkupContent = { kind: MarkupKind.Markdown, value: documentationString };
-			item.documentation = markupContent;
+		const mmParser: MmParser | undefined = GlobalState.mmParser;
+		if (mmParser != undefined) {
+			const labeledStatement: LabeledStatement | undefined = mmParser.labelToStatementMap.get(item.label);
+			if (labeledStatement != undefined) {
+				const documentationString: string = OnHoverHandler.getContentValueForLabeledStatement(labeledStatement);
+				// item.documentation = OnHoverHandler.getContentValueForLabeledStatement(labeledStatement);
+				const markupContent: MarkupContent = { kind: MarkupKind.Markdown, value: documentationString };
+				item.documentation = markupContent;
+			}
 		}
 	}
 }

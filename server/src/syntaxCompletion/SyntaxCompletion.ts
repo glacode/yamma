@@ -35,7 +35,7 @@ export class SyntaxCompletion {
 		let symbols: string[] | undefined;
 		// const stepFormula: MmToken[] | undefined = this.getFormulaBeforeCursor();
 		const stepFormula: MmToken[] | undefined = this.cursorContext.formulaBeforeCursor();
-		if (stepFormula != undefined) {
+		if (GlobalState.mmParser != undefined && stepFormula != undefined) {
 			// the step formula is present
 			// stepFormula = nextProofStepTokens.slice(1);
 			// formulaParseNode = MmpParser.tryToParse(stepFormula, this.grammar, this.workingVars, this.diagnostics);

@@ -27,8 +27,8 @@ export class TheoryLoader {
 		// 	{ kind: 'report', percentage: percentageOfWorkDone, message: 'Halfway!' });
 		// console.log(percentageOfWorkDone + '%');
 		const strMessage: string = percentageOfWorkDone + '%';
-		GlobalState.connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
-			{ kind: 'report', message: strMessage });
+		// GlobalState.connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
+		// 	{ kind: 'report', message: strMessage });
 		GlobalState.connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
 			{ kind: 'report', message: strMessage });
 	}
@@ -37,7 +37,7 @@ export class TheoryLoader {
 	async getCurrentDocumentDir(): Promise<string | undefined> {
 		let currentDir: string | undefined;
 		const workspaceFolders: WorkspaceFolder[] | null = await this.connection.workspace.getWorkspaceFolders();
-		if ( workspaceFolders != null ) {
+		if (workspaceFolders != null) {
 			const workspaceFolder: WorkspaceFolder = workspaceFolders[0];
 			currentDir = workspaceFolder.name;
 			// const workSpaceDir: string = path.dirname(workspaceFolder.uri);
@@ -70,24 +70,24 @@ export class TheoryLoader {
 		GlobalState.mmParser = this.mmParser!;
 	}
 	private async loadNewTheorySync() {
-		const currentDocumentDir: string | undefined = await this.getCurrentDocumentDir(); 
-		let mmFilePath : string = this.mmFilePath;
-		if ( mmFilePath == '' ) {
+		const currentDocumentDir: string | undefined = await this.getCurrentDocumentDir();
+		let mmFilePath: string = this.mmFilePath;
+		if (mmFilePath == '') {
 			// the main theory mm file has not been defined
 			const defaultTheory = 'set.mm';
-			if ( currentDocumentDir != undefined ) {
-				mmFilePath = path.join(currentDocumentDir,defaultTheory);
+			if (currentDocumentDir != undefined) {
+				mmFilePath = path.join(currentDocumentDir, defaultTheory);
 			}
 		}
 		const fileExist: boolean = fs.existsSync(mmFilePath);
-		if (!fileExist) {			
+		if (!fileExist) {
 			const message = `The theory file ${mmFilePath} does not exist. Thus the extension Yamma ` +
 				`cannot work properly. To fix this, either input another .mm file in the Workspace configuration ` +
 				`or copy a set.mm file in ${currentDocumentDir}`;
 			notifyError(message, this.connection);
 		} else
-		this.loadTheoryFromMmFile(mmFilePath);
-	}	
+			await this.loadTheoryFromMmFile(mmFilePath);
+	}
 	//#endregion loadNewTheorySync
 
 	/** starts a thread to load a step suggestion model  */
@@ -104,10 +104,11 @@ export class TheoryLoader {
 	 * 
 	 */
 	async loadNewTheoryIfNeededAndThenTheStepSuggestionModel() {
-		if ( GlobalState.mmFilePath != this.mmFilePath ) {
-			console.log('before loadNewTheorySync');
-			this.loadNewTheorySync();
+		if (GlobalState.mmFilePath != this.mmFilePath) {
+			console.log('before loadNewTheorySync - GlobalState.mmParser = ' + GlobalState.mmParser);
+			await this.loadNewTheorySync();
 			//TODO consider using worker threads, I'm afraid this one is 'blocking', not really async
+			console.log('after loadNewTheorySync - GlobalState.mmParser = ' + GlobalState.mmParser);
 			console.log('before loadStepSuggestionModelAsync');
 			this.loadStepSuggestionModelAsync();
 			console.log('after loadStepSuggestionModelAsync');

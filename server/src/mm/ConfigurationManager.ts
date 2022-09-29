@@ -91,20 +91,24 @@ export class ConfigurationManager implements IConfigurationManager {
 
 	//#region didChangeConfiguration
 	async updateTheoryIfTheCase(_change?: DidChangeConfigurationParams) {
-		const settings: any = await this._connection.workspace.getConfiguration('yamma');
+		// const settings: any = await this._connection.workspace.getConfiguration('yamma');
+		const currentConfiguration: IExtensionConfiguration = await this.currentConfiguration();
 		// const settings: IExtensionSettings = await this._connection.workspace.getConfiguration();
 		// const settings: IExtensionSettings = _change.settings;
 		const previousMmFilePath = GlobalState.mmFilePath;
-		if (settings.mmFileFullPath != previousMmFilePath) {
-			const theoryLoader: TheoryLoader = new TheoryLoader(settings.mmFileFullPath, GlobalState.connection);
-			theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
+		if (currentConfiguration.mmFileFullPath != previousMmFilePath) {
+			this.setGlobalStateSettings();
+			const theoryLoader: TheoryLoader = new TheoryLoader(currentConfiguration.mmFileFullPath, GlobalState.connection);
+			await theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
 		}
 	}
-	didChangeConfiguration(change: DidChangeConfigurationParams) {
+	async didChangeConfiguration(change: DidChangeConfigurationParams) {
 		if (this.hasConfigurationCapability) {
 			// Reset all cached document settings
 			this._documentSettings.clear();
-			this.updateTheoryIfTheCase(change);
+			//TODO1 here you have to update GlobalState.lastFetchedSettings
+			await this.updateTheoryIfTheCase(change);
+			//TODO1 trigger validation here
 		} else {
 			this.globalSettings = <IExtensionSettings>(
 				(change.settings.yamma || this.defaultSettings)
@@ -126,6 +130,31 @@ export class ConfigurationManager implements IConfigurationManager {
 		});
 		return map;
 	}
+
+	private async currentConfiguration(): Promise<IExtensionConfiguration> {
+		const currentConfiguration: IExtensionConfiguration = await this._connection.workspace.getConfiguration('yamma');
+		return currentConfiguration;
+	}
+
+	private extensionSettings(currentConfiguration: IExtensionConfiguration): IExtensionSettings {
+		const extensionSettings: IExtensionSettings = {
+			maxNumberOfProblems: currentConfiguration.maxNumberOfProblems,
+			mmFileFullPath: currentConfiguration.mmFileFullPath,
+			proofMode: currentConfiguration.proofMode,
+			variableKindsConfiguration: this.buildMap(currentConfiguration.kindConfigurations)
+		};
+		return extensionSettings;
+	}
+
+	private async setGlobalStateSettings() {
+		if (this.hasConfigurationCapability) {
+			// const currentConfiguration: IExtensionConfiguration = await this._connection.workspace.getConfiguration('yamma');
+			const currentConfiguration: IExtensionConfiguration = await this.currentConfiguration();
+			const extensionSettings: IExtensionSettings = this.extensionSettings(currentConfiguration);
+			GlobalState.lastFetchedSettings = extensionSettings;
+		}
+	}
+
 	private async getScopeUriSettings(scopeUri: string): Promise<IExtensionSettings> {
 		if (!this.hasConfigurationCapability) {
 			return Promise.resolve(this.globalSettings);
@@ -136,12 +165,7 @@ export class ConfigurationManager implements IConfigurationManager {
 				scopeUri: scopeUri,
 				section: 'yamma'
 			});
-			const extensionSettings: IExtensionSettings = {
-				maxNumberOfProblems: currentConfiguration.maxNumberOfProblems,
-				mmFileFullPath: currentConfiguration.mmFileFullPath,
-				proofMode: currentConfiguration.proofMode,
-				variableKindsConfiguration: this.buildMap(currentConfiguration.kindConfigurations)
-			};
+			const extensionSettings: IExtensionSettings = this.extensionSettings(currentConfiguration);
 			result = new Promise<IExtensionSettings>((resolve) => { resolve(extensionSettings); });
 			this._documentSettings.set(scopeUri, <Thenable<IExtensionSettings>>result);
 			GlobalState.lastFetchedSettings = extensionSettings;

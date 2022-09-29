@@ -46,6 +46,8 @@ import { GlobalState } from './general/GlobalState';
 import { OnCompletionResolveHandler } from './languageServerHandlers/OnCompletionResolveHandler';
 import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHandlers/OnSemanticTokensHandler';
 import { notifyError } from './mm/Utils';
+import { MmParser } from './mm/MmParser';
+import { MmpParser } from './mmp/MmpParser';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -156,23 +158,25 @@ connection.onInitialize((params: InitializeParams) => {
 
 // });
 connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
-	const text: string = <string>documents.get(pathAndUri.uri)?.getText();
-	const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, GlobalState.mmParser);
-	// const mmtSaver: MmtSaver = new MmtSaver(fsPath, mmParser);
-	mmtSaver.saveMmt();
-	console.log('Method saveMmt() has been invoked 2');
-
+	if (GlobalState.mmParser != undefined) {
+		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
+		const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, GlobalState.mmParser);
+		// const mmtSaver: MmtSaver = new MmtSaver(fsPath, mmParser);
+		mmtSaver.saveMmt();
+		console.log('Method saveMmt() has been invoked 2');
+	}
 });
 
 connection.onRequest('yamma/loadmmt', (fsPath: string) => {
-	const mmtLoader: MmtLoader = new MmtLoader(fsPath, GlobalState.mmParser);
-	mmtLoader.loadMmt();
-	if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
-		const errorMessage: string = mmtLoader.diagnostics[0].message;
-		notifyError(errorMessage, connection);
+	if (GlobalState.mmParser != undefined) {
+		const mmtLoader: MmtLoader = new MmtLoader(fsPath, GlobalState.mmParser);
+		mmtLoader.loadMmt();
+		if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
+			const errorMessage: string = mmtLoader.diagnostics[0].message;
+			notifyError(errorMessage, connection);
+		}
+		console.log('Method loadmmt() has been invoked');
 	}
-	console.log('Method loadmmt() has been invoked');
-
 });
 
 connection.onInitialized(() => {
@@ -224,13 +228,13 @@ documents.onDidClose(e => {
 });
 
 //#region onDidChangeContent
-function validateTextDocument(textDocument: TextDocument) {
+async function validateTextDocument(textDocument: TextDocument) {
 	// const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
 	// 	hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
 	// 	// globalSettings, documentSettings, GlobalState.mmParser);
 	// 	globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
 	// onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
-	OnDidChangeContentHandler.validateTextDocument(textDocument, connection, hasConfigurationCapability,
+	await OnDidChangeContentHandler.validateTextDocument(textDocument, connection, hasConfigurationCapability,
 		hasDiagnosticRelatedInformationCapability, globalSettings, unifyDoneButCursorPositionNotUpdatedYet);
 	unifyDoneButCursorPositionNotUpdatedYet = false;
 }
@@ -263,18 +267,20 @@ function validateTextDocument(textDocument: TextDocument) {
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(async change => {
 	// await parseMainMMfile(change.document.uri);
+	console.log('onDidChangeContent: GlobalState.mmParser = ' + GlobalState.mmParser);
 	if (GlobalState.mmParser == undefined)
 		await configurationManager.updateTheoryIfTheCase();
-	validateTextDocument(change.document);
+	await validateTextDocument(change.document);
 });
 //#endregion onDidChangeContent
 
 //TODO I believe this is not triggered by a tab click
 documents.onDidOpen(async change => {
 	console.log('documents.onDidOpen : ' + change.document.uri);
+	GlobalState.lastMmpParser = undefined;
 	// await parseMainMMfile(change.document.uri);
-	if (GlobalState.mmParser != undefined)
-		validateTextDocument(change.document);
+	// if (GlobalState.mmParser != undefined)
+	// 	validateTextDocument(change.document);
 });
 
 connection.onDidChangeWatchedFiles(_change => {
@@ -329,11 +335,23 @@ connection.onCompletionResolve(
 connection.onDocumentFormatting(
 	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
 		//return OnDocumentFormattingHandler.formatToLowerCase(params,documents)
-		const onDocumentFormattingHandler: OnDocumentFormattingHandler =
-			new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager);
-		const result: Promise<TextEdit[]> = onDocumentFormattingHandler.unify();
-		unifyDoneButCursorPositionNotUpdatedYet = true;
-		// return onDocumentFormattingHandler.unify();
+		let result: Promise<TextEdit[]> = Promise.resolve([]);
+		// this is just a test for an additional fixed textEdit
+		// const textEdit: TextEdit = {
+		// 	range: {
+		// 		start: { line: 2, character: 2 }, end: { line: 2, character: 2 }
+		// 	}, newText: "GGGGGGG"
+		// };
+		// textEditArray.push(textEdit);
+
+		// return Promise.resolve(textEditArray);
+		if (GlobalState.mmParser != undefined) {
+			const onDocumentFormattingHandler: OnDocumentFormattingHandler =
+				new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager);
+			result = onDocumentFormattingHandler.unify();
+			unifyDoneButCursorPositionNotUpdatedYet = true;
+			// return onDocumentFormattingHandler.unify();
+		}
 		return result;
 	}
 );
@@ -353,17 +371,17 @@ connection.onCodeAction(onCodeActionHandler);
 //Glauco
 connection.onHover(async (params): Promise<Hover | undefined> => {
 	let hoverResult: Hover | undefined;
-
 	// const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, mmParser);
-	const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, GlobalState.mmParser);
-	let content: MarkupContent | undefined;
-	if (contentValue != undefined) {
-		// const content : MarkupContent = { kind: MarkupKind.Markdown ,value: contentValue};
-		content = { kind: MarkupKind.Markdown, value: contentValue };
-		hoverResult = { contents: content };
+	if (GlobalState.mmParser != undefined) {
+		const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, GlobalState.mmParser);
+		let content: MarkupContent | undefined;
+		if (contentValue != undefined) {
+			// const content : MarkupContent = { kind: MarkupKind.Markdown ,value: contentValue};
+			content = { kind: MarkupKind.Markdown, value: contentValue };
+			hoverResult = { contents: content };
 
+		}
 	}
-
 	return hoverResult;
 
 	// return {
@@ -379,13 +397,23 @@ connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticToken
 	// has already been run on the current document
 	let result: SemanticTokens = { data: [] };
 	console.log('connection.languages.semanticTokens.on1');
-	if (GlobalState.lastMmpParser != undefined && GlobalState.lastMmpParser.workingVars != undefined) {
+	const mmParser: MmParser | undefined = GlobalState.mmParser;
+	let mmpParser: MmpParser | undefined = GlobalState.lastMmpParser;
+	//TODO1 move all this handler onSemanticTokensHandler.semanticTokens (pass documents to the
+	// OnSemanticTokensHandler constructor) 
+	if ( mmParser != undefined && mmpParser == undefined) {
+		const textDocument: TextDocument = documents.get(semanticTokenParams.textDocument.uri)!;
+		await validateTextDocument(textDocument);
+		mmpParser = GlobalState.lastMmpParser;
+	}
+	// if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined && GlobalState.lastMmpParser.workingVars != undefined) {
+	if (mmParser != undefined && mmpParser != undefined && mmpParser.workingVars != undefined) {
 		// the handler has been invoked after the .mmp file has been parsed
 		const onSemanticTokensHandler: OnSemanticTokensHandler =
 			// new OnSemanticTokensHandler(semanticTokenParams, semanticTokenTypes, configurationManager,
 			// 	GlobalState.lastMmpParser.workingVars);
 			new OnSemanticTokensHandler(semanticTokenParams, semanticTokenTypes, configurationManager,
-				GlobalState.mmParser, GlobalState.lastMmpParser);
+				mmParser, mmpParser);
 		console.log('connection.languages.semanticTokens.on2');
 		result = await onSemanticTokensHandler.semanticTokens();
 	}

@@ -52,7 +52,7 @@ export class MmParser {
     //TODO now we are passing working vars defined in the configuration file, but in the future
     //this could/should be driven from $j comments in the theory itself
     /** returns the WorkingVars class for this theory */
-    public get workingVars() {
+    public get workingVars() : WorkingVars {
         if (this._workingVars == undefined) {
             let kindToPrefixMap: Map<string, string> = new Map<string, string>();
             if (GlobalState.lastFetchedSettings != undefined && GlobalState.lastFetchedSettings.variableKindsConfiguration != undefined)

@@ -14,7 +14,7 @@ export abstract class GlobalState {
 	static mmFilePath?: string;
 
 	/** the mmParser containing the current theory */
-	static mmParser: MmParser;
+	static mmParser?: MmParser;
 
 	/** the last MmpParser used for a validation of the current .mmp file */
 	static lastMmpParser?: MmpParser;
@@ -26,7 +26,7 @@ export abstract class GlobalState {
 	static configurationManager: ConfigurationManager;
 
 	/** last settings fetched by the configuration manager from the workspace configuration */
-	static lastFetchedSettings: IExtensionSettings;
+	static lastFetchedSettings: IExtensionSettings | undefined;
 
 	static connection: Connection;
 }

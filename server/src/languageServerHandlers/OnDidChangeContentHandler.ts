@@ -19,7 +19,7 @@ export class OnDidChangeContentHandler {
 	constructor(connection: Connection, hasConfigurationCapability: boolean,
 		hasDiagnosticRelatedInformationCapability: boolean, globalSettings: IExtensionSettings,
 		// documentSettings: Map<string, Thenable<IExtensionSettings>>, mmParser: MmParser) {
-			configurationManager: ConfigurationManager, mmParser: MmParser) {
+		configurationManager: ConfigurationManager, mmParser: MmParser) {
 		this.connection = connection;
 		this.hasConfigurationCapability = hasConfigurationCapability;
 		this.hasDiagnosticRelatedInformationCapability = hasDiagnosticRelatedInformationCapability;
@@ -78,7 +78,7 @@ export class OnDidChangeContentHandler {
 		// const settings = await this.getDocumentSettings(textDocument.uri);
 		//TODO the following two lines are just to avoid warnings (because we are not using settings; see the TODO below)
 		// let maxNumOfProblems = settings.maxNumberOfProblems;
-		let maxNumOfProblems : number = await this.configurationManager.maxNumberOfProblems(textDocument.uri);
+		let maxNumOfProblems: number = await this.configurationManager.maxNumberOfProblems(textDocument.uri);
 		maxNumOfProblems = maxNumOfProblems + 1 - 1;
 
 		//Glauco
@@ -96,14 +96,16 @@ export class OnDidChangeContentHandler {
 	}
 	//#endregion validateTextDocument
 
-	static validateTextDocument(textDocument: TextDocument,connection: Connection,
-		hasConfigurationCapability:boolean,hasDiagnosticRelatedInformationCapability: boolean,
-		globalSettings:IExtensionSettings, unifyDoneButCursorPositionNotUpdatedYet: boolean	) {
-		const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
-			hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
-			// globalSettings, documentSettings, GlobalState.mmParser);
-			globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
-		onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
-		unifyDoneButCursorPositionNotUpdatedYet = false;
+	static async validateTextDocument(textDocument: TextDocument, connection: Connection,
+		hasConfigurationCapability: boolean, hasDiagnosticRelatedInformationCapability: boolean,
+		globalSettings: IExtensionSettings, unifyDoneButCursorPositionNotUpdatedYet: boolean) {
+		if (GlobalState.mmParser != undefined) {
+			const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
+				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
+				// globalSettings, documentSettings, GlobalState.mmParser);
+				globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
+			await onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
+			unifyDoneButCursorPositionNotUpdatedYet = false;
+		}
 	}
 }
