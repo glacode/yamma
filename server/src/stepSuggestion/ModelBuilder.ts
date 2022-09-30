@@ -274,7 +274,9 @@ export class ModelBuilder {
 	}
 	//#endregion buildModel
 
-	static buildModelFileFullPath(mmFilePath: string): any {
+	static buildModelFileFullPath(mmFilePath: string): string {
+		//TODO below I'm using a hardwired logic (the model for .mm becomes the same file with .mms); you should
+		//add a configuration parameter, instead
 		return mmFilePath + 's';
 	}
 
@@ -320,7 +322,7 @@ export class ModelBuilder {
 				`will work anyway, but step suggestions will not be as accurate and useful as they ` +
 				`would be using a trained model.`;
 			// notifyError(errorMessage,connection);
-			notifyWarning(message,connection);
+			notifyWarning(message, connection);
 		}
 		return suggestionsMap;
 	}

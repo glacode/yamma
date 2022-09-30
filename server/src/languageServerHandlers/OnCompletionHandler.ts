@@ -1,4 +1,4 @@
-import { CompletionItem, CompletionItemKind, Connection, Position, TextDocumentPositionParams } from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind, Position, TextDocumentPositionParams } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
 import { ConfigurationManager } from '../mm/ConfigurationManager';
@@ -7,7 +7,6 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from '../mmp/MmpStatements';
 import { UProof } from '../mmp/UProof';
 import { IUStatement } from '../mmp/UStatement';
-import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
 import { StepSuggestion } from '../stepSuggestion/StepSuggestion';
 import { SyntaxCompletion } from '../syntaxCompletion/SyntaxCompletion';
 
@@ -141,15 +140,12 @@ export class OnCompletionHandler {
 	cursorCharacter: number;
 
 	configurationManager: ConfigurationManager;
-	connection: Connection;
 
-	constructor(textDocumentPosition: TextDocumentPositionParams, configurationManager: ConfigurationManager,
-		connection: Connection) {
+	constructor(textDocumentPosition: TextDocumentPositionParams, configurationManager: ConfigurationManager) {
 		this.textDocumentPosition = textDocumentPosition;
 		this.cursorLine = textDocumentPosition.position.line;
 		this.cursorCharacter = textDocumentPosition.position.character;
 		this.configurationManager = configurationManager;
-		this.connection = connection;
 	}
 	/** returns the array of symbols expected from the early parser */
 
@@ -242,17 +238,13 @@ export class OnCompletionHandler {
 				}
 					break;
 				case CursorContextForCompletion.stepLabel: {
-					if (GlobalState.stepSuggestionMap == undefined && GlobalState.mmParser != undefined) {
-						//TODO below I'm using a hardwired logic (the model for .mm becomes the same file with .mms); you should
-						//add a configuration parameter, instead
-						//TODO1
-						// the model has not been loaded, yet
-						// const modelDataFullPath: string = await this.configurationManager.mmFileFullPath(this.textDocumentPosition.textDocument.uri) + 's';
-						const modelDataFullPath: string = GlobalState.mmFilePath + 's';
-						GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelDataFullPath,
-							this.connection);
-					}
-					else {
+					// if (GlobalState.stepSuggestionMap == undefined && GlobalState.mmParser != undefined) {
+					// 	const modelDataFullPath: string = GlobalState.mmFilePath + 's';
+					// 	GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelDataFullPath,
+					// 		this.connection);
+					// }
+					// else {
+					if (GlobalState.stepSuggestionMap != undefined) {
 						// the model has already been loaded
 						const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
 							GlobalState.mmParser);
