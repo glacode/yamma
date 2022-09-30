@@ -85,8 +85,12 @@ export function activate(context: ExtensionContext) {
 			// window.showInformationMessage(message);
 		});
 
+		client.onNotification('yamma/showwarning', (message: string) => {
+			window.showWarningMessage(message, ...["Ok"]);
+		});
+
 		client.onNotification('yamma/showerror', (message: string) => {
-			window.showErrorMessage(message);
+			window.showErrorMessage(message, ...["Ok"]);
 		});
 
 		// client.onNotification('yamma/movecursor', (range: Range) => {

@@ -301,6 +301,10 @@ export function notifyInformation(errorMessage: string, connection: Connection) 
 	connection.sendNotification('yamma/showinformation', errorMessage);
 }
 
+export function notifyWarning(errorMessage: string, connection: Connection) {
+	connection.sendNotification('yamma/showwarning', errorMessage);
+}
+
 export function notifyError(errorMessage: string, connection: Connection) {
 	connection.sendNotification('yamma/showerror', errorMessage);
 }

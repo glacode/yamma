@@ -292,7 +292,7 @@ connection.onDidChangeWatchedFiles(_change => {
 connection.onCompletion(
 	async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> => {
 		const onCompletionHandler: OnCompletionHandler =
-			new OnCompletionHandler(_textDocumentPosition, configurationManager);
+			new OnCompletionHandler(_textDocumentPosition, configurationManager, connection);
 		const result: CompletionItem[] = await onCompletionHandler.completionItems();
 
 		// The pass parameter contains the position of the text document in

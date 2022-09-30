@@ -46,6 +46,10 @@ export class TheoryLoader {
 	}
 
 	//#region loadNewTheorySync
+	removeTheCurrentTheoryFromTheGlobalState() {
+		GlobalState.mmFilePath = undefined;
+		GlobalState.mmParser = undefined;
+	}
 	async loadTheoryFromMmFile(mmFilePath: string) {
 		this.mmParser = new MmParser();
 		this.mmParser.progressListener = this.notifyProgress;
@@ -63,13 +67,15 @@ export class TheoryLoader {
 			notifyError(message, this.connection);
 		}
 		else {
+			GlobalState.mmFilePath = this.mmFilePath;
+			GlobalState.mmParser = this.mmParser!;
 			message = `The theory file ${mmFilePath} has been successfully parsed`;
 			notifyInformation(message, this.connection);
 		}
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
-		GlobalState.mmParser = this.mmParser!;
 	}
 	private async loadNewTheorySync() {
+		this.removeTheCurrentTheoryFromTheGlobalState();
 		const currentDocumentDir: string | undefined = await this.getCurrentDocumentDir();
 		let mmFilePath: string = this.mmFilePath;
 		if (mmFilePath == '') {
@@ -81,7 +87,7 @@ export class TheoryLoader {
 		}
 		const fileExist: boolean = fs.existsSync(mmFilePath);
 		if (!fileExist) {
-			const message = `The theory file ${mmFilePath} does not exist. Thus the extension Yamma ` +
+			const message = `The theory file ${mmFilePath} does not exist. Thus this extension ` +
 				`cannot work properly. To fix this, either input another .mm file in the Workspace configuration ` +
 				`or copy a set.mm file in ${currentDocumentDir}`;
 			notifyError(message, this.connection);
@@ -93,7 +99,7 @@ export class TheoryLoader {
 	/** starts a thread to load a step suggestion model  */
 	private async loadStepSuggestionModelAsync() {
 		const modelFilePath: string = ModelBuilder.buildModelFileFullPath(this.mmFilePath);
-		GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelFilePath);
+		GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelFilePath, this.connection);
 	}
 
 	/** checks if the current mmFilePath is different from the one stored in the GlobalState: if that's the
@@ -110,7 +116,9 @@ export class TheoryLoader {
 			//TODO consider using worker threads, I'm afraid this one is 'blocking', not really async
 			console.log('after loadNewTheorySync - GlobalState.mmParser = ' + GlobalState.mmParser);
 			console.log('before loadStepSuggestionModelAsync');
-			this.loadStepSuggestionModelAsync();
+			if (GlobalState.mmParser != undefined)
+				// a theory has been succesfully loaded
+				this.loadStepSuggestionModelAsync();
 			console.log('after loadStepSuggestionModelAsync');
 		}
 	}

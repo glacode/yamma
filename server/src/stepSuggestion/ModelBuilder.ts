@@ -8,7 +8,8 @@ import * as fs from 'fs';
 import { Verifier } from '../mm/Verifier';
 import { ProofCompressor } from '../mmp/ProofCompressor';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { notifyProgressWithTimestampAndMemory } from '../mm/Utils';
+import { notifyProgressWithTimestampAndMemory, notifyWarning } from '../mm/Utils';
+import { Connection } from 'vscode-languageserver';
 
 export interface IStepSuggestion {
 	label: string,
@@ -277,8 +278,8 @@ export class ModelBuilder {
 		return mmFilePath + 's';
 	}
 
-	//QUI!!! add test
-	static async loadSuggestionsMap(modelFullPath: string): Promise<Map<string, IStepSuggestion[]>> {
+	//#region loadSuggestionsMap
+	static loadSuggestionsMapForExistingModel(modelFullPath: string): Map<string, IStepSuggestion[]> {
 		const suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
 		const model: string = fs.readFileSync(modelFullPath, 'utf-8');
 		const modelRows: string[] = model.split('\n');
@@ -306,22 +307,22 @@ export class ModelBuilder {
 			singleRpnSyntaxTreeSuggestions.push(stepSuggestion);
 			i++;
 		}
-		// modelRows.forEach((modelRowString: string) => {
-		// 	const modelRowArray: string[] = modelRowString.split(',');
-		// 	const rpnSyntaxTree: string = modelRowArray[0];
-		// 	const giustificationLabel: string = modelRowArray[1];
-		// 	const multiplicity: number = parseInt(modelRowArray[2]);
-		// 	if (rpnSyntaxTree != previousRpnSyntaxTree) {
-		// 		// this is the first suggestion for rpnSyntaxTree
-		// 		suggestionsMap.set(rpnSyntaxTree, singleRpnSyntaxTreeSuggestions);
-		// 		singleRpnSyntaxTreeSuggestions = [];
-		// 	}
-		// 	const stepSuggestion: IStepSuggestion = {
-		// 		label: giustificationLabel,
-		// 		multiplicity: multiplicity
-		// 	};
-		// 	singleRpnSyntaxTreeSuggestions.push(stepSuggestion);
-		// });
 		return suggestionsMap;
 	}
+	//QUI!!! add test
+	static async loadSuggestionsMap(modelFullPath: string, connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
+		let suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
+		if (fs.existsSync(modelFullPath))
+			suggestionsMap = this.loadSuggestionsMapForExistingModel(modelFullPath);
+		else {
+			// the file for the model does not exist
+			const message = `The model file ${modelFullPath} has not been found. The extension ` +
+				`will work anyway, but step suggestions will not be as accurate and useful as they ` +
+				`would be using a trained model.`;
+			// notifyError(errorMessage,connection);
+			notifyWarning(message,connection);
+		}
+		return suggestionsMap;
+	}
+	//#endregion loadSuggestionsMap
 }
