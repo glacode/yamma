@@ -1,4 +1,5 @@
 import path = require('path');
+import url = require('url');
 import { Connection, WorkDoneProgress, WorkDoneProgressCreateRequest, WorkspaceFolder } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
@@ -39,7 +40,11 @@ export class TheoryLoader {
 		const workspaceFolders: WorkspaceFolder[] | null = await this.connection.workspace.getWorkspaceFolders();
 		if (workspaceFolders != null) {
 			const workspaceFolder: WorkspaceFolder = workspaceFolders[0];
-			currentDir = workspaceFolder.name;
+			const workspaceFolderUri: string = workspaceFolder.uri;
+			// currentDir = workspaceFolder.name;
+			currentDir = url.fileURLToPath(workspaceFolderUri);
+			// url.pathToFileURL(path);
+			// currentDir = path.dirname(workspaceFolderUri);
 			// const workSpaceDir: string = path.dirname(workspaceFolder.uri);
 		}
 		return currentDir;
@@ -67,7 +72,7 @@ export class TheoryLoader {
 			notifyError(message, this.connection);
 		}
 		else {
-			GlobalState.mmFilePath = this.mmFilePath;
+			GlobalState.mmFilePath = mmFilePath;
 			GlobalState.mmParser = this.mmParser!;
 			message = `The theory file ${mmFilePath} has been successfully parsed`;
 			notifyInformation(message, this.connection);
@@ -98,7 +103,9 @@ export class TheoryLoader {
 
 	/** starts a thread to load a step suggestion model  */
 	private async loadStepSuggestionModelAsync() {
-		const modelFilePath: string = ModelBuilder.buildModelFileFullPath(this.mmFilePath);
+		// we use GlobalState.mmFilePath instead of this.mmFilePath, because the TheoryLoader
+		// might have used the default theory name, if the configuration mmFilePath is empty
+		const modelFilePath: string = ModelBuilder.buildModelFileFullPath(GlobalState.mmFilePath!);
 		GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelFilePath, this.connection);
 	}
 
