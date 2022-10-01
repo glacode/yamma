@@ -1,5 +1,6 @@
 import { HoverParams, Position, Range, TextDocuments } from 'vscode-languageserver';
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { MmToken } from '../grammar/MmLexer';
 import { MmParser } from '../mm/MmParser';
 import { AssertionStatement, EHyp, LabeledStatement } from '../mm/Statements';
 import { concatWithSpaces, rebuildOriginalStringFromTokens } from '../mm/Utils';
@@ -57,10 +58,22 @@ export abstract class OnHoverHandler {
 		// + " ".concat(...labeledStatement.Content)
 		return mainContent;
 	}
-	static getContentValueForLabeledStatement(labeledStatement: LabeledStatement): string {
+
+	/** returns the content for the OnHover documentation, but it is also used by the 
+	 * OnCompletionResolveHandler, to return documentation for the completion items.
+	 * The commentFormatter parameter is used because the OnHover documentation has
+	 * more horizontal room and can display the original formatting, while the completion item
+	 * documentation has less horizontal room, and then, using the original
+	 * formatting, it would not fit and it would trigger the horizontal scrooling bar.
+	 */
+	static getContentValueForLabeledStatement(labeledStatement: LabeledStatement,
+		commentFormatter: ( tokens: MmToken[]) => string ): string {
 		let contentValue = "";
 		if ( labeledStatement.comment != undefined && labeledStatement.comment.length > 0) {
-			contentValue = rebuildOriginalStringFromTokens(labeledStatement.comment);
+			//TODO1
+			// contentValue = rebuildOriginalStringFromTokens(labeledStatement.comment);
+			// contentValue = concatTokenValuescmdWithSpaces(labeledStatement.comment);
+			contentValue = commentFormatter(labeledStatement.comment);
 			contentValue += "\n___\n";
 		}
 		if (labeledStatement instanceof AssertionStatement) {
@@ -80,7 +93,8 @@ export abstract class OnHoverHandler {
 		// let contentValue = `${token} is not a valid label`;
 		let contentValue : string | undefined;
 		if (labeledStatement != undefined)
-			contentValue = OnHoverHandler.getContentValueForLabeledStatement(labeledStatement);
+			contentValue = OnHoverHandler.getContentValueForLabeledStatement(labeledStatement,
+				rebuildOriginalStringFromTokens);
 		return contentValue;
 	}
 	//#endregion getContentValueFromToken
