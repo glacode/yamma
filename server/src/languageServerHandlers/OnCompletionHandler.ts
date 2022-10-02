@@ -146,11 +146,13 @@ export class OnCompletionHandler {
 		this.cursorLine = textDocumentPosition.position.line;
 		this.cursorCharacter = textDocumentPosition.position.character;
 		this.configurationManager = configurationManager;
+		console.log(textDocumentPosition.position);
 	}
 	/** returns the array of symbols expected from the early parser */
 
 	//#region completionItems
 	stepSuggestion(cursorContext: CursorContext, mmParser: MmParser): CompletionItem[] {
+		console.log(cursorContext.mmpProofStep?.label);
 		let completionItems: CompletionItem[] = [];
 		if (GlobalState.stepSuggestionMap != undefined) {
 			// the model has already been loaded
@@ -198,7 +200,7 @@ export class OnCompletionHandler {
 		// return completionItems;
 		const completionList: CompletionList = {
 			items: completionItems,
-			isIncomplete: false
+			isIncomplete: true
 		};
 		return completionList;
 	}

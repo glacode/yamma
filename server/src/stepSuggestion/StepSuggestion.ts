@@ -62,25 +62,29 @@ export class StepSuggestion {
 	}
 	//#endregion getUnifiableStepSuggestions
 
+	addCompletionItem(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
+		completionItems: CompletionItem[]) {
+		// const label = `${stepSuggestion.label} ${stepSuggestion.multiplicity}`;
+		const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
+		const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
+		const completionItem: CompletionItem = {
+			label: stepSuggestion.label,
+			detail: detail,
+			//TODO see if LSP supports a way to disable client side sorting
+			sortText: String(index).padStart(3, '0')
+			//TODO search how to remove the icon from the completion list
+			// kind: CompletionItemKind.Keyword
+			// data: symbol
+		};
+		completionItems.push(completionItem);
+	}
 	getCompletionItems(stepSuggestions: IStepSuggestion[]): CompletionItem[] {
 		const completionItems: CompletionItem[] = [];
 		const unifiableStepSuggestions: IStepSuggestion[] = this.getUnifiableStepSuggestions(stepSuggestions);
 		const totalMultiplicity: number =
 			unifiableStepSuggestions.reduce((sum: number, current: IStepSuggestion) => sum + current.multiplicity, 0);
 		unifiableStepSuggestions.forEach((stepSuggestion: IStepSuggestion, i: number) => {
-			// const label = `${stepSuggestion.label} ${stepSuggestion.multiplicity}`;
-			const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
-			const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
-			const completionItem: CompletionItem = {
-				label: stepSuggestion.label,
-				detail: detail,
-				//TODO see if LSP supports a way to disable client side sorting
-				sortText: String(i).padStart(3, '0')
-				//TODO search how to remove the icon from the completion list
-				// kind: CompletionItemKind.Keyword
-				// data: symbol
-			};
-			completionItems.push(completionItem);
+			this.addCompletionItem(stepSuggestion, i, totalMultiplicity, completionItems);
 		});
 		return completionItems;
 	}
@@ -113,8 +117,8 @@ export class StepSuggestion {
 				data: 2
 			}
 		];
-		completionItems = this.getCompletionItemsFromModels(); 
-		
+		completionItems = this.getCompletionItemsFromModels();
+
 		return completionItems;
 	}
 	//#endregion completionItems
