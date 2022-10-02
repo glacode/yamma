@@ -24,6 +24,7 @@ import {
 	SemanticTokenModifiers,
 	_Connection,
 	Connection,
+	CompletionList,
 } from 'vscode-languageserver/node';
 
 import {
@@ -290,10 +291,12 @@ connection.onDidChangeWatchedFiles(_change => {
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
-	async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> => {
+	// async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> => {
+	async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionList> => {
 		const onCompletionHandler: OnCompletionHandler =
 			new OnCompletionHandler(_textDocumentPosition, configurationManager);
-		const result: CompletionItem[] = await onCompletionHandler.completionItems();
+		// const result: CompletionItem[] = await onCompletionHandler.completionItems();
+		const result: CompletionList = await onCompletionHandler.completionItems();
 
 		// The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
@@ -318,16 +321,20 @@ connection.onCompletion(
 // the completion list.
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
-		if (item.data === 1) {
-			item.detail = 'TypeScript details';
-			item.documentation = 'TypeScript documentation';
-		} else if (item.data === 2) {
-			item.detail = 'JavaScript details';
-			item.documentation = 'JavaScript documentation';
-		}
+		// if (item.data === 1) {
+		// 	item.detail = 'TypeScript details';
+		// 	item.documentation = 'TypeScript documentation';
+		// } else if (item.data === 2) {
+		// 	item.detail = 'JavaScript details';
+		// 	item.documentation = 'JavaScript documentation';
+		// }
 		const onCompletionResolveHandler: OnCompletionResolveHandler =
 			new OnCompletionResolveHandler();
 		onCompletionResolveHandler.addDocumentationIfPossible(item);
+		// use the two lines below to debug, if VSCode stops showing details and documentation (once happened
+		// and I had to restart VSCode to solve it)
+		// item.detail = 'TypeScript details2';
+		// item.documentation = 'TypeScript documentation2';
 		return item;
 	}
 );
@@ -401,7 +408,7 @@ connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticToken
 	let mmpParser: MmpParser | undefined = GlobalState.lastMmpParser;
 	//TODO1 move all this handler onSemanticTokensHandler.semanticTokens (pass documents to the
 	// OnSemanticTokensHandler constructor) 
-	if ( mmParser != undefined && mmpParser == undefined) {
+	if (mmParser != undefined && mmpParser == undefined) {
 		const textDocument: TextDocument = documents.get(semanticTokenParams.textDocument.uri)!;
 		await validateTextDocument(textDocument);
 		mmpParser = GlobalState.lastMmpParser;

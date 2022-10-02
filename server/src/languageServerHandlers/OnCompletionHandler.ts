@@ -1,4 +1,4 @@
-import { CompletionItem, CompletionItemKind, Position, TextDocumentPositionParams } from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind, CompletionList, Position, TextDocumentPositionParams } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
 import { ConfigurationManager } from '../mm/ConfigurationManager';
@@ -149,70 +149,20 @@ export class OnCompletionHandler {
 	}
 	/** returns the array of symbols expected from the early parser */
 
-	// //#region getSymbols
-	// private getSymbols(): string[] | undefined {
-	// 	let expected: string[] | undefined;
-	// 	const stepFormula: MmToken[] | undefined = this.getFormulaBeforeCursor();
-	// 	if (stepFormula != undefined) {
-	// 		// the step formula is present
-	// 		// stepFormula = nextProofStepTokens.slice(1);
-	// 		// formulaParseNode = MmpParser.tryToParse(stepFormula, this.grammar, this.workingVars, this.diagnostics);
-	// 		GlobalState.mmParser.grammar.lexer = new MmLexerFromTokens(stepFormula);
-	// 		let parser: Parser = new Parser(GlobalState.mmParser.grammar);
-	// 		// const stepFormulaString = concatTokenValuesWithSpaces(stepFormula);
-	// 		try {
-	// 			// parser.feed(stepFormulaString);
-	// 			// here we don't need to pass the actual formula string, because we use MmLexerFromTokens
-	// 			// that returns the original tokens of the formula
-	// 			parser.feed("");
-	// 			if (parser.results.length === 0) {
-	// 				// the formula was parsed till the end and no error was found, but at the end it
-	// 				// was not a valid formula
-	// 				const stepFormulaString = concatTokenValuesWithSpaces(stepFormula);
-	// 				GlobalState.mmParser.grammar.lexer = new MmLexer(GlobalState.mmParser.workingVars);
-	// 				parser = new Parser(GlobalState.mmParser.grammar);
-	// 				parser.feed(stepFormulaString + " UnxpexcteEndOfFormula");
-	// 			}
-	// 			// if (parser.results.length > 1)
-	// 			// 	throw new Error("Some ambiguity, let's look into it");
-	// 			// parseNode = parser.results[0];
-	// 		} catch (error: any) {
-	// 			const message: string = error.message!;
-	// 			// let range: Range = oneCharacterRange(stepFormula[stepFormula.length - 1].range.end);
-	// 			// let errorCode: MmpParserErrorCode = MmpParserErrorCode.unexpectedEndOfFormula;
-	// 			// expected = message.match(/(?<=A ).*(?= based on:)/g)!;
-	// 			expected = message.match(/(?<=A ).*(?= based on:)/g)!.map(s => s.slice(1, s.length - 1));
-
-
-	// 			// expected = message.match(/(?<=A ).*(?= based on:)/g)!.map(s => s.replace(/\s+token/i, ''));
-
-	// 			// if (parser.current < stepFormula.length) {
-	// 			// 	// the parsing error was NOT for an and UnxpexcteEndOfFormula
-	// 			// 	range = stepFormula[parser.current].range;
-	// 			// 	errorCode = MmpParserErrorCode.formulaSyntaxError;
-	// 			// }
-	// 		}
-	// 	}
-	// 	return expected;
-	// }
-	// //#endregion getSymbols
-
-
-	// getCompletionItems(symbols: string[]): CompletionItem[] {
-	// 	const completionItems: CompletionItem[] = [];
-	// 	symbols.forEach((symbol: string) => {
-	// 		const completionItem: CompletionItem = {
-	// 			label: symbol,
-	// 			kind: CompletionItemKind.Keyword,
-	// 			data: symbol
-	// 		};
-	// 		completionItems.push(completionItem);
-	// 	});
-	// 	return completionItems;
-	// }
-
 	//#region completionItems
-	async completionItems(): Promise<CompletionItem[]> {
+	stepSuggestion(cursorContext: CursorContext, mmParser: MmParser): CompletionItem[] {
+		let completionItems: CompletionItem[] = [];
+		if (GlobalState.stepSuggestionMap != undefined) {
+			// the model has already been loaded
+			const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
+				mmParser);
+			completionItems = stepSuggestion.completionItems();
+		}
+		return completionItems;
+	}
+
+	// async completionItems(): Promise<CompletionItem[]> {
+	async completionItems(): Promise<CompletionList> {
 		let completionItems: CompletionItem[] = [];
 		if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined) {
 			const mmParser: MmParser = GlobalState.mmParser;
@@ -238,33 +188,19 @@ export class OnCompletionHandler {
 				}
 					break;
 				case CursorContextForCompletion.stepLabel: {
-					// if (GlobalState.stepSuggestionMap == undefined && GlobalState.mmParser != undefined) {
-					// 	const modelDataFullPath: string = GlobalState.mmFilePath + 's';
-					// 	GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelDataFullPath,
-					// 		this.connection);
-					// }
-					// else {
-					if (GlobalState.stepSuggestionMap != undefined) {
-						// the model has already been loaded
-						const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
-							GlobalState.mmParser);
-						completionItems = stepSuggestion.completionItems();
-					}
+					completionItems = this.stepSuggestion(cursorContext, GlobalState.mmParser);
 				}
 					break;
 				default:
 					break;
 			}
-
-			// const symbols: string[] | undefined = this.getSymbols();
-
-			// if (symbols != undefined)
-			// 	// the formula was not succesfully completed: symbols are the possible next symbols
-			// 	completionItems = this.getCompletionItems(symbols);
 		}
-
-
-		return completionItems;
+		// return completionItems;
+		const completionList: CompletionList = {
+			items: completionItems,
+			isIncomplete: false
+		};
+		return completionList;
 	}
 	//#endregion completionItems
 }

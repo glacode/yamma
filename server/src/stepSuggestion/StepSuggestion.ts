@@ -33,6 +33,7 @@ export class StepSuggestion {
 		return rpnSyntaxTree;
 	}
 
+	//#region getCompletionItemsFromModels
 	//#region getCompletionItems
 
 	//#region getUnifiableStepSuggestions
@@ -83,24 +84,21 @@ export class StepSuggestion {
 		});
 		return completionItems;
 	}
-	// getCompletionItems(stepSuggestions: IStepSuggestion[]): CompletionItem[] {
-	// 	const completionItems: CompletionItem[] = [];
-	// 	stepSuggestions.forEach((stepSuggestion: IStepSuggestion, i: number) => {
-	// 		// const label = `${stepSuggestion.label} ${stepSuggestion.multiplicity}`;
-	// 		const completionItem: CompletionItem = {
-	// 			label: stepSuggestion.label,
-	// 			detail: stepSuggestion.multiplicity.toString(),
-	// 			//TODO see if LSP supports a way to disable client side sorting
-	// 			sortText: String(i).padStart(3, '0')
-	// 			//TODO search how to remove the icon from the completion list
-	// 			// kind: CompletionItemKind.Keyword
-	// 			// data: symbol
-	// 		};
-	// 		completionItems.push(completionItem);
-	// 	});
-	// 	return completionItems;
-	// }
 	//#endregion getCompletionItems
+	getCompletionItemsFromModels(): CompletionItem[] {
+		let completionItemsFromModels: CompletionItem[] = [];
+		const rpnSyntaxTree: string | undefined = this.buildRpnSyntaxTree();
+		if (rpnSyntaxTree != undefined) {
+			// the cursor is on a proof step that has a valid parse node
+			const stepSuggestions: IStepSuggestion[] | undefined =
+				this.stepSuggestionMap.get(rpnSyntaxTree);
+			if (stepSuggestions != undefined)
+				// the formula was not succesfully completed: symbols are the possible next symbols
+				completionItemsFromModels = this.getCompletionItems(stepSuggestions);
+		}
+		return completionItemsFromModels;
+	}
+	//#endregion getCompletionItemsFromModels
 
 	completionItems(): CompletionItem[] {
 		let completionItems: CompletionItem[] = [
@@ -115,15 +113,8 @@ export class StepSuggestion {
 				data: 2
 			}
 		];
-		const rpnSyntaxTree: string | undefined = this.buildRpnSyntaxTree();
-		if (rpnSyntaxTree != undefined) {
-			// the cursor is on a proof step that has a valid parse node
-			const stepSuggestions: IStepSuggestion[] | undefined =
-				this.stepSuggestionMap.get(rpnSyntaxTree);
-			if (stepSuggestions != undefined)
-				// the formula was not succesfully completed: symbols are the possible next symbols
-				completionItems = this.getCompletionItems(stepSuggestions);
-		}
+		completionItems = this.getCompletionItemsFromModels(); 
+		
 		return completionItems;
 	}
 	//#endregion completionItems
