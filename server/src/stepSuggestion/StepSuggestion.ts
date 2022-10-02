@@ -1,8 +1,10 @@
-import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind, InsertReplaceEdit, Range } from 'vscode-languageserver';
+import { Parameters } from '../general/Parameters';
 import { InternalNode } from '../grammar/ParseNode';
 import { CursorContext } from '../languageServerHandlers/OnCompletionHandler';
 import { MmParser } from '../mm/MmParser';
 import { AssertionStatement, LabeledStatement } from '../mm/Statements';
+import { range } from '../mm/Utils';
 import { MmpProofStep } from '../mmp/MmpStatements';
 import { SubstitutionResult, USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { IStepSuggestion } from './ModelBuilder';
@@ -11,11 +13,14 @@ import { RpnSyntaxTreeBuilder } from './RpnSyntaxTreeBuilder';
 export class StepSuggestion {
 	cursorContext: CursorContext;
 	stepSuggestionMap: Map<string, IStepSuggestion[]>;
+	mmpProofStep: MmpProofStep | undefined;
 	mmParser: MmParser;
 
-	constructor(cursorContext: CursorContext, stepSuggestionMap: Map<string, IStepSuggestion[]>, mmParser: MmParser) {
+	constructor(cursorContext: CursorContext, stepSuggestionMap: Map<string, IStepSuggestion[]>,
+		mmpProofStep: MmpProofStep | undefined, mmParser: MmParser) {
 		this.cursorContext = cursorContext;
 		this.stepSuggestionMap = stepSuggestionMap;
+		this.mmpProofStep = mmpProofStep;
 		this.mmParser = mmParser;
 	}
 
@@ -34,7 +39,7 @@ export class StepSuggestion {
 	}
 
 	//#region getCompletionItemsFromModels
-	//#region getCompletionItems
+	//#region getCompletionItemsFromStepSuggestions
 
 	//#region getUnifiableStepSuggestions
 	isUnifiable(stepSuggestion: IStepSuggestion) {
@@ -62,23 +67,40 @@ export class StepSuggestion {
 	}
 	//#endregion getUnifiableStepSuggestions
 
+	//#region addCompletionItem
+	insertReplaceEdit(stepSuggestion: IStepSuggestion): InsertReplaceEdit | undefined {
+		let insertReplaceEdit: InsertReplaceEdit | undefined;
+		if (this.mmpProofStep != undefined && this.mmpProofStep.label != undefined) {
+			const insertRange: Range = this.mmpProofStep!.label!.range;
+			const replaceRange: Range = range(stepSuggestion.label, insertRange.start.line, insertRange.start.character);
+			insertReplaceEdit = {
+				insert: insertRange,
+				replace: replaceRange,
+				newText: stepSuggestion.label
+			};
+		}
+		return insertReplaceEdit;
+	}
 	addCompletionItem(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
 		completionItems: CompletionItem[]) {
 		// const label = `${stepSuggestion.label} ${stepSuggestion.multiplicity}`;
 		const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
 		const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
+		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(stepSuggestion);
 		const completionItem: CompletionItem = {
 			label: stepSuggestion.label,
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
-			sortText: String(index).padStart(3, '0')
+			sortText: String(index).padStart(3, '0'),
+			textEdit: insertReplaceEdit
 			//TODO search how to remove the icon from the completion list
 			// kind: CompletionItemKind.Keyword
 			// data: symbol
 		};
 		completionItems.push(completionItem);
 	}
-	getCompletionItems(stepSuggestions: IStepSuggestion[]): CompletionItem[] {
+	//#endregion addCompletionItem
+	getCompletionItemsFromStepSuggestions(stepSuggestions: IStepSuggestion[]): CompletionItem[] {
 		const completionItems: CompletionItem[] = [];
 		const unifiableStepSuggestions: IStepSuggestion[] = this.getUnifiableStepSuggestions(stepSuggestions);
 		const totalMultiplicity: number =
@@ -88,7 +110,7 @@ export class StepSuggestion {
 		});
 		return completionItems;
 	}
-	//#endregion getCompletionItems
+	//#endregion getCompletionItemsFromStepSuggestions
 	getCompletionItemsFromModels(): CompletionItem[] {
 		let completionItemsFromModels: CompletionItem[] = [];
 		const rpnSyntaxTree: string | undefined = this.buildRpnSyntaxTree();
@@ -98,11 +120,31 @@ export class StepSuggestion {
 				this.stepSuggestionMap.get(rpnSyntaxTree);
 			if (stepSuggestions != undefined)
 				// the formula was not succesfully completed: symbols are the possible next symbols
-				completionItemsFromModels = this.getCompletionItems(stepSuggestions);
+				completionItemsFromModels = this.getCompletionItemsFromStepSuggestions(stepSuggestions);
 		}
 		return completionItemsFromModels;
 	}
 	//#endregion getCompletionItemsFromModels
+
+	//#region addCompletionItemsFromPartialLabel
+	addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
+		//TODO1
+		const completionItem: CompletionItem = {
+			label: partialLabel + 'testtest',
+		};
+		completionItems.push(completionItem);
+		// throw new Error('Method not implemented.');
+	}
+	/** when the user inputs some characters, then this method adds more CompletionItem(s), using
+	 * a general algorithm that does not depend on a trained model: all 'matching' assertions
+	 * are returned
+	 */
+	private addCompletionItemsFromPartialLabel(completionItems: CompletionItem[]) {
+		if (this.mmpProofStep != undefined && this.mmpProofStep.label != undefined &&
+			this.mmpProofStep.label.value.length >= Parameters.numberOfCharsTriggeringCompletionItemsFromPartialLabel)
+			this.addCompletionItemsFromPartialLabelActually(this.mmpProofStep.label.value, completionItems);
+	}
+	//#endregion addCompletionItemsFromPartialLabel
 
 	completionItems(): CompletionItem[] {
 		let completionItems: CompletionItem[] = [
@@ -118,6 +160,7 @@ export class StepSuggestion {
 			}
 		];
 		completionItems = this.getCompletionItemsFromModels();
+		this.addCompletionItemsFromPartialLabel(completionItems);
 
 		return completionItems;
 	}

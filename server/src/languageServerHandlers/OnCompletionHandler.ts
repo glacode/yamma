@@ -157,7 +157,7 @@ export class OnCompletionHandler {
 		if (GlobalState.stepSuggestionMap != undefined) {
 			// the model has already been loaded
 			const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
-				mmParser);
+				cursorContext.mmpProofStep,mmParser);
 			completionItems = stepSuggestion.completionItems();
 		}
 		return completionItems;
