@@ -3,7 +3,7 @@ import * as readline from 'readline';
 import events = require('events');
 import { BlockStatement } from "./BlockStatement";
 import { Frame } from "./Frame";
-import { AxiomStatement, EHyp, FHyp, LabeledStatement, ProvableStatement } from "./Statements";
+import { AssertionStatement, AxiomStatement, EHyp, FHyp, LabeledStatement, ProvableStatement } from "./Statements";
 import { TokenReader } from "./TokenReader";
 import { Verifier } from "./Verifier";
 import { MmToken } from '../grammar/MmLexer';
@@ -28,6 +28,7 @@ export class MmParser {
     //    blockStack: BlockStack
     outermostBlock: BlockStatement
     labelToStatementMap: Map<string, LabeledStatement>;  // maps each label to its statement
+    labelToAssertionMap: Map<string, AssertionStatement>;
     lastComment: string;
     isParsingComplete = false;
 
@@ -69,6 +70,7 @@ export class MmParser {
     constructor() {
         this.outermostBlock = new BlockStatement();
         this.labelToStatementMap = new Map<string, LabeledStatement>();
+        this.labelToAssertionMap = new Map<string, AssertionStatement>();
         this.lastComment = "";
         this.parseFailed = false;
 
@@ -160,6 +162,7 @@ export class MmParser {
         Frame.createFrame(statement);
         currentBlock.labelToStatementMap.set(label.value, statement);
         this.labelToStatementMap.set(label.value, statement);
+        this.labelToAssertionMap.set(label.value, statement);
         label = undefined;
     }
     addEStatement(label: MmToken | undefined, toks: TokenReader, currentBlock: BlockStatement) {
@@ -200,6 +203,7 @@ export class MmParser {
         this.parseFailed ||= verifier.verificationFailed;
 
         this.labelToStatementMap.set(label.value, statement);
+        this.labelToAssertionMap.set(label.value, statement);
         label = undefined;
     }
     buildLabelToStatementMap(toks: TokenReader, currentBlock?: BlockStatement) {

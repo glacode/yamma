@@ -135,6 +135,7 @@ export abstract class LabeledStatement extends NonBlockStatement {
     parseNodeForSyntaxAxiom(grammar: Grammar): InternalNode {
         if (this._parseNode == undefined) {
             const typecode: string = this.formula[0];
+            //TODO it might be faster using a MmLexer that uses symbols directly (without creating the intermediate string)
             const strToParse: string = concatWithSpacesSkippingStart(1, this.formula);
             this._parseNode = <InternalNode>this.parseForTypecode(typecode, strToParse, grammar);
         }

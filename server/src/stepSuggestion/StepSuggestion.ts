@@ -129,11 +129,19 @@ export class StepSuggestion {
 	//#region addCompletionItemsFromPartialLabel
 	addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
 		//TODO1
-		const completionItem: CompletionItem = {
-			label: partialLabel + 'testtest',
-		};
-		completionItems.push(completionItem);
-		// throw new Error('Method not implemented.');
+		completionItems.push({ label: partialLabel + 'testtest' });
+		// const completionItem: CompletionItem = {
+		// 	label: partialLabel + 'testtest',
+		// };
+		this.mmParser.labelToAssertionMap.forEach((_assertion: AssertionStatement, label: string) => {
+			if (label.indexOf(partialLabel) != -1) {
+				// the current assertion's label contains the partial label input by the user
+				const completionItem: CompletionItem = {
+					label: label,
+				};
+				completionItems.push(completionItem);
+			}
+		});
 	}
 	/** when the user inputs some characters, then this method adds more CompletionItem(s), using
 	 * a general algorithm that does not depend on a trained model: all 'matching' assertions
