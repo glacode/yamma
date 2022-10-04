@@ -9,6 +9,8 @@ import { MmpProofStep } from '../mmp/MmpStatements';
 import { SubstitutionResult, USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { IStepSuggestion } from './ModelBuilder';
 import { RpnSyntaxTreeBuilder } from './RpnSyntaxTreeBuilder';
+import { GrammarManager } from '../grammar/GrammarManager';
+
 
 export class StepSuggestion {
 	cursorContext: CursorContext;
@@ -38,14 +40,20 @@ export class StepSuggestion {
 		return rpnSyntaxTree;
 	}
 
-	//#region getCompletionItemsFromModels
-	//#region getCompletionItemsFromStepSuggestions
+	//#region isUnifiable
 
-	//#region getUnifiableStepSuggestions
-	isUnifiable(stepSuggestion: IStepSuggestion) {
+	//TODO this is almost identical to GrammarManager.isSyntaxAxiom() , consider creating
+	// a single method
+	private isSyntaxAxiom(assertionStatement: AssertionStatement): boolean {
+		const result: boolean = assertionStatement.formula.length > 0 &&
+			assertionStatement.formula[0] != GrammarManager.typeCodeForProvable;
+		return result;
+	}
+	isUnifiable(stepSuggestionLabel: string) {
 		let hasBeenFoundSubstitution = false;
-		const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestion.label);
-		if (assertionStatement instanceof AssertionStatement) {
+		// const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestion.label);
+		const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestionLabel);
+		if (assertionStatement instanceof AssertionStatement && !this.isSyntaxAxiom(assertionStatement)) {
 			const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(
 				this.cursorContext.mmpProofStep!, assertionStatement, this.mmParser.outermostBlock,
 				this.mmParser.workingVars, this.mmParser.grammar, []);
@@ -53,14 +61,27 @@ export class StepSuggestion {
 				uSubstitutionBuilder.buildSubstitutionForExistingParseNodes();
 			hasBeenFoundSubstitution = substitutionResult.hasBeenFound;
 		} else
-			console.log(`label ${stepSuggestion.label} is not a label for an assertion, this is not expected. ` +
+			// console.log(`label ${stepSuggestionLabel.label} is not a label for an assertion, this is not expected. ` +
+			// 	`May be that assertion was removed from the theory, after the model was built.`);
+			console.log(`label ${stepSuggestionLabel} is not a label for an assertion, this is not expected. ` +
 				`May be that assertion was removed from the theory, after the model was built.`);
 		return hasBeenFoundSubstitution;
 	}
-	getUnifiableStepSuggestions(stepSuggestions: IStepSuggestion[]): IStepSuggestion[] {
+	//#region isUnifiable
+
+
+	//#region getCompletionItemsFromModels
+
+	//#region getCompletionItemsFromStepSuggestions
+
+	//#region getUnifiableStepSuggestions
+
+
+	private getUnifiableStepSuggestions(stepSuggestions: IStepSuggestion[]): IStepSuggestion[] {
 		const unifiableStepSuggestions: IStepSuggestion[] = [];
 		stepSuggestions.forEach((stepSuggestion: IStepSuggestion) => {
-			if (this.isUnifiable(stepSuggestion))
+			// if (this.isUnifiable(stepSuggestion))
+			if (this.isUnifiable(stepSuggestion.label))
 				unifiableStepSuggestions.push(stepSuggestion);
 		});
 		return unifiableStepSuggestions;
@@ -68,7 +89,7 @@ export class StepSuggestion {
 	//#endregion getUnifiableStepSuggestions
 
 	//#region addCompletionItem
-	insertReplaceEdit(stepSuggestion: IStepSuggestion): InsertReplaceEdit | undefined {
+	private insertReplaceEdit(stepSuggestion: IStepSuggestion): InsertReplaceEdit | undefined {
 		let insertReplaceEdit: InsertReplaceEdit | undefined;
 		if (this.mmpProofStep != undefined && this.mmpProofStep.label != undefined) {
 			const insertRange: Range = this.mmpProofStep!.label!.range;
@@ -81,7 +102,7 @@ export class StepSuggestion {
 		}
 		return insertReplaceEdit;
 	}
-	addCompletionItem(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
+	private addCompletionItem(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
 		completionItems: CompletionItem[]) {
 		// const label = `${stepSuggestion.label} ${stepSuggestion.multiplicity}`;
 		const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
@@ -100,7 +121,7 @@ export class StepSuggestion {
 		completionItems.push(completionItem);
 	}
 	//#endregion addCompletionItem
-	getCompletionItemsFromStepSuggestions(stepSuggestions: IStepSuggestion[]): CompletionItem[] {
+	private getCompletionItemsFromStepSuggestions(stepSuggestions: IStepSuggestion[]): CompletionItem[] {
 		const completionItems: CompletionItem[] = [];
 		const unifiableStepSuggestions: IStepSuggestion[] = this.getUnifiableStepSuggestions(stepSuggestions);
 		const totalMultiplicity: number =
@@ -111,7 +132,7 @@ export class StepSuggestion {
 		return completionItems;
 	}
 	//#endregion getCompletionItemsFromStepSuggestions
-	getCompletionItemsFromModels(): CompletionItem[] {
+	private getCompletionItemsFromModels(): CompletionItem[] {
 		let completionItemsFromModels: CompletionItem[] = [];
 		const rpnSyntaxTree: string | undefined = this.buildRpnSyntaxTree();
 		if (rpnSyntaxTree != undefined) {
@@ -127,20 +148,24 @@ export class StepSuggestion {
 	//#endregion getCompletionItemsFromModels
 
 	//#region addCompletionItemsFromPartialLabel
-	addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
+	private addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
 		//TODO1
-		completionItems.push({ label: partialLabel + 'testtest' });
-		// const completionItem: CompletionItem = {
-		// 	label: partialLabel + 'testtest',
-		// };
+		// completionItems.push({ label: partialLabel + 'testtest' });
+		// const filteringString: string = partialLabel.substring(0, 2);
+		const c0: string = partialLabel[0];
+		const c1: string = partialLabel[1];
+		const c2: string = partialLabel[2];
+		const regExp = new RegExp(`.*${c0}.*${c1}.*${c2}.*`);
 		this.mmParser.labelToAssertionMap.forEach((_assertion: AssertionStatement, label: string) => {
-			if (label.indexOf(partialLabel) != -1) {
+			// if (label.indexOf(filteringString) != -1) {
+			if (regExp.test(label))
 				// the current assertion's label contains the partial label input by the user
-				const completionItem: CompletionItem = {
-					label: label,
-				};
-				completionItems.push(completionItem);
-			}
+				if (this.isUnifiable(label)) {
+					const completionItem: CompletionItem = {
+						label: label,
+					};
+					completionItems.push(completionItem);
+				}
 		});
 	}
 	/** when the user inputs some characters, then this method adds more CompletionItem(s), using
