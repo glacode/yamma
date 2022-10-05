@@ -42,18 +42,11 @@ export class StepSuggestion {
 
 	//#region isUnifiable
 
-	//TODO this is almost identical to GrammarManager.isSyntaxAxiom() , consider creating
-	// a single method
-	private isSyntaxAxiom(assertionStatement: AssertionStatement): boolean {
-		const result: boolean = assertionStatement.formula.length > 0 &&
-			assertionStatement.formula[0] != GrammarManager.typeCodeForProvable;
-		return result;
-	}
 	isUnifiable(stepSuggestionLabel: string) {
 		let hasBeenFoundSubstitution = false;
 		// const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestion.label);
 		const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestionLabel);
-		if (assertionStatement instanceof AssertionStatement && !this.isSyntaxAxiom(assertionStatement)) {
+		if (assertionStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertionStatement)) {
 			const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(
 				this.cursorContext.mmpProofStep!, assertionStatement, this.mmParser.outermostBlock,
 				this.mmParser.workingVars, this.mmParser.grammar, []);

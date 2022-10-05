@@ -92,7 +92,8 @@ export abstract class LabeledStatement extends NonBlockStatement {
             parser.feed(stepFormulaString);
             parseNode = parser.results[0];
         } catch (error: any) {
-            throw new Error("Unexpected error!");
+            console.log("Unexpected error! - parseStrArray : " + stepFormulaString);
+            throw new Error("Unexpected error! - parseStrArray : " + stepFormulaString );
         }
         return parseNode;
     }
@@ -123,7 +124,7 @@ export abstract class LabeledStatement extends NonBlockStatement {
             parser.feed(strToParse);
             parseNode = parser.results[0];
         } catch (error: any) {
-            throw new Error("Unexpected error!");
+            throw new Error("Unexpected error! - parseForTypecode typecode: " + typecode + " - strToParse:" + strToParse);
         }
         //TODO use a constant, instead
         grammar.start = "provable";

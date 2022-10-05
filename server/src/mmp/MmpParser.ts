@@ -546,8 +546,8 @@ export class MmpParser {
 			const stepLabelToken: MmToken = <MmToken>mmpProofStep.stepLabelToken;
 			const labeledStatement: LabeledStatement | undefined =
 				this.labelToStatementMap.get(stepLabelToken.value);
-			if (labeledStatement instanceof AssertionStatement) {
-				// labeledStatement instanceof AssertionStatement
+			if (labeledStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(labeledStatement)) {
+				// labeledStatement instanceof AssertionStatement and it is not a syntax axiom
 				const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(mmpProofStep,
 					labeledStatement, outermostBlock, workingVars, grammar, this.diagnostics);
 				// const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitutionForExistingParseNodes();

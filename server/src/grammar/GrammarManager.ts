@@ -2,7 +2,7 @@
 import { Grammar, Postprocessor, Rule } from 'nearley';
 import { MmToken } from './MmLexer';
 import { InternalNode, ParseNode } from './ParseNode';
-import { AxiomStatement, FHyp, LabeledStatement } from '../mm/Statements';
+import { AssertionStatement, AxiomStatement, FHyp, LabeledStatement } from '../mm/Statements';
 import { concatWithSpaces } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 
@@ -139,6 +139,15 @@ export abstract class GrammarManager {
 		// isSyntaxAxiom &= ( syntacticKinds.has((<AxiomStatement>statement).Content[0].value));
 		// throw new Error('Method not implemented.');
 	}
+
+	//TODO this is almost identical to GrammarManager.isSyntaxAxiom() , consider creating
+	// a single method
+	static isSyntaxAxiom2(assertionStatement: AssertionStatement): boolean {
+		const result: boolean = assertionStatement.formula.length > 0 &&
+			assertionStatement.formula[0] != GrammarManager.typeCodeForProvable;
+		return result;
+	}
+
 	static addRulesForStatements(labelToStatementMap: Map<string, LabeledStatement>, rules: Rule[]) {
 		// contains the syntacticKinds defined in the outermost scope
 		const syntacticKinds: Set<string> = new Set<string>();
@@ -199,9 +208,9 @@ export abstract class GrammarManager {
 
 	/** true iff parseNode is a ParseNode for a fHyp */
 	static isInternalParseNodeForFHyp(parseNode: InternalNode, variables: Set<string>): boolean {
-		const result: boolean = ( parseNode.parseNodes.length == 1 && parseNode.parseNodes[0] instanceof MmToken &&
-			variables.has(parseNode.parseNodes[0].value) );
-			return result;
+		const result: boolean = (parseNode.parseNodes.length == 1 && parseNode.parseNodes[0] instanceof MmToken &&
+			variables.has(parseNode.parseNodes[0].value));
+		return result;
 	}
 
 
