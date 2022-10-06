@@ -33,9 +33,11 @@ export class StepSuggestion {
 		const mmpProofStep: MmpProofStep = this.cursorContext.mmpProofStep!;
 		const parseNode: InternalNode | undefined = mmpProofStep.parseNode;
 		if (parseNode != undefined) {
-			const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder(this.mmParser);
+			// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder(this.mmParser);
+			const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
+			// rpnSyntaxTreeBuilder.setMmParser(this.mmParser);
 			//TODO use parameters below, or even better, add metainfo to the model
-			rpnSyntaxTree = rpnSyntaxTreeBuilder.buildRpnSyntaxTreeFromParseNode(parseNode, 0, 3);
+			rpnSyntaxTree = rpnSyntaxTreeBuilder.buildRpnSyntaxTreeFromParseNode(parseNode, this.mmParser, 0, 3);
 		}
 		return rpnSyntaxTree;
 	}

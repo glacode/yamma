@@ -10,6 +10,7 @@ import { ProofCompressor } from '../mmp/ProofCompressor';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { notifyProgressWithTimestampAndMemory, notifyWarning } from '../mm/Utils';
 import { Connection } from 'vscode-languageserver';
+import { IFormulaClassifier } from './IFormulaClassifier';
 
 export interface IStepSuggestion {
 	label: string,
@@ -18,7 +19,9 @@ export interface IStepSuggestion {
 
 export class ModelBuilder {
 	private mmFilePath: string;
+	private formulaClassifier: IFormulaClassifier;
 
+	//TODO it looks like you are NOT using this._fHypLabels , remove it
 	// used just for performance
 	private _fHypLabels: Set<string>;
 
@@ -30,8 +33,9 @@ export class ModelBuilder {
 	 */
 	stepGiustificationStatistics: Map<string, Map<string, number>>;
 
-	constructor(mmFilePath: string) {
+	constructor(mmFilePath: string, formulaClassifier: IFormulaClassifier) {
 		this.mmFilePath = mmFilePath;
+		this.formulaClassifier = formulaClassifier;
 
 		this.stepGiustificationStatistics = new Map<string, Map<string, number>>();
 
@@ -119,8 +123,10 @@ export class ModelBuilder {
 
 	addAssertionStatementWithSubstitution(assertionStatementProofStep: AssertionStatement,
 		assertionStatementWithSubstitution: string[]) {
-		const rpnSyntaxTree: string = this.buildRpnSyntaxTree(assertionStatementWithSubstitution,
-			assertionStatementProofStep.outermostBlock!.grammar!);
+		// const rpnSyntaxTree: string = this.buildRpnSyntaxTree(assertionStatementWithSubstitution,
+		// 	assertionStatementProofStep.outermostBlock!.grammar!);
+		const rpnSyntaxTree: string = this.formulaClassifier.buildRpnSyntaxTreeFromFormula(assertionStatementWithSubstitution,
+			this._mmParser!);
 		const currentStepLabel: string = assertionStatementProofStep.Label;
 		this.addStepGiustificationStatistics(rpnSyntaxTree, currentStepLabel);
 	}
@@ -264,6 +270,7 @@ export class ModelBuilder {
 		// const theory: string = readTestFile('impbii.mm');
 		this._mmParser = new MmParser();
 		this._mmParser.ParseText(theory);
+		// this.formulaClassifier.setMmParser(this._mmParser);
 		this.buildFHyps();
 		this._mmParser.labelToStatementMap.forEach((labeledStatement: LabeledStatement, _label: string) => {
 			if (labeledStatement instanceof ProvableStatement)

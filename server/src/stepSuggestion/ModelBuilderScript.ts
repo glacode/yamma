@@ -3,16 +3,21 @@
 
 import { consoleLogWithTimestamp } from '../mm/Utils';
 import { ModelBuilder } from './ModelBuilder';
+import { RpnSyntaxTreeBuilder } from './RpnSyntaxTreeBuilder';
 
 // const mmFilePath = __dirname.concat('/../../src/mmTestFiles/impbii.mm');
 // const mmFilePath = '/mnt/mmt/impbii.mm';
 // const mmFilePath = '/home/mionome/Desktop/provashare/mmp/set.mm';
-const mmFilePath = '/mnt/mmt/set.mm';
+// const mmFilePath = '/mnt/mmt/set.mm';
 // const mmFilePath = '/mnt/mmt/dmsnop.mm';
+const mmFilePath = '/home/mionome/Desktop/provashare/mmp/dmsnop.mm';
+
 
 consoleLogWithTimestamp('model builder start');
 
-const modelBuilder: ModelBuilder = new ModelBuilder(mmFilePath);
+const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
+
+const modelBuilder: ModelBuilder = new ModelBuilder(mmFilePath,rpnSyntaxTreeBuilder);
 modelBuilder.buildModel();
 
 consoleLogWithTimestamp('model builder end');
