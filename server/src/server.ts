@@ -240,30 +240,6 @@ async function validateTextDocument(textDocument: TextDocument) {
 	unifyDoneButCursorPositionNotUpdatedYet = false;
 }
 
-//TODO1 move this to ConfigurationManager
-// async function parseMainMMfile(textDocumentUri: string) {
-// 	if (GlobalState.mmParser == undefined) {
-// 		let mmFilePath = await configurationManager.mmFileFullPath(textDocumentUri);
-// 		console.log("mmFilePath: " + mmFilePath);
-// 		const textDocumentDir: string = path.dirname(textDocumentUri);
-// 		if (mmFilePath == '') {
-// 			// the main theory mm file has not been defined
-// 			const defaultTheory = "set.mm";
-// 			mmFilePath = path.join(textDocumentDir, defaultTheory);
-// 		}
-// 		const fileExist: boolean = fs.existsSync(mmFilePath);
-// 		if (!fileExist) {
-// 			const message = `The theory file ${mmFilePath} does not exist. Thus the extension Yamma ` +
-// 				`cannot work properly. To fix this, either input another .mm file in the Workspace configuration ` +
-// 				`or copy a set.mm file in ${textDocumentDir}`;
-// 			notifyError(message, connection);
-// 		} else {
-// 			const theoryLoader: TheoryLoader = new TheoryLoader(mmFilePath, GlobalState.connection);
-// 			await theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
-// 		}
-// 	}
-// }
-
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(async change => {

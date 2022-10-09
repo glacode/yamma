@@ -1,10 +1,11 @@
-import { Parser } from 'nearley';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { MmParser } from '../mm/MmParser';
 import { IFormulaClassifier } from './IFormulaClassifier';
 
+/** given a formula and a MmParser, returns the syntax tree of the formula,
+* as a string representation in rpn format
+*/
 export class RpnSyntaxTreeBuilder implements IFormulaClassifier {
 	id: string;
 
@@ -42,17 +43,18 @@ export class RpnSyntaxTreeBuilder implements IFormulaClassifier {
 		return treeString;
 	}
 	// buildRpnSyntaxTreeFromFormula(assertionStatementWithSubstitution: string[], grammar: Grammar): string {
-	buildRpnSyntaxTreeFromFormula(assertionStatementWithSubstitution: string[], mmParser: MmParser): string {
+	// classify(assertionStatementWithSubstitution: string[], mmParser: MmParser): string {
+	classify(parseNode: ParseNode, mmParser: MmParser): string {
 		// const parseNode: ParseNode = assertionStatementProofStep.parseNode;
 		// const grammar: Grammar = assertionStatementProofStep.outermostBlock!.grammar!;
-		let rpnSyntaxTree = '';
+		// let rpnSyntaxTree = '';
 		// this.mmParser.grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
-		mmParser.grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
+		// mmParser.grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
 		// const parser = new Parser(this.mmParser.grammar);
-		const parser = new Parser(mmParser.grammar);
-		parser.feed('');
-		const parseNode: ParseNode = parser.results[0];
-		rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(parseNode, mmParser, 0, 3);
+		// const parser = new Parser(mmParser.grammar);
+		// parser.feed('');
+		// const parseNode: ParseNode = parser.results[0];
+		const rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(parseNode, mmParser, 0, 3);
 		return rpnSyntaxTree;
 	}
 	//#endregion buildRpnSyntaxTree

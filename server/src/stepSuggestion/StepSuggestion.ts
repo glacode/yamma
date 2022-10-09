@@ -8,8 +8,8 @@ import { range } from '../mm/Utils';
 import { MmpProofStep } from '../mmp/MmpStatements';
 import { SubstitutionResult, USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { IStepSuggestion } from './ModelBuilder';
-import { RpnSyntaxTreeBuilder } from './RpnSyntaxTreeBuilder';
 import { GrammarManager } from '../grammar/GrammarManager';
+import { SyntaxTreeClassifierFull } from './SyntaxTreeClassifierFull';
 
 
 export class StepSuggestion {
@@ -34,10 +34,13 @@ export class StepSuggestion {
 		const parseNode: InternalNode | undefined = mmpProofStep.parseNode;
 		if (parseNode != undefined) {
 			// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder(this.mmParser);
-			const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
+			// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
+			const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull();
 			// rpnSyntaxTreeBuilder.setMmParser(this.mmParser);
 			//TODO use parameters below, or even better, add metainfo to the model
-			rpnSyntaxTree = rpnSyntaxTreeBuilder.buildRpnSyntaxTreeFromParseNode(parseNode, this.mmParser, 0, 3);
+			//TODO1 the formula classifier classifies formulas, but here we classify ParseNodes
+			// rpnSyntaxTree = syntaxTreeClassifierFull.buildRpnSyntaxTreeFromParseNode(parseNode, this.mmParser, 0, 3);
+			rpnSyntaxTree = syntaxTreeClassifierFull.classify(parseNode, this.mmParser);
 		}
 		return rpnSyntaxTree;
 	}
@@ -144,7 +147,6 @@ export class StepSuggestion {
 
 	//#region addCompletionItemsFromPartialLabel
 	private addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
-		//TODO1
 		// completionItems.push({ label: partialLabel + 'testtest' });
 		// const filteringString: string = partialLabel.substring(0, 2);
 		const c0: string = partialLabel[0];

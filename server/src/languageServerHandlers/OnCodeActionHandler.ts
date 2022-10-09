@@ -152,9 +152,6 @@ export class OnCodeActionHandler {
 		// const codeActions: CodeAction[] = [];
 		const codeActions: CodeAction[] = codeActionForDiagnostic.buildCodeActions();
 
-		//TODO1
-		// if (GlobalState.mmParser == undefined)
-		// 	this.validateDocument();
 		return codeActions;
 	}
 }

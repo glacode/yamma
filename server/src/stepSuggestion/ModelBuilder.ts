@@ -1,5 +1,3 @@
-import { Grammar, Parser } from 'nearley';
-import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { Frame } from '../mm/Frame';
 import { MmParser } from '../mm/MmParser';
@@ -8,9 +6,13 @@ import * as fs from 'fs';
 import { Verifier } from '../mm/Verifier';
 import { ProofCompressor } from '../mmp/ProofCompressor';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { notifyProgressWithTimestampAndMemory, notifyWarning } from '../mm/Utils';
 import { Connection } from 'vscode-languageserver';
 import { IFormulaClassifier } from './IFormulaClassifier';
+import { StepSuggestionMap } from './StepSuggestionMap';
+import { StepSuggestionTripleMap } from './StepSuggestionTripleMap';
+import { notifyWarning } from '../mm/Utils';
+import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
+import { Grammar, Parser } from 'nearley';
 
 export interface IStepSuggestion {
 	label: string,
@@ -28,16 +30,23 @@ export class ModelBuilder {
 	private _mmParser: MmParser | undefined;
 
 
+	//TODO1 use class StepSuggestionMap
 	/** maps a rpn string representation of a parse node to a map that associates
 	 * every label (with multiplicity) used to justify such a formula
 	 */
 	stepGiustificationStatistics: Map<string, Map<string, number>>;
+
+	stepSuggestionMap: StepSuggestionMap;
+	stepSuggestionTripleMap: StepSuggestionTripleMap;
+
 
 	constructor(mmFilePath: string, formulaClassifier: IFormulaClassifier) {
 		this.mmFilePath = mmFilePath;
 		this.formulaClassifier = formulaClassifier;
 
 		this.stepGiustificationStatistics = new Map<string, Map<string, number>>();
+		this.stepSuggestionMap = new StepSuggestionMap();
+		this.stepSuggestionTripleMap = new StepSuggestionTripleMap();
 
 		this._fHypLabels = new Set<string>();
 	}
@@ -63,7 +72,7 @@ export class ModelBuilder {
 	//#region buildRpnSyntaxTree
 
 	/** builds a rpn string representing the syntax tree of the given formula */
-	syntaxTree(parseNode: ParseNode, currentLevel: number, maxLevel: number): string {
+	private syntaxTree(parseNode: ParseNode, currentLevel: number, maxLevel: number): string {
 		let treeString = '';
 		// we don't want to consider FHyps labels
 		// if (currentLevel <= maxLevel && parseNode instanceof InternalNode && !this._fHypLabels.has(parseNode.label)) {
@@ -84,40 +93,56 @@ export class ModelBuilder {
 		}
 		return treeString;
 	}
-	buildRpnSyntaxTree(assertionStatementWithSubstitution: string[], grammar: Grammar): string {
-		// const parseNode: ParseNode = assertionStatementProofStep.parseNode;
-		// const grammar: Grammar = assertionStatementProofStep.outermostBlock!.grammar!;
+	// private buildRpnSyntaxTree(assertionStatementWithSubstitution: string[], grammar: Grammar): string {
+	// 	// const parseNode: ParseNode = assertionStatementProofStep.parseNode;
+	// 	// const grammar: Grammar = assertionStatementProofStep.outermostBlock!.grammar!;
+	// 	grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
+	// 	const parser = new Parser(grammar);
+	// 	parser.feed('');
+	// 	const parseNode: ParseNode = parser.results[0];
+	// 	const rpnSyntaxTree: string = this.syntaxTree(parseNode, 0, 3);
+	// 	return rpnSyntaxTree;
+	// }
+	//#endregion buildRpnSyntaxTree
+
+
+	parseNode(assertionStatementWithSubstitution: string[]): ParseNode {
+		// this.mmParser.grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
+		const grammar: Grammar = this._mmParser!.grammar;
 		grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
+		// const parser = new Parser(this.mmParser.grammar);
 		const parser = new Parser(grammar);
 		parser.feed('');
 		const parseNode: ParseNode = parser.results[0];
-		const rpnSyntaxTree: string = this.syntaxTree(parseNode, 0, 3);
-		return rpnSyntaxTree;
+		return parseNode;
 	}
-	//#endregion buildRpnSyntaxTree
 
 	//#region addStepGiustificationStatistics
-	addNewMap(rpnSyntaxTree: string, currentStepLabel: string) {
-		const newMap: Map<string, number> = new Map<string, number>();
-		newMap.set(currentStepLabel, 1);
-		this.stepGiustificationStatistics.set(rpnSyntaxTree, newMap);
-	}
-	addStepGiustificationStatistics(rpnSyntaxTree: string, currentStepLabel: string) {
-		const labelStatistics: Map<string, number> | undefined = this.stepGiustificationStatistics.get(rpnSyntaxTree);
-		if (labelStatistics == undefined) {
-			// it is the first time a proof step is found with the given rpnSyntaxTree
-			this.addNewMap(rpnSyntaxTree, currentStepLabel);
-		} else {
-			// rpnSyntaxTree was found before as a proof step formula
-			const previousMultiplicity: number | undefined = labelStatistics.get(currentStepLabel);
-			if (previousMultiplicity == undefined) {
-				// it is the first time this formula has been proven using currentStepLabel
-				labelStatistics.set(currentStepLabel, 1);
-				// this.addNewMap(rpnSyntaxTree, currentStepLabel);
-			} else
-				// this formula has already been proven using currentStepLabel
-				labelStatistics.set(currentStepLabel, previousMultiplicity + 1);
-		}
+	// private addNewMap(rpnSyntaxTree: string, currentStepLabel: string) {
+	// 	const newMap: Map<string, number> = new Map<string, number>();
+	// 	newMap.set(currentStepLabel, 1);
+	// 	this.stepGiustificationStatistics.set(rpnSyntaxTree, newMap);
+	// }
+	//TODO1 us StepSuggestionTripleMap.add()
+	// addStepGiustificationStatistics(rpnSyntaxTree: string, currentStepLabel: string) {
+	// 	const labelStatistics: Map<string, number> | undefined = this.stepGiustificationStatistics.get(rpnSyntaxTree);
+	// 	if (labelStatistics == undefined) {
+	// 		// it is the first time a proof step is found with the given rpnSyntaxTree
+	// 		this.addNewMap(rpnSyntaxTree, currentStepLabel);
+	// 	} else {
+	// 		// rpnSyntaxTree was found before as a proof step formula
+	// 		const previousMultiplicity: number | undefined = labelStatistics.get(currentStepLabel);
+	// 		if (previousMultiplicity == undefined) {
+	// 			// it is the first time this formula has been proven using currentStepLabel
+	// 			labelStatistics.set(currentStepLabel, 1);
+	// 			// this.addNewMap(rpnSyntaxTree, currentStepLabel);
+	// 		} else
+	// 			// this formula has already been proven using currentStepLabel
+	// 			labelStatistics.set(currentStepLabel, previousMultiplicity + 1);
+	// 	}
+	// }
+	addStepGiustificationStatistics(formulaClusterId: string, currentStepLabel: string) {
+		this.stepSuggestionTripleMap.add(this.formulaClassifier.id, formulaClusterId, currentStepLabel);
 	}
 	//#endregion addStepGiustificationStatistics
 
@@ -125,7 +150,8 @@ export class ModelBuilder {
 		assertionStatementWithSubstitution: string[]) {
 		// const rpnSyntaxTree: string = this.buildRpnSyntaxTree(assertionStatementWithSubstitution,
 		// 	assertionStatementProofStep.outermostBlock!.grammar!);
-		const rpnSyntaxTree: string = this.formulaClassifier.buildRpnSyntaxTreeFromFormula(assertionStatementWithSubstitution,
+		const parseNode: ParseNode = this.parseNode(assertionStatementWithSubstitution);
+		const rpnSyntaxTree: string = this.formulaClassifier.classify(parseNode,
 			this._mmParser!);
 		const currentStepLabel: string = assertionStatementProofStep.Label;
 		this.addStepGiustificationStatistics(rpnSyntaxTree, currentStepLabel);
@@ -192,60 +218,11 @@ export class ModelBuilder {
 		}
 	}
 
+	//TODO1 lo stai rifacendo in StepSuggestionMap.buildTextToWrite()
 	//#region sortSuggestionsAndSave
-	buildTextToWrite(): string {
-		let textToWrite = '';
-		let currentRpnSyntaxTreeIndex = 0;
-		this.stepGiustificationStatistics.forEach((labelToMultiplicityMap: Map<string, number>,
-			rpnSyntaxTree: string) => {
-			// const arrayForSingleTree = new Array(labelToMultiplicityMap.entries);
-			const arrayForSingleTree: Array<{ label: string, multiplicity: number }> =
-				Array.from(labelToMultiplicityMap, ([label, multiplicity]) => ({
-					label: label,
-					multiplicity: multiplicity
-				}));
-			// sort giustifications in descending order of
-			arrayForSingleTree.sort((a: { label: string, multiplicity: number },
-				b: { label: string, multiplicity: number }) => b.multiplicity - a.multiplicity);
-			arrayForSingleTree.forEach((giustification: { label: string; multiplicity: number; }) => {
-				const csvLine = `${rpnSyntaxTree},${giustification.label},${giustification.multiplicity}\n`;
-				textToWrite += csvLine;
-			});
-			currentRpnSyntaxTreeIndex++;
-			notifyProgressWithTimestampAndMemory('Creating string...', currentRpnSyntaxTreeIndex, this.stepGiustificationStatistics.size);
-		});
-		return textToWrite;
-	}
-	save(textToWrite: string) {
-		const fileToWrite = this.mmFilePath + 's';
-		fs.writeFileSync(fileToWrite, textToWrite);
-		// fs.writeFileSync(fileToWrite, csvLine,
-		// 	{
-		// 		encoding: "utf8",
-		// 		flag: "a+",
-		// 		mode: 0o666
-		// 	});
-	}
-	private sortSuggestionsAndSave() {
-		const textToWrite: string = this.buildTextToWrite();
-		console.log('writing to disk...');
-		this.save(textToWrite);
-		console.log('written to disk!');
-	}
-	// save(rpnSyntaxTree: string, arrayForSingleTree: { label: string; multiplicity: number; }[], fileToWrite: string) {
-	// 	arrayForSingleTree.forEach((giustification: { label: string; multiplicity: number; }) => {
-	// 		const csvLine = `${rpnSyntaxTree},${giustification.label},${giustification.multiplicity}\n`;
-	// 		fs.writeFileSync(fileToWrite, csvLine,
-	// 			{
-	// 				encoding: "utf8",
-	// 				flag: "a+",
-	// 				mode: 0o666
-	// 			});
-	// 	});
-	// }
-	// private sortSuggestionsAndSave() {
-	// 	const fileToWrite = this.mmFilePath + 's';
-	// 	fs.writeFileSync(fileToWrite, '');
+	// buildTextToWrite(): string {
+	// 	let textToWrite = '';
+	// 	let currentRpnSyntaxTreeIndex = 0;
 	// 	this.stepGiustificationStatistics.forEach((labelToMultiplicityMap: Map<string, number>,
 	// 		rpnSyntaxTree: string) => {
 	// 		// const arrayForSingleTree = new Array(labelToMultiplicityMap.entries);
@@ -257,11 +234,32 @@ export class ModelBuilder {
 	// 		// sort giustifications in descending order of
 	// 		arrayForSingleTree.sort((a: { label: string, multiplicity: number },
 	// 			b: { label: string, multiplicity: number }) => b.multiplicity - a.multiplicity);
-	// 		this.save(rpnSyntaxTree, arrayForSingleTree, fileToWrite);
+	// 		arrayForSingleTree.forEach((giustification: { label: string; multiplicity: number; }) => {
+	// 			const csvLine = `${rpnSyntaxTree},${giustification.label},${giustification.multiplicity}\n`;
+	// 			textToWrite += csvLine;
+	// 		});
+	// 		currentRpnSyntaxTreeIndex++;
+	// 		notifyProgressWithTimestampAndMemory('Creating string...', currentRpnSyntaxTreeIndex, this.stepGiustificationStatistics.size);
 	// 	});
+	// 	return textToWrite;
 	// }
-	//#endregion sortSuggestionsAndSave
-
+	save(textToWrite: string) {
+		const fileToWrite = this.mmFilePath + 's';
+		fs.writeFileSync(fileToWrite, textToWrite);
+		// fs.writeFileSync(fileToWrite, csvLine,
+		// 	{
+		// 		encoding: "utf8",
+		// 		flag: "a+",
+		// 		mode: 0o666
+		// 	});
+	}
+	private sortSuggestionsAndSave() {
+		// const textToWrite: string = this.buildTextToWrite();
+		const textToWrite: string = this.stepSuggestionTripleMap.buildTextToWrite();
+		console.log('writing to disk...');
+		this.save(textToWrite);
+		console.log('written to disk!');
+	}
 
 	buildModel() {
 		// const mmFilePath = __dirname.concat('/../../src/mmTestFiles/impbii.mm');
@@ -288,38 +286,75 @@ export class ModelBuilder {
 	}
 
 	//#region loadSuggestionsMap
-	static loadSuggestionsMapForExistingModel(modelFullPath: string): Map<string, IStepSuggestion[]> {
-		const suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
+
+	//#region loadSuggestionsMapForExistingModel
+	private static getModelRows(modelFullPath: string): string[] {
 		const model: string = fs.readFileSync(modelFullPath, 'utf-8');
 		const modelRows: string[] = model.split('\n');
-		// let previousRpnSyntaxTree: string | undefined;
-		let singleRpnSyntaxTreeSuggestions: IStepSuggestion[] = [];
+		return modelRows;
+	}
+	// private static buildSuggestionsMap(modelRows: string[]): Map<string, IStepSuggestion[]> {
+	// 	const suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
+	// 	let singleRpnSyntaxTreeSuggestions: IStepSuggestion[] = [];
+	// 	let modelRowString: string = modelRows[0];
+	// 	let modelRowArray: string[] = modelRowString.split(',');
+	// 	let rpnSyntaxTree: string = modelRowArray[0];
+	// 	let i = 0;
+	// 	while (i < modelRows.length) {
+	// 		modelRowString = modelRows[i];
+	// 		modelRowArray = modelRowString.split(',');
+	// 		const newRpnSyntaxTree: string = modelRowArray[0];
+	// 		if (newRpnSyntaxTree != rpnSyntaxTree) {
+	// 			suggestionsMap.set(rpnSyntaxTree, singleRpnSyntaxTreeSuggestions);
+	// 			rpnSyntaxTree = newRpnSyntaxTree;
+	// 			singleRpnSyntaxTreeSuggestions = [];
+	// 		}
+	// 		const giustificationLabel: string = modelRowArray[1];
+	// 		const multiplicity: number = parseInt(modelRowArray[2]);
+	// 		const stepSuggestion: IStepSuggestion = {
+	// 			label: giustificationLabel,
+	// 			multiplicity: multiplicity
+	// 		};
+	// 		singleRpnSyntaxTreeSuggestions.push(stepSuggestion);
+	// 		i++;
+	// 	}
+	// 	return suggestionsMap;
+	// }
+	private buildSuggestionsMap(modelRows: string[]): Map<string, IStepSuggestion[]> {
+		const suggestionMap: StepSuggestionMap = new StepSuggestionMap();
 		let modelRowString: string = modelRows[0];
 		let modelRowArray: string[] = modelRowString.split(',');
-		let rpnSyntaxTree: string = modelRowArray[0];
 		let i = 0;
 		while (i < modelRows.length) {
 			modelRowString = modelRows[i];
 			modelRowArray = modelRowString.split(',');
-			const newRpnSyntaxTree: string = modelRowArray[0];
-			if (newRpnSyntaxTree != rpnSyntaxTree) {
-				suggestionsMap.set(rpnSyntaxTree, singleRpnSyntaxTreeSuggestions);
-				rpnSyntaxTree = newRpnSyntaxTree;
-				singleRpnSyntaxTreeSuggestions = [];
-			}
-			const giustificationLabel: string = modelRowArray[1];
-			const multiplicity: number = parseInt(modelRowArray[2]);
-			const stepSuggestion: IStepSuggestion = {
-				label: giustificationLabel,
-				multiplicity: multiplicity
-			};
-			singleRpnSyntaxTreeSuggestions.push(stepSuggestion);
+			// const formulaCluster: string = modelRowArray[0];
+			// const giustificationLabel: string = modelRowArray[1];
+			// const multiplicity: number = parseInt(modelRowArray[2]);
+			const classifierId: string = modelRowArray[0];
+			const formulaCluster: string = modelRowArray[1];
+			const giustificationLabel: string = modelRowArray[2];
+			const multiplicity: number = parseInt(modelRowArray[3]);
+			//TODO1 generalize below
+			suggestionMap.add(classifierId, formulaCluster, giustificationLabel, multiplicity);
 			i++;
 		}
+		const result: Map<string, IStepSuggestion[]> = suggestionMap.map.get(this.formulaClassifier.id)!;
+		return result;
+	}
+
+	private loadSuggestionsMapForExistingModel(modelFullPath: string): Map<string, IStepSuggestion[]> {
+		const modelRows: string[] = ModelBuilder.getModelRows(modelFullPath);
+		const suggestionsMap: Map<string, IStepSuggestion[]> = this.buildSuggestionsMap(modelRows);
 		return suggestionsMap;
 	}
-	//QUI!!! add test
-	static async loadSuggestionsMap(modelFullPath: string, connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
+	//#endregion loadSuggestionsMapForExistingModel
+
+
+	//TODO1 add test
+	// static async loadSuggestionsMap(modelFullPath: string, connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
+	async loadSuggestionsMap(connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
+		const modelFullPath: string = ModelBuilder.buildModelFileFullPath(this.mmFilePath);
 		let suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
 		if (fs.existsSync(modelFullPath))
 			suggestionsMap = this.loadSuggestionsMapForExistingModel(modelFullPath);

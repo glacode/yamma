@@ -21,7 +21,7 @@ import { kindToPrefixMap } from './GlobalForTest.test';
 const vexTheory: string = readTestFile('vex.mm');
 export const vexTheoryMmParser: MmParser = new MmParser();
 vexTheoryMmParser.ParseText(vexTheory);
-//QUI!!!
+//TODO
 // export const vexTheoryParser: MmParser = createMmParser('vex.mm');
 
 

@@ -181,7 +181,6 @@ export class OnSemanticTokensHandler {
 	async semanticTokens(): Promise<SemanticTokens> {
 		const variableKindsConfiguration: Map<string, IVariableKindConfiguration> = await this.setVariableKindsConfiguration();
 		this.semanticTokensData = [];
-		///TODO1 if this.mmpParser == undefined launch a validate and wait
 		if (this.mmParser != undefined && this.mmpParser != undefined) {
 			// this.buildSemanticTokens(mmParser, mmpParser, variableKindsConfiguration);
 			this.buildSemanticTokens(this.mmParser, this.mmpParser, variableKindsConfiguration);

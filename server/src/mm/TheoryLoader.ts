@@ -6,6 +6,7 @@ import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
 import { MmParser } from './MmParser';
 import { notifyError, notifyInformation } from './Utils';
 import * as fs from "fs";
+import { SyntaxTreeClassifierFull } from '../stepSuggestion/SyntaxTreeClassifierFull';
 
 /** loads a new .mm file and updates the step suggestions model */
 export class TheoryLoader {
@@ -105,8 +106,12 @@ export class TheoryLoader {
 	private async loadStepSuggestionModelAsync() {
 		// we use GlobalState.mmFilePath instead of this.mmFilePath, because the TheoryLoader
 		// might have used the default theory name, if the configuration mmFilePath is empty
-		const modelFilePath: string = ModelBuilder.buildModelFileFullPath(GlobalState.mmFilePath!);
-		GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelFilePath, this.connection);
+		// const modelFilePath: string = ModelBuilder.buildModelFileFullPath(GlobalState.mmFilePath!);
+		// GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelFilePath, this.connection);
+		// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
+		const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull();
+		const modelBuilder: ModelBuilder = new ModelBuilder(GlobalState.mmFilePath!,syntaxTreeClassifierFull);
+		GlobalState.stepSuggestionMap = await modelBuilder.loadSuggestionsMap(this.connection);
 	}
 
 	/** checks if the current mmFilePath is different from the one stored in the GlobalState: if that's the

@@ -73,7 +73,6 @@ export function activate(context: ExtensionContext) {
 			loadMmtFilesCommandHandler, client);
 		context.subscriptions.push(disposable);
 
-		//QUI!!! vedi se puoi ingrandire le finestre
 		client.onNotification('yamma/showinformation', (message: string) => {
 			// the header 'Header caption' is not displayed because modal is false
 			// I leave it there anyway, as a reference, if in the future I want a model message

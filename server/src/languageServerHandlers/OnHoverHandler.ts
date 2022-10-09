@@ -70,7 +70,6 @@ export abstract class OnHoverHandler {
 		commentFormatter: ( tokens: MmToken[]) => string ): string {
 		let contentValue = "";
 		if ( labeledStatement.comment != undefined && labeledStatement.comment.length > 0) {
-			//TODO1
 			// contentValue = rebuildOriginalStringFromTokens(labeledStatement.comment);
 			// contentValue = concatTokenValuescmdWithSpaces(labeledStatement.comment);
 			contentValue = commentFormatter(labeledStatement.comment);

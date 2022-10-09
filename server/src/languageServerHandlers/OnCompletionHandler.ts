@@ -109,7 +109,7 @@ export class CursorContext {
 			const uProofStep: MmpProofStep | undefined = this.getMmpProofStep(uProof.uStatements);
 			if (uProofStep != undefined) {
 				if (this.isOnStepLabel(uProofStep))
-					//QUI!!!
+					//TODO1
 					this.contextForCompletion = CursorContextForCompletion.stepLabel;
 				else {
 					formula = this.getFormulaBeforeCursorInUProofStep(uProofStep);

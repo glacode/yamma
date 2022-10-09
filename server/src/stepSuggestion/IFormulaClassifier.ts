@@ -1,6 +1,10 @@
 
+import { ParseNode } from '../grammar/ParseNode';
 import { MmParser } from '../mm/MmParser';
 
+/** classes that implement this interface, create clusters of
+ * 'similar' formulas
+ */
 export interface IFormulaClassifier {
 	/** a unique identifier to distinguish among different classifiers */
 	id: string,
@@ -8,8 +12,9 @@ export interface IFormulaClassifier {
 	// /** the MmParser to be used to classify formulas */
 	// setMmParser( mmParser: MmParser ): void,
 
-	/** given a formula and a MmParser, returns the syntax tree of the formula,
-	 * as a string representation in rpn format
+	/** given a formula and a MmParser, returns a string that
+	 * classifies the formula
 	 */
-	buildRpnSyntaxTreeFromFormula(formula: string[], mmParser: MmParser): string
+	classify(formula: ParseNode, mmParser: MmParser): string
+	//  classify(formula: string[] | ParseNode, mmParser: MmParser): string
 }

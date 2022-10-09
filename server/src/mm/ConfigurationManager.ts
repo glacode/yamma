@@ -106,9 +106,7 @@ export class ConfigurationManager implements IConfigurationManager {
 		if (this.hasConfigurationCapability) {
 			// Reset all cached document settings
 			this._documentSettings.clear();
-			//TODO1 here you have to update GlobalState.lastFetchedSettings
 			await this.updateTheoryIfTheCase(change);
-			//TODO1 trigger validation here
 		} else {
 			this.globalSettings = <IExtensionSettings>(
 				(change.settings.yamma || this.defaultSettings)

@@ -43,7 +43,6 @@ export class MmParser {
 
     public get grammar() {
         if (this._grammar == undefined)
-            //QUI!!!
             this._grammar = GrammarManager.CreateGrammar(this.labelToStatementMap, this.workingVars);
         return this._grammar;
     }
