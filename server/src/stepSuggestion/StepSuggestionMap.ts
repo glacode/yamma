@@ -1,3 +1,4 @@
+import { CompletionItemKind } from 'vscode-languageserver';
 import { IStepSuggestion } from './ModelBuilder';
 
 /** for each IFormulaClassifier, returns a map, that provides steps suggestions for
@@ -10,7 +11,7 @@ export class StepSuggestionMap {
 	constructor() {
 		this.map = new Map<string, Map<string, IStepSuggestion[]>>();
 	}
-	add(classifierId: string, formulaCluster: string, giustificationLabel: string, multiplicity: number) {
+	add(classifierId: string, completionItemKind: CompletionItemKind, formulaCluster: string, giustificationLabel: string, multiplicity: number) {
 		let mapForClassifier: Map<string, IStepSuggestion[]> | undefined =
 			this.map.get(classifierId);
 		if (mapForClassifier == undefined) {
@@ -23,6 +24,7 @@ export class StepSuggestionMap {
 			mapForClassifier.set(formulaCluster, stepSuggestionMap);
 		}
 		const stepSuggestion: IStepSuggestion = {
+			kind: completionItemKind,
 			label: giustificationLabel,
 			multiplicity: multiplicity
 		};

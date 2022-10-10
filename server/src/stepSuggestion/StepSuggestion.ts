@@ -111,9 +111,9 @@ export class StepSuggestion {
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
 			sortText: String(index).padStart(3, '0'),
-			textEdit: insertReplaceEdit
+			textEdit: insertReplaceEdit,
 			//TODO search how to remove the icon from the completion list
-			// kind: CompletionItemKind.Keyword
+			kind: CompletionItemKind.Event
 			// data: symbol
 		};
 		completionItems.push(completionItem);

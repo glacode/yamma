@@ -9,8 +9,8 @@ import { SyntaxTreeClassifierFull } from './SyntaxTreeClassifierFull';
 // const mmFilePath = '/mnt/mmt/impbii.mm';
 // const mmFilePath = '/home/mionome/Desktop/provashare/mmp/set.mm';
 // const mmFilePath = '/mnt/mmt/set.mm';
-// const mmFilePath = '/mnt/mmt/dmsnop.mm';
-const mmFilePath = '/home/mionome/Desktop/provashare/mmp/dmsnop.mm';
+const mmFilePath = '/mnt/mmt/dmsnop.mm';
+// const mmFilePath = '/home/mionome/Desktop/provashare/mmp/dmsnop.mm';
 
 
 consoleLogWithTimestamp('model builder start');

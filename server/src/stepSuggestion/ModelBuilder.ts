@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import { Verifier } from '../mm/Verifier';
 import { ProofCompressor } from '../mmp/ProofCompressor';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { Connection } from 'vscode-languageserver';
+import { CompletionItemKind, Connection } from 'vscode-languageserver';
 import { IFormulaClassifier } from './IFormulaClassifier';
 import { StepSuggestionMap } from './StepSuggestionMap';
 import { StepSuggestionTripleMap } from './StepSuggestionTripleMap';
@@ -15,6 +15,7 @@ import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
 import { Grammar, Parser } from 'nearley';
 
 export interface IStepSuggestion {
+	kind: CompletionItemKind,
 	label: string,
 	multiplicity: number
 }
@@ -38,6 +39,8 @@ export class ModelBuilder {
 
 	stepSuggestionMap: StepSuggestionMap;
 	stepSuggestionTripleMap: StepSuggestionTripleMap;
+	/** maps a classifierId to a CompletionItemKind */
+	private completionItemKind: Map<string,CompletionItemKind>;
 
 
 	constructor(mmFilePath: string, formulaClassifier: IFormulaClassifier) {
@@ -49,6 +52,15 @@ export class ModelBuilder {
 		this.stepSuggestionTripleMap = new StepSuggestionTripleMap();
 
 		this._fHypLabels = new Set<string>();
+
+		this.completionItemKind = this.initializeCompletionItemKind(formulaClassifier);
+	}
+
+	//TODO1 generalize to array
+	private initializeCompletionItemKind(formulaClassifier: IFormulaClassifier): Map<string, CompletionItemKind> {
+		const completionItemKind: Map<string, CompletionItemKind> = new Map<string,CompletionItemKind>();
+		completionItemKind.set(formulaClassifier.id,CompletionItemKind.Event);
+		return completionItemKind;
 	}
 
 	//#region buildModel
@@ -332,11 +344,12 @@ export class ModelBuilder {
 			// const giustificationLabel: string = modelRowArray[1];
 			// const multiplicity: number = parseInt(modelRowArray[2]);
 			const classifierId: string = modelRowArray[0];
+			const completionItemKind: CompletionItemKind = this.completionItemKind.get(classifierId)!;
 			const formulaCluster: string = modelRowArray[1];
 			const giustificationLabel: string = modelRowArray[2];
 			const multiplicity: number = parseInt(modelRowArray[3]);
 			//TODO1 generalize below
-			suggestionMap.add(classifierId, formulaCluster, giustificationLabel, multiplicity);
+			suggestionMap.add(classifierId, completionItemKind, formulaCluster, giustificationLabel, multiplicity);
 			i++;
 		}
 		const result: Map<string, IStepSuggestion[]> = suggestionMap.map.get(this.formulaClassifier.id)!;
