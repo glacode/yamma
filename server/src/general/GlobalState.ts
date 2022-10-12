@@ -6,7 +6,7 @@ import { Connection } from 'vscode-languageserver';
 import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
-import { IStepSuggestion } from '../stepSuggestion/ModelBuilder';
+import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
 
 export abstract class GlobalState {
 
@@ -20,7 +20,8 @@ export abstract class GlobalState {
 	static lastMmpParser?: MmpParser;
 
 	/** maps every rpnSyntaxTree to a list of suggestion */
-	static stepSuggestionMap: Map<string, IStepSuggestion[]>;
+	static stepSuggestionMap: StepSuggestionMap;
+	// static stepSuggestionMap: Map<string, IStepSuggestion[]>;
 
 	/** the ConfigurationManager created in server.ts */
 	static configurationManager: ConfigurationManager;

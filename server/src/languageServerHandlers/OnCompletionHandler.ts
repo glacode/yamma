@@ -7,6 +7,7 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from '../mmp/MmpStatements';
 import { UProof } from '../mmp/UProof';
 import { IUStatement } from '../mmp/UStatement';
+import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { StepSuggestion } from '../stepSuggestion/StepSuggestion';
 import { SyntaxCompletion } from '../syntaxCompletion/SyntaxCompletion';
 
@@ -156,8 +157,9 @@ export class OnCompletionHandler {
 		let completionItems: CompletionItem[] = [];
 		if (GlobalState.stepSuggestionMap != undefined) {
 			// the model has already been loaded
+			const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
 			const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
-				cursorContext.mmpProofStep,mmParser);
+				formulaClassifiers,cursorContext.mmpProofStep, mmParser);
 			completionItems = stepSuggestion.completionItems();
 		}
 		return completionItems;

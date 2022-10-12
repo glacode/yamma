@@ -1,3 +1,4 @@
+import { CompletionItemKind } from 'vscode-languageserver';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { MmParser } from '../mm/MmParser';
@@ -8,13 +9,15 @@ import { IFormulaClassifier } from './IFormulaClassifier';
 */
 export class RpnSyntaxTreeBuilder implements IFormulaClassifier {
 	id: string;
+	completionItemKind: CompletionItemKind;
 
 	// constructor(mmParser: MmParser) {
 	// 	this.mmParser = mmParser;
 	// 	this.grammar = this.mmParser.outermostBlock.grammar!;
-	constructor() {
+	constructor(completionItemKind: CompletionItemKind) {
 		// ambiguous, 4 levels
 		this.id = 'amb4l';
+		this.completionItemKind = completionItemKind;
 	}
 
 	//#region buildRpnSyntaxTree

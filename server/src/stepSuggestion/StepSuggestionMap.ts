@@ -11,25 +11,36 @@ export class StepSuggestionMap {
 	constructor() {
 		this.map = new Map<string, Map<string, IStepSuggestion[]>>();
 	}
-	add(classifierId: string, completionItemKind: CompletionItemKind, formulaCluster: string, giustificationLabel: string, multiplicity: number) {
+	add(formulaClassifierId: string, completionItemKind: CompletionItemKind, formulaClusterId: string, giustificationLabel: string, multiplicity: number) {
 		let mapForClassifier: Map<string, IStepSuggestion[]> | undefined =
-			this.map.get(classifierId);
+			this.map.get(formulaClassifierId);
 		if (mapForClassifier == undefined) {
 			mapForClassifier = new Map<string, IStepSuggestion[]>();
-			this.map.set(classifierId, mapForClassifier);
+			this.map.set(formulaClassifierId, mapForClassifier);
 		}
-		let stepSuggestionMap: IStepSuggestion[] | undefined = mapForClassifier.get(formulaCluster);
+		let stepSuggestionMap: IStepSuggestion[] | undefined = mapForClassifier.get(formulaClusterId);
 		if (stepSuggestionMap == undefined) {
 			stepSuggestionMap = [];
-			mapForClassifier.set(formulaCluster, stepSuggestionMap);
+			mapForClassifier.set(formulaClusterId, stepSuggestionMap);
 		}
 		const stepSuggestion: IStepSuggestion = {
-			kind: completionItemKind,
+			completionItemKind: completionItemKind,
 			label: giustificationLabel,
 			multiplicity: multiplicity
 		};
 		stepSuggestionMap.push(stepSuggestion);
 	}
+
+	getStepSuggestions(classifierId: string, formulaClusterId: string): IStepSuggestion[] | undefined {
+		let stepSuggestions: IStepSuggestion[] | undefined;
+		const mapForClassifier: Map<string, IStepSuggestion[]> | undefined =
+			this.map.get(classifierId);
+		if (mapForClassifier != undefined)
+			// the classifier actually existed in this map
+			stepSuggestions = mapForClassifier.get(formulaClusterId);
+		return stepSuggestions;
+	}
+
 
 	//TODO1
 	buildTextToWrite(): string {

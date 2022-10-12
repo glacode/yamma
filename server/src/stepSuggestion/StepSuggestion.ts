@@ -9,38 +9,49 @@ import { MmpProofStep } from '../mmp/MmpStatements';
 import { SubstitutionResult, USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { IStepSuggestion } from './ModelBuilder';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { SyntaxTreeClassifierFull } from './SyntaxTreeClassifierFull';
+import { IFormulaClassifier } from './IFormulaClassifier';
+import { StepSuggestionMap } from './StepSuggestionMap';
 
 
 export class StepSuggestion {
 	cursorContext: CursorContext;
-	stepSuggestionMap: Map<string, IStepSuggestion[]>;
+	// stepSuggestionMap: Map<string, IStepSuggestion[]>;
+	stepSuggestionMap: StepSuggestionMap;
+	formulaClassifiers: IFormulaClassifier[];
 	mmpProofStep: MmpProofStep | undefined;
 	mmParser: MmParser;
 
-	constructor(cursorContext: CursorContext, stepSuggestionMap: Map<string, IStepSuggestion[]>,
-		mmpProofStep: MmpProofStep | undefined, mmParser: MmParser) {
+	private completionItemKindOrder: Map<CompletionItemKind,string>;
+
+	constructor(cursorContext: CursorContext, stepSuggestionMap: StepSuggestionMap,
+		formulaClassifiers: IFormulaClassifier[], mmpProofStep: MmpProofStep | undefined, mmParser: MmParser) {
 		this.cursorContext = cursorContext;
 		this.stepSuggestionMap = stepSuggestionMap;
+		this.formulaClassifiers = formulaClassifiers;
 		this.mmpProofStep = mmpProofStep;
 		this.mmParser = mmParser;
+
+		this.completionItemKindOrder = new Map<CompletionItemKind,string>();
+		this.initializeCompletionItemKindOrder();
+		
+	}
+
+	private initializeCompletionItemKindOrder() : void {		
+		this.completionItemKindOrder.set(CompletionItemKind.Event,'0');
+		this.completionItemKindOrder.set(CompletionItemKind.Interface,'1');
 	}
 
 	//#region completionItems
 
-	buildRpnSyntaxTree(): string | undefined {
+	classifyProofStepFormula(formulaClassifier: IFormulaClassifier): string | undefined {
 		let rpnSyntaxTree: string | undefined;
 		const mmpProofStep: MmpProofStep = this.cursorContext.mmpProofStep!;
 		const parseNode: InternalNode | undefined = mmpProofStep.parseNode;
 		if (parseNode != undefined) {
-			// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder(this.mmParser);
 			// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
-			const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull();
 			// rpnSyntaxTreeBuilder.setMmParser(this.mmParser);
-			//TODO use parameters below, or even better, add metainfo to the model
-			//TODO1 the formula classifier classifies formulas, but here we classify ParseNodes
 			// rpnSyntaxTree = syntaxTreeClassifierFull.buildRpnSyntaxTreeFromParseNode(parseNode, this.mmParser, 0, 3);
-			rpnSyntaxTree = syntaxTreeClassifierFull.classify(parseNode, this.mmParser);
+			rpnSyntaxTree = formulaClassifier.classify(parseNode, this.mmParser);
 		}
 		return rpnSyntaxTree;
 	}
@@ -69,6 +80,8 @@ export class StepSuggestion {
 
 
 	//#region getCompletionItemsFromModels
+
+	//#region completionItemsFromClassifier
 
 	//#region getCompletionItemsFromStepSuggestions
 
@@ -100,6 +113,11 @@ export class StepSuggestion {
 		}
 		return insertReplaceEdit;
 	}
+	sortText(completionItemKind: CompletionItemKind, index: number): string  {
+		const completionItemKindOrder: string = this.completionItemKindOrder.get(completionItemKind)!;
+		const result: string = completionItemKindOrder + String(index).padStart(3, '0');
+		return result;
+	}
 	private addCompletionItem(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
 		completionItems: CompletionItem[]) {
 		// const label = `${stepSuggestion.label} ${stepSuggestion.multiplicity}`;
@@ -110,10 +128,11 @@ export class StepSuggestion {
 			label: stepSuggestion.label,
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
-			sortText: String(index).padStart(3, '0'),
+			//TODO1
+			// sortText: String(index).padStart(3, '0'),
+			sortText: this.sortText(stepSuggestion.completionItemKind,index),
 			textEdit: insertReplaceEdit,
-			//TODO search how to remove the icon from the completion list
-			kind: CompletionItemKind.Event
+			kind: stepSuggestion.completionItemKind
 			// data: symbol
 		};
 		completionItems.push(completionItem);
@@ -130,17 +149,29 @@ export class StepSuggestion {
 		return completionItems;
 	}
 	//#endregion getCompletionItemsFromStepSuggestions
-	private getCompletionItemsFromModels(): CompletionItem[] {
-		let completionItemsFromModels: CompletionItem[] = [];
-		const rpnSyntaxTree: string | undefined = this.buildRpnSyntaxTree();
-		if (rpnSyntaxTree != undefined) {
+	completionItemsFromClassifier(formulaClassifier: IFormulaClassifier): CompletionItem[] {
+		let completionItemsFromClassifier: CompletionItem[] = [];
+		const formulaClusterId: string | undefined = this.classifyProofStepFormula(formulaClassifier);
+		if (formulaClusterId != undefined) {
 			// the cursor is on a proof step that has a valid parse node
 			const stepSuggestions: IStepSuggestion[] | undefined =
-				this.stepSuggestionMap.get(rpnSyntaxTree);
+				this.stepSuggestionMap.getStepSuggestions(formulaClassifier.id, formulaClusterId);
 			if (stepSuggestions != undefined)
-				// the formula was not succesfully completed: symbols are the possible next symbols
-				completionItemsFromModels = this.getCompletionItemsFromStepSuggestions(stepSuggestions);
+				// the model does not have step suggestions, for this classifier and this parse node
+				completionItemsFromClassifier = this.getCompletionItemsFromStepSuggestions(stepSuggestions);
 		}
+		return completionItemsFromClassifier;
+	}
+	//#endregion completionItemsFromClassifier
+
+	private getCompletionItemsFromModels(): CompletionItem[] {
+		const completionItemsFromModels: CompletionItem[] = [];
+		this.formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
+			const completionItemsFromClassifier: CompletionItem[] =
+				this.completionItemsFromClassifier(formulaClassifier);
+				completionItemsFromModels.push(...completionItemsFromClassifier);
+
+		});
 		return completionItemsFromModels;
 	}
 	//#endregion getCompletionItemsFromModels

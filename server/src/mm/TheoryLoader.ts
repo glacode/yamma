@@ -6,7 +6,7 @@ import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
 import { MmParser } from './MmParser';
 import { notifyError, notifyInformation } from './Utils';
 import * as fs from "fs";
-import { SyntaxTreeClassifierFull } from '../stepSuggestion/SyntaxTreeClassifierFull';
+import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 
 /** loads a new .mm file and updates the step suggestions model */
 export class TheoryLoader {
@@ -109,8 +109,10 @@ export class TheoryLoader {
 		// const modelFilePath: string = ModelBuilder.buildModelFileFullPath(GlobalState.mmFilePath!);
 		// GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelFilePath, this.connection);
 		// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
-		const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull();
-		const modelBuilder: ModelBuilder = new ModelBuilder(GlobalState.mmFilePath!,syntaxTreeClassifierFull);
+		//TODO1 the code below is repeated: use a single place and export it
+
+		const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
+		const modelBuilder: ModelBuilder = new ModelBuilder(GlobalState.mmFilePath!, formulaClassifiers);
 		GlobalState.stepSuggestionMap = await modelBuilder.loadSuggestionsMap(this.connection);
 	}
 

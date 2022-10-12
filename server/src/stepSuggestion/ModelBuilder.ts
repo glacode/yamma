@@ -15,14 +15,21 @@ import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
 import { Grammar, Parser } from 'nearley';
 
 export interface IStepSuggestion {
-	kind: CompletionItemKind,
+	completionItemKind: CompletionItemKind,
 	label: string,
 	multiplicity: number
 }
 
+// export interface ICompletionItemGroup {
+// 	formulaClassifier: IFormulaClassifier,
+// 	completionItemKind: CompletionItemKind
+// }
+
 export class ModelBuilder {
 	private mmFilePath: string;
-	private formulaClassifier: IFormulaClassifier;
+	// private completionItemGroups: ICompletionItemGroup[];
+	private formulaClassifiers: IFormulaClassifier[];
+
 
 	//TODO it looks like you are NOT using this._fHypLabels , remove it
 	// used just for performance
@@ -37,29 +44,29 @@ export class ModelBuilder {
 	 */
 	stepGiustificationStatistics: Map<string, Map<string, number>>;
 
-	stepSuggestionMap: StepSuggestionMap;
 	stepSuggestionTripleMap: StepSuggestionTripleMap;
 	/** maps a classifierId to a CompletionItemKind */
-	private completionItemKind: Map<string,CompletionItemKind>;
+	private completionItemKind: Map<string, CompletionItemKind>;
 
 
-	constructor(mmFilePath: string, formulaClassifier: IFormulaClassifier) {
+	constructor(mmFilePath: string, formulaClassifiers: IFormulaClassifier[]) {
 		this.mmFilePath = mmFilePath;
-		this.formulaClassifier = formulaClassifier;
+		this.formulaClassifiers = formulaClassifiers;
 
 		this.stepGiustificationStatistics = new Map<string, Map<string, number>>();
-		this.stepSuggestionMap = new StepSuggestionMap();
 		this.stepSuggestionTripleMap = new StepSuggestionTripleMap();
 
 		this._fHypLabels = new Set<string>();
 
-		this.completionItemKind = this.initializeCompletionItemKind(formulaClassifier);
+		this.completionItemKind = this.initializeCompletionItemKind(formulaClassifiers);
 	}
 
 	//TODO1 generalize to array
-	private initializeCompletionItemKind(formulaClassifier: IFormulaClassifier): Map<string, CompletionItemKind> {
-		const completionItemKind: Map<string, CompletionItemKind> = new Map<string,CompletionItemKind>();
-		completionItemKind.set(formulaClassifier.id,CompletionItemKind.Event);
+	private initializeCompletionItemKind(formulaClassifiers: IFormulaClassifier[]): Map<string, CompletionItemKind> {
+		const completionItemKind: Map<string, CompletionItemKind> = new Map<string, CompletionItemKind>();
+		formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
+			completionItemKind.set(formulaClassifier.id, formulaClassifier.completionItemKind);
+		});
 		return completionItemKind;
 	}
 
@@ -135,7 +142,6 @@ export class ModelBuilder {
 	// 	newMap.set(currentStepLabel, 1);
 	// 	this.stepGiustificationStatistics.set(rpnSyntaxTree, newMap);
 	// }
-	//TODO1 us StepSuggestionTripleMap.add()
 	// addStepGiustificationStatistics(rpnSyntaxTree: string, currentStepLabel: string) {
 	// 	const labelStatistics: Map<string, number> | undefined = this.stepGiustificationStatistics.get(rpnSyntaxTree);
 	// 	if (labelStatistics == undefined) {
@@ -153,8 +159,8 @@ export class ModelBuilder {
 	// 			labelStatistics.set(currentStepLabel, previousMultiplicity + 1);
 	// 	}
 	// }
-	addStepGiustificationStatistics(formulaClusterId: string, currentStepLabel: string) {
-		this.stepSuggestionTripleMap.add(this.formulaClassifier.id, formulaClusterId, currentStepLabel);
+	addStepGiustificationStatistics(formulaClassifierId: string, formulaClusterId: string, currentStepLabel: string) {
+		this.stepSuggestionTripleMap.add(formulaClassifierId, formulaClusterId, currentStepLabel);
 	}
 	//#endregion addStepGiustificationStatistics
 
@@ -163,10 +169,15 @@ export class ModelBuilder {
 		// const rpnSyntaxTree: string = this.buildRpnSyntaxTree(assertionStatementWithSubstitution,
 		// 	assertionStatementProofStep.outermostBlock!.grammar!);
 		const parseNode: ParseNode = this.parseNode(assertionStatementWithSubstitution);
-		const rpnSyntaxTree: string = this.formulaClassifier.classify(parseNode,
-			this._mmParser!);
-		const currentStepLabel: string = assertionStatementProofStep.Label;
-		this.addStepGiustificationStatistics(rpnSyntaxTree, currentStepLabel);
+		this.formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
+			// const rpnSyntaxTree: string = this.completionItemGroups.classify(parseNode, this._mmParser!);
+			const rpnSyntaxTree: string | undefined = formulaClassifier.classify(parseNode, this._mmParser!);
+			if (rpnSyntaxTree != undefined) {
+				const currentStepLabel: string = assertionStatementProofStep.Label;
+				// this.addStepGiustificationStatistics(rpnSyntaxTree, currentStepLabel);
+				this.stepSuggestionTripleMap.add(formulaClassifier.id, rpnSyntaxTree, currentStepLabel);
+			}
+		});
 	}
 	//#endregion addAssertionStatementWithSubstitution
 
@@ -230,7 +241,6 @@ export class ModelBuilder {
 		}
 	}
 
-	//TODO1 lo stai rifacendo in StepSuggestionMap.buildTextToWrite()
 	//#region sortSuggestionsAndSave
 	// buildTextToWrite(): string {
 	// 	let textToWrite = '';
@@ -332,7 +342,8 @@ export class ModelBuilder {
 	// 	}
 	// 	return suggestionsMap;
 	// }
-	private buildSuggestionsMap(modelRows: string[]): Map<string, IStepSuggestion[]> {
+	// private buildSuggestionsMap(modelRows: string[]): Map<string, IStepSuggestion[]> {
+	private buildSuggestionsMap(modelRows: string[]): StepSuggestionMap {
 		const suggestionMap: StepSuggestionMap = new StepSuggestionMap();
 		let modelRowString: string = modelRows[0];
 		let modelRowArray: string[] = modelRowString.split(',');
@@ -349,16 +360,21 @@ export class ModelBuilder {
 			const giustificationLabel: string = modelRowArray[2];
 			const multiplicity: number = parseInt(modelRowArray[3]);
 			//TODO1 generalize below
+			// suggestionMap.add(classifierId, completionItemKind, formulaCluster, giustificationLabel, multiplicity);
 			suggestionMap.add(classifierId, completionItemKind, formulaCluster, giustificationLabel, multiplicity);
 			i++;
 		}
-		const result: Map<string, IStepSuggestion[]> = suggestionMap.map.get(this.formulaClassifier.id)!;
-		return result;
+		// const result: Map<string, IStepSuggestion[]> = suggestionMap.map.get(this.completionItemGroups.id)!;
+		// return result;
+		// return suggestionMap.map;
+		return suggestionMap;
 	}
 
-	private loadSuggestionsMapForExistingModel(modelFullPath: string): Map<string, IStepSuggestion[]> {
+	// private loadSuggestionsMapForExistingModel(modelFullPath: string): Map<string, IStepSuggestion[]> {
+	private loadSuggestionsMapForExistingModel(modelFullPath: string): StepSuggestionMap {
 		const modelRows: string[] = ModelBuilder.getModelRows(modelFullPath);
-		const suggestionsMap: Map<string, IStepSuggestion[]> = this.buildSuggestionsMap(modelRows);
+		// const suggestionsMap: Map<string, IStepSuggestion[]> = this.buildSuggestionsMap(modelRows);
+		const suggestionsMap: StepSuggestionMap = this.buildSuggestionsMap(modelRows);
 		return suggestionsMap;
 	}
 	//#endregion loadSuggestionsMapForExistingModel
@@ -366,9 +382,11 @@ export class ModelBuilder {
 
 	//TODO1 add test
 	// static async loadSuggestionsMap(modelFullPath: string, connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
-	async loadSuggestionsMap(connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
+	// async loadSuggestionsMap(connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
+	async loadSuggestionsMap(connection: Connection): Promise<StepSuggestionMap> {
 		const modelFullPath: string = ModelBuilder.buildModelFileFullPath(this.mmFilePath);
-		let suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
+		// let suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
+		let suggestionsMap: StepSuggestionMap = new StepSuggestionMap();
 		if (fs.existsSync(modelFullPath))
 			suggestionsMap = this.loadSuggestionsMapForExistingModel(modelFullPath);
 		else {

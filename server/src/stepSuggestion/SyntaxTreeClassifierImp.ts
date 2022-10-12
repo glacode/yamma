@@ -5,18 +5,22 @@ import { MmParser } from '../mm/MmParser';
 import { IFormulaClassifier } from './IFormulaClassifier';
 
 /** given a formula and a MmParser, returns the syntax tree of the formula,
-as a string representation in rpn format; this classifier works with any
-theory, it is NOT set.mm specific
+as a string representation in rpn format; it returns a "meaningful"
+classification only if the given formula is in the form ( ph -> ps ) ; if
+it's the case, than this classifier looks the ps formula only.
+This classifier is set.mm specific (or, at least, assumes implications are
+part of the teory)
 */
-export class SyntaxTreeClassifierFull implements IFormulaClassifier {
+export class SyntaxTreeClassifierImp implements IFormulaClassifier {
 	id: string;
 	completionItemKind: CompletionItemKind;
+
 	// constructor(mmParser: MmParser) {
 	// 	this.mmParser = mmParser;
 	// 	this.grammar = this.mmParser.outermostBlock.grammar!;
 	constructor(completionItemKind: CompletionItemKind) {
-		// full, 4 levels
-		this.id = 'full4l';
+		// implication, 3 levels of the consequent
+		this.id = 'imp3l';
 		this.completionItemKind = completionItemKind;
 	}
 
@@ -80,7 +84,14 @@ export class SyntaxTreeClassifierFull implements IFormulaClassifier {
 		return treeString;
 	}
 	// buildRpnSyntaxTreeFromFormula(assertionStatementWithSubstitution: string[], grammar: Grammar): string {
-	classify(parseNode: ParseNode, mmParser: MmParser): string {
+	isImplication(parseNode: ParseNode): boolean {
+		const result: boolean = parseNode instanceof InternalNode &&
+			parseNode.label == 'TOP' && parseNode.parseNodes.length == 2 &&
+			parseNode.parseNodes[1] instanceof InternalNode &&
+			parseNode.parseNodes[1].label == 'wi';
+		return result;
+	}
+	classify(parseNode: ParseNode, mmParser: MmParser): string | undefined {
 		// const parseNode: ParseNode = assertionStatementProofStep.parseNode;
 		// const grammar: Grammar = assertionStatementProofStep.outermostBlock!.grammar!;
 		// let rpnSyntaxTree = '';
@@ -90,7 +101,11 @@ export class SyntaxTreeClassifierFull implements IFormulaClassifier {
 		// const parser = new Parser(mmParser.grammar);
 		// parser.feed('');
 		// const parseNode: ParseNode = parser.results[0];
-		const rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(parseNode, mmParser, 0, 3);
+		let rpnSyntaxTree : string | undefined;
+		if (this.isImplication(parseNode)) {
+			const consequent: ParseNode = (<InternalNode>parseNode).parseNodes[1];
+			rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(consequent, mmParser, 0, 3);
+		}
 		return rpnSyntaxTree;
 	}
 	//#endregion classify
