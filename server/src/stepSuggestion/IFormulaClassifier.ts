@@ -1,5 +1,4 @@
 
-import { CompletionItemKind } from 'vscode-languageserver';
 import { ParseNode } from '../grammar/ParseNode';
 import { MmParser } from '../mm/MmParser';
 import { SyntaxTreeClassifierFull } from './SyntaxTreeClassifierFull';
@@ -26,13 +25,13 @@ export interface IFormulaClassifier {
 	//TODO may be this property should be moved to another interface: for instance,
 	// it is used only when reading the model, not when creating the model
 	/** the CompletionItemKind for the suggestions of this classifier */
-	completionItemKind: CompletionItemKind
+	// completionItemKind: CompletionItemKind
 }
 
 /** an example of classifiers */
 export function formulaClassifiersExample() : IFormulaClassifier[] {
-	const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull(CompletionItemKind.Event);
-	const syntaxTreeClassifierImp: SyntaxTreeClassifierImp = new SyntaxTreeClassifierImp(CompletionItemKind.Interface);
+	const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull();
+	const syntaxTreeClassifierImp: SyntaxTreeClassifierImp = new SyntaxTreeClassifierImp();
 	const classifiers: IFormulaClassifier[] = [syntaxTreeClassifierFull,syntaxTreeClassifierImp];
 	return classifiers;
 }

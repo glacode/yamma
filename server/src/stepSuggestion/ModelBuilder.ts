@@ -45,8 +45,9 @@ export class ModelBuilder {
 	stepGiustificationStatistics: Map<string, Map<string, number>>;
 
 	stepSuggestionTripleMap: StepSuggestionTripleMap;
+
 	/** maps a classifierId to a CompletionItemKind */
-	private completionItemKind: Map<string, CompletionItemKind>;
+	private completionItemKind: Map<string, CompletionItemKind> ;
 
 
 	constructor(mmFilePath: string, formulaClassifiers: IFormulaClassifier[]) {
@@ -63,9 +64,15 @@ export class ModelBuilder {
 
 	//TODO1 generalize to array
 	private initializeCompletionItemKind(formulaClassifiers: IFormulaClassifier[]): Map<string, CompletionItemKind> {
+		//TODO if formulaClassifier.length > 2 you will get an exception, later on; you
+		//may cycle modulo n
+		const completionItemKindArray: CompletionItemKind[] = [
+			CompletionItemKind.Event,
+			CompletionItemKind.Interface
+		];
 		const completionItemKind: Map<string, CompletionItemKind> = new Map<string, CompletionItemKind>();
-		formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
-			completionItemKind.set(formulaClassifier.id, formulaClassifier.completionItemKind);
+		formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier,index: number) => {
+			completionItemKind.set(formulaClassifier.id, completionItemKindArray[index]);
 		});
 		return completionItemKind;
 	}

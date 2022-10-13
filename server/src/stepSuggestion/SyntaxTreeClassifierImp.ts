@@ -1,4 +1,3 @@
-import { CompletionItemKind } from 'vscode-languageserver';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { MmParser } from '../mm/MmParser';
@@ -13,15 +12,13 @@ part of the teory)
 */
 export class SyntaxTreeClassifierImp implements IFormulaClassifier {
 	id: string;
-	completionItemKind: CompletionItemKind;
 
 	// constructor(mmParser: MmParser) {
 	// 	this.mmParser = mmParser;
 	// 	this.grammar = this.mmParser.outermostBlock.grammar!;
-	constructor(completionItemKind: CompletionItemKind) {
+	constructor() {
 		// implication, 3 levels of the consequent
 		this.id = 'imp3l';
-		this.completionItemKind = completionItemKind;
 	}
 
 	//#region classify

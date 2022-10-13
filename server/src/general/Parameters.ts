@@ -1,5 +1,5 @@
 
-/** constants shared among all classes; we don't use constants because we want tests to be able
+/** parameters shared among all classes; we don't use constants because we want tests to be able
  * to modify these values
  */
 export abstract class Parameters {
