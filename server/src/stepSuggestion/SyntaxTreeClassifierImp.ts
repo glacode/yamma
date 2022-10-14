@@ -100,8 +100,9 @@ export class SyntaxTreeClassifierImp implements IFormulaClassifier {
 		// const parseNode: ParseNode = parser.results[0];
 		let rpnSyntaxTree : string | undefined;
 		if (this.isImplication(parseNode)) {
-			const consequent: ParseNode = (<InternalNode>parseNode).parseNodes[1];
-			rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(consequent, mmParser, 0, 3);
+			const wiParseNode: InternalNode = <InternalNode>(<InternalNode>parseNode).parseNodes[1];
+			const consequent: ParseNode = wiParseNode.parseNodes[3];
+			rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(consequent, mmParser, 2, 4);
 		}
 		return rpnSyntaxTree;
 	}

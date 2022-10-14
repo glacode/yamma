@@ -2,27 +2,27 @@ import { Parser } from 'nearley';
 import { MmLexer } from '../grammar/MmLexer';
 import { ParseNode } from '../grammar/ParseNode';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { SyntaxTreeClassifierFull } from '../stepSuggestion/SyntaxTreeClassifierFull';
+import { SyntaxTreeClassifierImp } from '../stepSuggestion/SyntaxTreeClassifierImp';
 import { kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
 
-function buildRpnSyntaxTree(stringToParse: string) : string {
+function buildRpnSyntaxTree(stringToParse: string) : string | undefined {
 	opelcnMmParser.grammar.lexer = new MmLexer(new WorkingVars(kindToPrefixMap));
 	const parser = new Parser(opelcnMmParser.grammar);
 	parser.feed(stringToParse);
 	const parseNode: ParseNode = parser.results[0];
-	const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull();
-	const rpnSyntaxTree: string = syntaxTreeClassifierFull.classify(parseNode, opelcnMmParser);
+	const syntaxTreeClassifierFull: SyntaxTreeClassifierImp = new SyntaxTreeClassifierImp();
+	const rpnSyntaxTree: string | undefined = syntaxTreeClassifierFull.classify(parseNode, opelcnMmParser);
 	return rpnSyntaxTree;
 }
 
-test("test SyntaxTreeClassifierFull", () => {
+test("test SyntaxTreeClassifierImp", () => {
 	// opthg2 $p | - ((C e.V /\ D e.W ) ->
 	// 	(<.A , B >. = <.C , D >. <-> (A = C /\ B = D ) ) ) $ =
 	let rpnSyntaxTree = buildRpnSyntaxTree('|- ( ph -> ps )');
-	expect(rpnSyntaxTree).toEqual('wff wff wi TOP');
+	expect(rpnSyntaxTree).toEqual('wff');
 	rpnSyntaxTree = buildRpnSyntaxTree('|- ( ( ph -> ps ) -> ch )');
-	expect(rpnSyntaxTree).toEqual('wff wff wi wff wi TOP');
+	expect(rpnSyntaxTree).toEqual('wff');
 	rpnSyntaxTree = buildRpnSyntaxTree('|- ( ( C e. V /\\ D e. W ) ->\n' +
 		'( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) ) )');
-	expect(rpnSyntaxTree).toEqual('wcel wcel wa wceq wa wb wi TOP');
+	expect(rpnSyntaxTree).toEqual('cop cop wceq wceq wceq wa wb');
 });
