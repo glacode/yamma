@@ -8,17 +8,26 @@ as a string representation in rpn format; it returns a "meaningful"
 classification only if the given formula is in the form ( ph -> ps ) ; if
 it's the case, than this classifier looks the ps formula only.
 This classifier is set.mm specific (or, at least, assumes implications are
-part of the teory)
+part of the teory).
+For instance, '|- ( B e. V -> dom { <. A , B >. } = { A } )' with maxLevel 2
+will be classified with 'csn cdm class csn wceq'; with maxLevel 3 will
+be classified with 'cop csn cdm class csn wceq'
 */
 export class SyntaxTreeClassifierImp implements IFormulaClassifier {
+	maxLevel: number;
 	id: string;
 
 	// constructor(mmParser: MmParser) {
 	// 	this.mmParser = mmParser;
 	// 	this.grammar = this.mmParser.outermostBlock.grammar!;
-	constructor() {
+	/**
+	 * 
+	 * @param maxLevel the zero-based max level of the syntax tree produced
+	 */
+	constructor(maxLevel: number) {
 		// implication, 3 levels of the consequent
-		this.id = 'imp3l';
+		this.maxLevel = maxLevel;
+		this.id = 'imp' + maxLevel;
 	}
 
 	//#region classify
@@ -102,7 +111,7 @@ export class SyntaxTreeClassifierImp implements IFormulaClassifier {
 		if (this.isImplication(parseNode)) {
 			const wiParseNode: InternalNode = <InternalNode>(<InternalNode>parseNode).parseNodes[1];
 			const consequent: ParseNode = wiParseNode.parseNodes[3];
-			rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(consequent, mmParser, 2, 4);
+			rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(consequent, mmParser, 0, this.maxLevel);
 		}
 		return rpnSyntaxTree;
 	}

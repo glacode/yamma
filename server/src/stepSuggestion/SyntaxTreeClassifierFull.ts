@@ -5,16 +5,24 @@ import { IFormulaClassifier } from './IFormulaClassifier';
 
 /** given a formula and a MmParser, returns the syntax tree of the formula,
 as a string representation in rpn format; this classifier works with any
-theory, it is NOT set.mm specific
+theory, it is NOT set.mm specific.
+For instance, given set.mm, '|- ( ph -> ps )'  will return 'wff wff wi TOP'
 */
 export class SyntaxTreeClassifierFull implements IFormulaClassifier {
+	maxLevel: number;
 	id: string;
 	// constructor(mmParser: MmParser) {
 	// 	this.mmParser = mmParser;
 	// 	this.grammar = this.mmParser.outermostBlock.grammar!;
-	constructor() {
+	/**
+	 * 
+	 * @param maxLevel the zero-based max level of the syntax tree produced;
+	 * 0 is for root (for instance, in set.mm it will always be 'TOP')
+	 */
+	constructor(maxLevel: number) {
 		// full, 4 levels
-		this.id = 'full4l';
+		this.maxLevel = maxLevel;
+		this.id = 'full' + maxLevel;
 	}
 
 	//#region classify
@@ -87,7 +95,8 @@ export class SyntaxTreeClassifierFull implements IFormulaClassifier {
 		// const parser = new Parser(mmParser.grammar);
 		// parser.feed('');
 		// const parseNode: ParseNode = parser.results[0];
-		const rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(parseNode, mmParser, 0, 3);
+		// const rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(parseNode, mmParser, 0, 3);
+		const rpnSyntaxTree = this.buildRpnSyntaxTreeFromParseNode(parseNode, mmParser, 0, this.maxLevel);
 		return rpnSyntaxTree;
 	}
 	//#endregion classify

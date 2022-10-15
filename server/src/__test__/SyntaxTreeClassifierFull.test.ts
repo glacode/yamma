@@ -10,7 +10,7 @@ function buildRpnSyntaxTree(stringToParse: string) : string {
 	const parser = new Parser(opelcnMmParser.grammar);
 	parser.feed(stringToParse);
 	const parseNode: ParseNode = parser.results[0];
-	const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull();
+	const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull(3);
 	const rpnSyntaxTree: string = syntaxTreeClassifierFull.classify(parseNode, opelcnMmParser);
 	return rpnSyntaxTree;
 }

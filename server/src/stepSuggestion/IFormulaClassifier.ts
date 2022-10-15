@@ -30,8 +30,8 @@ export interface IFormulaClassifier {
 
 /** an example of classifiers */
 export function formulaClassifiersExample() : IFormulaClassifier[] {
-	const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull();
-	const syntaxTreeClassifierImp: SyntaxTreeClassifierImp = new SyntaxTreeClassifierImp();
+	const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull(3);
+	const syntaxTreeClassifierImp: SyntaxTreeClassifierImp = new SyntaxTreeClassifierImp(2);
 	const classifiers: IFormulaClassifier[] = [syntaxTreeClassifierFull,syntaxTreeClassifierImp];
 	return classifiers;
 }
