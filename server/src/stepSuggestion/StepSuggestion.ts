@@ -22,7 +22,8 @@ export class StepSuggestion {
 	mmParser: MmParser;
 
 	private completionItemKindOrder: Map<CompletionItemKind,string>;
-
+	//TODO this is a parameter: you mught want to move it to the Paramter class
+	private completionItemKindForPartialLabel: CompletionItemKind;
 	constructor(cursorContext: CursorContext, stepSuggestionMap: StepSuggestionMap,
 		formulaClassifiers: IFormulaClassifier[], mmpProofStep: MmpProofStep | undefined, mmParser: MmParser) {
 		this.cursorContext = cursorContext;
@@ -32,6 +33,7 @@ export class StepSuggestion {
 		this.mmParser = mmParser;
 
 		this.completionItemKindOrder = new Map<CompletionItemKind,string>();
+		this.completionItemKindForPartialLabel = CompletionItemKind.Text;
 		this.initializeCompletionItemKindOrder();
 		
 	}
@@ -39,6 +41,10 @@ export class StepSuggestion {
 	private initializeCompletionItemKindOrder() : void {		
 		this.completionItemKindOrder.set(CompletionItemKind.Event,'0');
 		this.completionItemKindOrder.set(CompletionItemKind.Interface,'1');
+		// completion items from partial label should be displayed after
+		// completion items from models
+		this.completionItemKindOrder.set(this.completionItemKindForPartialLabel,'9');
+
 	}
 
 	//#region completionItems
@@ -184,6 +190,7 @@ export class StepSuggestion {
 		const c1: string = partialLabel[1];
 		const c2: string = partialLabel[2];
 		const regExp = new RegExp(`.*${c0}.*${c1}.*${c2}.*`);
+		let i = 0;
 		this.mmParser.labelToAssertionMap.forEach((_assertion: AssertionStatement, label: string) => {
 			// if (label.indexOf(filteringString) != -1) {
 			if (regExp.test(label))
@@ -191,6 +198,9 @@ export class StepSuggestion {
 				if (this.isUnifiable(label)) {
 					const completionItem: CompletionItem = {
 						label: label,
+						//TODO when partial labels are displye
+						sortText: this.sortText(this.completionItemKindForPartialLabel,i++),
+						kind: this.completionItemKindForPartialLabel
 					};
 					completionItems.push(completionItem);
 				}
