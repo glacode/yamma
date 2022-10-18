@@ -2,11 +2,11 @@ import path = require('path');
 import url = require('url');
 import { Connection, WorkDoneProgress, WorkDoneProgressCreateRequest, WorkspaceFolder } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
-import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
 import { MmParser } from './MmParser';
 import { notifyError, notifyInformation } from './Utils';
 import * as fs from "fs";
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
+import { ModelLoader } from '../stepSuggestion/ModelLoader';
 
 /** loads a new .mm file and updates the step suggestions model */
 export class TheoryLoader {
@@ -112,8 +112,10 @@ export class TheoryLoader {
 		//TODO1 the code below is repeated: use a single place and export it
 
 		const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
-		const modelBuilder: ModelBuilder = new ModelBuilder(GlobalState.mmFilePath!, formulaClassifiers);
-		GlobalState.stepSuggestionMap = await modelBuilder.loadSuggestionsMap(this.connection);
+		// const modelBuilder: ModelBuilder = new ModelBuilder(GlobalState.mmFilePath!, formulaClassifiers);
+		// GlobalState.stepSuggestionMap = await modelBuilder.loadSuggestionsMap(this.connection);
+		const modelLoader: ModelLoader = new ModelLoader(GlobalState.mmFilePath!,formulaClassifiers);
+		GlobalState.stepSuggestionMap = await modelLoader.loadSuggestionsMap(this.connection);
 	}
 
 	/** checks if the current mmFilePath is different from the one stored in the GlobalState: if that's the

@@ -1,16 +1,11 @@
 import { Connection, Diagnostic, Position, Range } from 'vscode-languageserver';
 import { MmToken } from '../grammar/MmLexer';
-import * as fs from 'fs';
 import { MmpParserErrorCode } from '../mmp/MmpParser';
 import { MmParserErrorCode } from './MmParser';
 
 
 
-export function readTestFile(fileName: string): string {
-    const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
-    const theory: string = fs.readFileSync(mmFilePath, 'utf-8');
-    return theory;
-}
+
 
 export function AreArrayTheSame(array1: any[], array2: any[]) {
     return (array1.length == array2.length) && array1.every(function (element, index) {

@@ -6,12 +6,11 @@ import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UCompressedProofStatement } from '../mmp/UCompressedProofStatement';
 import { UProof } from '../mmp/UProof';
 import { UProofStep } from '../mmp/UProofStep';
-import { readTestFile } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { mp2Theory } from './MmpParser.test';
 import { Parameters } from '../general/Parameters';
-import { kindToPrefixMap } from './GlobalForTest.test';
+import { kindToPrefixMap, readTestFile } from './GlobalForTest.test';
 
 
 

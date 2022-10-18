@@ -6,11 +6,9 @@ import * as fs from 'fs';
 import { Verifier } from '../mm/Verifier';
 import { ProofCompressor } from '../mmp/ProofCompressor';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { CompletionItemKind, Connection } from 'vscode-languageserver';
+import { CompletionItemKind } from 'vscode-languageserver';
 import { IFormulaClassifier } from './IFormulaClassifier';
-import { StepSuggestionMap } from './StepSuggestionMap';
 import { StepSuggestionTripleMap } from './StepSuggestionTripleMap';
-import { notifyWarning } from '../mm/Utils';
 import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
 import { Grammar, Parser } from 'nearley';
 
@@ -37,6 +35,9 @@ export class ModelBuilder {
 
 	private _mmParser: MmParser | undefined;
 
+	/** change this one if you want ConsoleLog messages */
+	private notifyProgressEnabled = false;
+
 
 	//TODO1 use class StepSuggestionMap
 	/** maps a rpn string representation of a parse node to a map that associates
@@ -46,8 +47,6 @@ export class ModelBuilder {
 
 	stepSuggestionTripleMap: StepSuggestionTripleMap;
 
-	/** maps a classifierId to a CompletionItemKind */
-	private completionItemKind: Map<string, CompletionItemKind> ;
 
 
 	constructor(mmFilePath: string, formulaClassifiers: IFormulaClassifier[]) {
@@ -59,25 +58,26 @@ export class ModelBuilder {
 
 		this._fHypLabels = new Set<string>();
 
-		this.completionItemKind = this.initializeCompletionItemKind(formulaClassifiers);
+		// this.completionItemKind = this.initializeCompletionItemKind(formulaClassifiers);
 	}
 
-	//TODO1 generalize to array
-	private initializeCompletionItemKind(formulaClassifiers: IFormulaClassifier[]): Map<string, CompletionItemKind> {
-		//TODO if formulaClassifier.length > 2 you will get an exception, later on; you
-		//may cycle modulo n
-		const completionItemKindArray: CompletionItemKind[] = [
-			CompletionItemKind.Event,
-			CompletionItemKind.Interface
-		];
-		const completionItemKind: Map<string, CompletionItemKind> = new Map<string, CompletionItemKind>();
-		formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier,index: number) => {
-			completionItemKind.set(formulaClassifier.id, completionItemKindArray[index]);
-		});
-		return completionItemKind;
-	}
+	// private initializeCompletionItemKind(formulaClassifiers: IFormulaClassifier[]): Map<string, CompletionItemKind> {
+	// 	//TODO if formulaClassifier.length > 2 you will get an exception, later on; you
+	// 	//may cycle modulo n
+	// 	const completionItemKindArray: CompletionItemKind[] = [
+	// 		CompletionItemKind.Event,
+	// 		CompletionItemKind.Interface
+	// 	];
+	// 	const completionItemKind: Map<string, CompletionItemKind> = new Map<string, CompletionItemKind>();
+	// 	formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier, index: number) => {
+	// 		completionItemKind.set(formulaClassifier.id, completionItemKindArray[index]);
+	// 	});
+	// 	return completionItemKind;
+	// }
 
 	//#region buildModel
+
+	//#region buildStepSuggestionTripleMap
 
 	private buildFHyps() {
 		this._mmParser!.labelToStatementMap.forEach((labeledStatement: LabeledStatement) => {
@@ -132,7 +132,7 @@ export class ModelBuilder {
 	//#endregion buildRpnSyntaxTree
 
 
-	parseNode(assertionStatementWithSubstitution: string[]): ParseNode {
+	private parseNode(assertionStatementWithSubstitution: string[]): ParseNode {
 		// this.mmParser.grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
 		const grammar: Grammar = this._mmParser!.grammar;
 		grammar.lexer = new MmLexerFromStringArray(assertionStatementWithSubstitution);
@@ -143,29 +143,6 @@ export class ModelBuilder {
 		return parseNode;
 	}
 
-	//#region addStepGiustificationStatistics
-	// private addNewMap(rpnSyntaxTree: string, currentStepLabel: string) {
-	// 	const newMap: Map<string, number> = new Map<string, number>();
-	// 	newMap.set(currentStepLabel, 1);
-	// 	this.stepGiustificationStatistics.set(rpnSyntaxTree, newMap);
-	// }
-	// addStepGiustificationStatistics(rpnSyntaxTree: string, currentStepLabel: string) {
-	// 	const labelStatistics: Map<string, number> | undefined = this.stepGiustificationStatistics.get(rpnSyntaxTree);
-	// 	if (labelStatistics == undefined) {
-	// 		// it is the first time a proof step is found with the given rpnSyntaxTree
-	// 		this.addNewMap(rpnSyntaxTree, currentStepLabel);
-	// 	} else {
-	// 		// rpnSyntaxTree was found before as a proof step formula
-	// 		const previousMultiplicity: number | undefined = labelStatistics.get(currentStepLabel);
-	// 		if (previousMultiplicity == undefined) {
-	// 			// it is the first time this formula has been proven using currentStepLabel
-	// 			labelStatistics.set(currentStepLabel, 1);
-	// 			// this.addNewMap(rpnSyntaxTree, currentStepLabel);
-	// 		} else
-	// 			// this formula has already been proven using currentStepLabel
-	// 			labelStatistics.set(currentStepLabel, previousMultiplicity + 1);
-	// 	}
-	// }
 	addStepGiustificationStatistics(formulaClassifierId: string, formulaClusterId: string, currentStepLabel: string) {
 		this.stepSuggestionTripleMap.add(formulaClassifierId, formulaClusterId, currentStepLabel);
 	}
@@ -188,7 +165,7 @@ export class ModelBuilder {
 	}
 	//#endregion addAssertionStatementWithSubstitution
 
-	addSingleStepToTheModel(assertionStatementProofStep: AssertionStatement, stack: string[][],
+	private addSingleStepToTheModel(assertionStatementProofStep: AssertionStatement, stack: string[][],
 		verifier: Verifier) {
 		const frameProofStep: Frame = <Frame>assertionStatementProofStep.frame;
 		const popCount: number = frameProofStep.fHyps.length + frameProofStep.eHyps.length;
@@ -206,7 +183,7 @@ export class ModelBuilder {
 	}
 	//#endregion addSingleStepToTheModel
 
-	addDecompressedProofToModel(proof: Statement[]) {
+	private addDecompressedProofToModel(proof: Statement[]) {
 		const stack: string[][] = [];
 		const stored: string[][] = [];
 		const verifier: Verifier = new Verifier([]);
@@ -228,7 +205,7 @@ export class ModelBuilder {
 	//#endregion addDecompressedProofToModel
 
 
-	addSingleProofToModel(provableStatement: ProvableStatement) {
+	private addSingleProofToModel(provableStatement: ProvableStatement) {
 		const proofCompressor: ProofCompressor = new ProofCompressor();
 		const proof: Statement[] = proofCompressor.DecompressProof(provableStatement, this._mmParser!.labelToStatementMap);
 		this.addDecompressedProofToModel(proof);
@@ -243,35 +220,30 @@ export class ModelBuilder {
 			const total: number = process.memoryUsage().heapTotal / 1024 / 1024;
 			const memory = `Memory heap used/total ${Math.round(used * 100) / 100} MB / ${Math.round(total * 100) / 100}`;
 			console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
-
 			console.log(percentageOfWorkDone + '% - ' + memory + new Date());
 		}
 	}
 
+	protected buildStepSuggestionTripleMap() {
+				// const mmFilePath = __dirname.concat('/../../src/mmTestFiles/impbii.mm');
+		// const mmFilePath = '/home/mionome/Desktop/provashare/mmp/set.mm';
+		const theory: string = fs.readFileSync(this.mmFilePath, 'utf-8');
+		// const theory: string = readTestFile('impbii.mm');
+		this._mmParser = new MmParser();
+		this._mmParser.ParseText(theory);
+		// this.formulaClassifier.setMmParser(this._mmParser);
+		this.buildFHyps();
+		this._mmParser.labelToStatementMap.forEach((labeledStatement: LabeledStatement, _label: string) => {
+			if (labeledStatement instanceof ProvableStatement)
+				this.addSingleProofToModel(labeledStatement);
+			if (this.notifyProgressEnabled)
+				this.notifyProgress(labeledStatement.statementNumber, this._mmParser!.labelToStatementMap.size);
+		});
+	}
+
+	//#endregion buildStepSuggestionTripleMap
+
 	//#region sortSuggestionsAndSave
-	// buildTextToWrite(): string {
-	// 	let textToWrite = '';
-	// 	let currentRpnSyntaxTreeIndex = 0;
-	// 	this.stepGiustificationStatistics.forEach((labelToMultiplicityMap: Map<string, number>,
-	// 		rpnSyntaxTree: string) => {
-	// 		// const arrayForSingleTree = new Array(labelToMultiplicityMap.entries);
-	// 		const arrayForSingleTree: Array<{ label: string, multiplicity: number }> =
-	// 			Array.from(labelToMultiplicityMap, ([label, multiplicity]) => ({
-	// 				label: label,
-	// 				multiplicity: multiplicity
-	// 			}));
-	// 		// sort giustifications in descending order of
-	// 		arrayForSingleTree.sort((a: { label: string, multiplicity: number },
-	// 			b: { label: string, multiplicity: number }) => b.multiplicity - a.multiplicity);
-	// 		arrayForSingleTree.forEach((giustification: { label: string; multiplicity: number; }) => {
-	// 			const csvLine = `${rpnSyntaxTree},${giustification.label},${giustification.multiplicity}\n`;
-	// 			textToWrite += csvLine;
-	// 		});
-	// 		currentRpnSyntaxTreeIndex++;
-	// 		notifyProgressWithTimestampAndMemory('Creating string...', currentRpnSyntaxTreeIndex, this.stepGiustificationStatistics.size);
-	// 	});
-	// 	return textToWrite;
-	// }
 	save(textToWrite: string) {
 		const fileToWrite = this.mmFilePath + 's';
 		fs.writeFileSync(fileToWrite, textToWrite);
@@ -289,21 +261,10 @@ export class ModelBuilder {
 		this.save(textToWrite);
 		console.log('written to disk!');
 	}
+	//#endregion sortSuggestionsAndSave
 
 	buildModel() {
-		// const mmFilePath = __dirname.concat('/../../src/mmTestFiles/impbii.mm');
-		// const mmFilePath = '/home/mionome/Desktop/provashare/mmp/set.mm';
-		const theory: string = fs.readFileSync(this.mmFilePath, 'utf-8');
-		// const theory: string = readTestFile('impbii.mm');
-		this._mmParser = new MmParser();
-		this._mmParser.ParseText(theory);
-		// this.formulaClassifier.setMmParser(this._mmParser);
-		this.buildFHyps();
-		this._mmParser.labelToStatementMap.forEach((labeledStatement: LabeledStatement, _label: string) => {
-			if (labeledStatement instanceof ProvableStatement)
-				this.addSingleProofToModel(labeledStatement);
-			this.notifyProgress(labeledStatement.statementNumber, this._mmParser!.labelToStatementMap.size);
-		});
+		this.buildStepSuggestionTripleMap();
 		this.sortSuggestionsAndSave();
 	}
 	//#endregion buildModel
@@ -314,97 +275,5 @@ export class ModelBuilder {
 		return mmFilePath + 's';
 	}
 
-	//#region loadSuggestionsMap
 
-	//#region loadSuggestionsMapForExistingModel
-	private static getModelRows(modelFullPath: string): string[] {
-		const model: string = fs.readFileSync(modelFullPath, 'utf-8');
-		const modelRows: string[] = model.split('\n');
-		return modelRows;
-	}
-	// private static buildSuggestionsMap(modelRows: string[]): Map<string, IStepSuggestion[]> {
-	// 	const suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
-	// 	let singleRpnSyntaxTreeSuggestions: IStepSuggestion[] = [];
-	// 	let modelRowString: string = modelRows[0];
-	// 	let modelRowArray: string[] = modelRowString.split(',');
-	// 	let rpnSyntaxTree: string = modelRowArray[0];
-	// 	let i = 0;
-	// 	while (i < modelRows.length) {
-	// 		modelRowString = modelRows[i];
-	// 		modelRowArray = modelRowString.split(',');
-	// 		const newRpnSyntaxTree: string = modelRowArray[0];
-	// 		if (newRpnSyntaxTree != rpnSyntaxTree) {
-	// 			suggestionsMap.set(rpnSyntaxTree, singleRpnSyntaxTreeSuggestions);
-	// 			rpnSyntaxTree = newRpnSyntaxTree;
-	// 			singleRpnSyntaxTreeSuggestions = [];
-	// 		}
-	// 		const giustificationLabel: string = modelRowArray[1];
-	// 		const multiplicity: number = parseInt(modelRowArray[2]);
-	// 		const stepSuggestion: IStepSuggestion = {
-	// 			label: giustificationLabel,
-	// 			multiplicity: multiplicity
-	// 		};
-	// 		singleRpnSyntaxTreeSuggestions.push(stepSuggestion);
-	// 		i++;
-	// 	}
-	// 	return suggestionsMap;
-	// }
-	// private buildSuggestionsMap(modelRows: string[]): Map<string, IStepSuggestion[]> {
-	private buildSuggestionsMap(modelRows: string[]): StepSuggestionMap {
-		const suggestionMap: StepSuggestionMap = new StepSuggestionMap();
-		let modelRowString: string = modelRows[0];
-		let modelRowArray: string[] = modelRowString.split(',');
-		let i = 0;
-		while (i < modelRows.length) {
-			modelRowString = modelRows[i];
-			modelRowArray = modelRowString.split(',');
-			// const formulaCluster: string = modelRowArray[0];
-			// const giustificationLabel: string = modelRowArray[1];
-			// const multiplicity: number = parseInt(modelRowArray[2]);
-			const classifierId: string = modelRowArray[0];
-			const completionItemKind: CompletionItemKind = this.completionItemKind.get(classifierId)!;
-			const formulaCluster: string = modelRowArray[1];
-			const giustificationLabel: string = modelRowArray[2];
-			const multiplicity: number = parseInt(modelRowArray[3]);
-			//TODO1 generalize below
-			// suggestionMap.add(classifierId, completionItemKind, formulaCluster, giustificationLabel, multiplicity);
-			suggestionMap.add(classifierId, completionItemKind, formulaCluster, giustificationLabel, multiplicity);
-			i++;
-		}
-		// const result: Map<string, IStepSuggestion[]> = suggestionMap.map.get(this.completionItemGroups.id)!;
-		// return result;
-		// return suggestionMap.map;
-		return suggestionMap;
-	}
-
-	// private loadSuggestionsMapForExistingModel(modelFullPath: string): Map<string, IStepSuggestion[]> {
-	private loadSuggestionsMapForExistingModel(modelFullPath: string): StepSuggestionMap {
-		const modelRows: string[] = ModelBuilder.getModelRows(modelFullPath);
-		// const suggestionsMap: Map<string, IStepSuggestion[]> = this.buildSuggestionsMap(modelRows);
-		const suggestionsMap: StepSuggestionMap = this.buildSuggestionsMap(modelRows);
-		return suggestionsMap;
-	}
-	//#endregion loadSuggestionsMapForExistingModel
-
-
-	//TODO1 add test
-	// static async loadSuggestionsMap(modelFullPath: string, connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
-	// async loadSuggestionsMap(connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
-	async loadSuggestionsMap(connection: Connection): Promise<StepSuggestionMap> {
-		const modelFullPath: string = ModelBuilder.buildModelFileFullPath(this.mmFilePath);
-		// let suggestionsMap: Map<string, IStepSuggestion[]> = new Map<string, IStepSuggestion[]>();
-		let suggestionsMap: StepSuggestionMap = new StepSuggestionMap();
-		if (fs.existsSync(modelFullPath))
-			suggestionsMap = this.loadSuggestionsMapForExistingModel(modelFullPath);
-		else {
-			// the file for the model does not exist
-			const message = `The model file ${modelFullPath} has not been found. The extension ` +
-				`will work anyway, but step suggestions will not be as accurate and useful as they ` +
-				`would be using a trained model.`;
-			// notifyError(errorMessage,connection);
-			notifyWarning(message, connection);
-		}
-		return suggestionsMap;
-	}
-	//#endregion loadSuggestionsMap
 }

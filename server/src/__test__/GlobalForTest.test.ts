@@ -1,7 +1,8 @@
 import { GlobalState } from '../general/GlobalState';
 import { IVariableKindConfiguration, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
-import { readTestFile } from '../mm/Utils';
+import * as fs from 'fs';
+
 
 const variableKindsConfiguration: Map<string, IVariableKindConfiguration> = new Map<string, IVariableKindConfiguration>();
 variableKindsConfiguration.set('wff', { workingVarPrefix: 'W', lspSemantictokenType: 'variable' });
@@ -11,6 +12,18 @@ GlobalState.lastFetchedSettings = {
 	maxNumberOfProblems: 100, mmFileFullPath: '', proofMode: ProofMode.normal,
 	variableKindsConfiguration: variableKindsConfiguration
 };
+
+export function fullPathForTestFile(fileName: string): string {
+    const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
+    return mmFilePath;
+}
+
+export function readTestFile(fileName: string): string {
+	//TODO1 use the function fullPathForTestFile() above
+    const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
+    const theory: string = fs.readFileSync(mmFilePath, 'utf-8');
+    return theory;
+}
 
 export function createMmParser(fileName: string): MmParser {
 	const theoryText: string = readTestFile(fileName);
