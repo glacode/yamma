@@ -34,8 +34,9 @@ export class ModelLoader {
 	//#region loadSuggestionsMap
 
 	//#region loadSuggestionsMapForExistingModel
-	private static getModelRows(modelFullPath: string): string[] {
-		const model: string = fs.readFileSync(modelFullPath, 'utf-8');
+	// private static getModelRows(modelFullPath: string): string[] {
+	private static getModelRows(model: string): string[] {
+		// const model: string = fs.readFileSync(modelFullPath, 'utf-8');
 		const modelRows: string[] = model.split('\n');
 		return modelRows;
 	}
@@ -95,10 +96,20 @@ export class ModelLoader {
 	}
 
 	// private loadSuggestionsMapForExistingModel(modelFullPath: string): Map<string, IStepSuggestion[]> {
-	private loadSuggestionsMapForExistingModel(modelFullPath: string): StepSuggestionMap {
-		const modelRows: string[] = ModelLoader.getModelRows(modelFullPath);
+	// private loadSuggestionsMapForExistingModel(modelFullPath: string): StepSuggestionMap {
+	protected buildSuggestionsMapForModel(model: string): StepSuggestionMap {
+		// const modelRows: string[] = ModelLoader.getModelRows(modelFullPath);
+		const modelRows: string[] = ModelLoader.getModelRows(model);
 		// const suggestionsMap: Map<string, IStepSuggestion[]> = this.buildSuggestionsMap(modelRows);
 		const suggestionsMap: StepSuggestionMap = this.buildSuggestionsMap(modelRows);
+		return suggestionsMap;
+	}
+	private loadSuggestionsMapForExistingModel(modelFullPath: string): StepSuggestionMap {
+		const model: string = fs.readFileSync(modelFullPath, 'utf-8');
+		const suggestionsMap: StepSuggestionMap = this.buildSuggestionsMapForModel(model);
+		// const modelRows: string[] = ModelLoader.getModelRows(modelFullPath);
+		// const suggestionsMap: Map<string, IStepSuggestion[]> = this.buildSuggestionsMap(modelRows);
+		// const suggestionsMap: StepSuggestionMap = this.buildSuggestionsMap(modelRows);
 		return suggestionsMap;
 	}
 	//#endregion loadSuggestionsMapForExistingModel
