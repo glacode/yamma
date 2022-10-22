@@ -27,7 +27,11 @@ export class SyntaxCompletion {
 	//#region getSymbols
 
 	protected static getSymbolsFromErrorMessage(errorMessage: string): string[] {
-		const symbols: string[] = errorMessage.match(/(?<=A ).*(?= based on:)/g)!.map(s => s.slice(1, s.length - 1));
+		const regExpMatchArray: RegExpMatchArray | null = errorMessage.match(/(?<=A ).*(?= based on:)/g);
+		let symbols: string[] = [];
+		if (regExpMatchArray != null)
+			// const symbols: string[] = errorMessage.match(/(?<=A ).*(?= based on:)/g)!.map(s => s.slice(1, s.length - 1));
+			symbols = errorMessage.match(/(?<=A ).*(?= based on:)/g)!.map(s => s.slice(1, s.length - 1));
 		return symbols;
 	}
 

@@ -128,12 +128,18 @@ export class MmpProofStep extends UProofStep {
 		let end: Position = { line: 0, character: 0 };
 		if (this.stepFormula != undefined && this.stepFormula.length > 0)
 			end = this.stepFormula[this.stepFormula.length - 1].range.end;
-		else if (this.stepLabelToken != undefined)
-			end = this.stepLabelToken.range.end;
-		else if (this.eHypRefs != undefined)
-			end = this.eHypRefs[this.eHypRefs.length - 1].range.end;
-		else if (this.stepRefToken != undefined)
-			end = this.stepRefToken.range.end;
+		// else if (this.stepLabelToken != undefined)
+		// 	end = this.stepLabelToken.range.end;
+		// else if (this.eHypRefs != undefined && this.eHypRefs.length > 0)
+		// 	end = this.eHypRefs[this.eHypRefs.length - 1].range.end;
+		// else if (this.stepRefToken != undefined) {
+		// 	end = this.stepRefToken.range.end;
+		// 	if (this.stepRefToken.value == '')
+		// 		// there should be just a ':' on the line
+		// 		end.character += 2;
+		// }
+		else
+			end = this.firstTokenInfo.firstToken.range.end;
 		return end;
 	}
 

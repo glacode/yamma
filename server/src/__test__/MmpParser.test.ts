@@ -13,6 +13,7 @@ import { axmpTheory } from './MmParser.test';
 import { vexTheoryMmParser } from './MmpProofStatement.test';
 import { doesDiagnosticsContain } from '../mm/Utils';
 import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
+import { IUStatement } from '../mmp/UStatement';
 
 
 const emptyLabelStatement = new AxiomStatement('x', [], new BlockStatement());
@@ -823,4 +824,34 @@ test("axext3 bad 1 - it's already existing, but x y is not an existing constrain
 		}
 	});
 	expect(numOfDisjVarDiagnostic).toBe(2);
+});
+
+test('expect MmpStatement.range ', () => {
+	const mmpSource: string =
+		'h50::hyp1 |- ps\n' +
+		':\n' +
+		'55::\n' +
+		' ax-mp |- ph';
+	const parser: MmParser = new MmParser();
+	parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars(kindToPrefixMap));
+	// const outermostBlock: BlockStatement = new BlockStatement(null);
+	mmpParser.parse();
+	// mmpParser.createMmpStatements(mmptext);
+	const mmpStatements: IUStatement[] = mmpParser.uProof!.uStatements;
+	const mmpProofStep0: MmpProofStep = <MmpProofStep>mmpStatements[0];
+	expect(mmpProofStep0.range.start.line).toBe(0);
+	expect(mmpProofStep0.range.start.character).toBe(0);
+	expect(mmpProofStep0.range.end.line).toBe(0);
+	expect(mmpProofStep0.range.end.character).toBe(15);
+	const mmpProofStep1: MmpProofStep = <MmpProofStep>mmpStatements[1];
+	expect(mmpProofStep1.range.start.line).toBe(1);
+	expect(mmpProofStep1.range.start.character).toBe(0);
+	expect(mmpProofStep1.range.end.line).toBe(1);
+	expect(mmpProofStep1.range.end.character).toBe(1);
+	const mmpProofStep2: MmpProofStep = <MmpProofStep>mmpStatements[2];
+	expect(mmpProofStep2.range.start.line).toBe(2);
+	expect(mmpProofStep2.range.start.character).toBe(0);
+	expect(mmpProofStep2.range.end.line).toBe(3);
+	expect(mmpProofStep2.range.end.character).toBe(12);
 });
