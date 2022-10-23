@@ -5,6 +5,7 @@
 import { Connection } from 'vscode-languageserver';
 import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
+import { MmStatistics } from '../mm/MmStatistics';
 import { MmpParser } from '../mmp/MmpParser';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
 
@@ -15,6 +16,9 @@ export abstract class GlobalState {
 
 	/** the mmParser containing the current theory */
 	static mmParser?: MmParser;
+
+	/** the statistics for the current theory */
+	static mmStatistics?: MmStatistics;
 
 	/** the last MmpParser used for a validation of the current .mmp file */
 	static lastMmpParser?: MmpParser;

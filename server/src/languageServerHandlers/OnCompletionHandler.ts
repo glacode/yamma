@@ -3,6 +3,7 @@ import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
 import { ConfigurationManager } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
+import { MmStatistics } from '../mm/MmStatistics';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from '../mmp/MmpStatements';
 import { UProof } from '../mmp/UProof';
@@ -159,7 +160,7 @@ export class OnCompletionHandler {
 			// the model has already been loaded
 			const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
 			const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
-				formulaClassifiers,cursorContext.mmpProofStep, mmParser);
+				formulaClassifiers, cursorContext.mmpProofStep, mmParser);
 			completionItems = stepSuggestion.completionItems();
 		}
 		return completionItems;
@@ -168,8 +169,10 @@ export class OnCompletionHandler {
 	// async completionItems(): Promise<CompletionItem[]> {
 	async completionItems(): Promise<CompletionList> {
 		let completionItems: CompletionItem[] = [];
-		if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined) {
+		if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined &&
+			GlobalState.mmStatistics != undefined) {
 			const mmParser: MmParser = GlobalState.mmParser;
+			const mmStatistics: MmStatistics = GlobalState.mmStatistics;
 			const mmpParser: MmpParser = GlobalState.lastMmpParser;
 			completionItems = [
 				{
@@ -187,7 +190,8 @@ export class OnCompletionHandler {
 			cursorContext.buildContext();
 			switch (cursorContext.contextForCompletion) {
 				case CursorContextForCompletion.stepFormula: {
-					const syntaxCompletion = new SyntaxCompletion(cursorContext, mmParser, mmpParser);
+					const syntaxCompletion = new SyntaxCompletion(cursorContext, mmParser, mmpParser,
+						mmStatistics);
 					completionItems = syntaxCompletion.completionItems();
 				}
 					break;

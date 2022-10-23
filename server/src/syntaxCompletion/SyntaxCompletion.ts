@@ -1,10 +1,11 @@
 import { Parser } from 'nearley';
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
-import { GlobalState } from '../general/GlobalState';
 import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
 import { CursorContext } from '../languageServerHandlers/OnCompletionHandler';
 import { MmParser } from '../mm/MmParser';
+import { MmStatistics } from '../mm/MmStatistics';
+import { AssertionStatement } from '../mm/Statements';
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmpParser } from '../mmp/MmpParser';
 
@@ -14,11 +15,14 @@ export class SyntaxCompletion {
 	cursorContext: CursorContext;
 	mmParser: MmParser;
 	mmpParser: MmpParser;
+	mmStatistics: MmStatistics;
 
-	constructor(cursorContext: CursorContext, mmParser: MmParser, mmpParser: MmpParser) {
+	constructor(cursorContext: CursorContext, mmParser: MmParser, mmpParser: MmpParser,
+		mmStatistics: MmStatistics) {
 		this.cursorContext = cursorContext;
 		this.mmParser = mmParser;
 		this.mmpParser = mmpParser;
+		this.mmStatistics = mmStatistics;
 	}
 
 
@@ -39,13 +43,13 @@ export class SyntaxCompletion {
 		let symbols: string[] | undefined;
 		// const stepFormula: MmToken[] | undefined = this.getFormulaBeforeCursor();
 		const stepFormula: MmToken[] | undefined = this.cursorContext.formulaBeforeCursor();
-		if (GlobalState.mmParser != undefined && stepFormula != undefined) {
+		// if (GlobalState.mmParser != undefined && stepFormula != undefined) {
+		if (this.mmParser != undefined && stepFormula != undefined) {
 			// the step formula is present
-			// stepFormula = nextProofStepTokens.slice(1);
-			// formulaParseNode = MmpParser.tryToParse(stepFormula, this.grammar, this.workingVars, this.diagnostics);
-			GlobalState.mmParser.grammar.lexer = new MmLexerFromTokens(stepFormula);
-			let parser: Parser = new Parser(GlobalState.mmParser.grammar);
-			// const stepFormulaString = concatTokenValuesWithSpaces(stepFormula);
+			// GlobalState.mmParser.grammar.lexer = new MmLexerFromTokens(stepFormula);
+			// let parser: Parser = new Parser(GlobalState.mmParser.grammar);
+			this.mmParser.grammar.lexer = new MmLexerFromTokens(stepFormula);
+			let parser: Parser = new Parser(this.mmParser.grammar);
 			try {
 				// parser.feed(stepFormulaString);
 				// here we don't need to pass the actual formula string, because we use MmLexerFromTokens
@@ -55,8 +59,10 @@ export class SyntaxCompletion {
 					// the formula was parsed till the end and no error was found, but at the end it
 					// was not a valid formula
 					const stepFormulaString = concatTokenValuesWithSpaces(stepFormula);
-					GlobalState.mmParser.grammar.lexer = new MmLexer(GlobalState.mmParser.workingVars);
-					parser = new Parser(GlobalState.mmParser.grammar);
+					// GlobalState.mmParser.grammar.lexer = new MmLexer(GlobalState.mmParser.workingVars);
+					// parser = new Parser(GlobalState.mmParser.grammar);
+					this.mmParser.grammar.lexer = new MmLexer(this.mmParser.workingVars);
+					parser = new Parser(this.mmParser.grammar);
 					parser.feed(stepFormulaString + " UnxpexcteEndOfFormula");
 				}
 				// if (parser.results.length > 1)
@@ -84,6 +90,17 @@ export class SyntaxCompletion {
 	}
 	//#endregion getSymbols
 
+	//#region getCompletionItems
+	private sortText(symbol: string): string | undefined {
+		const assertions: Set<AssertionStatement> | undefined = this.mmStatistics.symbolToAssertionMap!.get(symbol)!;
+		const defaultOrder = 99999;
+		let size = defaultOrder;
+		if (assertions != undefined)
+			// a set of assertions has been found, for the given symbol
+			size = defaultOrder - assertions.size;
+		const result: string = String(size).padStart(5, '0');
+		return result;
+	}
 	getCompletionItems(symbols: string[]): CompletionItem[] {
 		// alreadyAddedSymbols is just used for better performance (a completionItems.includes could have been used, but it should be slower)
 		const alreadyAddedSymbols: Set<string> = new Set<string>();
@@ -93,7 +110,9 @@ export class SyntaxCompletion {
 				!alreadyAddedSymbols.has(symbol)) {
 				// the current symbol is actually a symbol in the theory and it has not been added to the completion list, yet
 				const completionItem: CompletionItem = {
-					label: symbol
+					label: symbol,
+					sortText: this.sortText(symbol),
+					// detail: this.sortText(symbol)
 					//TODO search how to remove the icon from the completion list
 					// kind: CompletionItemKind.Keyword
 					// data: symbol
@@ -105,6 +124,7 @@ export class SyntaxCompletion {
 		);
 		return completionItems;
 	}
+	//#endregion getCompletionItems
 
 	completionItems(): CompletionItem[] {
 		let completionItems: CompletionItem[] = [

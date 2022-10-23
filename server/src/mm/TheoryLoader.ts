@@ -7,6 +7,7 @@ import { notifyError, notifyInformation } from './Utils';
 import * as fs from "fs";
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { ModelLoader } from '../stepSuggestion/ModelLoader';
+import { MmStatistics } from './MmStatistics';
 
 /** loads a new .mm file and updates the step suggestions model */
 export class TheoryLoader {
@@ -114,8 +115,17 @@ export class TheoryLoader {
 		const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
 		// const modelBuilder: ModelBuilder = new ModelBuilder(GlobalState.mmFilePath!, formulaClassifiers);
 		// GlobalState.stepSuggestionMap = await modelBuilder.loadSuggestionsMap(this.connection);
-		const modelLoader: ModelLoader = new ModelLoader(GlobalState.mmFilePath!,formulaClassifiers);
+		const modelLoader: ModelLoader = new ModelLoader(GlobalState.mmFilePath!, formulaClassifiers);
 		GlobalState.stepSuggestionMap = await modelLoader.loadSuggestionsMap(this.connection);
+	}
+
+	/** starts a thread to build the statistics for the current theory  */
+	private async updateStatistics() {
+		if (this.mmParser != undefined) {
+			const mmStatistics: MmStatistics = new MmStatistics(this.mmParser);
+			mmStatistics.buildStatistics();
+			GlobalState.mmStatistics = mmStatistics;
+		}
 	}
 
 	/** checks if the current mmFilePath is different from the one stored in the GlobalState: if that's the
@@ -131,11 +141,15 @@ export class TheoryLoader {
 			await this.loadNewTheorySync();
 			//TODO consider using worker threads, I'm afraid this one is 'blocking', not really async
 			console.log('after loadNewTheorySync - GlobalState.mmParser = ' + GlobalState.mmParser);
-			console.log('before loadStepSuggestionModelAsync');
-			if (GlobalState.mmParser != undefined)
+			if (GlobalState.mmParser != undefined) {
 				// a theory has been succesfully loaded
+				console.log('before loadStepSuggestionModelAsync');
 				this.loadStepSuggestionModelAsync();
-			console.log('after loadStepSuggestionModelAsync');
+				console.log('after loadStepSuggestionModelAsync');
+				console.log('before updateStatistics');
+				this.updateStatistics();
+				console.log('after updateStatistics');
+			}
 		}
 	}
 	//#endregion loadNewTheoryIfNeededAndThenTheStepSuggestionModel
