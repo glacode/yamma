@@ -84,7 +84,6 @@ export class ModelLoader {
 			const formulaCluster: string = modelRowArray[1];
 			const giustificationLabel: string = modelRowArray[2];
 			const multiplicity: number = parseInt(modelRowArray[3]);
-			//TODO1 generalize below
 			// suggestionMap.add(classifierId, completionItemKind, formulaCluster, giustificationLabel, multiplicity);
 			suggestionMap.add(classifierId, completionItemKind, formulaCluster, giustificationLabel, multiplicity);
 			i++;
@@ -115,7 +114,6 @@ export class ModelLoader {
 	//#endregion loadSuggestionsMapForExistingModel
 
 
-	//TODO1 add test
 	// static async loadSuggestionsMap(modelFullPath: string, connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
 	// async loadSuggestionsMap(connection: Connection): Promise<Map<string, IStepSuggestion[]>> {
 	async loadSuggestionsMap(connection: Connection): Promise<StepSuggestionMap> {

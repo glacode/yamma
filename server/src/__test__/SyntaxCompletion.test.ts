@@ -2,6 +2,7 @@ import { CompletionItem } from 'vscode-languageserver';
 import { CursorContext } from '../languageServerHandlers/OnCompletionHandler';
 import { MmStatistics } from '../mm/MmStatistics';
 import { MmpParser } from '../mmp/MmpParser';
+import { MmpStatistics } from '../mmp/MmpStatistics';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { SyntaxCompletion } from '../syntaxCompletion/SyntaxCompletion';
 import { impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
@@ -51,16 +52,19 @@ test('expect syntax completion ordered by popularity', () => {
 	mmpParser.parse();
 	const mmStatistics: MmStatistics = new MmStatistics(impbiiMmParser);
 	mmStatistics.buildStatistics();
+	const mmpStatistics: MmpStatistics = new MmpStatistics(mmpParser);
+	mmpStatistics.buildStatistics();
 	const cursorContext: CursorContext = new CursorContext(3, 31, mmpParser);
 	const syntaxCompletion: SyntaxCompletion = new SyntaxCompletion(cursorContext, impbiiMmParser,
-		mmpParser,mmStatistics);
+		mmpParser, mmStatistics,mmpStatistics);
 	const completionItems: CompletionItem[] = syntaxCompletion.completionItems();
 	expect(completionItems.length).toBeGreaterThan(3);
 	completionItems.forEach((completionItem: CompletionItem) => {
-		if (completionItem.label == 'th') {
+		if (completionItem.label == 'ph')
+			expect(completionItem.sortText?.startsWith('0')).toBeTruthy();
+		if (completionItem.label == 'th')
 			// there are 4 assertions with 'th', and 99999 - 4 = 99995
-			expect(completionItem.sortText).toBe('99995');
-		}
+			expect(completionItem.sortText).toBe('199995');
 	});
 	// expect(mmpParser.diagnostics.length).toBe(1);
 

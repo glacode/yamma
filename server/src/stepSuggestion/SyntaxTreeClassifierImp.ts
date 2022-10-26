@@ -36,11 +36,6 @@ export class SyntaxTreeClassifierImp implements IFormulaClassifier {
 	private buildRpnSyntaxTreeFromParseNode(parseNode: ParseNode, mmParser: MmParser, currentLevel: number, maxLevel: number): string {
 		let treeString = '';
 		let nodeLabelOrCluster: string | undefined;
-		// we don't want to consider FHyps labels
-		// if (currentLevel <= maxLevel && parseNode instanceof InternalNode && !this._fHypLabels.has(parseNode.label)) {
-		//TODO1
-		// if (currentLevel <= maxLevel && parseNode instanceof InternalNode &&
-		// 	!GrammarManager.isInternalParseNodeForWorkingVar(parseNode)) {
 		if (currentLevel <= maxLevel && parseNode instanceof InternalNode) {
 			if (GrammarManager.isInternalParseNodeForWorkingVar(parseNode)) {
 				// working vars are clustered, i.e. replaced with their kind

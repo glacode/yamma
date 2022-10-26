@@ -107,11 +107,6 @@ export class TheoryLoader {
 	private async loadStepSuggestionModelAsync() {
 		// we use GlobalState.mmFilePath instead of this.mmFilePath, because the TheoryLoader
 		// might have used the default theory name, if the configuration mmFilePath is empty
-		// const modelFilePath: string = ModelBuilder.buildModelFileFullPath(GlobalState.mmFilePath!);
-		// GlobalState.stepSuggestionMap = await ModelBuilder.loadSuggestionsMap(modelFilePath, this.connection);
-		// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
-		//TODO1 the code below is repeated: use a single place and export it
-
 		const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
 		// const modelBuilder: ModelBuilder = new ModelBuilder(GlobalState.mmFilePath!, formulaClassifiers);
 		// GlobalState.stepSuggestionMap = await modelBuilder.loadSuggestionsMap(this.connection);

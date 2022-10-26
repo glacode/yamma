@@ -134,7 +134,6 @@ export class StepSuggestion {
 			label: stepSuggestion.label,
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
-			//TODO1
 			// sortText: String(index).padStart(3, '0'),
 			sortText: this.sortText(stepSuggestion.completionItemKind,index),
 			textEdit: insertReplaceEdit,

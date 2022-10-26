@@ -1,5 +1,6 @@
 import { Parser } from 'nearley';
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
+
 import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
 import { CursorContext } from '../languageServerHandlers/OnCompletionHandler';
@@ -8,6 +9,7 @@ import { MmStatistics } from '../mm/MmStatistics';
 import { AssertionStatement } from '../mm/Statements';
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmpParser } from '../mmp/MmpParser';
+import { MmpStatistics } from '../mmp/MmpStatistics';
 
 export class SyntaxCompletion {
 
@@ -16,13 +18,15 @@ export class SyntaxCompletion {
 	mmParser: MmParser;
 	mmpParser: MmpParser;
 	mmStatistics: MmStatistics;
+	mmpStatistics?: MmpStatistics;
 
 	constructor(cursorContext: CursorContext, mmParser: MmParser, mmpParser: MmpParser,
-		mmStatistics: MmStatistics) {
+		mmStatistics: MmStatistics, mmpStatistics?: MmpStatistics) {
 		this.cursorContext = cursorContext;
 		this.mmParser = mmParser;
 		this.mmpParser = mmpParser;
 		this.mmStatistics = mmStatistics;
+		this.mmpStatistics = mmpStatistics;
 	}
 
 
@@ -35,7 +39,7 @@ export class SyntaxCompletion {
 		let symbols: string[] = [];
 		if (regExpMatchArray != null)
 			// const symbols: string[] = errorMessage.match(/(?<=A ).*(?= based on:)/g)!.map(s => s.slice(1, s.length - 1));
-			symbols = errorMessage.match(/(?<=A ).*(?= based on:)/g)!.map(s => s.slice(1, s.length - 1));
+			symbols = regExpMatchArray.map(s => s.slice(1, s.length - 1));
 		return symbols;
 	}
 
@@ -91,7 +95,19 @@ export class SyntaxCompletion {
 	//#endregion getSymbols
 
 	//#region getCompletionItems
-	private sortText(symbol: string): string | undefined {
+
+	//#region sortText
+	/** returns '0' if the symbol is in the current .mmp file, returns '1' otherwise */
+	firstCharacterForSorting(symbol: string): string {
+		let firstCharacter = '1';
+		if (this.mmpStatistics?.symbols != undefined) {
+			const isInCurrentMmpFile: boolean = this.mmpStatistics.symbols.has(symbol);
+			if (isInCurrentMmpFile)
+			firstCharacter = '0';
+		}
+		return firstCharacter;
+	}
+	sortingByPopularity(symbol: string): string {
 		const assertions: Set<AssertionStatement> | undefined = this.mmStatistics.symbolToAssertionMap!.get(symbol)!;
 		const defaultOrder = 99999;
 		let size = defaultOrder;
@@ -101,6 +117,24 @@ export class SyntaxCompletion {
 		const result: string = String(size).padStart(5, '0');
 		return result;
 	}
+	/** symbols already in the current .mmp file are listed first; then are
+	 * sorted by popularity in the whole theory
+	 */
+	private sortText(symbol: string): string | undefined {
+		const firstCharacterForSorting: string = this.firstCharacterForSorting(symbol);
+		const sortingByPopularity: string = this.sortingByPopularity(symbol);
+		// const assertions: Set<AssertionStatement> | undefined = this.mmStatistics.symbolToAssertionMap!.get(symbol)!;
+		// const defaultOrder = 99999;
+		// let size = defaultOrder;
+		// if (assertions != undefined)
+		// 	// a set of assertions has been found, for the given symbol
+		// 	size = defaultOrder - assertions.size;
+		// const result: string = String(size).padStart(5, '0');
+		const result = firstCharacterForSorting + sortingByPopularity;
+		return result;
+	}
+	//#endregion sortText
+
 	getCompletionItems(symbols: string[]): CompletionItem[] {
 		// alreadyAddedSymbols is just used for better performance (a completionItems.includes could have been used, but it should be slower)
 		const alreadyAddedSymbols: Set<string> = new Set<string>();

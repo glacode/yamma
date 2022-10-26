@@ -6,6 +6,7 @@ import { MmParser } from '../mm/MmParser';
 import { MmStatistics } from '../mm/MmStatistics';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpStatistics } from '../mmp/MmpStatistics';
 import { UProof } from '../mmp/UProof';
 import { IUStatement } from '../mmp/UStatement';
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
@@ -111,7 +112,7 @@ export class CursorContext {
 			const uProofStep: MmpProofStep | undefined = this.getMmpProofStep(uProof.uStatements);
 			if (uProofStep != undefined) {
 				if (this.isOnStepLabel(uProofStep))
-					//TODO1
+					//TODO
 					this.contextForCompletion = CursorContextForCompletion.stepLabel;
 				else {
 					formula = this.getFormulaBeforeCursorInUProofStep(uProofStep);
@@ -142,12 +143,15 @@ export class OnCompletionHandler {
 	cursorCharacter: number;
 
 	configurationManager: ConfigurationManager;
+	mmpStatistics: MmpStatistics | undefined;
 
-	constructor(textDocumentPosition: TextDocumentPositionParams, configurationManager: ConfigurationManager) {
+	constructor(textDocumentPosition: TextDocumentPositionParams, configurationManager: ConfigurationManager,
+		mmpStatistics?: MmpStatistics) {
 		this.textDocumentPosition = textDocumentPosition;
 		this.cursorLine = textDocumentPosition.position.line;
 		this.cursorCharacter = textDocumentPosition.position.character;
 		this.configurationManager = configurationManager;
+		this.mmpStatistics = mmpStatistics;
 		console.log(textDocumentPosition.position);
 	}
 	/** returns the array of symbols expected from the early parser */
@@ -191,7 +195,7 @@ export class OnCompletionHandler {
 			switch (cursorContext.contextForCompletion) {
 				case CursorContextForCompletion.stepFormula: {
 					const syntaxCompletion = new SyntaxCompletion(cursorContext, mmParser, mmpParser,
-						mmStatistics);
+						mmStatistics,this.mmpStatistics);
 					completionItems = syntaxCompletion.completionItems();
 				}
 					break;

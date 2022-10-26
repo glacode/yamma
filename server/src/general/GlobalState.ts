@@ -7,6 +7,7 @@ import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationMan
 import { MmParser } from '../mm/MmParser';
 import { MmStatistics } from '../mm/MmStatistics';
 import { MmpParser } from '../mmp/MmpParser';
+import { MmpStatistics } from '../mmp/MmpStatistics';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
 
 export abstract class GlobalState {
@@ -22,6 +23,9 @@ export abstract class GlobalState {
 
 	/** the last MmpParser used for a validation of the current .mmp file */
 	static lastMmpParser?: MmpParser;
+
+	/** the statistics for the mmp file */
+	static mmpStatistics?: MmpStatistics;
 
 	/** maps every rpnSyntaxTree to a list of suggestion */
 	static stepSuggestionMap: StepSuggestionMap;

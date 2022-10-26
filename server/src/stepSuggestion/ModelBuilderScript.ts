@@ -15,7 +15,6 @@ const mmFilePath = '/mnt/mmt/opelcn.mm';
 consoleLogWithTimestamp('model builder start');
 
 // const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
-//TODO1 the code below is repeated: use a single place and export it
 const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
 const modelBuilder: ModelBuilder = new ModelBuilder(mmFilePath, formulaClassifiers);
 modelBuilder.buildModel();

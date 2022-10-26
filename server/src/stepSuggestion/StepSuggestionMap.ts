@@ -41,26 +41,12 @@ export class StepSuggestionMap {
 		return stepSuggestions;
 	}
 
-
-	//TODO1
 	buildTextToWrite(): string {
 		let textToWrite = '';
 		// let currentRpnSyntaxTreeIndex = 0;
 		this.map.forEach((stepSuggestionMap: Map<string, IStepSuggestion[]>, _classifierId: string) => {
 			stepSuggestionMap.forEach((stepSuggestions: IStepSuggestion[],
 				formulaClusterKey: string) => {
-				// const arrayForSingleTree = new Array(labelToMultiplicityMap.entries);
-				// const arrayForSingleTree: Array<{ label: string, multiplicity: number }> =
-				// 	Array.from(stepSuggestions, ([label, multiplicity]) => ({
-				// 		label: label,
-				// 		multiplicity: multiplicity
-				// 	}));
-				// sort giustifications in descending order of
-				// arrayForSingleTree.sort((a: { label: string, multiplicity: number },
-				// 	b: { label: string, multiplicity: number }) => b.multiplicity - a.multiplicity);
-				// arrayForSingleTree.forEach((giustification: { label: string; multiplicity: number; }) => {
-				// 	const csvLine = `${formulaClusterKey},${giustification.label},${giustification.multiplicity}\n`;
-				// 	textToWrite += csvLine;
 				stepSuggestions.sort((a: { label: string, multiplicity: number },
 					b: { label: string, multiplicity: number }) => b.multiplicity - a.multiplicity);
 				stepSuggestions.forEach((giustification: { label: string; multiplicity: number; }) => {

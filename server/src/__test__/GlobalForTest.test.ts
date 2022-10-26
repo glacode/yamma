@@ -14,15 +14,16 @@ GlobalState.lastFetchedSettings = {
 };
 
 export function fullPathForTestFile(fileName: string): string {
-    const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
-    return mmFilePath;
+	const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
+	return mmFilePath;
 }
 
 export function readTestFile(fileName: string): string {
 	//TODO1 use the function fullPathForTestFile() above
-    const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
-    const theory: string = fs.readFileSync(mmFilePath, 'utf-8');
-    return theory;
+	// const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
+	const mmFilePath = fullPathForTestFile(fileName);
+	const theory: string = fs.readFileSync(mmFilePath, 'utf-8');
+	return theory;
 }
 
 export function createMmParser(fileName: string): MmParser {
@@ -49,17 +50,17 @@ export const mp2Theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. '
 export const mp2MmParser: MmParser = new MmParser();
 mp2MmParser.ParseText(mp2Theory);
 
-export const kindToPrefixMap: Map<string,string> = new Map<string,string>();
+export const kindToPrefixMap: Map<string, string> = new Map<string, string>();
 kindToPrefixMap.set('wff', 'W');
 kindToPrefixMap.set('class', 'C');
 kindToPrefixMap.set('setvar', 'S');
 
-test('dummy test to avoid "Your test suite must contain at least one test" error message' , () => {
+test('dummy test to avoid "Your test suite must contain at least one test" error message', () => {
 	expect(mp2MmParser.isParsingComplete).toBeTruthy();
 	expect(mp2MmParser.parseFailed).toBeFalsy();
 });
 
-test('impbii ok' , () => {
+test('impbii ok', () => {
 	const impbiiMmParser2: MmParser = createMmParser('impbii.mm');
 	expect(impbiiMmParser2.isParsingComplete).toBeTruthy();
 	expect(impbiiMmParser2.parseFailed).toBeFalsy();

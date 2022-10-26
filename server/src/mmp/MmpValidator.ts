@@ -7,6 +7,7 @@ import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from './MmpParser
 import { AssertionStatement, LabeledStatement } from '../mm/Statements';
 import { WorkingVars } from './WorkingVars';
 import { GlobalState } from '../general/GlobalState';
+import { MmpStatistics } from './MmpStatistics';
 
 /** validates a .mmp files and returns diagnostics
  * for the language server event handlers
@@ -80,6 +81,14 @@ export class MmpValidator {
 	// invoke MmpUnifier.unify and use the returned Diagnostic[]
 
 	//#endregion validateFullDocumentText
+
+	//#region validateFullDocumentText
+	private async updateStatistics(mmpParser: MmpParser) {
+		const mmpStatistics: MmpStatistics = new MmpStatistics(mmpParser);
+		mmpStatistics.buildStatistics();
+		GlobalState.mmpStatistics = mmpStatistics;
+	}
+
 	validateFullDocumentText(textToValidate: string, labelToStatementMap: Map<string, LabeledStatement>,
 		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
 		// const mmpTokenizer = new MmpTokenizer(textToValidate);
@@ -89,7 +98,9 @@ export class MmpValidator {
 		console.log('after mmpParser.parse()');
 		GlobalState.lastMmpParser = mmpParser;
 		this.diagnostics = mmpParser.diagnostics;
+		this.updateStatistics(mmpParser);
 	}
+	//#endregionvalidateFullDocumentText
 
 	validateFullDocument(textDocument: TextDocument): Diagnostic[] {
 		this.diagnostics = [];

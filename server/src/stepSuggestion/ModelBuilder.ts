@@ -39,7 +39,7 @@ export class ModelBuilder {
 	private notifyProgressEnabled = false;
 
 
-	//TODO1 use class StepSuggestionMap
+	//TODO use class StepSuggestionMap
 	/** maps a rpn string representation of a parse node to a map that associates
 	 * every label (with multiplicity) used to justify such a formula
 	 */

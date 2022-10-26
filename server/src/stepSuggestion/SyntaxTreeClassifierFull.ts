@@ -33,7 +33,6 @@ export class SyntaxTreeClassifierFull implements IFormulaClassifier {
 		let nodeLabelOrCluster: string | undefined;
 		// we don't want to consider FHyps labels
 		// if (currentLevel <= maxLevel && parseNode instanceof InternalNode && !this._fHypLabels.has(parseNode.label)) {
-		//TODO1
 		// if (currentLevel <= maxLevel && parseNode instanceof InternalNode &&
 		// 	!GrammarManager.isInternalParseNodeForWorkingVar(parseNode)) {
 		if (currentLevel <= maxLevel && parseNode instanceof InternalNode) {

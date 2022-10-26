@@ -270,7 +270,7 @@ connection.onCompletion(
 	// async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> => {
 	async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionList> => {
 		const onCompletionHandler: OnCompletionHandler =
-			new OnCompletionHandler(_textDocumentPosition, configurationManager);
+			new OnCompletionHandler(_textDocumentPosition, configurationManager, GlobalState.mmpStatistics);
 		// const result: CompletionItem[] = await onCompletionHandler.completionItems();
 		const result: CompletionList = await onCompletionHandler.completionItems();
 
@@ -382,7 +382,7 @@ connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticToken
 	console.log('connection.languages.semanticTokens.on1');
 	const mmParser: MmParser | undefined = GlobalState.mmParser;
 	let mmpParser: MmpParser | undefined = GlobalState.lastMmpParser;
-	//TODO1 move all this handler onSemanticTokensHandler.semanticTokens (pass documents to the
+	//TODO move all this handler onSemanticTokensHandler.semanticTokens (pass documents to the
 	// OnSemanticTokensHandler constructor) 
 	if (mmParser != undefined && mmpParser == undefined) {
 		const textDocument: TextDocument = documents.get(semanticTokenParams.textDocument.uri)!;
