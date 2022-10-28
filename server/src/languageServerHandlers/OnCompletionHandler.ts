@@ -1,5 +1,4 @@
 import { CompletionItem, CompletionItemKind, CompletionList, Position, TextDocumentPositionParams } from 'vscode-languageserver';
-import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
 import { ConfigurationManager } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
@@ -11,6 +10,7 @@ import { UProof } from '../mmp/UProof';
 import { IUStatement } from '../mmp/UStatement';
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { StepSuggestion } from '../stepSuggestion/StepSuggestion';
+import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
 import { SyntaxCompletion } from '../syntaxCompletion/SyntaxCompletion';
 
 /** the cursor position determines which kind of completion is required */
@@ -143,14 +143,26 @@ export class OnCompletionHandler {
 	cursorCharacter: number;
 
 	configurationManager: ConfigurationManager;
-	mmpStatistics: MmpStatistics | undefined;
+
+	private stepSuggestionMap?: StepSuggestionMap;
+	private mmParser?: MmParser;
+	private mmpParser?: MmpParser;
+
+	private mmStatistics?: MmStatistics;
+	private mmpStatistics: MmpStatistics | undefined;
+
 
 	constructor(textDocumentPosition: TextDocumentPositionParams, configurationManager: ConfigurationManager,
-		mmpStatistics?: MmpStatistics) {
+		stepSuggestionMap?: StepSuggestionMap, mmParser?: MmParser, mmpParser?: MmpParser,
+		mmStatistics?: MmStatistics, mmpStatistics?: MmpStatistics) {
 		this.textDocumentPosition = textDocumentPosition;
 		this.cursorLine = textDocumentPosition.position.line;
 		this.cursorCharacter = textDocumentPosition.position.character;
 		this.configurationManager = configurationManager;
+		this.stepSuggestionMap = stepSuggestionMap;
+		this.mmParser = mmParser;
+		this.mmpParser = mmpParser;
+		this.mmStatistics = mmStatistics;
 		this.mmpStatistics = mmpStatistics;
 		console.log(textDocumentPosition.position);
 	}
@@ -160,10 +172,10 @@ export class OnCompletionHandler {
 	stepSuggestion(cursorContext: CursorContext, mmParser: MmParser): CompletionItem[] {
 		console.log(cursorContext.mmpProofStep?.label);
 		let completionItems: CompletionItem[] = [];
-		if (GlobalState.stepSuggestionMap != undefined) {
+		if (this.stepSuggestionMap != undefined) {
 			// the model has already been loaded
 			const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
-			const stepSuggestion = new StepSuggestion(cursorContext, GlobalState.stepSuggestionMap,
+			const stepSuggestion = new StepSuggestion(cursorContext, this.stepSuggestionMap,
 				formulaClassifiers, cursorContext.mmpProofStep, mmParser);
 			completionItems = stepSuggestion.completionItems();
 		}
@@ -173,11 +185,11 @@ export class OnCompletionHandler {
 	// async completionItems(): Promise<CompletionItem[]> {
 	async completionItems(): Promise<CompletionList> {
 		let completionItems: CompletionItem[] = [];
-		if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined &&
-			GlobalState.mmStatistics != undefined) {
-			const mmParser: MmParser = GlobalState.mmParser;
-			const mmStatistics: MmStatistics = GlobalState.mmStatistics;
-			const mmpParser: MmpParser = GlobalState.lastMmpParser;
+		if (this.mmParser != undefined && this.mmpParser != undefined &&
+			this.mmStatistics != undefined) {
+			const mmParser: MmParser = this.mmParser;
+			const mmStatistics: MmStatistics = this.mmStatistics;
+			const mmpParser: MmpParser = this.mmpParser;
 			completionItems = [
 				{
 					label: 'TypeScript',
@@ -200,7 +212,7 @@ export class OnCompletionHandler {
 				}
 					break;
 				case CursorContextForCompletion.stepLabel: {
-					completionItems = this.stepSuggestion(cursorContext, GlobalState.mmParser);
+					completionItems = this.stepSuggestion(cursorContext, this.mmParser);
 				}
 					break;
 				default:

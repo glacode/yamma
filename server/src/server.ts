@@ -270,7 +270,8 @@ connection.onCompletion(
 	// async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> => {
 	async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionList> => {
 		const onCompletionHandler: OnCompletionHandler =
-			new OnCompletionHandler(_textDocumentPosition, configurationManager, GlobalState.mmpStatistics);
+			new OnCompletionHandler(_textDocumentPosition, configurationManager, GlobalState.stepSuggestionMap,
+				GlobalState.mmParser, GlobalState.lastMmpParser, GlobalState.mmStatistics, GlobalState.mmpStatistics);
 		// const result: CompletionItem[] = await onCompletionHandler.completionItems();
 		const result: CompletionList = await onCompletionHandler.completionItems();
 
