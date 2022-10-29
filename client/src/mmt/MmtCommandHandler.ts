@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient/node';
 
+//TODO move this file under the client/src/commandHandlers folder and then remove the client/src/mmt folder
+
 //TODO I had to pass both uri and fsPath, because it's har to find a parser that switches
 //from one to the other; the only "place" where I've been able to cleanly get both
 // is in the function storeMmtFileCommandHandler() where vscode.window.activeTextEditor.document.uri

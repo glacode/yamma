@@ -20,6 +20,8 @@ import {
 
 import { loadMmtFilesCommandHandler, storeMmtFileCommandHandler } from "./mmt/MmtCommandHandler";
 
+import { searchCommandHandler } from "./commandHandlers/SearchCommandHandler";
+
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext) {
@@ -64,6 +66,8 @@ export function activate(context: ExtensionContext) {
 	);
 
 	// const mmtCommandHandler: MmtCommandHandler = new MmtCommandHandler(client);
+
+
 	//Glauco
 	client.onReady().then(() => {
 		let disposable: Disposable = commands.registerCommand('yamma.storeInMMTfolder',
@@ -72,7 +76,11 @@ export function activate(context: ExtensionContext) {
 		disposable = commands.registerCommand('yamma.loadFromMMTfolder',
 			loadMmtFilesCommandHandler, client);
 		context.subscriptions.push(disposable);
+		disposable = commands.registerCommand('yamma.search',searchCommandHandler, client);
+		context.subscriptions.push(disposable);
 
+		//TODO1 it looks like you could instead do this server side,
+		//with connection.window.connection.window.showInformationMessage()
 		client.onNotification('yamma/showinformation', (message: string) => {
 			// the header 'Header caption' is not displayed because modal is false
 			// I leave it there anyway, as a reference, if in the future I want a model message
@@ -84,10 +92,14 @@ export function activate(context: ExtensionContext) {
 			// window.showInformationMessage(message);
 		});
 
+		//TODO1 it looks like you could instead do this server side,
+		//with connection.window.connection.window.showWarningMessage()
 		client.onNotification('yamma/showwarning', (message: string) => {
 			window.showWarningMessage(message, ...["Ok"]);
 		});
 
+		//TODO1 it looks like you could instead do this server side,
+		//with connection.window.connection.window.showErrorMessage()
 		client.onNotification('yamma/showerror', (message: string) => {
 			window.showErrorMessage(message, ...["Ok"]);
 		});

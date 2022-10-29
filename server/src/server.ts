@@ -49,6 +49,7 @@ import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHan
 import { notifyError } from './mm/Utils';
 import { MmParser } from './mm/MmParser';
 import { MmpParser } from './mmp/MmpParser';
+import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -179,6 +180,15 @@ connection.onRequest('yamma/loadmmt', (fsPath: string) => {
 		console.log('Method loadmmt() has been invoked');
 	}
 });
+
+//TODO1
+connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandParameters) => {
+	console.log('Search command has been invoked');
+	const searchCommandHandler: SearchCommandHandler = new SearchCommandHandler(
+		searchCommandParameters, connection);
+	searchCommandHandler.insertSearchStatement();
+});
+
 
 connection.onInitialized(() => {
 	if (hasConfigurationCapability) {

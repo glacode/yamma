@@ -116,12 +116,20 @@
 			{
 				"command": "yamma.loadFromMMTfolder",
 				"title": "Load Theorems from MMT Folder"
+			},
+			{
+				"command": "yamma.search",
+				"title": "Search theorems in the theory"
 			}
 		],
 		"keybindings": [
 			{
 				"command": "editor.action.formatDocument",
 				"key": "ctrl+u"
+			},
+			{
+				"command": "yamma.search",
+				"key": "ctrl+h"
 			}
 		]
 	},
