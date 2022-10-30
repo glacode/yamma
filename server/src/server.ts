@@ -181,7 +181,6 @@ connection.onRequest('yamma/loadmmt', (fsPath: string) => {
 	}
 });
 
-//TODO1
 connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandParameters) => {
 	console.log('Search command has been invoked');
 	const searchCommandHandler: SearchCommandHandler = new SearchCommandHandler(

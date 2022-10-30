@@ -10,7 +10,6 @@ interface ISearchCommandParameter {
 	cursorLine: number;
 }
 
-//TODO1
 export function searchCommandHandler(): any {
 	console.log(`Sending request search!`);
 	const searchCommandParameter: ISearchCommandParameter = {

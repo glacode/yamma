@@ -39,7 +39,6 @@ test("creation of a list of symbols from a nearly.js error message",
 	}
 );
 
-//TODO1
 test('expect syntax completion ordered by popularity', () => {
 	const mmpSource =
 		'$theorem impbii\n' +

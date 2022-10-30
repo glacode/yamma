@@ -19,8 +19,6 @@ export function fullPathForTestFile(fileName: string): string {
 }
 
 export function readTestFile(fileName: string): string {
-	//TODO1 use the function fullPathForTestFile() above
-	// const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
 	const mmFilePath = fullPathForTestFile(fileName);
 	const theory: string = fs.readFileSync(mmFilePath, 'utf-8');
 	return theory;

@@ -1,4 +1,5 @@
 import { Connection, Position, TextEditChange, WorkspaceChange } from 'vscode-languageserver/node';
+import { MmToken } from '../grammar/MmLexer';
 import { CursorContext } from '../mmp/CursorContext';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from '../mmp/MmpStatements';
@@ -22,7 +23,6 @@ export class SearchCommandHandler {
 
 	//#region insertSearchStatement
 
-	//TODO1
 	private getCurrentProofStep(): MmpProofStep | undefined {
 		let currentProofStep: MmpProofStep | undefined;
 		if (this.mmpParser?.uProof != undefined)
@@ -46,13 +46,43 @@ export class SearchCommandHandler {
 	}
 	//#endregion positionForInsertionOfTheSearchStatement
 
-	insertSearchStatementBeforeStep(currentMmpProofStep?: MmpProofStep) {
-		const insertPosition: Position = this.positionForInsertionOfTheSearchStatement(currentMmpProofStep);
+	//#region buildSearchStatement
+
+	//#region buildSymbolsString
+	buildSymbolsString(currentMmpProofStep: MmpProofStep | undefined): string {
+		let symbolsString = '';
+		const alreadyAddedSymbols: Set<string> = new Set<string>();
+		if (currentMmpProofStep?.formula != undefined)
+			currentMmpProofStep.formula.forEach((mmToken: MmToken) => {
+				const symbol: string = mmToken.value;
+				if (!alreadyAddedSymbols.has(symbol)) {
+					symbolsString += ' ' + symbol;
+					alreadyAddedSymbols.add(symbol);
+				}
+
+			});
+		return symbolsString;
+	}
+	//#endregion buildSymbolsString
+	private buildSearchStatement(currentMmpProofStep: MmpProofStep | undefined): string {
+		const symbols: string = this.buildSymbolsString(currentMmpProofStep);
+		const searchStatement = `$SearchSymbols: ${symbols}  SearchComments: \n`;
+		return searchStatement;
+	}
+	//#endregion buildSearchStatement
+
+	insertNewSearchStatement(insertPosition: Position, searchStatement: string) {
 		const workspaceChange: WorkspaceChange = new WorkspaceChange();
 		const textEditChange: TextEditChange = workspaceChange.getTextEditChange(
 			this.searchCommandParameter.uri);
-		textEditChange.insert(insertPosition, 'AAAAAAAAAA\n');
+		textEditChange.insert(insertPosition, searchStatement);
 		this.connection.workspace.applyEdit(workspaceChange.edit);
+	}
+
+	insertSearchStatementBeforeStep(currentMmpProofStep?: MmpProofStep) {
+		const insertPosition: Position = this.positionForInsertionOfTheSearchStatement(currentMmpProofStep);
+		const searchStatement: string = this.buildSearchStatement(currentMmpProofStep);
+		this.insertNewSearchStatement(insertPosition, searchStatement);
 	}
 	//#endregion insertSearchStatementBeforeStep
 
