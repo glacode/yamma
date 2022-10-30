@@ -3,7 +3,7 @@ import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 
 import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
-import { CursorContext } from '../languageServerHandlers/OnCompletionHandler';
+import { CursorContext } from "../mmp/CursorContext";
 import { MmParser } from '../mm/MmParser';
 import { MmStatistics } from '../mm/MmStatistics';
 import { AssertionStatement } from '../mm/Statements';

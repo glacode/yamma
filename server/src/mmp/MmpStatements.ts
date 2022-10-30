@@ -194,4 +194,5 @@ export class MmpProofStep extends UProofStep {
 	}
 }
 
+//TODO1 try to remove this type
 export type MmpStatement = MmpProofStep | UComment

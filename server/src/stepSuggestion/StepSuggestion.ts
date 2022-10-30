@@ -1,7 +1,7 @@
 import { CompletionItem, CompletionItemKind, InsertReplaceEdit, Range } from 'vscode-languageserver';
 import { Parameters } from '../general/Parameters';
 import { InternalNode } from '../grammar/ParseNode';
-import { CursorContext } from '../languageServerHandlers/OnCompletionHandler';
+import { CursorContext } from "../mmp/CursorContext";
 import { MmParser } from '../mm/MmParser';
 import { AssertionStatement, LabeledStatement } from '../mm/Statements';
 import { range } from '../mm/Utils';

@@ -1,5 +1,5 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
-import { CursorContext } from '../languageServerHandlers/OnCompletionHandler';
+import { CursorContext } from "../mmp/CursorContext";
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from '../mmp/MmpStatements';
 import { WorkingVars } from '../mmp/WorkingVars';
