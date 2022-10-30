@@ -19,8 +19,22 @@ export class CursorContext {
 	/** after the execution of buildContext() this property contains the cursor context for autocompletion */
 	contextForCompletion?: CursorContextForCompletion;
 
+	private _mmpProofStep?: MmpProofStep;
+
+	//#region mmpProofStep
+	/** sets the MmpProofStep the cursor is positioned on */
+	private setMmpProofStep() {
+		const uProof: UProof | undefined = this.mmpParser.uProof;
+		if (uProof != undefined)
+			this._mmpProofStep = CursorContext.getMmpProofStep(uProof.uStatements,this.cursorLine);
+	}
 	/** the MmpProofStep the cursor is positioned on, if any */
-	mmpProofStep: MmpProofStep | undefined;
+	get mmpProofStep(): MmpProofStep | undefined {
+		if (this._mmpProofStep == undefined)
+			this.setMmpProofStep();
+		return this._mmpProofStep;
+	}
+	//#endregion mmpProofStep
 
 	constructor(cursorLine: number, cursorCharacter: number, mmpParser: MmpParser) {
 		this.cursorLine = cursorLine;
@@ -28,28 +42,21 @@ export class CursorContext {
 		this.mmpParser = mmpParser;
 	}
 
-	//#region buildContext
-	//#region setMmpProofStep
-	private getMmpProofStep(uStatements: IUStatement[]): MmpProofStep | undefined {
+	/** returns the MmpProofStep at the given line (it may be a multiline proof step) */
+	public static getMmpProofStep(uStatements: IUStatement[], line: number): MmpProofStep | undefined {
 		let i = 0;
 		let uProofStep: MmpProofStep | undefined;
 		while (i < uStatements.length && uProofStep == undefined) {
 			if (uStatements[i] instanceof MmpProofStep &&
-				(<MmpProofStep>uStatements[i]).startPosition.line <= this.cursorLine &&
-				this.cursorLine <= (<MmpProofStep>uStatements[i]).endPosition.line)
+				(<MmpProofStep>uStatements[i]).startPosition.line <= line &&
+				line <= (<MmpProofStep>uStatements[i]).endPosition.line)
 				uProofStep = <MmpProofStep>uStatements[i];
 			i++;
 		}
 		return uProofStep;
 	}
 
-	/** sets the MmpProofStep the cursor is positioned on */
-	private setMmpProofStep() {
-		const uProof: UProof | undefined = this.mmpParser.uProof;
-		if (uProof != undefined)
-			this.mmpProofStep = this.getMmpProofStep(uProof.uStatements);
-	}
-	//#endregion setMmpProofStep
+	//#region buildContext
 	//#region formulaBeforeCursor
 	private isOnStepLabel(mmpProofStep: MmpProofStep): boolean {
 		const firstTokenEnd: Position = mmpProofStep.firstTokenInfo.firstToken.range.end;
@@ -91,7 +98,7 @@ export class CursorContext {
 		let formula: MmToken[] | undefined;
 		const uProof: UProof | undefined = this.mmpParser.uProof;
 		if (uProof != undefined) {
-			const uProofStep: MmpProofStep | undefined = this.getMmpProofStep(uProof.uStatements);
+			const uProofStep: MmpProofStep | undefined = this.mmpProofStep;
 			if (uProofStep != undefined) {
 				if (this.isOnStepLabel(uProofStep))
 					//TODO
@@ -107,7 +114,7 @@ export class CursorContext {
 	}
 	//#endregion formulaBeforeCursor
 	buildContext() {
-		this.setMmpProofStep();
+		// this.setMmpProofStep();
 		this.formulaBeforeCursor();
 	}
 }
