@@ -1,4 +1,6 @@
 import { Connection, Position, TextEditChange, WorkspaceChange } from 'vscode-languageserver/node';
+import { CursorContext } from '../mmp/CursorContext';
+import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from '../mmp/MmpStatements';
 
 //TODO you are defining this interface both on the client and on the server:
@@ -10,18 +12,23 @@ export interface ISearchCommandParameters {
 
 export class SearchCommandHandler {
 	searchCommandParameter: ISearchCommandParameters;
+	mmpParser?: MmpParser;
 	connection: Connection;
-	constructor(searchCommandParameter: ISearchCommandParameters, connection: Connection) {
+	constructor(searchCommandParameter: ISearchCommandParameters, connection: Connection, mmpParser?: MmpParser) {
 		this.searchCommandParameter = searchCommandParameter;
 		this.connection = connection;
+		this.mmpParser = mmpParser;
 	}
 
 	//#region insertSearchStatement
 
 	//TODO1
 	private getCurrentProofStep(): MmpProofStep | undefined {
-		// getMmpProofStep
-		return undefined;
+		let currentProofStep: MmpProofStep | undefined;
+		if (this.mmpParser?.uProof != undefined)
+			currentProofStep = CursorContext.getMmpProofStep(this.mmpParser.uProof.uStatements,
+				this.searchCommandParameter.cursorLine);
+		return currentProofStep;
 	}
 
 	//#region insertSearchStatementBeforeStep
