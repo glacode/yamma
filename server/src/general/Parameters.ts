@@ -11,4 +11,9 @@ export abstract class Parameters {
 	 * the 'last resort' step suggestion
 	 */
 	static numberOfCharsTriggeringCompletionItemsFromPartialLabel = 3;
+
+	/** the maximum number of characters that will populate a new search statement
+	 * (computed from the statemente where the cursor is placed)
+	 */
+	static maxNumberOfSymbolsComputedForSearch = 3;
 }

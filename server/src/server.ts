@@ -50,6 +50,7 @@ import { notifyError } from './mm/Utils';
 import { MmParser } from './mm/MmParser';
 import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
+import { Parameters } from './general/Parameters';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -184,7 +185,8 @@ connection.onRequest('yamma/loadmmt', (fsPath: string) => {
 connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandParameters) => {
 	console.log('Search command has been invoked');
 	const searchCommandHandler: SearchCommandHandler = new SearchCommandHandler(
-		searchCommandParameters, connection, GlobalState.lastMmpParser);
+		Parameters.maxNumberOfSymbolsComputedForSearch, searchCommandParameters, connection,
+		GlobalState.lastMmpParser, GlobalState.mmStatistics);
 	searchCommandHandler.insertSearchStatement();
 });
 

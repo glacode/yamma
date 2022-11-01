@@ -1,5 +1,7 @@
 import { Connection, Position, TextEditChange, WorkspaceChange } from 'vscode-languageserver/node';
 import { MmToken } from '../grammar/MmLexer';
+import { MmStatistics } from '../mm/MmStatistics';
+import { AssertionStatement } from '../mm/Statements';
 import { CursorContext } from '../mmp/CursorContext';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from '../mmp/MmpStatements';
@@ -12,13 +14,18 @@ export interface ISearchCommandParameters {
 }
 
 export class SearchCommandHandler {
+	maxNumberOfReturnedSymbols: number;
 	searchCommandParameter: ISearchCommandParameters;
-	mmpParser?: MmpParser;
 	connection: Connection;
-	constructor(searchCommandParameter: ISearchCommandParameters, connection: Connection, mmpParser?: MmpParser) {
+	mmpParser?: MmpParser;
+	mmStatistics?: MmStatistics;
+	constructor(maxNumberOfReturnedSymbols: number, searchCommandParameter: ISearchCommandParameters,
+		connection: Connection, mmpParser?: MmpParser, mmStatistics?: MmStatistics) {
+		this.maxNumberOfReturnedSymbols = maxNumberOfReturnedSymbols;
 		this.searchCommandParameter = searchCommandParameter;
 		this.connection = connection;
 		this.mmpParser = mmpParser;
+		this.mmStatistics = mmStatistics;
 	}
 
 	//#region insertSearchStatement
@@ -49,29 +56,84 @@ export class SearchCommandHandler {
 	//#region buildSearchStatement
 
 	//#region buildSymbolsString
-	buildSymbolsString(currentMmpProofStep: MmpProofStep | undefined): string {
-		let symbolsString = '';
-		const alreadyAddedSymbols: Set<string> = new Set<string>();
+
+	//#region symbolsOrderedByIncreasingPopularity
+
+	//#region unorderedSymbols
+	private static addSymbol(symbol: string,
+		symbolToAssertionMap: Map<string, Set<AssertionStatement>> | undefined, symbols: Map<string, number>) {
+		const assertions: Set<AssertionStatement> | undefined = symbolToAssertionMap?.get(symbol);
+		let popularity = 0;
+		if (assertions != undefined)
+			// the symbol is in the theory's statistics
+			popularity = assertions.size;
+		symbols.set(symbol, popularity);
+	}
+	private static unorderedSymbols(currentMmpProofStep?: MmpProofStep,
+		mmStatistics?: MmStatistics): Map<string, number> {
+		const symbols: Map<string, number> = new Map<string, number>();
+		const symbolToAssertionMap: Map<string, Set<AssertionStatement>> | undefined =
+			mmStatistics?.symbolToAssertionMap;
 		if (currentMmpProofStep?.formula != undefined)
 			currentMmpProofStep.formula.forEach((mmToken: MmToken) => {
 				const symbol: string = mmToken.value;
-				if (!alreadyAddedSymbols.has(symbol)) {
-					symbolsString += ' ' + symbol;
-					alreadyAddedSymbols.add(symbol);
-				}
-
+				if (symbols.get(symbol) == undefined)
+					// it is the first occourence of symbol in the formula
+					SearchCommandHandler.addSymbol(symbol, symbolToAssertionMap, symbols);
 			});
+		return symbols;
+	}
+	//#endregion unorderedSymbols
+	static symbolsOrderedByIncreasingPopularity(currentMmpProofStep?: MmpProofStep,
+		mmStatistics?: MmStatistics): string[] {
+		const unorderedSymbols: Map<string, number> =
+			SearchCommandHandler.unorderedSymbols(currentMmpProofStep, mmStatistics);
+		const orderedSymbolsMap = new Map([...unorderedSymbols.entries()].sort((a, b) => a[1] - b[1]));
+		const orderedSymbols: string[] = Array.from(orderedSymbolsMap.keys());
+		return orderedSymbols;
+	}
+	//#endregion symbolsOrderedByIncreasingPopularity
+	private static symbolsString(symbolsOrderedByPopularity: string[], maxNumberOfReturnedSymbols: number) {
+		let symbolsString = '';
+		let i = 0;
+		//TODO1 3 should be a parameter
+		while (i < maxNumberOfReturnedSymbols && i < symbolsOrderedByPopularity.length) {
+			const symbol: string = symbolsOrderedByPopularity[i];
+			symbolsString += ' ' + symbol;
+			i++;
+		}
+		// if (currentMmpProofStep?.formula != undefined)
+		// 	currentMmpProofStep.formula.forEach((mmToken: MmToken) => {
+		// 		const symbol: string = mmToken.value;
+		// 		if (!alreadySeenSymbol.has(symbol)) {
+		// 			if (SearchCommandHandler.isSymbolToBeAdded())
+		// 				symbolsString += ' ' + symbol;
+		// 			alreadySeenSymbol.add(symbol);
+		// 		}
+
+		// 	});
 		return symbolsString;
 	}
+	private static buildSymbolsString(maxNumberOfReturnedSymbols: number,
+		currentMmpProofStep?: MmpProofStep, mmStatistics?: MmStatistics): string {
+		const symbolsOrderedByPopularity: string[] = SearchCommandHandler.symbolsOrderedByIncreasingPopularity(
+			currentMmpProofStep, mmStatistics);
+		const symbolsString: string = SearchCommandHandler.symbolsString(symbolsOrderedByPopularity,
+			maxNumberOfReturnedSymbols);
+		return symbolsString;
+	}
+
 	//#endregion buildSymbolsString
-	private buildSearchStatement(currentMmpProofStep: MmpProofStep | undefined): string {
-		const symbols: string = this.buildSymbolsString(currentMmpProofStep);
-		const searchStatement = `$SearchSymbols: ${symbols}  SearchComments: \n`;
+	protected static buildSearchStatement(maxNumberOfReturnedSymbols: number,
+		currentMmpProofStep?: MmpProofStep, mmStatistics?: MmStatistics): string {
+		const symbols: string = SearchCommandHandler.buildSymbolsString(maxNumberOfReturnedSymbols,
+			currentMmpProofStep, mmStatistics);
+		const searchStatement = `SearchSymbols:${symbols}   SearchComments: \n`;
 		return searchStatement;
 	}
 	//#endregion buildSearchStatement
 
-	insertNewSearchStatement(insertPosition: Position, searchStatement: string) {
+	private insertNewSearchStatement(insertPosition: Position, searchStatement: string) {
 		const workspaceChange: WorkspaceChange = new WorkspaceChange();
 		const textEditChange: TextEditChange = workspaceChange.getTextEditChange(
 			this.searchCommandParameter.uri);
@@ -79,9 +141,10 @@ export class SearchCommandHandler {
 		this.connection.workspace.applyEdit(workspaceChange.edit);
 	}
 
-	insertSearchStatementBeforeStep(currentMmpProofStep?: MmpProofStep) {
+	private insertSearchStatementBeforeStep(currentMmpProofStep?: MmpProofStep,) {
 		const insertPosition: Position = this.positionForInsertionOfTheSearchStatement(currentMmpProofStep);
-		const searchStatement: string = this.buildSearchStatement(currentMmpProofStep);
+		const searchStatement: string = SearchCommandHandler.buildSearchStatement(
+			this.maxNumberOfReturnedSymbols, currentMmpProofStep, this.mmStatistics);
 		this.insertNewSearchStatement(insertPosition, searchStatement);
 	}
 	//#endregion insertSearchStatementBeforeStep
