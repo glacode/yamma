@@ -4,10 +4,14 @@ import { MmpParser } from './MmpParser';
 import { MmpProofStep } from './MmpStatements';
 import { UProof } from './UProof';
 import { IUStatement } from './UStatement';
-import { CursorContextForCompletion } from '../languageServerHandlers/OnCompletionHandler';
+
+/** the cursor position determines which kind of completion is required */
+export enum CursorContextForCompletion {
+	stepFormula = 'stepFormula',
+	stepLabel = 'stepLabel'
+}
 
 /** build info about the cursor context, and the proof step where the cursor is */
-
 export class CursorContext {
 	/** line of the cursor */
 	cursorLine: number;

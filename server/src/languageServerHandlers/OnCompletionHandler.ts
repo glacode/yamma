@@ -8,13 +8,7 @@ import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion
 import { StepSuggestion } from '../stepSuggestion/StepSuggestion';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
 import { SyntaxCompletion } from '../syntaxCompletion/SyntaxCompletion';
-import { CursorContext } from '../mmp/CursorContext';
-
-/** the cursor position determines which kind of completion is required */
-export enum CursorContextForCompletion {
-	stepFormula = 'stepFormula',
-	stepLabel = 'stepLabel'
-}
+import { CursorContext, CursorContextForCompletion } from '../mmp/CursorContext';
 
 export class OnCompletionHandler {
 	textDocumentPosition: TextDocumentPositionParams
