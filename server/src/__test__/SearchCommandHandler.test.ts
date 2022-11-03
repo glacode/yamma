@@ -28,5 +28,5 @@ test("SearchCommandHandler", () => {
 	const mmStatistics: MmStatistics = new MmStatistics(opelcnMmParser);
 	mmStatistics.buildStatistics();
 	const searchStatement: string = TestSearchCommandHandler.buildSearchStatement(2,mmpProofStep52, mmStatistics);
-	expect(searchStatement).toBe('SearchSymbols: R. X.   SearchComments: \n');
+	expect(searchStatement).toBe('SearchSymbols: R. X.   SearchComment: \n');
 });

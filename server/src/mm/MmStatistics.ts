@@ -7,7 +7,7 @@ export class MmStatistics {
 	mmParser: MmParser;
 
 	/** maps every symbol to the set of assertions wher it appears */
-	symbolToAssertionMap: Map<string, Set<AssertionStatement>> | undefined;
+	symbolToAssertionsMap: Map<string, Set<AssertionStatement>> | undefined;
 
 	constructor(mmParser: MmParser) {
 		this.mmParser = mmParser;
@@ -17,11 +17,11 @@ export class MmStatistics {
 	//TODO1 decide if you want to add EHyps also
 	private buildStatisticsForAssertion(assertion: AssertionStatement) {
 		assertion.formula.forEach((symbol: string) => {
-			let setForThisSymbol: Set<AssertionStatement> | undefined = this.symbolToAssertionMap?.get(symbol);
+			let setForThisSymbol: Set<AssertionStatement> | undefined = this.symbolToAssertionsMap?.get(symbol);
 			if (setForThisSymbol == undefined) {
 				// this symbol has not been added to the map yet
 				setForThisSymbol = new Set<AssertionStatement>();
-				this.symbolToAssertionMap?.set(symbol,setForThisSymbol);
+				this.symbolToAssertionsMap?.set(symbol,setForThisSymbol);
 			}
 			setForThisSymbol.add(assertion);
 		});
@@ -31,7 +31,7 @@ export class MmStatistics {
 	 * builds the statistics for the given theory
 	 */
 	public buildStatistics() {
-		this.symbolToAssertionMap = new Map<string, Set<AssertionStatement>>();
+		this.symbolToAssertionsMap = new Map<string, Set<AssertionStatement>>();
 		this.mmParser.labelToAssertionMap.forEach((assertion: AssertionStatement) => {
 			this.buildStatisticsForAssertion(assertion);
 		});

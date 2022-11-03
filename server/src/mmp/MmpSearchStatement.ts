@@ -22,10 +22,10 @@ export class MmpSearchStatement implements IMmpStatementWithRange {
 	}
 
 	getSymbolsToSearch(searchStatementFormula: string[], searchCommentIndex: number): string[] {
-		let lastIndexForSymbols: number = searchStatementFormula.length - 1;
+		let lastIndexForSymbols: number = searchStatementFormula.length;
 		if (searchCommentIndex != -1)
 			// the SearchComment: section was present
-			lastIndexForSymbols = searchCommentIndex - 1;
+			lastIndexForSymbols = searchCommentIndex;
 		const symbolsToSearch: string[] = searchStatementFormula.slice(1, lastIndexForSymbols);
 		return symbolsToSearch;
 	}

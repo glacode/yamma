@@ -122,16 +122,16 @@ export function consoleLogWithTimestamp(message: string) {
     console.log(messageWithTimeStamp);
 }
 
-export function notifyProgressWithTimestampAndMemory(message: string, current:number, total:number) {
-	const previousPercentageOfWorkDone: number = Math.trunc(((current - 1) * 100) / total);
-		const percentageOfWorkDone: number = Math.trunc((current * 100) / total);
-		if (previousPercentageOfWorkDone < percentageOfWorkDone) {
-			const used: number = process.memoryUsage().heapUsed / 1024 / 1024;
-			const total: number = process.memoryUsage().heapTotal / 1024 / 1024;
-			const memory = `Memory heap used/total ${Math.round(used * 100) / 100} MB / ${Math.round(total * 100) / 100}`;
-			console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
-			console.log(message + '-' + percentageOfWorkDone + '% - ' + memory + '-' + new Date());
-		}
+export function notifyProgressWithTimestampAndMemory(message: string, current: number, total: number) {
+    const previousPercentageOfWorkDone: number = Math.trunc(((current - 1) * 100) / total);
+    const percentageOfWorkDone: number = Math.trunc((current * 100) / total);
+    if (previousPercentageOfWorkDone < percentageOfWorkDone) {
+        const used: number = process.memoryUsage().heapUsed / 1024 / 1024;
+        const total: number = process.memoryUsage().heapTotal / 1024 / 1024;
+        const memory = `Memory heap used/total ${Math.round(used * 100) / 100} MB / ${Math.round(total * 100) / 100}`;
+        console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
+        console.log(message + '-' + percentageOfWorkDone + '% - ' + memory + '-' + new Date());
+    }
 }
 
 /**
@@ -293,13 +293,43 @@ export function arrayRange(tokens: MmToken[]): Range {
 }
 
 export function notifyInformation(errorMessage: string, connection: Connection) {
-	connection.sendNotification('yamma/showinformation', errorMessage);
+    connection.sendNotification('yamma/showinformation', errorMessage);
 }
 
 export function notifyWarning(errorMessage: string, connection: Connection) {
-	connection.sendNotification('yamma/showwarning', errorMessage);
+    connection.sendNotification('yamma/showwarning', errorMessage);
 }
 
 export function notifyError(errorMessage: string, connection: Connection) {
-	connection.sendNotification('yamma/showerror', errorMessage);
+    connection.sendNotification('yamma/showerror', errorMessage);
 }
+
+
+//#region intersection
+
+/** true if element is in all sets in set, without considering firstSet */
+function isInIntersection<T>(element: T, set: Set<Set<T>>) : boolean {
+    let result = true;
+    //TODO using arrays instead of sets and a while loop could be much more efficient
+    set.forEach((intersectingSet: Set<T>) => {
+        result &&= intersectingSet.has(element);
+    });
+    return result;  
+
+}
+/** returns the intersection of a (finite) set ; if the set is empty,
+ * we return undefined
+*/
+export function intersection<T>(set: Set<Set<T>>): Set<T> | undefined {
+    let result: Set<T> | undefined;
+    if (set.size > 0) {
+        result = new Set<T>();
+        const [firstSet] = set;
+        firstSet.forEach((element: T) => {
+            if (isInIntersection<T>(element, set))
+                result?.add(element);
+        });
+    }
+    return result;
+}
+//#endregion intersection

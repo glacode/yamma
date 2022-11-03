@@ -13,7 +13,7 @@ function symbolContainedInAssertion(symbolToAssertionMap: Map<string, Set<Assert
 test('statisics for impbii.mm', () => {
 	const mmStatistics: MmStatistics = new MmStatistics(impbiiMmParser);
 	mmStatistics.buildStatistics();
-	const symbolToAssertionMap: Map<string, Set<AssertionStatement>> = mmStatistics.symbolToAssertionMap!;
+	const symbolToAssertionMap: Map<string, Set<AssertionStatement>> = mmStatistics.symbolToAssertionsMap!;
 	// const assetionsContainingPh: Set<AssertionStatement> | undefined = symbolToAssertionMap.get('ph');
 	// expect(assetionsContainingPh).toBeDefined();
 	expect(symbolContainedInAssertion(symbolToAssertionMap, 'ph', 'ax-mp')).toBeFalsy();

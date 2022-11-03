@@ -78,7 +78,7 @@ export class SearchCommandHandler {
 		mmStatistics?: MmStatistics): Map<string, number> {
 		const symbols: Map<string, number> = new Map<string, number>();
 		const symbolToAssertionMap: Map<string, Set<AssertionStatement>> | undefined =
-			mmStatistics?.symbolToAssertionMap;
+			mmStatistics?.symbolToAssertionsMap;
 		if (currentMmpProofStep?.formula != undefined)
 			currentMmpProofStep.formula.forEach((mmToken: MmToken) => {
 				const symbol: string = mmToken.value;

@@ -108,7 +108,7 @@ export class SyntaxCompletion {
 		return firstCharacter;
 	}
 	sortingByPopularity(symbol: string): string {
-		const assertions: Set<AssertionStatement> | undefined = this.mmStatistics.symbolToAssertionMap!.get(symbol)!;
+		const assertions: Set<AssertionStatement> | undefined = this.mmStatistics.symbolToAssertionsMap!.get(symbol)!;
 		const defaultOrder = 99999;
 		let size = defaultOrder;
 		if (assertions != undefined)
