@@ -1,14 +1,17 @@
-import { Position } from 'vscode-languageserver';
+import { Position, Range } from 'vscode-languageserver';
 import { MmToken } from '../grammar/MmLexer';
 import { MmpParser } from './MmpParser';
+import { MmpSearchStatement } from './MmpSearchStatement';
 import { MmpProofStep } from './MmpStatements';
 import { UProof } from './UProof';
-import { IUStatement } from './UStatement';
+import { IMmpStatementWithRange, IUStatement } from './UStatement';
 
 /** the cursor position determines which kind of completion is required */
+
 export enum CursorContextForCompletion {
 	stepFormula = 'stepFormula',
-	stepLabel = 'stepLabel'
+	stepLabel = 'stepLabel',
+	searchStatement = 'searchStatement'
 }
 
 /** build info about the cursor context, and the proof step where the cursor is */
@@ -23,22 +26,22 @@ export class CursorContext {
 	/** after the execution of buildContext() this property contains the cursor context for autocompletion */
 	contextForCompletion?: CursorContextForCompletion;
 
-	private _mmpProofStep?: MmpProofStep;
+	private _mmpStatement?: IMmpStatementWithRange;
 
-	//#region mmpProofStep
-	/** sets the MmpProofStep the cursor is positioned on */
-	private setMmpProofStep() {
+	//#region mmpStatement
+	/** sets the mmpStatement the cursor is positioned on */
+	private setMmpStatement() {
 		const uProof: UProof | undefined = this.mmpParser.uProof;
 		if (uProof != undefined)
-			this._mmpProofStep = CursorContext.getMmpProofStep(uProof.uStatements,this.cursorLine);
+			this._mmpStatement = CursorContext.getMmpStatement(uProof.uStatements, this.cursorLine);
 	}
 	/** the MmpProofStep the cursor is positioned on, if any */
-	get mmpProofStep(): MmpProofStep | undefined {
-		if (this._mmpProofStep == undefined)
-			this.setMmpProofStep();
-		return this._mmpProofStep;
+	get mmpStatement(): IMmpStatementWithRange | undefined {
+		if (this._mmpStatement == undefined)
+			this.setMmpStatement();
+		return this._mmpStatement;
 	}
-	//#endregion mmpProofStep
+	//#endregion mmpStatement
 
 	constructor(cursorLine: number, cursorCharacter: number, mmpParser: MmpParser) {
 		this.cursorLine = cursorLine;
@@ -46,18 +49,24 @@ export class CursorContext {
 		this.mmpParser = mmpParser;
 	}
 
-	/** returns the MmpProofStep at the given line (it may be a multiline proof step) */
-	public static getMmpProofStep(uStatements: IUStatement[], line: number): MmpProofStep | undefined {
+	/** returns the IMmpStatementWithRange at the given line (it may be a multiline proof step) */
+	public static getMmpStatement(uStatements: IUStatement[], line: number): IMmpStatementWithRange | undefined {
 		let i = 0;
-		let uProofStep: MmpProofStep | undefined;
-		while (i < uStatements.length && uProofStep == undefined) {
-			if (uStatements[i] instanceof MmpProofStep &&
-				(<MmpProofStep>uStatements[i]).startPosition.line <= line &&
-				line <= (<MmpProofStep>uStatements[i]).endPosition.line)
-				uProofStep = <MmpProofStep>uStatements[i];
+		let mmpStatement: IMmpStatementWithRange | undefined;
+		while (i < uStatements.length && mmpStatement == undefined) {
+			if ('range' in uStatements[i]) {
+				// uStatements[i] implements IMmpStatementWithRange
+				const mmpStatementWithRange: IMmpStatementWithRange = <IMmpStatementWithRange>uStatements[i];
+				const statementRange: Range = mmpStatementWithRange.range;
+				// if (uStatements[i] instanceof MmpProofStep &&
+				// 	(<MmpProofStep>uStatements[i]).startPosition.line <= line &&
+				// 	line <= (<MmpProofStep>uStatements[i]).endPosition.line)
+				if (statementRange != undefined && statementRange.start.line <= line && line <= statementRange.end.line)
+					mmpStatement = mmpStatementWithRange;
+			}
 			i++;
 		}
-		return uProofStep;
+		return mmpStatement;
 	}
 
 	//#region buildContext
@@ -102,16 +111,18 @@ export class CursorContext {
 		let formula: MmToken[] | undefined;
 		const uProof: UProof | undefined = this.mmpParser.uProof;
 		if (uProof != undefined) {
-			const uProofStep: MmpProofStep | undefined = this.mmpProofStep;
-			if (uProofStep != undefined) {
-				if (this.isOnStepLabel(uProofStep))
+			const mmpStatement: IMmpStatementWithRange | undefined = this.mmpStatement;
+			if (mmpStatement instanceof MmpProofStep) {
+				if (this.isOnStepLabel(mmpStatement))
 					//TODO
 					this.contextForCompletion = CursorContextForCompletion.stepLabel;
 				else {
-					formula = this.getFormulaBeforeCursorInUProofStep(uProofStep);
+					formula = this.getFormulaBeforeCursorInUProofStep(mmpStatement);
 					//TODO this needs to be improved, now it's not checking if it's in 'free space'
 					this.contextForCompletion = CursorContextForCompletion.stepFormula;
 				}
+			} else if ( mmpStatement instanceof MmpSearchStatement) {
+				this.contextForCompletion = CursorContextForCompletion.searchStatement;
 			}
 		}
 		return formula;

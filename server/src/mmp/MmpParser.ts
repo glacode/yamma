@@ -20,6 +20,7 @@ import { DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
 import { UProofStep } from './UProofStep';
 import { TheoremCoherenceChecker } from '../mmt/TeoremCoherenceChecker';
+import { MmpSearchStatement } from './MmpSearchStatement';
 
 
 
@@ -211,6 +212,11 @@ export class MmpParser {
 		const comment: UComment = new UComment(nextProofStepTokens, commentContent);
 		// this.mmpStatements.push(comment);
 		this.uProof?.addUStatement(comment);
+	}
+
+	addSearchStatement(searchStatementTokens: MmToken[]) {
+		const mmpSearchStatement: MmpSearchStatement = new MmpSearchStatement(searchStatementTokens);
+		this.uProof?.addUStatement(mmpSearchStatement);
 	}
 
 	addProofStep(proofStep: MmpProofStep) {
@@ -405,11 +411,15 @@ export class MmpParser {
 		else if (nextProofStepTokens[0].value.startsWith('*'))
 			// currente statement is a comment
 			this.addComment(nextProofStepTokens);
+		//TODO1 use a constant for 'SearchStatement'
+		else if (nextProofStepTokens[0].value == MmpSearchStatement.searchSymbolsKeyword)
+			// current statement is a search statement
+			this.addSearchStatement(nextProofStepTokens);
 		else if (nextProofStepTokens[0].value.startsWith('$d'))
 			// current statement is a disj var constraint
 			this.addDisjointVarConstraint(nextProofStepTokens);
 		else if (nextProofStepTokens[0].value == '$=')
-			// current statement is a disj var constraint
+			// current statement is a proof
 			this.addUnmanagedStatement(nextProofStepTokens);
 		else
 			// current statement is a proof step

@@ -9,6 +9,9 @@ import { StepSuggestion } from '../stepSuggestion/StepSuggestion';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
 import { SyntaxCompletion } from '../syntaxCompletion/SyntaxCompletion';
 import { CursorContext, CursorContextForCompletion } from '../mmp/CursorContext';
+import { SearchStatementCompletionProvider } from '../search/SearchStatementCompletionProvider';
+import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 
 export class OnCompletionHandler {
 	textDocumentPosition: TextDocumentPositionParams
@@ -45,13 +48,13 @@ export class OnCompletionHandler {
 
 	//#region completionItems
 	stepSuggestion(cursorContext: CursorContext, mmParser: MmParser): CompletionItem[] {
-		console.log(cursorContext.mmpProofStep?.label);
+		// console.log(cursorContext.mmpStatement?.label);
 		let completionItems: CompletionItem[] = [];
 		if (this.stepSuggestionMap != undefined) {
 			// the model has already been loaded
 			const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
 			const stepSuggestion = new StepSuggestion(cursorContext, this.stepSuggestionMap,
-				formulaClassifiers, cursorContext.mmpProofStep, mmParser);
+				formulaClassifiers, <MmpProofStep>cursorContext.mmpStatement, mmParser);
 			completionItems = stepSuggestion.completionItems();
 		}
 		return completionItems;
@@ -82,12 +85,18 @@ export class OnCompletionHandler {
 			switch (cursorContext.contextForCompletion) {
 				case CursorContextForCompletion.stepFormula: {
 					const syntaxCompletion = new SyntaxCompletion(cursorContext, mmParser, mmpParser,
-						mmStatistics,this.mmpStatistics);
+						mmStatistics, this.mmpStatistics);
 					completionItems = syntaxCompletion.completionItems();
 				}
 					break;
 				case CursorContextForCompletion.stepLabel: {
 					completionItems = this.stepSuggestion(cursorContext, this.mmParser);
+				}
+					break;
+				case CursorContextForCompletion.searchStatement: {
+					const searchStatementCompletionProvider = new SearchStatementCompletionProvider(
+						<MmpSearchStatement>cursorContext.mmpStatement);
+					completionItems = searchStatementCompletionProvider.completionItems();
 				}
 					break;
 				default:

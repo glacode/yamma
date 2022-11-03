@@ -3,9 +3,10 @@ import { BlockStatement } from "./BlockStatement";
 import { Frame } from "./Frame";
 import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { IUStatement } from '../mmp/UStatement';
-import { concatWithSpaces, concatWithSpacesSkippingStart } from './Utils';
+import { IMmpStatementWithRange } from '../mmp/UStatement';
+import { concatWithSpaces, concatWithSpacesSkippingStart , arrayRange} from './Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
+import { Range } from 'vscode-languageserver';
 
 export abstract class Statement {
     ParentBlock?: BlockStatement;
@@ -322,7 +323,7 @@ export class ZRStatement extends Statement {
 // }
 
 /** represents a Disjoint Var constraint statement in the current proof */
-export class DisjVarUStatement implements IUStatement {
+export class DisjVarUStatement implements IMmpStatementWithRange {
     // var1: string;
     // var2: string;
 
@@ -334,6 +335,11 @@ export class DisjVarUStatement implements IUStatement {
         // this.var1 = var1;
         // this.var2 = var2;
         this.disjointVars = disjointVars;
+    }
+
+    get range(): Range {
+        const range: Range = arrayRange(this.disjointVars);
+        return range;
     }
 
     toText() {

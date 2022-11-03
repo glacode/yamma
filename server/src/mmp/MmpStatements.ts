@@ -4,7 +4,7 @@ import { MmToken } from '../grammar/MmLexer';
 import { InternalNode } from '../grammar/ParseNode';
 import { UProof } from './UProof';
 import { UProofStep } from './UProofStep';
-import { UComment } from './UStatement';
+import { IMmpStatementWithRange, UComment } from './UStatement';
 import { concatTokenValuesWithSeparator } from '../mm/Utils';
 
 // export class MmpComment {
@@ -64,7 +64,7 @@ export class ProofStepFirstTokenInfo {
 	}
 }
 
-export class MmpProofStep extends UProofStep {
+export class MmpProofStep extends UProofStep implements IMmpStatementWithRange {
 	firstTokenInfo: ProofStepFirstTokenInfo
 	// isEHyp: boolean;
 	stepRefToken: MmToken

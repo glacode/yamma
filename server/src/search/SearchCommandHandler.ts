@@ -4,7 +4,9 @@ import { MmStatistics } from '../mm/MmStatistics';
 import { AssertionStatement } from '../mm/Statements';
 import { CursorContext } from '../mmp/CursorContext';
 import { MmpParser } from '../mmp/MmpParser';
+import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { MmpProofStep } from '../mmp/MmpStatements';
+import { IMmpStatementWithRange } from '../mmp/UStatement';
 
 //TODO you are defining this interface both on the client and on the server:
 //see if there's a way to define it in a single place
@@ -32,9 +34,12 @@ export class SearchCommandHandler {
 
 	private getCurrentProofStep(): MmpProofStep | undefined {
 		let currentProofStep: MmpProofStep | undefined;
-		if (this.mmpParser?.uProof != undefined)
-			currentProofStep = CursorContext.getMmpProofStep(this.mmpParser.uProof.uStatements,
-				this.searchCommandParameter.cursorLine);
+		if (this.mmpParser?.uProof != undefined) {
+			const mmpStatement: IMmpStatementWithRange | undefined = CursorContext.getMmpStatement(
+				this.mmpParser.uProof.uStatements, this.searchCommandParameter.cursorLine);
+			if (mmpStatement instanceof MmpProofStep)
+				currentProofStep = mmpStatement;
+		}
 		return currentProofStep;
 	}
 
@@ -96,22 +101,11 @@ export class SearchCommandHandler {
 	private static symbolsString(symbolsOrderedByPopularity: string[], maxNumberOfReturnedSymbols: number) {
 		let symbolsString = '';
 		let i = 0;
-		//TODO1 3 should be a parameter
 		while (i < maxNumberOfReturnedSymbols && i < symbolsOrderedByPopularity.length) {
 			const symbol: string = symbolsOrderedByPopularity[i];
 			symbolsString += ' ' + symbol;
 			i++;
 		}
-		// if (currentMmpProofStep?.formula != undefined)
-		// 	currentMmpProofStep.formula.forEach((mmToken: MmToken) => {
-		// 		const symbol: string = mmToken.value;
-		// 		if (!alreadySeenSymbol.has(symbol)) {
-		// 			if (SearchCommandHandler.isSymbolToBeAdded())
-		// 				symbolsString += ' ' + symbol;
-		// 			alreadySeenSymbol.add(symbol);
-		// 		}
-
-		// 	});
 		return symbolsString;
 	}
 	private static buildSymbolsString(maxNumberOfReturnedSymbols: number,
@@ -128,7 +122,7 @@ export class SearchCommandHandler {
 		currentMmpProofStep?: MmpProofStep, mmStatistics?: MmStatistics): string {
 		const symbols: string = SearchCommandHandler.buildSymbolsString(maxNumberOfReturnedSymbols,
 			currentMmpProofStep, mmStatistics);
-		const searchStatement = `SearchSymbols:${symbols}   SearchComments: \n`;
+		const searchStatement = `${MmpSearchStatement.searchSymbolsKeyword}${symbols}   ${MmpSearchStatement.searchCommentKeyword} \n`;
 		return searchStatement;
 	}
 	//#endregion buildSearchStatement

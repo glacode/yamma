@@ -21,7 +21,7 @@ export class StepSuggestion {
 	mmpProofStep: MmpProofStep | undefined;
 	mmParser: MmParser;
 
-	private completionItemKindOrder: Map<CompletionItemKind,string>;
+	private completionItemKindOrder: Map<CompletionItemKind, string>;
 	//TODO this is a parameter: you mught want to move it to the Paramter class
 	private completionItemKindForPartialLabel: CompletionItemKind;
 	constructor(cursorContext: CursorContext, stepSuggestionMap: StepSuggestionMap,
@@ -32,18 +32,18 @@ export class StepSuggestion {
 		this.mmpProofStep = mmpProofStep;
 		this.mmParser = mmParser;
 
-		this.completionItemKindOrder = new Map<CompletionItemKind,string>();
+		this.completionItemKindOrder = new Map<CompletionItemKind, string>();
 		this.completionItemKindForPartialLabel = CompletionItemKind.Text;
 		this.initializeCompletionItemKindOrder();
-		
+
 	}
 
-	private initializeCompletionItemKindOrder() : void {		
-		this.completionItemKindOrder.set(CompletionItemKind.Event,'0');
-		this.completionItemKindOrder.set(CompletionItemKind.Interface,'1');
+	private initializeCompletionItemKindOrder(): void {
+		this.completionItemKindOrder.set(CompletionItemKind.Event, '0');
+		this.completionItemKindOrder.set(CompletionItemKind.Interface, '1');
 		// completion items from partial label should be displayed after
 		// completion items from models
-		this.completionItemKindOrder.set(this.completionItemKindForPartialLabel,'9');
+		this.completionItemKindOrder.set(this.completionItemKindForPartialLabel, '9');
 
 	}
 
@@ -51,7 +51,8 @@ export class StepSuggestion {
 
 	classifyProofStepFormula(formulaClassifier: IFormulaClassifier): string | undefined {
 		let rpnSyntaxTree: string | undefined;
-		const mmpProofStep: MmpProofStep = this.cursorContext.mmpProofStep!;
+		//TODO1 check if you invoke this only when this.cursorContext.mmpStatement is a MmpProofStep
+		const mmpProofStep: MmpProofStep = <MmpProofStep>this.cursorContext.mmpStatement!;
 		const parseNode: InternalNode | undefined = mmpProofStep.parseNode;
 		if (parseNode != undefined) {
 			// const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
@@ -70,7 +71,8 @@ export class StepSuggestion {
 		const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestionLabel);
 		if (assertionStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertionStatement)) {
 			const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(
-				this.cursorContext.mmpProofStep!, assertionStatement, this.mmParser.outermostBlock,
+				//TODO1 check if you invoke this only when this.cursorContext.mmpStatement is a MmpProofStep
+				<MmpProofStep>this.cursorContext.mmpStatement!, assertionStatement, this.mmParser.outermostBlock,
 				this.mmParser.workingVars, this.mmParser.grammar, []);
 			const substitutionResult: SubstitutionResult =
 				uSubstitutionBuilder.buildSubstitutionForExistingParseNodes();
@@ -119,7 +121,7 @@ export class StepSuggestion {
 		}
 		return insertReplaceEdit;
 	}
-	sortText(completionItemKind: CompletionItemKind, index: number): string  {
+	sortText(completionItemKind: CompletionItemKind, index: number): string {
 		const completionItemKindOrder: string = this.completionItemKindOrder.get(completionItemKind)!;
 		const result: string = completionItemKindOrder + String(index).padStart(3, '0');
 		return result;
@@ -135,7 +137,7 @@ export class StepSuggestion {
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
 			// sortText: String(index).padStart(3, '0'),
-			sortText: this.sortText(stepSuggestion.completionItemKind,index),
+			sortText: this.sortText(stepSuggestion.completionItemKind, index),
 			textEdit: insertReplaceEdit,
 			kind: stepSuggestion.completionItemKind
 			// data: symbol
@@ -174,7 +176,7 @@ export class StepSuggestion {
 		this.formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
 			const completionItemsFromClassifier: CompletionItem[] =
 				this.completionItemsFromClassifier(formulaClassifier);
-				completionItemsFromModels.push(...completionItemsFromClassifier);
+			completionItemsFromModels.push(...completionItemsFromClassifier);
 
 		});
 		return completionItemsFromModels;
@@ -198,7 +200,7 @@ export class StepSuggestion {
 					const completionItem: CompletionItem = {
 						label: label,
 						//TODO when partial labels are displye
-						sortText: this.sortText(this.completionItemKindForPartialLabel,i++),
+						sortText: this.sortText(this.completionItemKindForPartialLabel, i++),
 						kind: this.completionItemKindForPartialLabel
 					};
 					completionItems.push(completionItem);

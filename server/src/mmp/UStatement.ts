@@ -1,9 +1,14 @@
+import { Range } from 'vscode-languageserver';
 import { MmToken } from '../grammar/MmLexer';
 import { InternalNode } from '../grammar/ParseNode';
 import { concatWithSpaces, rebuildOriginalStringFromTokens } from '../mm/Utils';
 
 export interface IUStatement {
 	toText(): string
+}
+
+export interface IMmpStatementWithRange extends IUStatement {
+	range: Range
 }
 
 export class UTheoremLabel implements IUStatement {
