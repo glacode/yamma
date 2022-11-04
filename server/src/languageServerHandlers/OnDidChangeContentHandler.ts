@@ -62,9 +62,14 @@ export class OnDidChangeContentHandler {
 		});
 		return range;
 	}
-	updateCursorPosition(diagnostics: Diagnostic[]) {
+	updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet: boolean, diagnostics: Diagnostic[]) {
 		// const range: Range = { start: { line: 2, character: 4 }, end: { line: 2, character: 9 } };
-		const range: Range | undefined = this.computeRangeForCursor(diagnostics);
+		let range: Range | undefined;
+		if (GlobalState.suggestedRangeForCursorPosition != undefined) {
+			range = GlobalState.suggestedRangeForCursorPosition;
+			GlobalState.setSuggestedRangeForCursorPosition(undefined);
+		} else if (unifyDoneButCursorPositionNotUpdatedYet)
+			range = this.computeRangeForCursor(diagnostics);
 		if (range != undefined)
 			this.connection.sendNotification('yamma/movecursor', range);
 	}
@@ -91,8 +96,8 @@ export class OnDidChangeContentHandler {
 		// Send the computed diagnostics to VSCode.
 		this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
-		if (unifyDoneButCursorPositionNotUpdatedYet)
-			this.updateCursorPosition(diagnostics);
+		// if (GlobalState.setSuggestedRangeForCursorPosition != undefined || unifyDoneButCursorPositionNotUpdatedYet)
+		this.updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet, diagnostics);
 	}
 	//#endregion validateTextDocument
 

@@ -1,7 +1,10 @@
-import { Connection, Position, TextEditChange, WorkspaceChange } from 'vscode-languageserver/node';
+
+import { Connection, Position, Range, TextEditChange, WorkspaceChange } from 'vscode-languageserver/node';
+import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
 import { MmStatistics } from '../mm/MmStatistics';
 import { AssertionStatement } from '../mm/Statements';
+import { oneCharacterRange } from '../mm/Utils';
 import { CursorContext } from '../mmp/CursorContext';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
@@ -135,11 +138,27 @@ export class SearchCommandHandler {
 		this.connection.workspace.applyEdit(workspaceChange.edit);
 	}
 
+	//#region moveCursor
+	private computeRangeForCursor(insertPosition: Position, searchStatement: string): Range  {
+		const column: number = searchStatement.indexOf(MmpSearchStatement.searchCommentKeyword);
+		const position: Position = { line: insertPosition.line , character: column - 2 };
+		const range: Range = oneCharacterRange(position);		
+		return range;
+	}
+	private setSuggestedRangeForCursorPosition(insertPosition: Position, searchStatement: string) {
+		const range: Range | undefined = this.computeRangeForCursor(insertPosition,searchStatement);
+		if (range != undefined)
+			GlobalState.setSuggestedRangeForCursorPosition(range);
+	}
+	//#endregion moveCursor
+
 	private insertSearchStatementBeforeStep(currentMmpProofStep?: MmpProofStep,) {
 		const insertPosition: Position = this.positionForInsertionOfTheSearchStatement(currentMmpProofStep);
 		const searchStatement: string = SearchCommandHandler.buildSearchStatement(
 			this.maxNumberOfReturnedSymbols, currentMmpProofStep, this.mmStatistics);
 		this.insertNewSearchStatement(insertPosition, searchStatement);
+		//TODO1 try to add a GlobalState.moveCursor that you set here, 
+		this.setSuggestedRangeForCursorPosition(insertPosition, searchStatement);
 	}
 	//#endregion insertSearchStatementBeforeStep
 

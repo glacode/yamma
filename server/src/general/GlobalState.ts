@@ -2,7 +2,7 @@
  * to be passed to many classes / methods
  */
 
-import { Connection } from 'vscode-languageserver';
+import { Connection, Range } from 'vscode-languageserver';
 import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmStatistics } from '../mm/MmStatistics';
@@ -38,4 +38,11 @@ export abstract class GlobalState {
 	static lastFetchedSettings: IExtensionSettings | undefined;
 
 	static connection: Connection;
+
+	
+	static suggestedRangeForCursorPosition?: Range;
+
+	static setSuggestedRangeForCursorPosition( range: Range | undefined ) {
+		this.suggestedRangeForCursorPosition = range;
+	}
 }
