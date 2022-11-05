@@ -15,11 +15,13 @@ export class OnDidChangeContentHandler {
 	// documentSettings: Map<string, Thenable<IExtensionSettings>>;
 	configurationManager: ConfigurationManager;
 	mmParser: MmParser;
+	suggestedRangeForCursorPosition?: Range
 
 	constructor(connection: Connection, hasConfigurationCapability: boolean,
 		hasDiagnosticRelatedInformationCapability: boolean, globalSettings: IExtensionSettings,
 		// documentSettings: Map<string, Thenable<IExtensionSettings>>, mmParser: MmParser) {
-		configurationManager: ConfigurationManager, mmParser: MmParser) {
+		configurationManager: ConfigurationManager, mmParser: MmParser,
+		suggestedRangeForCursorPosition?: Range) {
 		this.connection = connection;
 		this.hasConfigurationCapability = hasConfigurationCapability;
 		this.hasDiagnosticRelatedInformationCapability = hasDiagnosticRelatedInformationCapability;
@@ -27,6 +29,7 @@ export class OnDidChangeContentHandler {
 		// this.documentSettings = documentSettings;
 		this.configurationManager = configurationManager;
 		this.mmParser = mmParser;
+		this.suggestedRangeForCursorPosition = suggestedRangeForCursorPosition;
 	}
 
 	// private mmParser: MmParser | undefined;
@@ -106,9 +109,8 @@ export class OnDidChangeContentHandler {
 		globalSettings: IExtensionSettings, unifyDoneButCursorPositionNotUpdatedYet: boolean) {
 		if (GlobalState.mmParser != undefined) {
 			const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
-				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
-				// globalSettings, documentSettings, GlobalState.mmParser);
-				globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
+				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalSettings,
+				GlobalState.configurationManager, GlobalState.mmParser, GlobalState.suggestedRangeForCursorPosition);
 			await onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
 			unifyDoneButCursorPositionNotUpdatedYet = false;
 		}
