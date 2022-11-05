@@ -65,16 +65,25 @@ export class OnDidChangeContentHandler {
 		});
 		return range;
 	}
-	updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet: boolean, diagnostics: Diagnostic[]) {
+
+	/** sends a request to the client, to update the cursor position;
+	 * this method should be used by all the classes that want to request to
+	 * the client a cursor move
+	 */
+	public static moveCursorRequest(range: Range, connection: Connection) {
+		connection.sendNotification('yamma/movecursor', range);
+		GlobalState.setSuggestedRangeForCursorPosition(undefined);
+	}
+	private updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet: boolean, diagnostics: Diagnostic[]) {
 		// const range: Range = { start: { line: 2, character: 4 }, end: { line: 2, character: 9 } };
 		let range: Range | undefined;
-		if (GlobalState.suggestedRangeForCursorPosition != undefined) {
-			range = GlobalState.suggestedRangeForCursorPosition;
-			GlobalState.setSuggestedRangeForCursorPosition(undefined);
-		} else if (unifyDoneButCursorPositionNotUpdatedYet)
+		if (this.suggestedRangeForCursorPosition != undefined)
+			range = this.suggestedRangeForCursorPosition;
+		else if (unifyDoneButCursorPositionNotUpdatedYet)
 			range = this.computeRangeForCursor(diagnostics);
 		if (range != undefined)
-			this.connection.sendNotification('yamma/movecursor', range);
+			OnDidChangeContentHandler.moveCursorRequest(range, this.connection);
+		// this.connection.sendNotification('yamma/movecursor', range);
 	}
 	//#endregion updateCursorPosition
 
