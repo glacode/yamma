@@ -79,30 +79,30 @@ export function activate(context: ExtensionContext) {
 		disposable = commands.registerCommand('yamma.search',searchCommandHandler, client);
 		context.subscriptions.push(disposable);
 
-		//TODO1 it looks like you could instead do this server side,
-		//with connection.window.connection.window.showInformationMessage()
-		client.onNotification('yamma/showinformation', (message: string) => {
-			// the header 'Header caption' is not displayed because modal is false
-			// I leave it there anyway, as a reference, if in the future I want a model message
-			const options: MessageOptions = { detail: 'Header caption', modal: false };
-			window.showInformationMessage(message, options, ...["Ok"]);
-			// window.showInformationMessage(message, options, ...["Ok"]).then((item) => {
-			// 	console.log(item);
-			// });
-			// window.showInformationMessage(message);
-		});
+		// the notifications below are now done server side using
+		// connection.window.showInformationMessage()
+		// connection.window.showWarningMessage()
+		// connection.window.showErrorMessage()
+		// client.onNotification('yamma/showinformation', (message: string) => {
+		// 	// the header 'Header caption' is not displayed because modal is false
+		// 	// I leave it there anyway, as a reference, if in the future I want a model message
+		// 	const options: MessageOptions = { detail: 'Header caption', modal: false };
+		// 	window.showInformationMessage(message, options, ...["Ok"]);
+		// 	// window.showInformationMessage(message, options, ...["Ok"]).then((item) => {
+		// 	// 	console.log(item);
+		// 	// });
+		// 	// window.showInformationMessage(message);
+		// });
 
-		//TODO1 it looks like you could instead do this server side,
 		//with connection.window.connection.window.showWarningMessage()
-		client.onNotification('yamma/showwarning', (message: string) => {
-			window.showWarningMessage(message, ...["Ok"]);
-		});
+		// client.onNotification('yamma/showwarning', (message: string) => {
+		// 	window.showWarningMessage(message, ...["Ok"]);
+		// });
 
-		//TODO1 it looks like you could instead do this server side,
 		//with connection.window.connection.window.showErrorMessage()
-		client.onNotification('yamma/showerror', (message: string) => {
-			window.showErrorMessage(message, ...["Ok"]);
-		});
+		// client.onNotification('yamma/showerror', (message: string) => {
+		// 	window.showErrorMessage(message, ...["Ok"]);
+		// });
 
 		// client.onNotification('yamma/movecursor', (range: Range) => {
 		// 	window.activeTextEditor.selection = new Selection(range.start,range.end);
