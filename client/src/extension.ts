@@ -3,9 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import { getVSCodeDownloadUrl } from '@vscode/test-electron/out/util';
 import * as path from 'path';
-import { chdir } from 'process';
 import { commands, ExtensionContext, MessageOptions, Position, Selection, window, workspace } from 'vscode';
 // import {  } from "../../server/src/mmt/MmtSaver";
 
@@ -112,6 +110,7 @@ export function activate(context: ExtensionContext) {
 			const start: Position = new Position(range.start.line, range.start.character);
 			const end: Position = new Position(range.end.line, range.end.character);
 			window.activeTextEditor.selection = new Selection(start, end);
+			commands.executeCommand('editor.action.triggerSuggest');
 		});
 	});
 
