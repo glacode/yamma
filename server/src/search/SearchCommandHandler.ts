@@ -52,8 +52,9 @@ export class SearchCommandHandler {
 	//#region positionForInsertionOfTheSearchStatement
 	/** if the cursor is on a MmpProofStep, it returns the line where the step begins (it could be
 	 * multine); otherwise, it returns the first line after the main comment */
-	private positionForInsertionOfTheSearchStatement(currentMmpProofStep?: MmpProofStep): Position {
-		let line: number = this.searchCommandParameter.cursorLine;
+	protected static positionForInsertionOfTheSearchStatement(
+		cursorLine: number, currentMmpProofStep?: MmpProofStep): Position {
+		let line: number = cursorLine;
 		if (currentMmpProofStep != undefined)
 			line = currentMmpProofStep.range.start.line;
 		const insertPosition: Position = { line: line, character: 0 };
@@ -125,7 +126,8 @@ export class SearchCommandHandler {
 		currentMmpProofStep?: MmpProofStep, mmStatistics?: MmStatistics): string {
 		const symbols: string = SearchCommandHandler.buildSymbolsString(maxNumberOfReturnedSymbols,
 			currentMmpProofStep, mmStatistics);
-		const searchStatement = `${MmpSearchStatement.searchSymbolsKeyword}${symbols}   ${MmpSearchStatement.searchCommentKeyword} \n`;
+		const searchStatement = `${MmpSearchStatement.searchSymbolsKeyword}${symbols}   ` +
+			`${MmpSearchStatement.searchCommentKeyword} \n`;
 		return searchStatement;
 	}
 	//#endregion buildSearchStatement
@@ -138,22 +140,23 @@ export class SearchCommandHandler {
 		this.connection.workspace.applyEdit(workspaceChange.edit);
 	}
 
-	//#region moveCursor
-	private computeRangeForCursor(insertPosition: Position, searchStatement: string): Range  {
+	//#region setSuggestedRangeForCursorPosition
+	protected static computeRangeForCursor(insertPosition: Position, searchStatement: string): Range {
 		const column: number = searchStatement.indexOf(MmpSearchStatement.searchCommentKeyword);
-		const position: Position = { line: insertPosition.line , character: column - 2 };
-		const range: Range = oneCharacterRange(position);		
+		const position: Position = { line: insertPosition.line, character: column - 2 };
+		const range: Range = oneCharacterRange(position);
 		return range;
 	}
 	private setSuggestedRangeForCursorPosition(insertPosition: Position, searchStatement: string) {
-		const range: Range | undefined = this.computeRangeForCursor(insertPosition,searchStatement);
+		const range: Range | undefined = SearchCommandHandler.computeRangeForCursor(insertPosition, searchStatement);
 		if (range != undefined)
 			GlobalState.setSuggestedRangeForCursorPosition(range);
 	}
-	//#endregion moveCursor
+	//#endregion setSuggestedRangeForCursorPosition
 
 	private insertSearchStatementBeforeStep(currentMmpProofStep?: MmpProofStep,) {
-		const insertPosition: Position = this.positionForInsertionOfTheSearchStatement(currentMmpProofStep);
+		const insertPosition: Position = SearchCommandHandler.positionForInsertionOfTheSearchStatement(
+			this.searchCommandParameter.cursorLine, currentMmpProofStep);
 		const searchStatement: string = SearchCommandHandler.buildSearchStatement(
 			this.maxNumberOfReturnedSymbols, currentMmpProofStep, this.mmStatistics);
 		this.insertNewSearchStatement(insertPosition, searchStatement);
