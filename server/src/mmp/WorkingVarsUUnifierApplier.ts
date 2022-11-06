@@ -2,7 +2,6 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { MmpProofStep } from "./MmpProofStep";
 import { UProof } from './UProof';
-import { UProofStep } from './UProofStep';
 import { IUStatement } from './UStatement';
 
 export class WorkingVarsUnifierApplier {
@@ -37,7 +36,7 @@ export class WorkingVarsUnifierApplier {
 	}
 	//#endregion applyUnifierToSingleNode
 	applyUnifierToProofStep(uProofStep: MmpProofStep) {
-		uProofStep.eHypUSteps.forEach((eHypUStep: UProofStep | undefined) => {
+		uProofStep.eHypUSteps.forEach((eHypUStep: MmpProofStep | undefined) => {
 			if (eHypUStep != undefined)
 				// eHypUStep is a UProofStep
 				this.applyUnifierToSingleNode(eHypUStep.parseNode);

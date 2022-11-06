@@ -4,7 +4,6 @@ import { MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement, EHyp } from '../mm/Statements';
 import { UProof } from './UProof';
-import { UProofStep } from './UProofStep';
 import { WorkingVars } from './WorkingVars';
 import { MmpProofStep } from "./MmpProofStep";
 
@@ -19,7 +18,7 @@ export class USubstitutionApplier {
 
 	private uProofStep: MmpProofStep;
 	private logicalSystemEHyps: EHyp[];
-	private eHypUSteps: (UProofStep | undefined)[];
+	private eHypUSteps: (MmpProofStep | undefined)[];
 
 	constructor(substitution: Map<string, InternalNode>, uStepIndex: number, uProof: UProof, assertion: AssertionStatement, outermostBlock: BlockStatement,
 		workingVars: WorkingVars, grammar: Grammar) {

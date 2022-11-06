@@ -5,7 +5,6 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement, EHyp } from '../mm/Statements';
-import { UProofStep } from './UProofStep';
 import { WorkingVars } from './WorkingVars';
 import { MmpProofStep } from "./MmpProofStep";
 
@@ -26,7 +25,7 @@ export class USubstitutionBuilder {
 	diagnostics: Diagnostic[];
 
 	private logicalSystemEHyps: EHyp[];
-	private eHypUSteps: (UProofStep | undefined)[];
+	private eHypUSteps: (MmpProofStep | undefined)[];
 
 	constructor(uProofStep: MmpProofStep, assertion: AssertionStatement, outermostBlock: BlockStatement,
 		workingVars: WorkingVars, grammar: Grammar, diagnostics: Diagnostic[]) {
@@ -79,7 +78,7 @@ export class USubstitutionBuilder {
 			if (this.isSameKind(logicalSystemFormulaToken.value, uStepParseNode))
 				// const substituteWith: string[] = GrammarManager.buildStringArray(proofStepFormulaNode);
 				hasFoundSubstitution = this.addSubstitutionOrCheckCoherence(
-					logicalSystemFormulaToken.value, uStepParseNode,substitution);
+					logicalSystemFormulaToken.value, uStepParseNode, substitution);
 			else
 				hasFoundSubstitution = false;
 		} else

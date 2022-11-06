@@ -6,7 +6,6 @@ import { ProofStepFirstTokenInfo } from './MmpStatements';
 import { MmpProofStep } from "./MmpProofStep";
 import { DisjVarUStatement } from '../mm/Statements';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
-import { UProofStep } from './UProofStep';
 import { IUStatement, UComment, UProofStatement, UTheoremLabel } from './UStatement';
 import { WorkingVars } from './WorkingVars';
 import { UProofFormatter } from './UProofFormatter';
@@ -59,7 +58,7 @@ export class UProof implements ITheoremSignature {
 	// private _disjVars: Map<string, Set<string>>;
 	disjVars: DisjointVarMap;
 
-	eHyps: UProofStep[];
+	eHyps: MmpProofStep[];
 
 	/** the array of defined disjoint var constraints */
 	disjVarUStatements: DisjVarUStatement[]
