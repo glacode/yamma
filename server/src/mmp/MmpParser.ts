@@ -18,7 +18,6 @@ import { OrderedPairOfNodes, UnificationAlgorithmState, WorkingVarsUnifierFinder
 import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
 import { DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
-import { UProofStep } from './UProofStep';
 import { TheoremCoherenceChecker } from '../mmt/TeoremCoherenceChecker';
 import { MmpSearchStatement } from './MmpSearchStatement';
 
@@ -678,7 +677,7 @@ export class MmpParser {
 			// 	this.addDiagnosticForOccourenceOfWorkingVarToSingleParseNode(uStatement.parseNode,
 			// 		workingVar, errorMessage);
 			// }
-			if (uStatement instanceof UProofStep && uStatement.stepFormula != undefined) {
+			if (uStatement instanceof MmpProofStep && uStatement.stepFormula != undefined) {
 				this.addDiagnosticForOccourenceOfWorkingVarToSingleFormula(uStatement.stepFormula,
 					workingVar, errorMessage);
 			}

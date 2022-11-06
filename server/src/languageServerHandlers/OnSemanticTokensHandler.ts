@@ -4,7 +4,7 @@ import { IConfigurationManager, IVariableKindConfiguration } from '../mm/Configu
 import { MmParser } from '../mm/MmParser';
 import { DisjVarUStatement } from '../mm/Statements';
 import { MmpParser } from '../mmp/MmpParser';
-import { UProofStep } from '../mmp/UProofStep';
+import { MmpProofStep } from '../mmp/MmpStatements';
 import { IUStatement, UComment } from '../mmp/UStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 
@@ -165,7 +165,8 @@ export class OnSemanticTokensHandler {
 		mmpParser.uProof?.uStatements.forEach((uStatement: IUStatement) => {
 			if (uStatement instanceof UComment)
 				this.addSemanticTokensForComment(uStatement);
-			else if (uStatement instanceof UProofStep)
+			// else if (uStatement instanceof UProofStep)
+			else if (uStatement instanceof MmpProofStep)
 				this.addSemanticTokensForArrayOfSymbols(uStatement.formula, mmParser, variableKindsConfiguration);
 			else if (uStatement instanceof DisjVarUStatement)
 				this.addSemanticTokensForArrayOfSymbols(uStatement.disjointVars, mmParser, variableKindsConfiguration);

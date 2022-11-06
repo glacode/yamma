@@ -7,6 +7,7 @@ import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement, EHyp } from '../mm/Statements';
 import { UProofStep } from './UProofStep';
 import { WorkingVars } from './WorkingVars';
+import { MmpProofStep } from './MmpStatements';
 
 
 export interface SubstitutionResult {
@@ -15,7 +16,7 @@ export interface SubstitutionResult {
 }
 
 export class USubstitutionBuilder {
-	uProofStep: UProofStep;
+	uProofStep: MmpProofStep;
 	assertion: AssertionStatement;
 	outermostBlock: BlockStatement;
 	workingVars: WorkingVars;
@@ -27,7 +28,7 @@ export class USubstitutionBuilder {
 	private logicalSystemEHyps: EHyp[];
 	private eHypUSteps: (UProofStep | undefined)[];
 
-	constructor(uProofStep: UProofStep, assertion: AssertionStatement, outermostBlock: BlockStatement,
+	constructor(uProofStep: MmpProofStep, assertion: AssertionStatement, outermostBlock: BlockStatement,
 		workingVars: WorkingVars, grammar: Grammar, diagnostics: Diagnostic[]) {
 		this.uProofStep = uProofStep;
 		this.assertion = assertion;
@@ -189,21 +190,6 @@ export class USubstitutionBuilder {
 	// 	frameEHyps.forEach((frameEHyp: EHyp) => {
 	// 		this.buildSubstitutionForUndefinedParseNode(frameEHyp.parseNode(grammar), substitution);
 	// 	});
-	// }
-
-	// buildSubstitutionForEHypsSameNumber(frameEHyps: EHyp[], eHypUSteps: (UProofStep | undefined)[],
-	// 	substitution: Map<string, InternalNode>): boolean {
-	// 	const hasFoundSubstitution = true;
-	// 	let i = 0;
-	// 	while (hasFoundSubstitution && i < frameEHyps.length) {
-	// 		const eHypUStep = eHypUSteps[i];
-	// 		if (eHypUStep != undefined && eHypUStep.parseNode != undefined) {
-	// 			this.buildSubstitutionForParseNode(frameEHyps[i].parseNode, eHypUStep.parseNode,
-	// 				substitution);
-	// 		}
-	// 		i++;
-	// 	}
-	// 	return hasFoundSubstitution;
 	// }
 
 	buildSubstitutionForSingleLine(logicalSystemFormulaInternalNode: InternalNode, uStepFormula: MmToken[] | undefined,

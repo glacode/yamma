@@ -5,8 +5,8 @@ import { UProof } from '../mmp/UProof';
 import * as FileSystem from 'fs';
 import { DisjVarUStatement } from '../mm/Statements';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { UProofStep } from '../mmp/UProofStep';
 import { IUStatement } from '../mmp/UStatement';
+import { MmpProofStep } from '../mmp/MmpStatements';
 
 
 //TODO I had to pass both uri and fsPath, because I've not been able to find a parser that switches
@@ -101,7 +101,7 @@ export class MmtSaver {
 	//#endregion textForDjConstraints
 
 	//#region textForEStatements
-	textForCurrentEHyp(uProofStep: UProofStep): string {
+	textForCurrentEHyp(uProofStep: MmpProofStep): string {
 		const label: string = uProofStep.stepLabel!;
 		const formula: string = GrammarManager.buildStringFormula(uProofStep.parseNode!);
 		const text = `${label} $e ${formula} $.`;
@@ -110,7 +110,7 @@ export class MmtSaver {
 	textForEStatements(uProof: UProof): string {
 		let text = "";
 		uProof.uStatements.forEach((ustatement: IUStatement) => {
-			if (ustatement instanceof UProofStep && ustatement.isEHyp) {
+			if (ustatement instanceof MmpProofStep && ustatement.isEHyp) {
 				const textForCurrentEHyp: string = this.textForCurrentEHyp(ustatement);
 				text += `    ${textForCurrentEHyp}\n`;
 			}
@@ -124,7 +124,7 @@ export class MmtSaver {
 		const theoremLabel: string | undefined = uProof.theoremLabel?.value;
 		if (theoremLabel == undefined || theoremLabel == 'example')
 			throw new Error("The MmtSaver should never be used if the theorem label is not well defined");
-		const qedStatement: UProofStep | undefined = uProof.lastUProofStep;
+		const qedStatement: MmpProofStep | undefined = uProof.lastUProofStep;
 		if (qedStatement == undefined)
 			throw new Error("The MmtSaver should never be used if the qed statement is not present");
 		const pFormula: string = GrammarManager.buildStringFormula(qedStatement!.parseNode!);

@@ -2,9 +2,9 @@ import { Connection } from 'vscode-languageserver';
 import { TextEdit } from 'vscode-languageserver-textdocument';
 import { ConfigurationManager, IExtensionSettings, ProofMode, IVariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
+import { MmpProofStep } from '../mmp/MmpStatements';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UProof } from '../mmp/UProof';
-import { UProofStep } from '../mmp/UProofStep';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
 import { axmpTheory } from './MmParser.test';
@@ -57,7 +57,8 @@ test('buildNewProof()', () => {
 		parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
 	const uProof: UProof = mmpUnifier.buildUProof(mmpSource);
 	expect(uProof.uStatements.length).toBe(2);
-	expect((<UProofStep>uProof.uStatements[0]).stepLabel).toEqual('ax-mp');
+	// expect((<UProofStep>uProof.uStatements[0]).stepLabel).toEqual('ax-mp');
+	expect((<MmpProofStep>uProof.uStatements[0]).stepLabel).toEqual('ax-mp');
 });
 
 test('Unify ax-mp', () => {

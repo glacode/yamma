@@ -12,7 +12,7 @@ import { WorkingVars } from './WorkingVars';
 import { OrderedPairOfNodes, WorkingVarsUnifierFinder } from './WorkingVarsUnifierFinder';
 import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
 import { DisjointVarsManager } from '../mm/DisjointVarsManager';
-import { UProofStep } from './UProofStep';
+import { MmpProofStep } from './MmpStatements';
 
 // Parser for .mmp files
 export class UProofTransformer {
@@ -119,7 +119,7 @@ export class UProofTransformer {
 	 * for the working vars; when we get here, uProofStep has already been completed and substitution is complete
 	 * @param substitution 
 	 */
-	addStartingPairsForMGUFinder(uProofStep: UProofStep, assertion: AssertionStatement,
+	addStartingPairsForMGUFinder(uProofStep: MmpProofStep, assertion: AssertionStatement,
 		substitution: Map<string, InternalNode>) {
 		// this.addStartingPairsForMGUFinderForEHyps(<UProofStep[]>uProofStep.eHypUSteps, assertion.frame!.eHyps, substitution);
 		// if (uProofStep.parseNode != undefined)
@@ -137,14 +137,14 @@ export class UProofTransformer {
 	//#endregion addStartingPairsForMGUFinder
 
 	//#region setIsProvenIfTheCase
-	foundDisjVarConstraintViolation(uProofStep: UProofStep): boolean {
+	foundDisjVarConstraintViolation(uProofStep: MmpProofStep): boolean {
 		const disjointVarsManager: DisjointVarsManager =
 			new DisjointVarsManager(uProofStep.assertion!, uProofStep.substitution!,
 				this.outermostBlock, false);
 		disjointVarsManager.checkDisjVarsConstraintsViolation();
 		return disjointVarsManager.foundDisjVarsConstraintViolation;
 	}
-	missingDisjVarConstraints(uProofStep: UProofStep): boolean {
+	missingDisjVarConstraints(uProofStep: MmpProofStep): boolean {
 		const disjointVarsManager: DisjointVarsManager =
 			new DisjointVarsManager(uProofStep.assertion!, uProofStep.substitution!,
 				this.outermostBlock, false);
@@ -158,7 +158,7 @@ export class UProofTransformer {
 		const result = disjointVarsManager.missingDisjVarConstraints!.map.size > 0;
 		return result;
 	}
-	setIsProvenIfTheCase(uProofStep: UProofStep, numberOfLogicalEHyps: number) {
+	setIsProvenIfTheCase(uProofStep: MmpProofStep, numberOfLogicalEHyps: number) {
 		let isProven = uProofStep.parseNode != undefined && uProofStep.eHypUSteps.length == numberOfLogicalEHyps;
 		let i = 0;
 		while (i < uProofStep.eHypUSteps.length && isProven) {
@@ -186,7 +186,7 @@ export class UProofTransformer {
 	protected transformUStep(uStepIndex: number): number {
 		// protected transformUStep(uProofStep: UProofStep, newProof: UProof) {
 		let nextUStepIndexToBeTransformed = uStepIndex + 1;
-		const uProofStep: UProofStep = <UProofStep>this.uProof.uStatements[uStepIndex];
+		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
 		// const assertion: AssertionStatement | undefined = uProofStep.getAssertion(this.labelToStatementMap);
 		if (!uProofStep.skipUnification) {
 			const assertion: AssertionStatement | undefined = uProofStep.assertion;
@@ -223,7 +223,7 @@ export class UProofTransformer {
 	protected transformUSteps() {
 		let i = 0;
 		while (i < this.uProof.uStatements.length) {
-			if (this.uProof.uStatements[i] instanceof UProofStep && !(<UProofStep>this.uProof.uStatements[i]).isEHyp) {
+			if (this.uProof.uStatements[i] instanceof MmpProofStep && !(<MmpProofStep>this.uProof.uStatements[i]).isEHyp) {
 				// this.addUStep(uStatement, uProof.refToUStatementMap, newProof);
 				i = this.transformUStep(i);
 			} else

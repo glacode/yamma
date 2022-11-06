@@ -49,10 +49,9 @@ export class UProof implements ITheoremSignature {
 	proofStatement: UProofStatement | UCompressedProofStatement | undefined;
 
 	// lastUProofStep is introduced for better performance, only
-	/**the last UProofStep in the array of uStatements*/
-	lastUProofStep: UProofStep | undefined;
-	//TODO refToUStatementMap this is probably useless
-	// refToUStatementMap: Map<string, UProofStep>;
+	/**the last MmpProofStep in the array of uStatements*/
+	lastUProofStep: MmpProofStep | undefined;
+	// lastUProofStep: UProofStep | undefined;
 
 
 	/**contains an efficient (for search) representation of the Disjoint Vars Statement defined. It's introduced for performance only */
@@ -65,8 +64,8 @@ export class UProof implements ITheoremSignature {
 	disjVarUStatements: DisjVarUStatement[]
 
 	// needed to implement ITheoremSignature
-	get pStatement(): UProofStep | undefined {
-		let pStat: UProofStep | undefined;
+	get pStatement(): MmpProofStep | undefined {
+		let pStat: MmpProofStep | undefined;
 		if (this.lastUProofStep?.stepRef == "qed")
 			pStat = this.lastUProofStep;
 		return pStat;
@@ -76,7 +75,6 @@ export class UProof implements ITheoremSignature {
 	constructor(outermostBlock: BlockStatement, workingVars: WorkingVars, startIndexForNewRefs?: number) {
 		this.outermostBlock = outermostBlock;
 		this.workingVars = workingVars;
-		// this.refToUStatementMap = new Map<string, UProofStep>();
 		if (startIndexForNewRefs != undefined)
 			this.maxRefAlreadyAssigned = startIndexForNewRefs - 1;
 		this.uStatements = [];
@@ -93,7 +91,7 @@ export class UProof implements ITheoremSignature {
 	get mandatoryVars(): Set<string> {
 		const result: Set<string> = new Set<string>();
 		this.uStatements.forEach((uStatement: IUStatement) => {
-			if (uStatement instanceof UProofStep && (uStatement.isEHyp || uStatement.stepRef == "qed")) {
+			if (uStatement instanceof MmpProofStep && (uStatement.isEHyp || uStatement.stepRef == "qed")) {
 				const mandatoryVarsForThisStatement: Set<string> =
 					uStatement.parseNode!.symbolsSubsetOf(this.outermostBlock.v);
 				mandatoryVarsForThisStatement.forEach((mandatoryVar: string) => {
@@ -148,7 +146,7 @@ export class UProof implements ITheoremSignature {
 	}
 
 	/**
-	 * returns the ref for the new UProofStep; if stepRef is not undefined, it is assigned as is; if it
+	 * returns the ref for the new MmpProofStep; if stepRef is not undefined, it is assigned as is; if it
 	 * is an automatically generated ref, this._maxNewRef is updated, it needed; if stepRef
 	 * is undefined, a new ref is generated
 	 * @param stepRef 
@@ -164,34 +162,6 @@ export class UProof implements ITheoremSignature {
 	}
 	//#endregion getRef
 
-	// getUProofStep(mmpProofStep: MmpProofStep): UProofStep {
-	// 	const stepRef: string = this.getRef(mmpProofStep.stepRefToken);
-	// 	// if (mmpProofStep.stepRef != undefined)
-	// 	// 	// mmpStatement.stepRef is a MmToken
-	// 	// 	stepRef = mmpProofStep.stepRef.value;
-	// 	// else
-	// 	// 	stepRef = this.getNewRef();
-	// 	const eHypUSteps: (UProofStep | undefined)[] = [];
-	// 	if (mmpProofStep.eHypRefs != undefined) {
-	// 		// mmpStatement.stepRef is of type MmToken[]
-	// 		mmpProofStep.eHypRefs.forEach((eHypRef: MmToken) => {
-	// 			const eHypURef: (UProofStep | undefined) =
-	// 				this.refToUStatementMap.get(eHypRef.value);
-	// 			eHypUSteps.push(eHypURef);
-	// 		});
-	// 	}
-	// 	let stepLabel: string | undefined;
-	// 	if (mmpProofStep.stepLabelToken != undefined)
-	// 		stepLabel = mmpProofStep.stepLabelToken.value;
-	// 	// const stepFormula: MmToken[] | undefined = mmpProofStep.stepFormula;
-	// 	// if (mmpProofStep.stepFormula != undefined)
-	// 	// 	stepFormula = MmToken.fromTokensToStrings(mmpProofStep.stepFormula);
-	// 	// const uProofStep = new UProofStep(
-	// 	// 	mmpProofStep.isEHyp, stepRef, eHypUSteps, stepLabel, stepFormula, mmpProofStep.parseNode);
-	// 	const uProofStep = new UProofStep( mmpProofStep.isFirstTokenParsable, mmpProofStep.isEHyp,
-	// 		stepRef, eHypUSteps, stepLabel,mmpProofStep.stepFormula, mmpProofStep.parseNode);
-	// 	return uProofStep;
-	// }
 	updateWorkingVarsIfTheCase(stepFormula: MmToken[]) {
 		stepFormula.forEach((mmToken: MmToken) => {
 			this.workingVars.updateWorkingVarsIfTheCase(mmToken.value);
@@ -211,7 +181,6 @@ export class UProof implements ITheoremSignature {
 	// }
 
 	addUProofStepFromMmpStep(mmpProofStep: MmpProofStep) {
-		// const uProofStep: UProofStep = this.getUProofStep(mmpProofStep);
 		this.uStatements.push(mmpProofStep);
 		this.lastUProofStep = mmpProofStep;
 		// this.refToUStatementMap.set(mmpProofStep.stepRef, mmpProofStep);
@@ -228,7 +197,7 @@ export class UProof implements ITheoremSignature {
 	updateAllWorkingVars() {
 		this.workingVars.reset();
 		this.uStatements.forEach((uStatement: IUStatement) => {
-			if (uStatement instanceof UProofStep && uStatement.stepFormula != undefined)
+			if (uStatement instanceof MmpProofStep && uStatement.stepFormula != undefined)
 				this.updateWorkingVarsIfTheCase(uStatement.stepFormula);
 		});
 	}
@@ -246,7 +215,7 @@ export class UProof implements ITheoremSignature {
 	// }
 	//#endregion createUProofFromMmpProof
 
-	addUProofStepAtIndex(uProofStep: UProofStep, index: number) {
+	addUProofStepAtIndex(uProofStep: MmpProofStep, index: number) {
 		this.uStatements.splice(index, 0, uProofStep);
 		if (this.lastUProofStep != undefined && this.uStatements.indexOf(this.lastUProofStep) < index)
 			this.lastUProofStep = uProofStep;
@@ -256,7 +225,7 @@ export class UProof implements ITheoremSignature {
 
 	addUStatement(uStatement: IUStatement) {
 		this.uStatements.push(uStatement);
-		if (uStatement instanceof UProofStep) {
+		if (uStatement instanceof MmpProofStep) {
 			this.updateMaxRefIfItsTheCase(uStatement.stepRef);
 			// this.refToUStatementMap.set(uStatement.stepRef!, uStatement);
 		}
@@ -295,12 +264,12 @@ export class UProof implements ITheoremSignature {
 	}
 
 	/**
-	 * creates a new UProofStep, with a new ref, empty formula and empty parse node
+	 * creates a new MmpProofStep, with a new ref, empty formula and empty parse node
 	 * and adds it to the proof, inserting it just before the proof step with position index
-	 * @param index the position of the UStatement, before which the new UProofStep has to be inserted
+	 * @param index the position of the UStatement, before which the new MmpProofStep has to be inserted
 	 * @returns 
 	 */
-	createEmptyUStepAndAddItBeforeIndex(index: number): UProofStep {
+	createEmptyUStepAndAddItBeforeIndex(index: number): MmpProofStep {
 		const stepRef: string = this.getNewRef();
 		const stepRefToken: MmToken = new MmToken(stepRef,0,0);
 		const firstTokenValue = stepRef + '::';
@@ -368,20 +337,6 @@ export class UProof implements ITheoremSignature {
 		});
 		return result;
 	}
-	// get mandatoryFHypsLabelsInRPNorder(): Set<string> {
-	// 	const result: Set<string> = new Set<string>();
-	// 	this.uStatements.forEach((uStatement: UStatement) => {
-	// 		if (uStatement instanceof UProofStep && (uStatement.isEHyp || uStatement.stepRef == "qed")) {
-	// 			const mandatoryFHypsLabelsForThisStatement: Set<string> =
-	// 				uStatement.parseNode!.fStatementLabels(this.outermostBlock.v);
-	// 			mandatoryFHypsLabelsForThisStatement.forEach((label: string) => {
-	// 				if (!result.has(label))
-	// 					result.add(label);
-	// 			});
-	// 		}
-	// 	});
-	// 	return result;
-	// }
 	//#endregion mandatoryFHypsLabelsInRPNorder
 
 

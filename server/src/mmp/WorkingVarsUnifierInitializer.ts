@@ -3,9 +3,9 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement } from '../mm/Statements';
-import { UProofStep } from './UProofStep';
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { OrderedPairOfNodes } from './WorkingVarsUnifierFinder';
+import { MmpProofStep } from './MmpStatements';
 
 /**
  * this class helps to initialize the Working Vars MGU Finder.
@@ -13,7 +13,7 @@ import { OrderedPairOfNodes } from './WorkingVarsUnifierFinder';
  * and returns a set of ordered pairs of nodes to be later unified by the MGU Finder
  */
 export class WorkingVarsUnifierInitializer {
-	uProofStep: UProofStep;
+	uProofStep: MmpProofStep;
 	assertion: AssertionStatement;
 	substitution: Map<string, InternalNode>;
 	outermostBlock: BlockStatement;
@@ -21,7 +21,7 @@ export class WorkingVarsUnifierInitializer {
 
 	startingPairsForMGUFinder: OrderedPairOfNodes[] = [];
 
-	constructor(uProofStep: UProofStep, assertion: AssertionStatement, substitution: Map<string, InternalNode>,
+	constructor(uProofStep: MmpProofStep, assertion: AssertionStatement, substitution: Map<string, InternalNode>,
 		outermostBlock: BlockStatement, grammar: Grammar) {
 		this.uProofStep = uProofStep;
 		this.assertion = assertion;
@@ -91,7 +91,7 @@ export class WorkingVarsUnifierInitializer {
 					<InternalNode>this.assertion.frame?.eHyps[i].parseNode);
 		}
 	}
-	/** builds the starting pairs for the MGU algorithm, for the UProofStep given to the constructor  */
+	/** builds the starting pairs for the MGU algorithm, for the MmpProofStep given to the constructor  */
 	buildStartingPairsForMGUAlgorithm(): OrderedPairOfNodes[] {
 		this.addStartingPairsForMGUAlgorithmForEHyps();
 		if (this.uProofStep.parseNode != undefined)

@@ -1,10 +1,10 @@
 import { Grammar } from 'nearley';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { UProof } from './UProof';
-import { UProofStep } from './UProofStep';
 import { IUStatement, UProofStatementStep } from './UStatement';
 import { concatWithSpaces } from '../mm/Utils';
 import { Parameters } from '../general/Parameters';
+import { MmpProofStep } from './MmpStatements';
 
 export class UCompressedProofStatement implements IUStatement {
 	uProof: UProof;
@@ -97,7 +97,7 @@ export class UCompressedProofStatement implements IUStatement {
 			this.addMandatoryHypLabel(label);
 		});
 		this.uProof.uStatements.forEach((uStatement: IUStatement) => {
-			if (uStatement instanceof UProofStep && uStatement.isEHyp)
+			if (uStatement instanceof MmpProofStep && uStatement.isEHyp)
 				this.addMandatoryHypLabel(uStatement.stepLabel!);
 		});
 	}

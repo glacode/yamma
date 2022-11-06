@@ -5,7 +5,6 @@ import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UCompressedProofStatement } from '../mmp/UCompressedProofStatement';
 import { UProof } from '../mmp/UProof';
-import { UProofStep } from '../mmp/UProofStep';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { mp2Theory } from './MmpParser.test';
@@ -74,7 +73,7 @@ class TestUCompressedProofStatement extends UCompressedProofStatement {
 			new MmToken('dummy::', 0, 0), false, refToken);
 		const dummyMmpProofStep: MmpProofStep = new MmpProofStep(dummyUProof,
 			proofStepFirstTokenInfo, true, true, refToken, []);
-		jest.spyOn(UProofStep.prototype, 'proofArray').mockImplementation(() => []);
+		jest.spyOn(MmpProofStep.prototype, 'proofArray').mockImplementation(() => []);
 		dummyUProof.lastUProofStep = dummyMmpProofStep;
 		super(dummyUProof);
 	}

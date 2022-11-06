@@ -6,6 +6,7 @@ import { AssertionStatement, EHyp } from '../mm/Statements';
 import { UProof } from './UProof';
 import { UProofStep } from './UProofStep';
 import { WorkingVars } from './WorkingVars';
+import { MmpProofStep } from './MmpStatements';
 
 export class USubstitutionApplier {
 	substitution: Map<string, InternalNode>;
@@ -16,7 +17,7 @@ export class USubstitutionApplier {
 	grammar: Grammar;
 	uProof: UProof;
 
-	private uProofStep: UProofStep;
+	private uProofStep: MmpProofStep;
 	private logicalSystemEHyps: EHyp[];
 	private eHypUSteps: (UProofStep | undefined)[];
 
@@ -30,7 +31,7 @@ export class USubstitutionApplier {
 		this.grammar = grammar;
 		this.uProof = uProof;
 
-		this.uProofStep = <UProofStep>this.uProof.uStatements[uStepIndex];
+		this.uProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
 		this.logicalSystemEHyps = <EHyp[]>(this.assertion.frame?.eHyps);
 		this.eHypUSteps = this.uProofStep.eHypUSteps;
 	}
@@ -132,8 +133,7 @@ export class USubstitutionApplier {
 	// 	return newParseNode;
 	// }
 
-	applySubstitutionToSingleNode(uProofStep: UProofStep,
-		// static applySubstitutionToSingleNodeAndAddIt(substitution: Map<string, InternalNode>, uProofStep: UProofStep,
+	applySubstitutionToSingleNode(uProofStep: MmpProofStep,
 		parseNodeForLogicalSystemFormula: InternalNode) {
 		if (uProofStep.parseNode == undefined)
 			uProofStep.parseNode = USubstitutionApplier.createParseNodeForInternalNode(parseNodeForLogicalSystemFormula,
@@ -146,15 +146,9 @@ export class USubstitutionApplier {
 	//#endregion applySubstitutionToSingleNode
 
 	//#region applySubstitutionToEHypsAndAddMissingOnes
-	// createNewEHyp(newRef: string, substitution: Map<string, InternalNode>,
-	// 	logicalSystemEHyp: EHyp, workingVars: WorkingVars): UProofStep {
-	// 	throw new Error('Method not implemented.');
-	// }
-
 	// it is assumed to be eHypUSteps.length  <= logicalSystemEHyps.length and the missing
 	// refs are assumed to be at the end
 	applySubstitutionToEHypsAndAddMissingOnes(): number {
-		// const eHypUSteps: (UProofStep | undefined)[] = (<UProofStep>this.uProof.uStatements[uStepIndex]).eHypUSteps;
 		let indexToInsertNewEHyps = this.uStepIndex;
 		for (let i = 0; i < this.logicalSystemEHyps.length; i++) {
 			const logicalSystemEHyp: EHyp = this.logicalSystemEHyps[i];
@@ -181,15 +175,14 @@ export class USubstitutionApplier {
 	//#endregion applySubstitutionToEHypsAndAddMissingOnes
 
 	/**
-	 * Applies a substitution to a single UProofStep:
+	 * Applies a substitution to a single MmpProofStep:
 	 * - if the formula is missing, it's added (with working vars)
 	 * - if an $e hypothesis is missing, it's added (with working vars)
-	 * - new $e hypothesis and the UProofStep are added at the end of to the UProof
-	 * Returns the new index for the UProofStep that was indexed by uStepIndex (this
+	 * - new $e hypothesis and the MmpProofStep are added at the end of to the UProof
+	 * Returns the new index for the MmpProofStep that was indexed by uStepIndex (this
 	 * can be increased, if new hypothesis are added) 
 	 */
 	applySubstitution(): number {
-		// const uProofStep: UProofStep = <UProofStep>this.uProof.uStatements[this.ste];
 		const updatedeUStepIndex: number = this.applySubstitutionToEHypsAndAddMissingOnes();
 		this.applySubstitutionToSingleNode(this.uProofStep, this.assertion.parseNode);
 		return updatedeUStepIndex;

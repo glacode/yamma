@@ -2,9 +2,9 @@
 import { TextEdit } from 'vscode-languageserver';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmpParser } from '../mmp/MmpParser';
+import { MmpProofStep } from '../mmp/MmpStatements';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UProofFormatter } from '../mmp/UProofFormatter';
-import { UProofStep } from '../mmp/UProofStep';
 import { IUStatement } from '../mmp/UStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
@@ -30,7 +30,7 @@ test("Test UProofFormatter.computeIndentationLevels()", () => {
 	uProofFormatter.computeIndentationLevels();
 	expect(mmpParser.uProof?.uStatements.length).toBeGreaterThanOrEqual(5);
 	mmpParser.uProof?.uStatements.forEach((uStatement: IUStatement) => {
-		if (uStatement instanceof UProofStep) {
+		if (uStatement instanceof MmpProofStep) {
 			if (uStatement.stepRef == 'qed')
 				expect(uStatement.indentationLevel).toBe(0);
 			if (uStatement.stepRef == '53')
