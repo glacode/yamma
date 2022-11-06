@@ -5,7 +5,7 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { MmToken } from '../grammar/MmLexer';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
-import { MmpProofStep, MmpStatement, ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
+import { MmpProofStep, ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { AxiomStatement, LabeledStatement } from '../mm/Statements';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { wiGrammar } from './GrammarManager.test';
@@ -128,7 +128,7 @@ test('createMmpStatements', () => {
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
 	// const mmpStatements: MmpStatement[] = mmpParser.mmpStatements;
-	const mmpStatements: MmpStatement[] = <MmpStatement[]>mmpParser.uProof?.uStatements;
+	const mmpStatements: IUStatement[] = <IUStatement[]>mmpParser.uProof?.uStatements;
 	expect(mmpStatements.length).toBe(6);
 	expect((mmpStatements[0])).toEqual(expect.objectContaining({ comment: expect.any(String) }));
 	expect((<MmToken[]>(<MmpProofStep>mmpStatements[1]).stepFormula)[0].value).toEqual('|-');

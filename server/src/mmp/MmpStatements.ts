@@ -4,7 +4,7 @@ import { MmToken } from '../grammar/MmLexer';
 import { InternalNode } from '../grammar/ParseNode';
 import { UProof } from './UProof';
 import { UProofStep } from './UProofStep';
-import { IMmpStatementWithRange, UComment } from './UStatement';
+import { IMmpStatementWithRange } from './UStatement';
 import { concatTokenValuesWithSeparator } from '../mm/Utils';
 
 // export class MmpComment {
@@ -193,6 +193,3 @@ export class MmpProofStep extends UProofStep implements IMmpStatementWithRange {
 		return result;
 	}
 }
-
-//TODO1 try to remove this type
-export type MmpStatement = MmpProofStep | UComment

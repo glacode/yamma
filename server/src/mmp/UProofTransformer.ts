@@ -1,7 +1,7 @@
 import { Grammar } from 'nearley';
 import { Diagnostic, TextEdit } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
-import { MmpStatement } from './MmpStatements';
+// import { MmpStatement } from './MmpStatements';
 import { InternalNode } from '../grammar/ParseNode';
 import { LabeledStatement, AssertionStatement } from '../mm/Statements';
 import { UProof } from './UProof';
@@ -23,7 +23,7 @@ export class UProofTransformer {
 	grammar: Grammar;
 	workingVars: WorkingVars;
 	// the list of statements, after createMmpStatements() has been invoked
-	mmpStatements: MmpStatement[] = []
+	// mmpStatements: MmpStatement[] = []
 	// maps each proof step id to the proof step,  after createMmpStatements() has been invoked
 	// refToProofStepMap: Map<string, MmpProofStep>;
 	// the list of diagnostics, after createMmpStatements() has been invoked
