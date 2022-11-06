@@ -2,7 +2,8 @@
 import { BlockStatement } from '../mm/BlockStatement';
 import { DisjointVarMap } from '../mm/DisjointVarMap';
 import { MmToken } from '../grammar/MmLexer';
-import { MmpProofStep, ProofStepFirstTokenInfo } from './MmpStatements';
+import { ProofStepFirstTokenInfo } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 import { DisjVarUStatement } from '../mm/Statements';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
 import { UProofStep } from './UProofStep';

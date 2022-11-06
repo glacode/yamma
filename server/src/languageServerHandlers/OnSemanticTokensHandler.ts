@@ -4,7 +4,7 @@ import { IConfigurationManager, IVariableKindConfiguration } from '../mm/Configu
 import { MmParser } from '../mm/MmParser';
 import { DisjVarUStatement } from '../mm/Statements';
 import { MmpParser } from '../mmp/MmpParser';
-import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 import { IUStatement, UComment } from '../mmp/UStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 

@@ -6,7 +6,7 @@ import * as FileSystem from 'fs';
 import { DisjVarUStatement } from '../mm/Statements';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { IUStatement } from '../mmp/UStatement';
-import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 
 
 //TODO I had to pass both uri and fsPath, because I've not been able to find a parser that switches

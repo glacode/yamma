@@ -7,7 +7,7 @@ import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement, EHyp } from '../mm/Statements';
 import { UProofStep } from './UProofStep';
 import { WorkingVars } from './WorkingVars';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 
 
 export interface SubstitutionResult {

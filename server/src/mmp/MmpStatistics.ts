@@ -1,6 +1,6 @@
 import { MmToken } from '../grammar/MmLexer';
 import { MmpParser } from './MmpParser';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 import { IUStatement } from './UStatement';
 
 export class MmpStatistics {

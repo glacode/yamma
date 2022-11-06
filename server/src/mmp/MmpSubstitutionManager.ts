@@ -4,7 +4,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { MmToken } from '../grammar/MmLexer';
 import { MmpParserErrorCode } from './MmpParser';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 import { MmpValidator } from './MmpValidator';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { LabeledStatement, AssertionStatement, EHyp } from '../mm/Statements';

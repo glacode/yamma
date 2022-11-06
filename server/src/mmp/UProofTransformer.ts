@@ -12,7 +12,7 @@ import { WorkingVars } from './WorkingVars';
 import { OrderedPairOfNodes, WorkingVarsUnifierFinder } from './WorkingVarsUnifierFinder';
 import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
 import { DisjointVarsManager } from '../mm/DisjointVarsManager';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 
 // Parser for .mmp files
 export class UProofTransformer {

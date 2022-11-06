@@ -10,7 +10,7 @@ import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
 import { SyntaxCompletion } from '../syntaxCompletion/SyntaxCompletion';
 import { CursorContext, CursorContextForCompletion } from '../mmp/CursorContext';
 import { SearchStatementCompletionProvider } from '../search/SearchStatementCompletionProvider';
-import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 
 export class OnCompletionHandler {

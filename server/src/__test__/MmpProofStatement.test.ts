@@ -10,7 +10,8 @@ import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { mp2Theory } from './MmpParser.test';
 import { Parameters } from '../general/Parameters';
 import { kindToPrefixMap, readTestFile } from './GlobalForTest.test';
-import { MmpProofStep, ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
+import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmToken } from '../grammar/MmLexer';
 
 

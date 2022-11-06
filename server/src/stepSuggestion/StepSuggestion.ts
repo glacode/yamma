@@ -5,7 +5,7 @@ import { CursorContext } from "../mmp/CursorContext";
 import { MmParser } from '../mm/MmParser';
 import { AssertionStatement, LabeledStatement } from '../mm/Statements';
 import { range } from '../mm/Utils';
-import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 import { SubstitutionResult, USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { IStepSuggestion } from './ModelBuilder';
 import { GrammarManager } from '../grammar/GrammarManager';

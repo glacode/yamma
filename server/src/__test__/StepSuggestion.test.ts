@@ -1,7 +1,7 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 import { CursorContext } from "../mmp/CursorContext";
 import { MmpParser } from '../mmp/MmpParser';
-import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 import { WorkingVars } from '../mmp/WorkingVars';
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { StepSuggestion } from '../stepSuggestion/StepSuggestion';

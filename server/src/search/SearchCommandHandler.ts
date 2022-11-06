@@ -8,7 +8,7 @@ import { oneCharacterRange } from '../mm/Utils';
 import { CursorContext } from '../mmp/CursorContext';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
-import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 import { IMmpStatementWithRange } from '../mmp/UStatement';
 
 //TODO you are defining this interface both on the client and on the server:

@@ -6,7 +6,7 @@ import { AssertionStatement, EHyp } from '../mm/Statements';
 import { UProof } from './UProof';
 import { UProofStep } from './UProofStep';
 import { WorkingVars } from './WorkingVars';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 
 export class USubstitutionApplier {
 	substitution: Map<string, InternalNode>;

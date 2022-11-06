@@ -5,7 +5,7 @@ import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement } from '../mm/Statements';
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { OrderedPairOfNodes } from './WorkingVarsUnifierFinder';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 
 /**
  * this class helps to initialize the Working Vars MGU Finder.

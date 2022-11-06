@@ -4,7 +4,7 @@ import { UProof } from './UProof';
 import { IUStatement, UProofStatementStep } from './UStatement';
 import { concatWithSpaces } from '../mm/Utils';
 import { Parameters } from '../general/Parameters';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 
 export class UCompressedProofStatement implements IUStatement {
 	uProof: UProof;

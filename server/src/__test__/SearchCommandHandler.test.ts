@@ -1,7 +1,7 @@
 import { Position, Range } from 'vscode-languageserver';
 import { MmStatistics } from '../mm/MmStatistics';
 import { MmpParser } from '../mmp/MmpParser';
-import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 import { WorkingVars } from '../mmp/WorkingVars';
 import { SearchCommandHandler } from '../search/SearchCommandHandler';
 import { kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';

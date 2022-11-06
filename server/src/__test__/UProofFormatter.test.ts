@@ -2,7 +2,7 @@
 import { TextEdit } from 'vscode-languageserver';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmpParser } from '../mmp/MmpParser';
-import { MmpProofStep } from '../mmp/MmpStatements';
+import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UProofFormatter } from '../mmp/UProofFormatter';
 import { IUStatement } from '../mmp/UStatement';

@@ -2,7 +2,7 @@ import { Position, Range } from 'vscode-languageserver';
 import { MmToken } from '../grammar/MmLexer';
 import { MmpParser } from './MmpParser';
 import { MmpSearchStatement } from './MmpSearchStatement';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep } from "./MmpProofStep";
 import { UProof } from './UProof';
 import { IMmpStatementWithRange, IUStatement } from './UStatement';
 
