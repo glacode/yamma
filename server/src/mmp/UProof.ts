@@ -2,7 +2,7 @@
 import { BlockStatement } from '../mm/BlockStatement';
 import { DisjointVarMap } from '../mm/DisjointVarMap';
 import { MmToken } from '../grammar/MmLexer';
-import { MmpProofStep } from './MmpStatements';
+import { MmpProofStep, ProofStepFirstTokenInfo } from './MmpStatements';
 import { DisjVarUStatement } from '../mm/Statements';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
 import { UProofStep } from './UProofStep';
@@ -302,9 +302,17 @@ export class UProof implements ITheoremSignature {
 	 */
 	createEmptyUStepAndAddItBeforeIndex(index: number): UProofStep {
 		const stepRef: string = this.getNewRef();
-		const uProofStep = new UProofStep(this, true, false, stepRef, [], undefined, undefined, undefined);
-		this.addUProofStepAtIndex(uProofStep, index);
-		return uProofStep;
+		const stepRefToken: MmToken = new MmToken(stepRef,0,0);
+		const firstTokenValue = stepRef + '::';
+		const firstToken: MmToken = new MmToken(firstTokenValue,0,0);
+		const proofStepFirstTokenInfo: ProofStepFirstTokenInfo = new ProofStepFirstTokenInfo(
+			firstToken,false,stepRefToken);
+		const mmpProofStep = new MmpProofStep(this,proofStepFirstTokenInfo,true,false,stepRefToken);
+		// const uProofStep = new UProofStep(this, true, false, stepRef, [], undefined, undefined, undefined);
+		// this.addUProofStepAtIndex(uProofStep, index);
+		// return uProofStep;
+		this.addUProofStepAtIndex(mmpProofStep, index);
+		return mmpProofStep;
 	}
 
 	// returns the text of the whole proof, built starting from the parse nodes

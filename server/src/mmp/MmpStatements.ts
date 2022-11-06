@@ -28,7 +28,7 @@ export class ProofStepFirstTokenInfo {
 		firstToken: MmToken,
 		isEHyp: boolean,
 		stepRef: MmToken,
-		eHypRefs: MmToken[] | undefined,
+		eHypRefs?: MmToken[],
 		//eHypRefsRanges: Range[]
 		stepLabel?: MmToken,
 		//stepLabelRange: Range

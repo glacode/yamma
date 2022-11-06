@@ -11,8 +11,8 @@ import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { mp2Theory } from './MmpParser.test';
 import { Parameters } from '../general/Parameters';
 import { kindToPrefixMap, readTestFile } from './GlobalForTest.test';
-
-
+import { MmpProofStep, ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
+import { MmToken } from '../grammar/MmLexer';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -66,12 +66,16 @@ test("Build proof for mp2", () => {
 class TestUCompressedProofStatement extends UCompressedProofStatement {
 	constructor() {
 		const dummyUProof = new UProof(new BlockStatement(), new WorkingVars(kindToPrefixMap));
-		const dummyUProofStep: UProofStep = new UProofStep(dummyUProof, true, true, "", []);
+		// const dummyUProofStep: UProofStep = new UProofStep(dummyUProof, true, true, "", []);
+		// jest.spyOn(UProofStep.prototype, 'proofArray').mockImplementation(() => []);
+		// dummyUProof.lastUProofStep = dummyUProofStep;
+		const refToken: MmToken = new MmToken('dummy', 0, 0);
+		const proofStepFirstTokenInfo: ProofStepFirstTokenInfo = new ProofStepFirstTokenInfo(
+			new MmToken('dummy::', 0, 0), false, refToken);
+		const dummyMmpProofStep: MmpProofStep = new MmpProofStep(dummyUProof,
+			proofStepFirstTokenInfo, true, true, refToken, []);
 		jest.spyOn(UProofStep.prototype, 'proofArray').mockImplementation(() => []);
-		dummyUProof.lastUProofStep = dummyUProofStep;
-		// jest.spyOn(dummyUProof,'lastUProofStep','get').mockReturnValue(dummyUProofStep);
-
-		// super(dummyUProof, new BlockStatement());
+		dummyUProof.lastUProofStep = dummyMmpProofStep;
 		super(dummyUProof);
 	}
 
@@ -416,7 +420,7 @@ test("Format equvinv compressed proof", () => {
 		'$d x z\n' +
 		'$d y z\n';
 	expect(mmpUnifier.textEditArray[0].newText).toEqual(newTextExpected2);
-	
+
 	Parameters.defaultRightMarginForCompressedProofs = defaultRightMargin;
 
 });
