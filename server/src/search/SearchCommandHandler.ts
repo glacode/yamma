@@ -160,7 +160,6 @@ export class SearchCommandHandler {
 		const searchStatement: string = SearchCommandHandler.buildSearchStatement(
 			this.maxNumberOfReturnedSymbols, currentMmpProofStep, this.mmStatistics);
 		this.insertNewSearchStatement(insertPosition, searchStatement);
-		//TODO1 try to add a GlobalState.moveCursor that you set here, 
 		this.setSuggestedRangeForCursorPosition(insertPosition, searchStatement);
 	}
 	//#endregion insertSearchStatementBeforeStep

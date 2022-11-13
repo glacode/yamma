@@ -54,9 +54,11 @@ test("Test simple indentation", () => {
 		"qed:51,53:ax-mp |- ch";
 	// const parser: MmParser = mp2MmParser;
 	// parser.ParseText(mp2Theory);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
-		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
+		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =

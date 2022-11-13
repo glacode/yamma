@@ -40,14 +40,19 @@ export class MmpUnifier {
 	/** true iff the last unify() threw an exceptio*/
 	thrownError: boolean;
 
+	mmpParser?: MmpParser;
+
 	//#region constructor
-	constructor(labelToStatementMap: Map<string, LabeledStatement>, outermostBlock: BlockStatement,
-		grammar: Grammar, workingVars: WorkingVars, proofMode: ProofMode) {
+	// constructor(labelToStatementMap: Map<string, LabeledStatement>, outermostBlock: BlockStatement,
+	// 	grammar: Grammar, workingVars: WorkingVars, proofMode: ProofMode, mmpParser?: MmpParser) {
+	constructor(mmpParser: MmpParser, proofMode: ProofMode) {
 		// this.textDocument = textDocument
-		this.labelToStatementMap = labelToStatementMap;
-		this.outermostBlock = outermostBlock;
-		this.grammar = grammar;
-		this.workingVars = workingVars;
+		this.mmpParser = mmpParser;
+		this.uProof = mmpParser.uProof;
+		this.labelToStatementMap = mmpParser.labelToStatementMap;
+		this.outermostBlock = mmpParser.outermostBlock;
+		this.grammar = mmpParser.grammar;
+		this.workingVars = mmpParser.workingVars;
 		this.proofMode = proofMode;
 		this.thrownError = false;
 	}
@@ -68,7 +73,6 @@ export class MmpUnifier {
 		const uProof: UProof = <UProof>mmpParser.uProof;
 		// the MmpParser could have computed working vars with indexes larger than those in the proof (in order
 		// to provide better diagnostic messages); thus the actual working vars need to be computed again
-		uProof.updateAllWorkingVars();
 		return uProof;
 	}
 	//#endregion buildUstatements
@@ -107,13 +111,19 @@ export class MmpUnifier {
 	 * current document
 	 * @param textToParse 
 	 */
-	unify(textToParse: string) {
-		this.uProof = this.buildUProof(textToParse);
-		const uProofTransformer: UProofTransformer = new UProofTransformer(this.uProof, this.labelToStatementMap,
-			this.outermostBlock,this.grammar, this.workingVars);
+	unify() {
+		// unify(textToParse: string) {
+		// if (this.uProof != undefined)
+		// 	this.uProof = this.uProof;
+		// else
+		// 	this.uProof = this.buildUProof(textToParse);
+		//TODO1 see if this can be faster if done in the MmpParser
+		this.uProof!.updateAllWorkingVars();
+		const uProofTransformer: UProofTransformer = new UProofTransformer(this.uProof!, this.labelToStatementMap,
+			this.outermostBlock, this.grammar, this.workingVars);
 		// const newUProof: UProof = this.transformUProof(uProof);
 		uProofTransformer.transformUProof();
-		this.buildProofStatementIfProofIsComplete(this.uProof);
+		this.buildProofStatementIfProofIsComplete(this.uProof!);
 		// this.textEditArray = this.buildTextEditArray(newUProof);
 		this.textEditArray = this.buildTextEditArray(uProofTransformer.uProof);
 	}

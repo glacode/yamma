@@ -1,7 +1,7 @@
 import { Position } from 'vscode-languageserver';
 import { Range } from 'vscode-languageserver-textdocument';
 import { MmToken } from '../grammar/MmLexer';
-import { InternalNode } from '../grammar/ParseNode';
+import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { UProof } from './UProof';
 
 import { IMmpStatementWithRange, UProofStatementStep } from './UStatement';
@@ -79,6 +79,37 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 		}
 		return this._assertion;
 	}
+
+	private _hasWorkingVars?: boolean;
+
+	//#region hasWorkingVars
+
+	//#region setHasWorkingVars
+	setHasWorkingVarsRecursive(parseNode: InternalNode) {
+		if (GrammarManager.isInternalParseNodeForWorkingVar(parseNode))
+			this._hasWorkingVars = true;
+		else {
+			let i = 0;
+			while (!this._hasWorkingVars && i++ < parseNode.parseNodes.length) {
+				const childNode: ParseNode = parseNode.parseNodes[i];
+				if (childNode instanceof InternalNode)
+					this.setHasWorkingVarsRecursive(childNode);
+			}
+		}
+	}
+	private setHasWorkingVars(): void {
+		this._hasWorkingVars = false;
+		if (this.parseNode != undefined)
+			this.setHasWorkingVarsRecursive(this.parseNode);
+	}
+	//#endregion setHasWorkingVars
+
+	public get hasWorkingVars(): boolean {
+		if (this._hasWorkingVars == undefined)
+			this.setHasWorkingVars();
+		return this._hasWorkingVars!;
+	}
+	//#endregion hasWorkingVars
 
 	firstTokenInfo: ProofStepFirstTokenInfo;
 	// isEHyp: boolean;

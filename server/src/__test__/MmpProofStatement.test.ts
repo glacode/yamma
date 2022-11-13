@@ -13,6 +13,7 @@ import { kindToPrefixMap, readTestFile } from './GlobalForTest.test';
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmToken } from '../grammar/MmLexer';
+import { MmpParser } from '../mmp/MmpParser';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -46,9 +47,11 @@ test("Build proof for mp2", () => {
 		"qed:51,53:ax-mp |- ch";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
+		parser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
@@ -130,9 +133,11 @@ test("Build Compressed proof for mp2", () => {
 		"qed:51,53:ax-mp |- ch";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.compressed);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
+		parser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
@@ -177,9 +182,11 @@ test("id - Build Compressed proof for id", () => {
 		"qed:50,51:mpd |- ( ph -> ph )";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(idTheory);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.compressed);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
+		parser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
@@ -195,9 +202,11 @@ test("alnex - Build normal proof for alnex", () => {
 	const mmpSource =
 		"50::df-ex |- ( E. x ph <-> -. A. x -. ph )\n" +
 		"qed:50:con2bii |- ( A. x -. ph <-> -. E. x ph )";
-	const mmpUnifier: MmpUnifier = new MmpUnifier(vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
+		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
@@ -215,9 +224,11 @@ test("vex - Build normal proof for vex", () => {
 		"51::df-v |- _V = { x | x = x }\n" +
 		"52:51:abeq2i |- ( x e. _V <-> x = x )\n" +
 		"qed:50,52:mpbir |- x e. _V";
-	const mmpUnifier: MmpUnifier = new MmpUnifier(vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap,
+		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
@@ -249,9 +260,11 @@ test("vex - Build Compressed proof for vex", () => {
 		"51::df-v |- _V = { x | x = x }\n" +
 		"52:51:abeq2i |- ( x e. _V <-> x = x )\n" +
 		"qed:50,52:mpbir |- x e. _V";
-	const mmpUnifier: MmpUnifier = new MmpUnifier(vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.compressed);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
+		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
@@ -271,9 +284,11 @@ test("Build normal proof for use of ax-5", () => {
 		"$d A y\n";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
+		parser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
@@ -290,9 +305,13 @@ test("Expect proof not to be produced for Disj Var Violation", () => {
 	const mmpSource = 'qed::ax-5 |- ( y e. A -> A. y y e. A )\n';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
+		parser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	// const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
+	// 	parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	// const newTextExpected =
@@ -306,15 +325,13 @@ test("Expect 2 proof not to be produced for missing Disj Var statement", () => {
 	const mmpSource = "qed::ax-5 |- ( x e. A -> A. y x e. A )\n";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.compressed);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
+		parser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	// const newTextExpected =
-	// 	"qed::ax-5 |- ( x e. A -> A. y x e. A )\n" +
-	// 	"\n" +
-	// 	"$=  ( cv wcel ax-5 ) ADCEBF $.\n";
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText = "qed::ax-5          |- ( x e. A -> A. y x e. A )\n";
 	expect(textEdit.newText).toEqual(expectedText);
@@ -327,9 +344,11 @@ test("Build compressed proof for use of ax-5", () => {
 		"$d A y\n";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.compressed);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
+		parser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
@@ -355,26 +374,13 @@ test("Format equvinv compressed proof", () => {
 		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
 		'$d x z\n' +
 		'$d y z\n';
-	let mmpUnifier: MmpUnifier = new MmpUnifier(vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.compressed);
-	mmpUnifier.unify(mmpSource);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
+		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed);
+	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	// 50:: ax6ev | - E.z z = x
-	// 51:: equtrr | - (x = y -> (z = x -> z = y ) )
-	// 52: 51: ancld | - (x = y -> (z = x -> (z = x /\ z = y ) ) )
-	// 53: 52: eximdv | - (x = y -> (E.z z = x -> E.z(z = x /\ z = y) ) )
-	// 54: 50, 53: mpi | - (x = y -> E.z(z = x /\ z = y))
-	// 55:: ax7 | - (z = x -> (z = y -> x = y ) )
-	// 56: 55: imp | - ((z = x /\ z = y ) -> x = y )
-	// 57: 56: exlimiv | - (E.z(z = x /\ z = y) -> x = y )
-	// qed: 54, 57: impbii | - (x = y < -> E.z(z = x /\ z = y))
-
-	// $= (cv wceq wa wex ax6ev equtrr eximdv mpi ax7 imp exlimiv impbii
-	// 	  ancld ) ADZBDZEZCDZQEZTREZFZCGZSUACGUDCAHSUAUCCSUAUBABCIPJKUCSC
-	// 	  UAUBSCABLMNO $.
-	// $d x z 
-	// $d y z 
 	const newTextExpected =
 		'$theorem equvinv\n' +
 		'50::ax6ev            |- E. z z = x\n' +
@@ -396,9 +402,13 @@ test("Format equvinv compressed proof", () => {
 	const defaultRightMargin: number = Parameters.defaultRightMarginForCompressedProofs;
 	Parameters.defaultRightMarginForCompressedProofs = 30;
 
-	mmpUnifier = new MmpUnifier(vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.compressed);
-	mmpUnifier.unify(mmpSource);
+
+	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap,
+		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser2.parse();
+
+	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.compressed);
+	mmpUnifier2.unify();
 
 	const newTextExpected2 =
 		'$theorem equvinv\n' +
@@ -419,7 +429,7 @@ test("Format equvinv compressed proof", () => {
 		'  CABMNOP $.\n' +
 		'$d x z\n' +
 		'$d y z\n';
-	expect(mmpUnifier.textEditArray[0].newText).toEqual(newTextExpected2);
+	expect(mmpUnifier2.textEditArray[0].newText).toEqual(newTextExpected2);
 
 	Parameters.defaultRightMarginForCompressedProofs = defaultRightMargin;
 

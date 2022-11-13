@@ -21,7 +21,8 @@ test('statisics for impbii.mm', () => {
 	expect(symbolContainedInAssertion(symbolToAssertionMap, 'ps', 'ax-mp')).toBeTruthy();
 	expect(symbolContainedInAssertion(symbolToAssertionMap, '(', 'mpd')).toBeTruthy();
 	expect(symbolContainedInAssertion(symbolToAssertionMap, 'th', 'ax-mp')).toBeFalsy();
-	//TODO1 decide if you want to exclude these syntax axioms
+	//TODO1 decide if you want to exclude these syntax axioms; use
+	// !GrammarManager.isSyntaxAxiom2() to exclude syntax axioms
 	expect(symbolContainedInAssertion(symbolToAssertionMap, '(', 'wi')).toBeTruthy();
 
 	const assetionsContainingTh: Set<AssertionStatement> = symbolToAssertionMap.get('th')!;

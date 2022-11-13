@@ -13,11 +13,13 @@ import { OrderedPairOfNodes, WorkingVarsUnifierFinder } from './WorkingVarsUnifi
 import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
 import { DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmpProofStep } from "./MmpProofStep";
+import { LabelSelector } from './LabelSelector';
 
 // Parser for .mmp files
 export class UProofTransformer {
 	// textDocument: TextDocument
 	uProof: UProof;
+	//TODO1 this one is not used, remove it
 	labelToStatementMap: Map<string, LabeledStatement>;
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
@@ -177,6 +179,15 @@ export class UProofTransformer {
 	//#endregion setIsProvenIfTheCase
 
 
+	//#region transformUStep
+	private deriveStepLabelIfMissing(uStepIndex: number, mmpProofStep: MmpProofStep) {
+		//TODO1 try to write the Derive here!!!
+		if (mmpProofStep.stepLabel == undefined) {
+			const labelSelector: LabelSelector = new LabelSelector(this.uProof, uStepIndex, mmpProofStep,
+				this.outermostBlock, this.grammar, this.workingVars);
+			labelSelector.deriveLabelAndHypothesis();
+		}
+	}
 	/**
 	 * adds one step to the new proof and returns the index of the next step to be transformed
 	 * (this is needed because new proof steps could have been added)
@@ -189,6 +200,7 @@ export class UProofTransformer {
 		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
 		// const assertion: AssertionStatement | undefined = uProofStep.getAssertion(this.labelToStatementMap);
 		if (!uProofStep.skipUnification) {
+			this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
 			const assertion: AssertionStatement | undefined = uProofStep.assertion;
 			if (assertion instanceof AssertionStatement) {
 				const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(uProofStep,
@@ -214,12 +226,10 @@ export class UProofTransformer {
 				}
 			}
 		}
-		// else
-		// 	// uProofStep does not have a label of an assertion
-		// 	//TODO try to write the Derive here!!!
-		// 	newProof.addUProofStep(uProofStep);
 		return nextUStepIndexToBeTransformed;
 	}
+	//#endregion transformUStep
+
 	protected transformUSteps() {
 		let i = 0;
 		while (i < this.uProof.uStatements.length) {

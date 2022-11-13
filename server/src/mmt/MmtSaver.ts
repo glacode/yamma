@@ -7,6 +7,7 @@ import { DisjVarUStatement } from '../mm/Statements';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { IUStatement } from '../mmp/UStatement';
 import { MmpProofStep } from "../mmp/MmpProofStep";
+import { MmpParser } from '../mmp/MmpParser';
 
 
 //TODO I had to pass both uri and fsPath, because I've not been able to find a parser that switches
@@ -17,7 +18,7 @@ import { MmpProofStep } from "../mmp/MmpProofStep";
 // client, because they are in different rootDir(s)
 // It would be nice to find an object that transforms form uri to path and pass only one of the two,
 // but the MmtSaver needs both formats
-export interface PathAndUri  {
+export interface PathAndUri {
 	uri: string;
 	fsPath: string;
 }
@@ -40,11 +41,16 @@ export class MmtSaver {
 
 	//#region tryToCreateTextToBeStored
 	buildUProof(mmpContent: string): UProof {
-		const mmpUnifier: MmpUnifier =
-			new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
-				this.mmParser.grammar, this.mmParser.workingVars, ProofMode.compressed);
+		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser.labelToStatementMap,
+			this.mmParser.outermostBlock,this.mmParser.grammar, this.mmParser.workingVars);
+		mmpParser.parse();
+		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed);
+		// const mmpUnifier: MmpUnifier =
+		// 	new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
+		// 		this.mmParser.grammar, this.mmParser.workingVars, ProofMode.compressed);
 		// if (this.mmParser.grammar != undefined) {
-		mmpUnifier.unify(mmpContent);
+		// mmpUnifier.unify(mmpContent);
+		mmpUnifier.unify();
 		return mmpUnifier.uProof!;
 		// }
 	}

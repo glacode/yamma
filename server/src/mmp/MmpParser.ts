@@ -411,7 +411,6 @@ export class MmpParser {
 		else if (nextProofStepTokens[0].value.startsWith('*'))
 			// currente statement is a comment
 			this.addComment(nextProofStepTokens);
-		//TODO1 use a constant for 'SearchStatement'
 		else if (nextProofStepTokens[0].value == MmpSearchStatement.searchSymbolsKeyword)
 			// current statement is a search statement
 			this.addSearchStatement(nextProofStepTokens);
