@@ -13,7 +13,7 @@ import { OrderedPairOfNodes, WorkingVarsUnifierFinder } from './WorkingVarsUnifi
 import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
 import { DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmpProofStep } from "./MmpProofStep";
-import { LabelSelector } from './LabelSelector';
+import { StepDerivation } from '../stepDerivation/StepDerivation';
 
 // Parser for .mmp files
 export class UProofTransformer {
@@ -24,6 +24,7 @@ export class UProofTransformer {
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
 	workingVars: WorkingVars;
+	private maxNumberOfHypothesisDispositionsForStepDerivation: number;
 	// the list of statements, after createMmpStatements() has been invoked
 	// mmpStatements: MmpStatement[] = []
 	// maps each proof step id to the proof step,  after createMmpStatements() has been invoked
@@ -44,14 +45,15 @@ export class UProofTransformer {
 
 	//#region constructor
 	constructor(uProof: UProof, labelToStatementMap: Map<string, LabeledStatement>,
-		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
+		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
+		maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 		// this.textDocument = textDocument
 		this.uProof = uProof;
 		this.labelToStatementMap = labelToStatementMap;
 		this.outermostBlock = outermostBlock;
 		this.grammar = grammar;
 		this.workingVars = workingVars;
-
+		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 		this._orderedPairsOfNodesForMGUalgorithm = [];
 	}
 
@@ -183,9 +185,10 @@ export class UProofTransformer {
 	private deriveStepLabelIfMissing(uStepIndex: number, mmpProofStep: MmpProofStep) {
 		//TODO1 try to write the Derive here!!!
 		if (mmpProofStep.stepLabel == undefined) {
-			const labelSelector: LabelSelector = new LabelSelector(this.uProof, uStepIndex, mmpProofStep,
-				this.outermostBlock, this.grammar, this.workingVars);
-			labelSelector.deriveLabelAndHypothesis();
+			const stepDerivation: StepDerivation = new StepDerivation(this.uProof, uStepIndex, mmpProofStep,
+				this.labelToStatementMap, this.outermostBlock, this.grammar, this.workingVars,
+				this.maxNumberOfHypothesisDispositionsForStepDerivation);
+			stepDerivation.deriveLabelAndHypothesis();
 		}
 	}
 	/**

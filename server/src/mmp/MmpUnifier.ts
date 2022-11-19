@@ -23,6 +23,7 @@ export class MmpUnifier {
 	grammar: Grammar;
 	workingVars: WorkingVars;
 	proofMode: ProofMode;
+	private maxNumberOfHypothesisDispositionsForStepDerivation: number;
 
 	/** the final proof produced with by the unify() method */
 	uProof: UProof | undefined
@@ -45,7 +46,7 @@ export class MmpUnifier {
 	//#region constructor
 	// constructor(labelToStatementMap: Map<string, LabeledStatement>, outermostBlock: BlockStatement,
 	// 	grammar: Grammar, workingVars: WorkingVars, proofMode: ProofMode, mmpParser?: MmpParser) {
-	constructor(mmpParser: MmpParser, proofMode: ProofMode) {
+	constructor(mmpParser: MmpParser, proofMode: ProofMode, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 		// this.textDocument = textDocument
 		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.uProof;
@@ -54,6 +55,8 @@ export class MmpUnifier {
 		this.grammar = mmpParser.grammar;
 		this.workingVars = mmpParser.workingVars;
 		this.proofMode = proofMode;
+		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
+
 		this.thrownError = false;
 	}
 
@@ -120,7 +123,7 @@ export class MmpUnifier {
 		//TODO1 see if this can be faster if done in the MmpParser
 		this.uProof!.updateAllWorkingVars();
 		const uProofTransformer: UProofTransformer = new UProofTransformer(this.uProof!, this.labelToStatementMap,
-			this.outermostBlock, this.grammar, this.workingVars);
+			this.outermostBlock, this.grammar, this.workingVars,this.maxNumberOfHypothesisDispositionsForStepDerivation);
 		// const newUProof: UProof = this.transformUProof(uProof);
 		uProofTransformer.transformUProof();
 		this.buildProofStatementIfProofIsComplete(this.uProof!);

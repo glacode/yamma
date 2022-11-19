@@ -4,7 +4,7 @@ import { Frame } from "./Frame";
 import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { IMmpStatementWithRange } from '../mmp/UStatement';
-import { concatWithSpaces, concatWithSpacesSkippingStart , arrayRange} from './Utils';
+import { concatWithSpaces, concatWithSpacesSkippingStart, arrayRange } from './Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { Range } from 'vscode-languageserver';
 
@@ -13,7 +13,7 @@ export abstract class Statement {
     outermostBlock?: BlockStatement;
     comment?: MmToken[];
 
-    constructor(parentBlock?: BlockStatement, comment?: MmToken[] ) {
+    constructor(parentBlock?: BlockStatement, comment?: MmToken[]) {
         this.ParentBlock = parentBlock;
         this.comment = comment;
         // assign this.outermostBlock if this is not the outermostBlock 
@@ -94,7 +94,7 @@ export abstract class LabeledStatement extends NonBlockStatement {
             parseNode = parser.results[0];
         } catch (error: any) {
             console.log("Unexpected error! - parseStrArray : " + stepFormulaString);
-            throw new Error("Unexpected error! - parseStrArray : " + stepFormulaString );
+            throw new Error("Unexpected error! - parseStrArray : " + stepFormulaString);
         }
         return parseNode;
     }
@@ -180,6 +180,32 @@ export class EHyp extends LabeledStatement {
 
 export abstract class AssertionStatement extends LabeledStatement {
     frame: Frame | undefined;
+
+    /** the suggested order to try step derivation */
+    private _eHypsOrderForStepDerivation: number[] | undefined;
+
+    //#region eHypsOrderForStepDerivation
+    setEHypsOrderForStepDerivation(): void {
+        //TODO1 this is a stub implementation
+        if (this.frame != undefined) {
+            const numOfEHyps: number = this.frame.eHyps.length;
+            Array.from(Array(numOfEHyps).keys());
+        }
+    }
+    /** the suggested order to try step derivation; the goal is to
+     * have fast failure if no derivation is possible. From heuristics,
+     * we first try the longest ones. Furthermore, EHyps with all logical vars
+     * substituted are tried first, because they can be addressed using maps (from
+     * formulas to MmpProofStep's; assuming the MmpProofStep to be derived
+     * has no working vars)
+     */
+    eHypsOrderForStepDerivation(): number[] | undefined {
+        if (this._eHypsOrderForStepDerivation == undefined)
+            // the orders has not been defined yet
+            this.setEHypsOrderForStepDerivation();
+        return this._eHypsOrderForStepDerivation!;
+    }
+    //#endregion eHypsOrderForStepDerivation
 
     constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
         super(label, content, parentBlock, comment);

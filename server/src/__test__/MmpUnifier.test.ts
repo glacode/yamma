@@ -439,10 +439,10 @@ test('expect wrong ref not to throw an exception', () => {
 //TODO1  change MmpUnifier.unify() to use a MmpParser
 test('LabelSelector 1', () => {
 	const mmpSource =
-		'h1::test.1 |- ph\n' +
-		'h2::test.2 |- ( ph -> ps )\n' +
-		'3:: |- ps\n';
-	'qed:: |- ch';
+		'h1::test.1 |- ps\n' +
+		'h2::test.2 |- ( ps -> ph )\n' +
+		'3:: |- ph\n' +
+		'qed:: |- ch';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
 		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
@@ -451,9 +451,9 @@ test('LabelSelector 1', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
-		'h1::test.1          |- ph\n' +
-		'h2::test.2          |- ( ph -> ps )\n' +
-		'3:1,2:ax-mp        |- ps\n';
-	'qed::              |- ch';
+		'h1::test.1          |- ps\n' +
+		'h2::test.2          |- ( ps -> ph )\n' +
+		'3:1,2:ax-mp        |- ph\n' +
+		'qed::              |- ch';
 	expect(textEdit.newText).toEqual(expectedText);
 });
