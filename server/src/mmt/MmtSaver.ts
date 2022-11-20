@@ -8,6 +8,7 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { IUStatement } from '../mmp/UStatement';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpParser } from '../mmp/MmpParser';
+import { Parameters } from '../general/Parameters';
 
 
 //TODO I had to pass both uri and fsPath, because I've not been able to find a parser that switches
@@ -42,9 +43,10 @@ export class MmtSaver {
 	//#region tryToCreateTextToBeStored
 	buildUProof(mmpContent: string): UProof {
 		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser.labelToStatementMap,
-			this.mmParser.outermostBlock,this.mmParser.grammar, this.mmParser.workingVars);
+			this.mmParser.outermostBlock, this.mmParser.grammar, this.mmParser.workingVars);
 		mmpParser.parse();
-		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed);
+		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
+			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
 		// const mmpUnifier: MmpUnifier =
 		// 	new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
 		// 		this.mmParser.grammar, this.mmParser.workingVars, ProofMode.compressed);

@@ -33,7 +33,7 @@ test('buildNewProof()', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	expect(mmpUnifier.uProof!.uStatements.length).toBe(2);
 	expect((<MmpProofStep>mmpUnifier.uProof!.uStatements[0]).stepLabel).toEqual('ax-mp');
 });
@@ -47,7 +47,7 @@ test('Unify ax-mp', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -68,7 +68,7 @@ test('Unify 2 ax-mp', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -89,7 +89,7 @@ test('Unify 3 ax-mp', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -111,7 +111,7 @@ test('Unify with working var ax-mp', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -132,7 +132,7 @@ test('Unify double ax-mp', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -155,7 +155,7 @@ test('Expect new ref to be d7', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -176,7 +176,7 @@ test('Expect new working var to be &W4', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -197,7 +197,7 @@ test('Complete ax-mp', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -218,7 +218,7 @@ test('Expect unify error to leave line unchanged', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -237,7 +237,7 @@ test('Expect 2 unify error to leave line unchanged', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -253,7 +253,7 @@ test('Expect impbii ref error to leave line unchanged', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
 		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -269,7 +269,7 @@ test('Expect long label to move the formula to new line', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
 		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -288,7 +288,7 @@ test('Expect ref error to leave line unchanged', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -307,7 +307,7 @@ test('unify a1i with already present working var', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
 		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -331,7 +331,7 @@ test('Expect comments to be left unchanged', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
 		parser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -354,7 +354,7 @@ test('expect2 x to unify with &S1', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser.labelToStatementMap, eqeq1iMmParser.outermostBlock,
 		eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(eqeq1iMmParser.labelToStatementMap, eqeq1iMmParser.outermostBlock,
 	// 	eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
 	mmpUnifier.unify();
@@ -376,7 +376,7 @@ test('expect &W1 and &W2 to be unified properly', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser.labelToStatementMap, eqeq1iMmParser.outermostBlock,
 		eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -394,7 +394,7 @@ test('expect ax6ev to be unified without loop', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap,
 		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -411,7 +411,7 @@ test('expect ax9v1 to be unified in a single step', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
 		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -429,7 +429,7 @@ test('expect wrong ref not to throw an exception', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
 		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -446,7 +446,7 @@ test('LabelSelector 1', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
 		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];

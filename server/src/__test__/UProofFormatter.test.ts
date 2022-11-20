@@ -57,7 +57,7 @@ test("Test simple indentation", () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
 		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
