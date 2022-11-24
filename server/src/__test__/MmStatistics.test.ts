@@ -1,5 +1,5 @@
 import { MmStatistics } from '../mm/MmStatistics';
-import { AssertionStatement } from '../mm/Statements';
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { impbiiMmParser } from './GlobalForTest.test';
 
 function symbolContainedInAssertion(symbolToAssertionMap: Map<string, Set<AssertionStatement>>,

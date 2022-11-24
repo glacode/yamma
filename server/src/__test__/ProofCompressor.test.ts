@@ -1,8 +1,14 @@
 import { BlockStatement } from "../mm/BlockStatement";
 import { Frame } from "../mm/Frame";
 import { ProofCompressor } from "../mmp/ProofCompressor";
-import { AssertionStatement, AxiomStatement, EHyp, FHyp, LabeledStatement, ProvableStatement, Statement } from "../mm/Statements";
+import { Statement } from "../mm/Statements";
+import { AxiomStatement } from "../mm/AxiomStatement";
+import { ProvableStatement } from "../mm/ProvableStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { splitToTokensDefault } from '../mm/Utils';
+import { FHyp } from '../mm/FHyp';
+import { EHyp } from '../mm/EHyp';
 
 //#region tests for getDecompressedIntsFromString
 test("C should return [3]", () => {

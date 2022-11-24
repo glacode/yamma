@@ -1,8 +1,10 @@
 import { BlockStatement } from "../mm/BlockStatement";
 import { Frame } from "../mm/Frame";
-import { AxiomStatement, FHyp, ProvableStatement } from "../mm/Statements";
+import { AxiomStatement } from "../mm/AxiomStatement";
+import { ProvableStatement } from "../mm/ProvableStatement";
 import { AreArrayTheSame, splitToTokensDefault } from "../mm/Utils";
 import { Verifier } from "../mm/Verifier";
+import { FHyp } from '../mm/FHyp';
 
 test("stack manipulation in the verification process. Step 5 at page 137 of the Metamath book",
     () => {

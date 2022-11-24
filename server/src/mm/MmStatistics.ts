@@ -1,7 +1,7 @@
 /** This class computes a number of theory related statistics */
 
 import { MmParser } from './MmParser';
-import { AssertionStatement } from './Statements';
+import { AssertionStatement } from "./AssertionStatement";
 
 export class MmStatistics {
 	mmParser: MmParser;

@@ -11,7 +11,8 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { BlockStatement } from '../mm/BlockStatement';
 import { Grammar } from 'nearley';
 import { ILabeledStatementSignature } from '../mmt/MmtParser';
-import { AssertionStatement, LabeledStatement } from '../mm/Statements';
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 
 
 export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSignature {

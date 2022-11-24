@@ -1,7 +1,7 @@
 import { CompletionItem, MarkupContent, MarkupKind } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { MmParser } from '../mm/MmParser';
-import { LabeledStatement } from '../mm/Statements';
+import { LabeledStatement } from "../mm/LabeledStatement";
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { OnHoverHandler } from './OnHoverHandler';
 

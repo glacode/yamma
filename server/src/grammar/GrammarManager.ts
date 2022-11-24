@@ -2,9 +2,12 @@
 import { Grammar, Postprocessor, Rule } from 'nearley';
 import { MmToken } from './MmLexer';
 import { InternalNode, ParseNode } from './ParseNode';
-import { AssertionStatement, AxiomStatement, FHyp, LabeledStatement } from '../mm/Statements';
+import { AxiomStatement } from "../mm/AxiomStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { concatWithSpaces } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
+import { FHyp } from '../mm/FHyp';
 
 
 

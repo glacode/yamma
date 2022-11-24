@@ -1,6 +1,6 @@
 //import '@types/jest'
 import { BlockStatement } from "../mm/BlockStatement";
-import { FHyp } from "../mm/Statements";
+import { FHyp } from '../mm/FHyp';
 import { splitToTokensDefault } from '../mm/Utils';
 
 test("lookup var",

@@ -6,7 +6,7 @@ import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
 import { CursorContext } from "../mmp/CursorContext";
 import { MmParser } from '../mm/MmParser';
 import { MmStatistics } from '../mm/MmStatistics';
-import { AssertionStatement } from '../mm/Statements';
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpStatistics } from '../mmp/MmpStatistics';

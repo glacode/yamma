@@ -1,6 +1,8 @@
 import { DisjointVarMap } from '../mm/DisjointVarMap';
 import { MmParser, MmParserErrorCode } from "../mm/MmParser";
-import { AssertionStatement, LabeledStatement, ProvableStatement } from '../mm/Statements';
+import { ProvableStatement } from "../mm/ProvableStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { TokenReader } from "../mm/TokenReader";
 import { doesDiagnosticsContain, rebuildOriginalStringFromTokens } from '../mm/Utils';
 import { vexTheoryMmParser } from './MmpProofStatement.test';

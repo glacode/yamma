@@ -1,6 +1,8 @@
 import { BlockStatement } from "./BlockStatement";
 import { DisjointVarMap } from './DisjointVarMap';
-import { AssertionStatement, EHyp, FHyp } from "./Statements";
+import { AssertionStatement } from "./AssertionStatement";
+import { EHyp } from './EHyp';
+import { FHyp } from './FHyp';
 
 // this class represents a Frame, as defined in section 4.2.7 of the Metamath book
 export class Frame {

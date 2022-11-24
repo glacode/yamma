@@ -7,7 +7,9 @@ import { MmpParserErrorCode } from './MmpParser';
 import { MmpProofStep } from "./MmpProofStep";
 import { MmpValidator } from './MmpValidator';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { LabeledStatement, AssertionStatement, EHyp } from '../mm/Statements';
+import { EHyp } from '../mm/Statements';
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { concatWithSpaces, AreArrayTheSame } from '../mm/Utils';
 
 

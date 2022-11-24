@@ -2,7 +2,7 @@ import { Grammar } from 'nearley';
 import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { AssertionStatement } from '../mm/Statements';
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { OrderedPairOfNodes } from './WorkingVarsUnifierFinder';
 import { MmpProofStep } from "./MmpProofStep";

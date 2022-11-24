@@ -12,13 +12,15 @@ export class OnDocumentFormattingHandler {
 	documents: TextDocuments<TextDocument>;
 	mmParser: MmParser;
 	configurationManager: ConfigurationManager;
+	maxNumberOfHypothesisDispositionsForStepDerivation: number;
 
 	constructor(params: DocumentFormattingParams, documents: TextDocuments<TextDocument>, mmParser: MmParser,
-		configurationManager: ConfigurationManager) {
+		configurationManager: ConfigurationManager, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 		this.params = params;
 		this.documents = documents;
 		this.mmParser = mmParser;
 		this.configurationManager = configurationManager;
+		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 	}
 
 	//#region  unify
@@ -31,7 +33,7 @@ export class OnDocumentFormattingHandler {
 		// 		this.mmParser.grammar, this.mmParser.workingVars, proofMode, GlobalState.lastMmpParser);
 		//TODO1 manage case GlobalState.lastMmpParser == undefined (invok unify only if it is not undefined) 
 		const mmpUnifier: MmpUnifier =
-			new MmpUnifier(GlobalState.lastMmpParser!, proofMode);
+			new MmpUnifier(GlobalState.lastMmpParser!, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation);
 		// const textToParse: string = textDocument.getText();
 		if (this.mmParser.grammar != undefined)
 			mmpUnifier.unify();

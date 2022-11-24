@@ -1,7 +1,10 @@
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { Frame } from '../mm/Frame';
 import { MmParser } from '../mm/MmParser';
-import { AssertionStatement, EHyp, FHyp, LabeledStatement, ProvableStatement, Statement, ZIStatement, ZRStatement } from '../mm/Statements';
+import { Statement, ZIStatement, ZRStatement } from '../mm/Statements';
+import { ProvableStatement } from "../mm/ProvableStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 import * as fs from 'fs';
 import { Verifier } from '../mm/Verifier';
 import { ProofCompressor } from '../mmp/ProofCompressor';
@@ -11,6 +14,8 @@ import { IFormulaClassifier } from './IFormulaClassifier';
 import { StepSuggestionTripleMap } from './StepSuggestionTripleMap';
 import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
 import { Grammar, Parser } from 'nearley';
+import { FHyp } from '../mm/FHyp';
+import { EHyp } from '../mm/EHyp';
 
 export interface IStepSuggestion {
 	completionItemKind: CompletionItemKind,
@@ -225,7 +230,7 @@ export class ModelBuilder {
 	}
 
 	protected buildStepSuggestionTripleMap() {
-				// const mmFilePath = __dirname.concat('/../../src/mmTestFiles/impbii.mm');
+		// const mmFilePath = __dirname.concat('/../../src/mmTestFiles/impbii.mm');
 		// const mmFilePath = '/home/mionome/Desktop/provashare/mmp/set.mm';
 		const theory: string = fs.readFileSync(this.mmFilePath, 'utf-8');
 		// const theory: string = readTestFile('impbii.mm');

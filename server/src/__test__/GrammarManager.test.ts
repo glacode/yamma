@@ -4,13 +4,15 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { MmLexer } from '../grammar/MmLexer';
 import { MmParser } from '../mm/MmParser';
 import { ParseNode } from '../grammar/ParseNode';
-import { AxiomStatement, FHyp, LabeledStatement } from '../mm/Statements';
+import { AxiomStatement } from "../mm/AxiomStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
 import { splitToTokensDefault } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { axmpTheory } from './MmParser.test';
 import { kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
 import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
 import { GlobalState } from '../general/GlobalState';
+import { FHyp } from '../mm/FHyp';
 
 
 /**

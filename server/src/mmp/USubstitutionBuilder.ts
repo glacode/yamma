@@ -4,9 +4,10 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { AssertionStatement, EHyp } from '../mm/Statements';
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { WorkingVars } from './WorkingVars';
 import { MmpProofStep } from "./MmpProofStep";
+import { EHyp } from '../mm/EHyp';
 
 
 export interface SubstitutionResult {

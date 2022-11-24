@@ -342,7 +342,8 @@ connection.onDocumentFormatting(
 		// return Promise.resolve(textEditArray);
 		if (GlobalState.mmParser != undefined) {
 			const onDocumentFormattingHandler: OnDocumentFormattingHandler =
-				new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager);
+				new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager,
+					Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
 			result = onDocumentFormattingHandler.unify();
 			unifyDoneButCursorPositionNotUpdatedYet = true;
 			// return onDocumentFormattingHandler.unify();

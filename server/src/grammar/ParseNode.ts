@@ -2,7 +2,8 @@ import { Grammar } from 'nearley';
 import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from './GrammarManager';
 import { MmToken } from './MmLexer';
-import { AxiomStatement, LabeledStatement } from '../mm/Statements';
+import { AxiomStatement } from "../mm/AxiomStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
 import { UProofStatementStep } from '../mmp/UStatement';
 
 export class InternalNode {
@@ -139,6 +140,12 @@ export class InternalNode {
 				});
 			}
 		});
+		return result;
+	}
+
+	/** the logical variables contained in this parse node */
+	logicalVariables(outermostBlockStatement: BlockStatement) : Set<string> {
+		const result: Set<string> = this.symbolsSubsetOf(outermostBlockStatement.v);
 		return result;
 	}
 

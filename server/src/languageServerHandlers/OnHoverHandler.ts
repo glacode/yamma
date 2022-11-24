@@ -2,8 +2,10 @@ import { HoverParams, Position, Range, TextDocuments } from 'vscode-languageserv
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { MmToken } from '../grammar/MmLexer';
 import { MmParser } from '../mm/MmParser';
-import { AssertionStatement, EHyp, LabeledStatement } from '../mm/Statements';
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { concatWithSpaces, rebuildOriginalStringFromTokens } from '../mm/Utils';
+import { EHyp } from '../mm/EHyp';
 
 export abstract class OnHoverHandler {
 	//#region GetContentValue

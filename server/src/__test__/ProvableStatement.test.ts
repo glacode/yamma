@@ -1,6 +1,6 @@
 import { BlockStatement } from "../mm/BlockStatement";
 import { MmToken } from '../grammar/MmLexer';
-import { ProvableStatement } from "../mm/Statements";
+import { ProvableStatement } from "../mm/ProvableStatement";
 import { splitToTokensDefault } from '../mm/Utils';
 
 

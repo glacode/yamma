@@ -1,5 +1,7 @@
 //import { Assertion } from "../app";
-import { LabeledStatement, ProvableStatement, Statement, ZIStatement, ZRStatement } from "../mm/Statements";
+import { Statement, ZIStatement, ZRStatement } from "../mm/Statements";
+import { ProvableStatement } from "../mm/ProvableStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
 import { BlockStatement } from "../mm/BlockStatement";
 import { Frame } from "../mm/Frame";
 import { Verifier } from '../mm/Verifier';

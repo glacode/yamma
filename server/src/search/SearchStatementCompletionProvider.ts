@@ -1,6 +1,6 @@
 import { CompletionItem } from 'vscode-languageserver';
 import { MmStatistics } from '../mm/MmStatistics';
-import { AssertionStatement } from '../mm/Statements';
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { intersection } from '../mm/Utils';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 

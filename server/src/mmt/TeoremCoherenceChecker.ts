@@ -1,6 +1,8 @@
 import { Diagnostic, Range } from 'vscode-languageserver';
 import { DisjointVarMap } from '../mm/DisjointVarMap';
-import { DisjVarUStatement, LabeledStatement, ProvableStatement } from '../mm/Statements';
+import { DisjVarUStatement } from '../mm/Statements';
+import { ProvableStatement } from "../mm/ProvableStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
 import { AreArrayTheSame, arrayRange, concatWithSpaces, fromTokensToStrings } from '../mm/Utils';
 import { MmpParserErrorCode } from '../mmp/MmpParser';
 import { MmpValidator } from '../mmp/MmpValidator';

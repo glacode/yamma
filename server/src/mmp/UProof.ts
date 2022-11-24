@@ -12,6 +12,7 @@ import { UProofFormatter } from './UProofFormatter';
 import { ITheoremSignature } from '../mmt/MmtParser';
 
 export class UProof implements ITheoremSignature {
+
 	outermostBlock: BlockStatement;
 	workingVars: WorkingVars;
 	maxRefAlreadyAssigned = 0;
@@ -71,6 +72,10 @@ export class UProof implements ITheoremSignature {
 		return pStat;
 	}
 
+	/** maps a (normalized) formula to the index of its MmpProofStep*/
+	formulaToProofStepMap: Map<string,number>;
+
+
 
 	constructor(outermostBlock: BlockStatement, workingVars: WorkingVars, startIndexForNewRefs?: number) {
 		this.outermostBlock = outermostBlock;
@@ -83,6 +88,7 @@ export class UProof implements ITheoremSignature {
 		this.disjVars = new DisjointVarMap();
 		this.eHyps = [];
 		this.disjVarUStatements = [];
+		this.formulaToProofStepMap = new Map<string,number>();
 	}
 
 

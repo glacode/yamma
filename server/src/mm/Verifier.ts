@@ -5,8 +5,13 @@ import { Frame } from "./Frame";
 import { MmParserErrorCode } from './MmParser';
 import { ParseError } from '../grammar/ParseErrors';
 import { ProofCompressor } from "../mmp/ProofCompressor";
-import { AssertionStatement, EHyp, FHyp, LabeledStatement, ProvableStatement, Statement, ZIStatement, ZRStatement } from "./Statements";
+import { Statement, ZIStatement, ZRStatement } from "./Statements";
+import { ProvableStatement } from "./ProvableStatement";
+import { LabeledStatement } from "./LabeledStatement";
+import { AssertionStatement } from "./AssertionStatement";
 import { AreArrayTheSame, concatWithSpaces, oneCharacterRange } from "./Utils";
+import { FHyp } from './FHyp';
+import { EHyp } from './EHyp';
 
 export class Verifier {
     diagnostics: Diagnostic[];

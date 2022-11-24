@@ -3,7 +3,10 @@ import * as readline from 'readline';
 import events = require('events');
 import { BlockStatement } from "./BlockStatement";
 import { Frame } from "./Frame";
-import { AssertionStatement, AxiomStatement, EHyp, FHyp, LabeledStatement, ProvableStatement } from "./Statements";
+import { AxiomStatement } from "./AxiomStatement";
+import { ProvableStatement } from "./ProvableStatement";
+import { LabeledStatement } from "./LabeledStatement";
+import { AssertionStatement } from "./AssertionStatement";
 import { TokenReader } from "./TokenReader";
 import { Verifier } from "./Verifier";
 import { MmToken } from '../grammar/MmLexer';
@@ -13,6 +16,8 @@ import { Range } from 'vscode-languageserver-textdocument';
 import { Diagnostic } from 'vscode-languageserver';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
+import { EHyp } from './EHyp';
+import { FHyp } from './FHyp';
 
 
 export enum MmParserErrorCode {

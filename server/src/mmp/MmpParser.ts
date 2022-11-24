@@ -6,7 +6,9 @@ import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { ProofStepFirstTokenInfo } from './MmpStatements';
 import { MmpProofStep } from "./MmpProofStep";
 import { MmpValidator } from './MmpValidator';
-import { AssertionStatement, EHyp, LabeledStatement, ProvableStatement } from '../mm/Statements';
+import { ProvableStatement } from "../mm/ProvableStatement";
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { range, oneCharacterRange, concatTokenValuesWithSpaces, concatWithSpaces, splitToTokensAllowingForEmptyValues, AreArrayTheSame, rebuildOriginalStringFromTokens } from '../mm/Utils';
 import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
@@ -21,6 +23,7 @@ import { DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
 import { TheoremCoherenceChecker } from '../mmt/TeoremCoherenceChecker';
 import { MmpSearchStatement } from './MmpSearchStatement';
+import { EHyp } from '../mm/EHyp';
 
 
 
@@ -226,6 +229,11 @@ export class MmpParser {
 			this.refToProofStepMap.set(proofStep.stepRefToken.value, proofStep);
 		}
 		// TODO handle case for proofStep.stepRef == undefined
+		if (proofStep.formula != undefined) {
+			const normalizedFormula: string = concatTokenValuesWithSpaces(proofStep.formula!);
+			const proofStatementIndex: number = this.uProof!.uStatements.length;
+			this.uProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
+		}
 	}
 
 	addDiagnosticForLabelAndEHypRefs(firstTokenEndPosition: Position, proofStepFirstTokenInfo: ProofStepFirstTokenInfo) {

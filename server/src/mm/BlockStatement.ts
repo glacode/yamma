@@ -2,7 +2,10 @@ import { Grammar } from 'nearley';
 import { DisjointVarMap } from './DisjointVarMap';
 import { MmToken } from '../grammar/MmLexer';
 import { MmParser } from './MmParser';
-import { Statement, FHyp, EHyp, LabeledStatement } from "./Statements";
+import { Statement } from "./Statements";
+import { LabeledStatement } from "./LabeledStatement";
+import { EHyp } from './EHyp';
+import { FHyp } from './FHyp';
 
 
 export class BlockStatement extends Statement {

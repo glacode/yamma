@@ -2,12 +2,13 @@ import { Grammar } from 'nearley';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode } from '../grammar/ParseNode';
 import { BlockStatement } from '../mm/BlockStatement';
-import { AssertionStatement, LabeledStatement } from '../mm/Statements';
+import { LabeledStatement } from "../mm/LabeledStatement";
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { MmpProofStep } from '../mmp/MmpProofStep';
 import { UProof } from '../mmp/UProof';
 import { USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { EHypsDerivation, IEHypsDerivationResult } from './EHypsDerivation';
+import { EHypsDerivation } from './EHypsDerivation';
 
 /** tries to derive a label for the given MmpProofStep */
 export class StepDerivation {
@@ -78,15 +79,18 @@ export class StepDerivation {
 	// }
 	//#endregion buildSubstitutionForCurrentHyp
 
-	tryEHypsDerivation(assertion: AssertionStatement): void {
+	tryEHypsDerivation(assertion: AssertionStatement, uSubstitutionBuilder: USubstitutionBuilder,
+		substitution: Map<string, InternalNode>): void {
 		const eHypsDerivation: EHypsDerivation = new EHypsDerivation(this.uProof, this.mmpProofStepIndex,
 			this.mmpProofStep, assertion, this.labelToStatementMap, this.outermostBlock,
-			this.grammar, this.workingVars, this.maxNumberOfHypothesisDispositionsForStepDerivation);
-		const eHypsDerivationResult: IEHypsDerivationResult = eHypsDerivation.searchEHyps();
-		if (eHypsDerivationResult.isSuccessful) {
+			this.grammar, this.workingVars, this.maxNumberOfHypothesisDispositionsForStepDerivation,
+			uSubstitutionBuilder,substitution);
+		// const eHypsDerivationResult: IEHypsDerivationResult = eHypsDerivation.searchEHyps();
+		eHypsDerivation.searchEHyps();
+		if (eHypsDerivation.eHypsDerivationResult.isSuccessful) {
 			this.mmpProofStep.stepLabel = assertion.Label;
 			// a valid permutation of mmpProofSteps has been found
-			this.mmpProofStep.eHypUSteps = eHypsDerivationResult.eHypsMmpProofSteps!;
+			this.mmpProofStep.eHypUSteps = eHypsDerivation.eHypsDerivationResult.eHypsMmpProofSteps!;
 		}
 
 		// let substitutionFound: boolean = true;
@@ -116,7 +120,7 @@ export class StepDerivation {
 				this.mmpProofStep.parseNode, substitution);
 		if (substitutionFound) {
 			// assertion.parseNode has been succesfully unified with this.mmpProofStep.parseNode
-			this.tryEHypsDerivation(assertion);
+			this.tryEHypsDerivation(assertion, uSubstitutionBuilder, substitution);
 		}
 	}
 	//#endregion tryCurrentAssertion

@@ -6,7 +6,7 @@ import { MmToken } from '../grammar/MmLexer';
 import { MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { InternalNode } from '../grammar/ParseNode';
-import { AssertionStatement } from './Statements';
+import { AssertionStatement } from "./AssertionStatement";
 import { UProof } from '../mmp/UProof';
 
 export interface DataFieldForMissingDjVarConstraintsDiagnostic {

@@ -3,7 +3,7 @@ import { Connection, Position, Range, TextEditChange, WorkspaceChange } from 'vs
 import { GlobalState } from '../general/GlobalState';
 import { MmToken } from '../grammar/MmLexer';
 import { MmStatistics } from '../mm/MmStatistics';
-import { AssertionStatement } from '../mm/Statements';
+import { AssertionStatement } from "../mm/AssertionStatement";
 import { oneCharacterRange } from '../mm/Utils';
 import { CursorContext } from '../mmp/CursorContext';
 import { MmpParser } from '../mmp/MmpParser';
