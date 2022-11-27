@@ -6,7 +6,7 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
+import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
 import { axmpTheory } from './MmParser.test';
 import { mp2Theory } from './MmpParser.test';
 import { vexTheoryMmParser } from './MmpProofStatement.test';
@@ -103,9 +103,10 @@ test('Unify 3 ax-mp', () => {
 
 test('Unify with working var ax-mp', () => {
 	const mmpSource =
-		'1:: |- ps\n' +
-		'2:: |- &W1\n' +
-		'qed:1,2:ax-mp |- ph\n';
+		'h1::a |- ps\n' +
+		'h2::b |- &W1\n' +
+		'5:1,2:ax-mp |- ph\n' +
+		'qed::d |- ps\n';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
@@ -116,9 +117,10 @@ test('Unify with working var ax-mp', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
-		'1::                 |- ps\n' +
-		'2::                 |- ( ps -> ph )\n' +
-		'qed:1,2:ax-mp      |- ph\n';
+		'h1::a               |- ps\n' +
+		'h2::b               |- ( ps -> ph )\n' +
+		'5:1,2:ax-mp        |- ph\n' +
+		'qed::d             |- ps\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -298,6 +300,7 @@ test('Expect ref error to leave line unchanged', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
+//TODO1
 test('unify a1i with already present working var', () => {
 	const mmpSource =
 		'a::a1i |- &W1\n' +
@@ -436,17 +439,33 @@ test('expect wrong ref not to throw an exception', () => {
 	expect(textEdit.newText).toEqual(mmpSource);
 });
 
+test('MmpParser.uProof.formulaToProofStepMap 1', () => {
+	const mmpSource =
+		'h1:: |- ps\n' +
+		'* comment\n' +
+		'h2:: |- ( ps -> ph )\n' +
+		'3:: |- ph\n' +
+		'qed:: |- ch';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
+		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const indexPs: number | undefined = mmpParser.uProof!.formulaToProofStepMap.get('|- ps');
+	expect(indexPs).toBe(0);
+	const indexWi: number | undefined = mmpParser.uProof!.formulaToProofStepMap.get('|- ( ps -> ph )');
+	expect(indexWi).toBe(2);
+});
+
 //TODO1  change MmpUnifier.unify() to use a MmpParser
-test('LabelSelector 1', () => {
+test('StepDerivation 1', () => {
 	const mmpSource =
 		'h1::test.1 |- ps\n' +
 		'h2::test.2 |- ( ps -> ph )\n' +
 		'3:: |- ph\n' +
 		'qed:: |- ch';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
-		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
+		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -454,6 +473,6 @@ test('LabelSelector 1', () => {
 		'h1::test.1          |- ps\n' +
 		'h2::test.2          |- ( ps -> ph )\n' +
 		'3:1,2:ax-mp        |- ph\n' +
-		'qed::              |- ch';
+		'qed::              |- ch\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });

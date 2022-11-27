@@ -33,7 +33,9 @@ export class MmParser {
     //    blockStack: BlockStack
     outermostBlock: BlockStatement
     labelToStatementMap: Map<string, LabeledStatement>;  // maps each label to its statement
-    labelToAssertionMap: Map<string, AssertionStatement>;
+
+    /** it will contain a map to assertions that are NOT for syntax expression */
+    labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>;
     lastComment: string;
     isParsingComplete = false;
 
@@ -57,7 +59,7 @@ export class MmParser {
     //TODO now we are passing working vars defined in the configuration file, but in the future
     //this could/should be driven from $j comments in the theory itself
     /** returns the WorkingVars class for this theory */
-    public get workingVars() : WorkingVars {
+    public get workingVars(): WorkingVars {
         if (this._workingVars == undefined) {
             let kindToPrefixMap: Map<string, string> = new Map<string, string>();
             if (GlobalState.lastFetchedSettings != undefined && GlobalState.lastFetchedSettings.variableKindsConfiguration != undefined)
@@ -74,7 +76,7 @@ export class MmParser {
     constructor() {
         this.outermostBlock = new BlockStatement();
         this.labelToStatementMap = new Map<string, LabeledStatement>();
-        this.labelToAssertionMap = new Map<string, AssertionStatement>();
+        this.labelToNonSyntaxAssertionMap = new Map<string, AssertionStatement>();
         this.lastComment = "";
         this.parseFailed = false;
 
@@ -166,7 +168,8 @@ export class MmParser {
         Frame.createFrame(statement);
         currentBlock.labelToStatementMap.set(label.value, statement);
         this.labelToStatementMap.set(label.value, statement);
-        this.labelToAssertionMap.set(label.value, statement);
+        if (!GrammarManager.isSyntaxAxiom2(statement))
+            this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
     }
     addEStatement(label: MmToken | undefined, toks: TokenReader, currentBlock: BlockStatement) {
@@ -207,7 +210,7 @@ export class MmParser {
         this.parseFailed ||= verifier.verificationFailed;
 
         this.labelToStatementMap.set(label.value, statement);
-        this.labelToAssertionMap.set(label.value, statement);
+        this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
     }
     buildLabelToStatementMap(toks: TokenReader, currentBlock?: BlockStatement) {

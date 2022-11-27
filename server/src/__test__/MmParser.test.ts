@@ -52,6 +52,7 @@ test("Parsing axmp", () => {
     parser.ParseText(axmpTheory);
     expect(parser.diagnostics.length).toBe(0);
     expect(parser.labelToStatementMap.size).toBe(6);
+    expect(parser.labelToNonSyntaxAssertionMap.size).toBe(1);
 });
 
 test("Test anatomy - expect success", () => {

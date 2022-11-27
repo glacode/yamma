@@ -193,7 +193,7 @@ export class StepSuggestion {
 		const c2: string = partialLabel[2];
 		const regExp = new RegExp(`.*${c0}.*${c1}.*${c2}.*`);
 		let i = 0;
-		this.mmParser.labelToAssertionMap.forEach((_assertion: AssertionStatement, label: string) => {
+		this.mmParser.labelToNonSyntaxAssertionMap.forEach((_assertion: AssertionStatement, label: string) => {
 			// if (label.indexOf(filteringString) != -1) {
 			if (regExp.test(label))
 				// the current assertion's label contains the partial label input by the user

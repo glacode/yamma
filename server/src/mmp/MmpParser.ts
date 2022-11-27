@@ -231,7 +231,7 @@ export class MmpParser {
 		// TODO handle case for proofStep.stepRef == undefined
 		if (proofStep.formula != undefined) {
 			const normalizedFormula: string = concatTokenValuesWithSpaces(proofStep.formula!);
-			const proofStatementIndex: number = this.uProof!.uStatements.length;
+			const proofStatementIndex: number = this.uProof!.uStatements.length -1 ;
 			this.uProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
 		}
 	}

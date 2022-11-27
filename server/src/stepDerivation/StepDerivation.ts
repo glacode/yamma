@@ -44,7 +44,9 @@ export class StepDerivation {
 
 	//#region isWorstCaseTooSlow
 	computeNumberOfHypothesisDispositions(assertion: AssertionStatement): number {
-		const numberOfHypothesisDispositions: number = Math.pow(this.mmpProofStepIndex, assertion.frame!.eHyps.length);
+		// const numberOfHypothesisDispositions: number = Math.pow(this.mmpProofStepIndex, assertion.frame!.eHyps.length);
+		const numberOfHypothesisDispositions: number = Math.pow(this.mmpProofStepIndex,
+			assertion.eHypsWithAdditionalVariablesToBeUnifiedForStepDerivation!);
 		return numberOfHypothesisDispositions;
 	}
 	private isWorstCaseTooSlow(assertion: AssertionStatement): boolean {
@@ -84,7 +86,7 @@ export class StepDerivation {
 		const eHypsDerivation: EHypsDerivation = new EHypsDerivation(this.uProof, this.mmpProofStepIndex,
 			this.mmpProofStep, assertion, this.labelToStatementMap, this.outermostBlock,
 			this.grammar, this.workingVars, this.maxNumberOfHypothesisDispositionsForStepDerivation,
-			uSubstitutionBuilder,substitution);
+			uSubstitutionBuilder, substitution);
 		// const eHypsDerivationResult: IEHypsDerivationResult = eHypsDerivation.searchEHyps();
 		eHypsDerivation.searchEHyps();
 		if (eHypsDerivation.eHypsDerivationResult.isSuccessful) {
@@ -143,11 +145,8 @@ export class StepDerivation {
 			// this.mmpProofStep.eHypUSteps.push(<MmpProofStep>this.uProof.uStatements[0]);
 			// this.mmpProofStep.eHypUSteps.push(<MmpProofStep>this.uProof.uStatements[1]);
 			// this.mmpProofStep.stepLabel = 'ax-mp';
-			//TODO1 remove the commented code below
-			if (this.mmpProofStep.stepLabel == undefined)
-				for (const [_label, labeledStatement] of this.labelToStatementMap) {
-					this.tryCurrentLabeledStatement(labeledStatement);
-				}
+			for (const [_label, labeledStatement] of this.labelToStatementMap)
+				this.tryCurrentLabeledStatement(labeledStatement);
 		}
 	}
 	//#endregion deriveLabelAndHypothesis

@@ -32,7 +32,7 @@ export class MmStatistics {
 	 */
 	public buildStatistics() {
 		this.symbolToAssertionsMap = new Map<string, Set<AssertionStatement>>();
-		this.mmParser.labelToAssertionMap.forEach((assertion: AssertionStatement) => {
+		this.mmParser.labelToNonSyntaxAssertionMap.forEach((assertion: AssertionStatement) => {
 			this.buildStatisticsForAssertion(assertion);
 		});
 	}

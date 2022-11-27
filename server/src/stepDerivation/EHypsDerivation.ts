@@ -88,13 +88,14 @@ export class EHypsDerivation {
 			if (currentEHypIndexForStepDerivation >= this.assertion.frame!.eHyps.length)
 				// there is no more EHyp to unify
 				this.eHypsDerivationResult.isSuccessful = true;
-			else
-				this.searchEHypsRecursive(currentEHypIndexForStepDerivation++);
-			if (this.eHypsDerivationResult.isSuccessful)
-				this.eHypsDerivationResult.eHypsMmpProofSteps[currentEHypRealIndex] = eHypProofStepCandidate;
+			else {
+				this.searchEHypsRecursive(currentEHypIndexForStepDerivation + 1);
+				if (this.eHypsDerivationResult.isSuccessful)
+					this.eHypsDerivationResult.eHypsMmpProofSteps[currentEHypRealIndex] = eHypProofStepCandidate;
+				else
+					this.removeSubstitutionForCurrentEHypIndex(currentEHypIndexForStepDerivation);
+			}
 		}
-		else
-			this.removeSubstitutionForCurrentEHypIndex(currentEHypIndexForStepDerivation);
 	}
 
 	/** this method is invoked when the current EHyp requires additional logical
@@ -122,7 +123,7 @@ export class EHypsDerivation {
 		//TODO1
 		const parseNode: InternalNode =
 			USubstitutionApplier.createParseNodeForInternalNode(currentEHyp.parseNode, this.substitution, this.outermostBlock);
-		const formula: string =	parseNode.stringFormula;
+		const formula: string = parseNode.stringFormula;
 		return formula;
 	}
 	/** invoked when the current EHypStep does not require additional logical
@@ -137,7 +138,7 @@ export class EHypsDerivation {
 			// a previous MmpProof step has been found that unifies with the current EHyp
 			const eHypProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[eHypProofStepIndex];
 			this.eHypsDerivationResult.eHypsMmpProofSteps[currentEHypRealIndex] = eHypProofStep;
-			if (currentEHypIndexForStepDerivation >= this.assertion.frame!.eHyps.length)
+			if (currentEHypIndexForStepDerivation >= this.assertion.frame!.eHyps.length - 1)
 				// there is no more EHyp to unify
 				this.eHypsDerivationResult.isSuccessful = true;
 			else

@@ -7,10 +7,10 @@ import { MmpParserErrorCode } from './MmpParser';
 import { MmpProofStep } from "./MmpProofStep";
 import { MmpValidator } from './MmpValidator';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { EHyp } from '../mm/Statements';
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { concatWithSpaces, AreArrayTheSame } from '../mm/Utils';
+import { EHyp } from '../mm/EHyp';
 
 
 //TODO remove this file (you are keeping it just to see if some specific diagnostic can

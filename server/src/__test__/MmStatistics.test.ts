@@ -5,7 +5,7 @@ import { impbiiMmParser } from './GlobalForTest.test';
 function symbolContainedInAssertion(symbolToAssertionMap: Map<string, Set<AssertionStatement>>,
 	symbol: string, assertionLabel: string): boolean {
 	const assertionsContainingSymbol: Set<AssertionStatement> = symbolToAssertionMap.get(symbol)!;
-	const assertion: AssertionStatement = impbiiMmParser.labelToAssertionMap.get(assertionLabel)!;
+	const assertion: AssertionStatement = impbiiMmParser.labelToNonSyntaxAssertionMap.get(assertionLabel)!;
 	const isContained: boolean = assertionsContainingSymbol.has(assertion);
 	return isContained;
 }
@@ -21,9 +21,7 @@ test('statisics for impbii.mm', () => {
 	expect(symbolContainedInAssertion(symbolToAssertionMap, 'ps', 'ax-mp')).toBeTruthy();
 	expect(symbolContainedInAssertion(symbolToAssertionMap, '(', 'mpd')).toBeTruthy();
 	expect(symbolContainedInAssertion(symbolToAssertionMap, 'th', 'ax-mp')).toBeFalsy();
-	//TODO1 decide if you want to exclude these syntax axioms; use
-	// !GrammarManager.isSyntaxAxiom2() to exclude syntax axioms
-	expect(symbolContainedInAssertion(symbolToAssertionMap, '(', 'wi')).toBeTruthy();
+	expect(symbolContainedInAssertion(symbolToAssertionMap, '(', 'wi')).toBeFalsy();
 
 	const assetionsContainingTh: Set<AssertionStatement> = symbolToAssertionMap.get('th')!;
 	expect(assetionsContainingTh.size).toBe(4);
