@@ -22,8 +22,7 @@ test("Expect Disjoint Constraint violation", () => {
 		"qed:ax-5 |- ( x e. A -> A. x x e. A )";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(new Map<string, string>()));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.djVarsRestrictionViolated)).toBeTruthy();
@@ -62,8 +61,7 @@ test("Expect y Disjoint Constraint violation", () => {
 		"qed:ax-5 |- ( y e. A -> A. y y e. A )";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(new Map<string, string>()));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.djVarsRestrictionViolated)).toBeTruthy();
@@ -93,8 +91,7 @@ test("Parse Disjoint Vars", () => {
 		"$d x y";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(new Map<string, string>()));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.uProof!.containsDjVarStatement("A", "x")).toBeTruthy();
@@ -109,8 +106,7 @@ test("Expect Disjoint Var automatic completion ", () => {
 		"qed:ax-5 |- ( y e. A -> A. x y e. A )";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(new Map<string, string>()));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.missingDjVarsStatement)).toBeTruthy();

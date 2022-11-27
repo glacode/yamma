@@ -20,8 +20,7 @@ test("test 1 SyntaxTreeClassifierFull", () => {
 		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
 	// opthg2 $p | - ((C e.V /\ D e.W ) ->
 	// 	(<.A , B >. = <.C , D >. <-> (A = C /\ B = D ) ) ) $ =
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser.labelToStatementMap,
-		opelcnMmParser.outermostBlock, opelcnMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const cursorContext: CursorContext = new CursorContext(2, 4, mmpParser);
@@ -55,8 +54,7 @@ test("test 2 SyntaxTreeClassifierFull and SyntaxTreeClassifierImp", () => {
 		'50::df-c |- CC = ( R. X. R. )\n' +
 		'52:: |- ( -. &W1 -> -. &W3 )\n' +
 		'qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser.labelToStatementMap,
-		opelcnMmParser.outermostBlock, opelcnMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const cursorContext: CursorContext = new CursorContext(1, 4, mmpParser);
@@ -125,8 +123,7 @@ test("test completion items from partial label", () => {
 		'50::df-c |- CC = ( R. X. R. )\n' +
 		'52::coi |- ( -. &W1 -> -. &W3 )\n' +
 		'qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser.labelToStatementMap,
-		opelcnMmParser.outermostBlock, opelcnMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const cursorContext: CursorContext = new CursorContext(1, 4, mmpParser);

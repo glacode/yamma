@@ -23,8 +23,7 @@ test("Test UProofFormatter.computeIndentationLevels()", () => {
 		"53:50,52:ax-mp |- ( ps -> ch )\n" +
 		"qed:51,53:ax-mp |- ch";
 
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap,
-		mp2MmParser.outermostBlock, mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const uProofFormatter: TestUProofFormatter = new TestUProofFormatter(mmpParser.uProof!);
 	uProofFormatter.computeIndentationLevels();
@@ -54,8 +53,7 @@ test("Test simple indentation", () => {
 		"qed:51,53:ax-mp |- ch";
 	// const parser: MmParser = mp2MmParser;
 	// parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
-		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();

@@ -42,8 +42,9 @@ export class MmtSaver {
 
 	//#region tryToCreateTextToBeStored
 	buildUProof(mmpContent: string): UProof {
-		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser.labelToStatementMap,
-			this.mmParser.outermostBlock, this.mmParser.grammar, this.mmParser.workingVars);
+		// const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser.labelToStatementMap,
+		// 	this.mmParser.outermostBlock, this.mmParser.grammar, this.mmParser.workingVars);
+		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser, this.mmParser.workingVars);
 		mmpParser.parse();
 		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
 			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);

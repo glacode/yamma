@@ -29,8 +29,7 @@ test("expect proper string for search command", () => {
 		'51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
 		'52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
 		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser.labelToStatementMap,
-		opelcnMmParser.outermostBlock, opelcnMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.uProof?.uStatements[2];
 	const mmStatistics: MmStatistics = new MmStatistics(opelcnMmParser);

@@ -11,8 +11,7 @@ test('CursorContext 1', () => {
 		'52::           |- ( ( ph -> ps ) ->\n' +
 		'                       ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
 		'qed:50,51,52:mp2   |- ( ph <->   )';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const cursorContextSearch: CursorContext = new CursorContext(2, 5, mmpParser);
 	cursorContextSearch.buildContext();

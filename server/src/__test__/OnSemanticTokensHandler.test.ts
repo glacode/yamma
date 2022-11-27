@@ -32,8 +32,7 @@ test('semantic tokens', () => {
 		1, 2, 1, 2, 0,  // third x : 2 stands for 'string' i.e. 'setvar'
 		0, 2, 1, 2, 0  // y : 2 stands for 'string' i.e. 'setvar'
 	];
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser.labelToStatementMap,
-		opelcnMmParser.outermostBlock, opelcnMmParser.grammar, opelcnMmParser.workingVars);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, opelcnMmParser.workingVars);
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const semanticTokenParams: SemanticTokensParams = { textDocument: { uri: '' } };

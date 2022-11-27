@@ -24,6 +24,7 @@ import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
 import { TheoremCoherenceChecker } from '../mmt/TeoremCoherenceChecker';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { EHyp } from '../mm/EHyp';
+import { MmParser } from '../mm/MmParser';
 
 
 
@@ -83,21 +84,22 @@ export class MmpParser {
 	uProof: UProof | undefined;
 
 	//#region constructor
-	constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
-		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
-		// this.textDocument = textDocument;
-		this.textToParse = textToParse;
-		this.labelToStatementMap = labelToStatementMap;
-		this.outermostBlock = outermostBlock;
-		this.grammar = grammar;
-		this.workingVars = workingVars;
+	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
+	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
+		constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars) {
+			// this.textDocument = textDocument;
+			this.textToParse = textToParse;
+			this.labelToStatementMap = mmParser.labelToStatementMap;
+			this.outermostBlock = mmParser.outermostBlock;
+			this.grammar = mmParser.grammar;
+			this.workingVars = workingVars;
 
-		// this.mmParser = mmParser;
-		this.refToProofStepMap = new Map<string, MmpProofStep>();
-		// const textToParse: string = textDocument.getText();
-		//this.createMmpStatements(textToParse);
-		this._orderedPairsOfNodesForMGUalgorithm = [];
-	}
+			// this.mmParser = mmParser;
+			this.refToProofStepMap = new Map<string, MmpProofStep>();
+			// const textToParse: string = textDocument.getText();
+			//this.createMmpStatements(textToParse);
+			this._orderedPairsOfNodesForMGUalgorithm = [];
+		}
 
 	private addDiagnosticError(message: string, range: Range, code: MmpParserErrorCode) {
 		MmpValidator.addDiagnosticError(message, range, code, this.diagnostics);
@@ -231,7 +233,7 @@ export class MmpParser {
 		// TODO handle case for proofStep.stepRef == undefined
 		if (proofStep.formula != undefined) {
 			const normalizedFormula: string = concatTokenValuesWithSpaces(proofStep.formula!);
-			const proofStatementIndex: number = this.uProof!.uStatements.length -1 ;
+			const proofStatementIndex: number = this.uProof!.uStatements.length - 1;
 			this.uProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
 		}
 	}

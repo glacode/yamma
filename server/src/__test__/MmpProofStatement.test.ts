@@ -47,8 +47,7 @@ test("Build proof for mp2", () => {
 		"qed:51,53:ax-mp |- ch";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -133,8 +132,7 @@ test("Build Compressed proof for mp2", () => {
 		"qed:51,53:ax-mp |- ch";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
 	mmpUnifier.unify();
@@ -182,8 +180,7 @@ test("id - Build Compressed proof for id", () => {
 		"qed:50,51:mpd |- ( ph -> ph )";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(idTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
 	mmpUnifier.unify();
@@ -202,8 +199,7 @@ test("alnex - Build normal proof for alnex", () => {
 	const mmpSource =
 		"50::df-ex |- ( E. x ph <-> -. A. x -. ph )\n" +
 		"qed:50:con2bii |- ( A. x -. ph <-> -. E. x ph )";
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -224,8 +220,7 @@ test("vex - Build normal proof for vex", () => {
 		"51::df-v |- _V = { x | x = x }\n" +
 		"52:51:abeq2i |- ( x e. _V <-> x = x )\n" +
 		"qed:50,52:mpbir |- x e. _V";
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap,
-		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -260,8 +255,7 @@ test("vex - Build Compressed proof for vex", () => {
 		"51::df-v |- _V = { x | x = x }\n" +
 		"52:51:abeq2i |- ( x e. _V <-> x = x )\n" +
 		"qed:50,52:mpbir |- x e. _V";
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
 	mmpUnifier.unify();
@@ -284,8 +278,7 @@ test("Build normal proof for use of ax-5", () => {
 		"$d A y\n";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -305,8 +298,7 @@ test("Expect proof not to be produced for Disj Var Violation", () => {
 	const mmpSource = 'qed::ax-5 |- ( y e. A -> A. y y e. A )\n';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
@@ -325,8 +317,7 @@ test("Expect 2 proof not to be produced for missing Disj Var statement", () => {
 	const mmpSource = "qed::ax-5 |- ( x e. A -> A. y x e. A )\n";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
 	mmpUnifier.unify();
@@ -344,8 +335,7 @@ test("Build compressed proof for use of ax-5", () => {
 		"$d A y\n";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
 	mmpUnifier.unify();
@@ -374,8 +364,7 @@ test("Format equvinv compressed proof", () => {
 		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
 		'$d x z\n' +
 		'$d y z\n';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
 	mmpUnifier.unify();
@@ -403,8 +392,7 @@ test("Format equvinv compressed proof", () => {
 	Parameters.defaultRightMarginForCompressedProofs = 30;
 
 
-	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap,
-		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 
 	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.compressed, 0);

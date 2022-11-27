@@ -12,8 +12,7 @@ test("MmpSearchStatement", () => {
 		'  X.   SearchComment: \n' +
 		'52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
 		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser.labelToStatementMap,
-		opelcnMmParser.outermostBlock, opelcnMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const searchStatement: IUStatement | undefined = mmpParser.uProof?.uStatements[2];
 	expect(searchStatement instanceof MmpSearchStatement).toBeTruthy();

@@ -46,8 +46,7 @@ test('expect syntax completion ordered by popularity', () => {
 		'52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
 		'qed:50,51,52:mp2   |- ( ph <->   )';
 	//           cursor context is here ^
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap,
-		impbiiMmParser.outermostBlock, impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmStatistics: MmStatistics = new MmStatistics(impbiiMmParser);
 	mmStatistics.buildStatistics();

@@ -30,8 +30,7 @@ test('buildNewProof()', () => {
 		'qed:: |- ps';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	expect(mmpUnifier.uProof!.uStatements.length).toBe(2);
@@ -44,8 +43,7 @@ test('Unify ax-mp', () => {
 		'qed:: |- ps';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -65,8 +63,7 @@ test('Unify 2 ax-mp', () => {
 		'qed::ax-mp |- ph';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -86,8 +83,7 @@ test('Unify 3 ax-mp', () => {
 		'qed:,50:ax-mp |- ph';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -109,8 +105,7 @@ test('Unify with working var ax-mp', () => {
 		'qed::d |- ps\n';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -131,8 +126,7 @@ test('Unify double ax-mp', () => {
 		'qed:,50:ax-mp |- ph';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -154,8 +148,7 @@ test('Expect new ref to be d7', () => {
 		'qed:,d6:ax-mp    |- ph\n';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -175,8 +168,7 @@ test('Expect new working var to be &W4', () => {
 		'qed::ax-mp  |- ph';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -196,8 +188,7 @@ test('Complete ax-mp', () => {
 		'qed:ax-mp |- ( ps -> ph )';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -217,8 +208,7 @@ test('Expect unify error to leave line unchanged', () => {
 		'qed:: |- ps';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -236,8 +226,7 @@ test('Expect 2 unify error to leave line unchanged', () => {
 	const mmpSource = 'qed::ax-mp |- M e. ZZ';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -252,8 +241,7 @@ test('Expect 2 unify error to leave line unchanged', () => {
 test('Expect impbii ref error to leave line unchanged', () => {
 	// we've decided not to remove the wrong ref
 	const mmpSource = 'qed:5:impbii |- ch';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
-		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -268,8 +256,7 @@ test('Expect impbii ref error to leave line unchanged', () => {
 test('Expect long label to move the formula to new line', () => {
 	// we've decided not to remove the wrong ref
 	const mmpSource = 'qed::exactlonglabel |- ch';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
-		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -287,8 +274,7 @@ test('Expect ref error to leave line unchanged', () => {
 	const mmpSource = 'qed:5:ax-mp |- ch';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -307,8 +293,7 @@ test('unify a1i with already present working var', () => {
 		'qed:: |- ch';
 	// const impbiiMmParser: MmParser = new MmParser();
 	// impbiiMmParser.ParseText(impbiiTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser.labelToStatementMap, impbiiMmParser.outermostBlock,
-		impbiiMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -331,8 +316,7 @@ test('Expect comments to be left unchanged', () => {
 		'qed:5:ax-mp |- ch';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock,
-		parser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -354,8 +338,7 @@ test('expect2 x to unify with &S1', () => {
 		'd2:: |- x = &C2\n' +
 		'd1:d2:eqeq1i |- ( &S1 = &C3 <-> &C2 = &C3 )\n' +
 		'qed: |- ch';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser.labelToStatementMap, eqeq1iMmParser.outermostBlock,
-		eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(eqeq1iMmParser.labelToStatementMap, eqeq1iMmParser.outermostBlock,
@@ -376,8 +359,7 @@ test('expect &W1 and &W2 to be unified properly', () => {
 		'd1:: |- ( ch -> &W2 )\n' +
 		'd2:: |- ( ( &W1 -> ps ) -> ph )\n' +
 		'qed:d1,d2:ax-mp |- ph\n';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser.labelToStatementMap, eqeq1iMmParser.outermostBlock,
-		eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -394,8 +376,7 @@ test('expect ax6ev to be unified without loop', () => {
 	const mmpSource =
 		'd2::ax6ev |- E. &S1 &W1\n' +
 		'qed: |- ch\n';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap,
-		vexTheoryMmParser.outermostBlock, vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -411,8 +392,7 @@ test('expect ax9v1 to be unified in a single step', () => {
 	const mmpSource =
 		'd5::ax9v1 |- ( &W5 -> ( &W4 -> z e. y ) )\n' +
 		'qed: |- ch\n';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -429,8 +409,7 @@ test('expect wrong ref not to throw an exception', () => {
 		'd2::                |- &W1\n' +
 		'd3::               |- ( &W1 -> ch )\n' +
 		'd1:d2,d3a:ax-mp    |- ch\n';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser.labelToStatementMap, vexTheoryMmParser.outermostBlock,
-		vexTheoryMmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -446,8 +425,7 @@ test('MmpParser.uProof.formulaToProofStepMap 1', () => {
 		'h2:: |- ( ps -> ph )\n' +
 		'3:: |- ph\n' +
 		'qed:: |- ch';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
-		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const indexPs: number | undefined = mmpParser.uProof!.formulaToProofStepMap.get('|- ps');
 	expect(indexPs).toBe(0);
@@ -462,8 +440,7 @@ test('StepDerivation 1', () => {
 		'h2::test.2 |- ( ps -> ph )\n' +
 		'3:: |- ph\n' +
 		'qed:: |- ch';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser.labelToStatementMap, mp2MmParser.outermostBlock,
-		mp2MmParser.grammar, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
 	mmpUnifier.unify();

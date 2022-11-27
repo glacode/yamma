@@ -61,23 +61,17 @@ export class MmpUnifier {
 	}
 
 	//#region buildUstatements
-	parse(textToParse: string): MmpParser {
-		const mmpParser: MmpParser = new MmpParser(textToParse, this.labelToStatementMap, this.outermostBlock,
-			this.grammar, this.workingVars);
-		// const outermostBlock: BlockStatement = new BlockStatement(null);
-		mmpParser.parse();
-		return mmpParser;
-	}
-	protected buildUProof(textToParse: string): UProof {
-		const mmpParser: MmpParser = this.parse(textToParse);
-		// this.buildMmpStatements(textToParse, mmpStatements, refToProofStepMap);
-		// const uProof: UProof = UProof.createUProofFromMmpProof(
-		// 	mmpParser.mmpStatements);
-		const uProof: UProof = <UProof>mmpParser.uProof;
-		// the MmpParser could have computed working vars with indexes larger than those in the proof (in order
-		// to provide better diagnostic messages); thus the actual working vars need to be computed again
-		return uProof;
-	}
+	// parse(textToParse: string): MmpParser {
+	// 	const mmpParser: MmpParser = new MmpParser(textToParse, this.labelToStatementMap, this.outermostBlock,
+	// 		this.grammar, this.workingVars);
+	// 	mmpParser.parse();
+	// 	return mmpParser;
+	// }
+	// protected buildUProof(textToParse: string): UProof {
+	// 	const mmpParser: MmpParser = this.parse(textToParse);
+	// 	const uProof: UProof = <UProof>mmpParser.uProof;
+	// 	return uProof;
+	// }
 	//#endregion buildUstatements
 
 
