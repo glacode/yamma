@@ -266,7 +266,7 @@ export abstract class AssertionStatement extends LabeledStatement {
         if (this._eHypsOrderForStepDerivation == undefined)
             // the orders has not been defined yet
             this.setEHypsOrderForStepDerivation();
-        return this._eHypsOrderForStepDerivation!;
+        return this._eHypsOrderForStepDerivation;
     }
     //#endregion eHypsOrderForStepDerivation
     constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {

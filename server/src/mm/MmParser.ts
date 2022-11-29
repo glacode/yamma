@@ -210,7 +210,8 @@ export class MmParser {
         this.parseFailed ||= verifier.verificationFailed;
 
         this.labelToStatementMap.set(label.value, statement);
-        this.labelToNonSyntaxAssertionMap.set(label.value, statement);
+        if (!GrammarManager.isSyntaxAxiom2(statement))
+            this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
     }
     buildLabelToStatementMap(toks: TokenReader, currentBlock?: BlockStatement) {

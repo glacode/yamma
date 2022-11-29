@@ -2,7 +2,6 @@ import { Grammar } from 'nearley';
 import { Diagnostic, Position, TextEdit } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
 import { MmpParser } from './MmpParser';
-import { LabeledStatement } from "../mm/LabeledStatement";
 import { UProof } from './UProof';
 import { WorkingVars } from './WorkingVars';
 import { UProofTransformer } from './UProofTransformer';
@@ -18,7 +17,6 @@ import { UCompressedProofStatement } from './UCompressedProofStatement';
 // Parser for .mmp files
 export class MmpUnifier {
 	// textDocument: TextDocument
-	labelToStatementMap: Map<string, LabeledStatement>;
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
 	workingVars: WorkingVars;
@@ -41,7 +39,7 @@ export class MmpUnifier {
 	/** true iff the last unify() threw an exceptio*/
 	thrownError: boolean;
 
-	mmpParser?: MmpParser;
+	mmpParser: MmpParser;
 
 	//#region constructor
 	// constructor(labelToStatementMap: Map<string, LabeledStatement>, outermostBlock: BlockStatement,
@@ -50,7 +48,6 @@ export class MmpUnifier {
 		// this.textDocument = textDocument
 		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.uProof;
-		this.labelToStatementMap = mmpParser.labelToStatementMap;
 		this.outermostBlock = mmpParser.outermostBlock;
 		this.grammar = mmpParser.grammar;
 		this.workingVars = mmpParser.workingVars;
@@ -116,7 +113,7 @@ export class MmpUnifier {
 		// 	this.uProof = this.buildUProof(textToParse);
 		//TODO1 see if this can be faster if done in the MmpParser
 		this.uProof!.updateAllWorkingVars();
-		const uProofTransformer: UProofTransformer = new UProofTransformer(this.uProof!, this.labelToStatementMap,
+		const uProofTransformer: UProofTransformer = new UProofTransformer(this.uProof!, this.mmpParser!.mmParser.labelToNonSyntaxAssertionMap,
 			this.outermostBlock, this.grammar, this.workingVars,this.maxNumberOfHypothesisDispositionsForStepDerivation);
 		// const newUProof: UProof = this.transformUProof(uProof);
 		uProofTransformer.transformUProof();

@@ -28,7 +28,6 @@ import { MmParser } from '../mm/MmParser';
 
 
 
-
 export enum MmpParserErrorCode {
 	unexpectedEndOfFormula = "unexpectedEndOfFormula",
 	formulaSyntaxError = "formulaSyntaxError",
@@ -64,6 +63,7 @@ export enum MmpParserWarningCode {
 export class MmpParser {
 
 	textToParse: string;
+	mmParser: MmParser;
 	labelToStatementMap: Map<string, LabeledStatement>;
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
@@ -89,6 +89,7 @@ export class MmpParser {
 		constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars) {
 			// this.textDocument = textDocument;
 			this.textToParse = textToParse;
+			this.mmParser = mmParser;
 			this.labelToStatementMap = mmParser.labelToStatementMap;
 			this.outermostBlock = mmParser.outermostBlock;
 			this.grammar = mmParser.grammar;

@@ -171,7 +171,14 @@ export class EHypsDerivation {
 	 * assertion
 	 */
 	searchEHyps(): IEHypsDerivationResult {
-		if (this.assertion.eHypsOrderForStepDerivation != undefined)
+		if (this.assertion.frame!.eHyps.length == 0)
+			// the logical assertion has no EHyp
+			this.eHypsDerivationResult = {
+				isSuccessful: true,
+				eHypsMmpProofSteps: []
+			};
+		else if (this.assertion.eHypsOrderForStepDerivation != undefined)
+		// // the logical assertion has at least one EHyp, and 
 			this.searchEHypsRecursive(0);
 		return this.eHypsDerivationResult!;
 	}

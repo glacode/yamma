@@ -432,24 +432,3 @@ test('MmpParser.uProof.formulaToProofStepMap 1', () => {
 	const indexWi: number | undefined = mmpParser.uProof!.formulaToProofStepMap.get('|- ( ps -> ph )');
 	expect(indexWi).toBe(2);
 });
-
-//TODO1  change MmpUnifier.unify() to use a MmpParser
-test('StepDerivation 1', () => {
-	const mmpSource =
-		'h1::test.1 |- ps\n' +
-		'h2::test.2 |- ( ps -> ph )\n' +
-		'3:: |- ph\n' +
-		'qed:: |- ch';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
-	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
-	mmpUnifier.unify();
-	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
-	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'h1::test.1          |- ps\n' +
-		'h2::test.2          |- ( ps -> ph )\n' +
-		'3:1,2:ax-mp        |- ph\n' +
-		'qed::              |- ch\n';
-	expect(textEdit.newText).toEqual(expectedText);
-});

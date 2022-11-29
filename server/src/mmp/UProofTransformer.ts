@@ -3,7 +3,7 @@ import { Diagnostic, TextEdit } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
 // import { MmpStatement } from './MmpStatements';
 import { InternalNode } from '../grammar/ParseNode';
-import { LabeledStatement } from "../mm/LabeledStatement";
+
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { UProof } from './UProof';
 import { USubstitutionApplier } from './USubstitutionApplier';
@@ -21,7 +21,7 @@ export class UProofTransformer {
 	// textDocument: TextDocument
 	uProof: UProof;
 	//TODO1 this one is not used, remove it
-	labelToStatementMap: Map<string, LabeledStatement>;
+	labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>;
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
 	workingVars: WorkingVars;
@@ -44,13 +44,14 @@ export class UProofTransformer {
 		return this._orderedPairsOfNodesForMGUalgorithm;
 	}
 
+	//TODO1 pass a single MmParser or a single MmpParser to the constructor
 	//#region constructor
-	constructor(uProof: UProof, labelToStatementMap: Map<string, LabeledStatement>,
+	constructor(uProof: UProof, labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>,
 		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 		// this.textDocument = textDocument
 		this.uProof = uProof;
-		this.labelToStatementMap = labelToStatementMap;
+		this.labelToNonSyntaxAssertionMap = labelToNonSyntaxAssertionMap;
 		this.outermostBlock = outermostBlock;
 		this.grammar = grammar;
 		this.workingVars = workingVars;
@@ -187,7 +188,7 @@ export class UProofTransformer {
 		//TODO1 try to write the Derive here!!!
 		if (mmpProofStep.stepLabel == undefined) {
 			const stepDerivation: StepDerivation = new StepDerivation(this.uProof, uStepIndex, mmpProofStep,
-				this.labelToStatementMap, this.outermostBlock, this.grammar, this.workingVars,
+				this.labelToNonSyntaxAssertionMap, this.outermostBlock, this.grammar, this.workingVars,
 				this.maxNumberOfHypothesisDispositionsForStepDerivation);
 			stepDerivation.deriveLabelAndHypothesis();
 		}

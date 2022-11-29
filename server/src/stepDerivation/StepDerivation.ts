@@ -1,8 +1,6 @@
 import { Grammar } from 'nearley';
-import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode } from '../grammar/ParseNode';
 import { BlockStatement } from '../mm/BlockStatement';
-import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { MmpProofStep } from '../mmp/MmpProofStep';
 import { UProof } from '../mmp/UProof';
@@ -15,18 +13,19 @@ export class StepDerivation {
 	uProof: UProof;
 	mmpProofStepIndex: number;
 	mmpProofStep: MmpProofStep;
-	labelToStatementMap: Map<string, LabeledStatement>;
+	labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>;
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
 	workingVars: WorkingVars;
 	maxNumberOfHypothesisDispositionsForStepDerivation: number;
-	constructor(uProof: UProof, mmpProofStepIndex: number, mmpProofStep: MmpProofStep, labelToStatementMap: Map<string, LabeledStatement>,
+	//TODO1 pass a single MmpParser to the constructor
+	constructor(uProof: UProof, mmpProofStepIndex: number, mmpProofStep: MmpProofStep, labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>,
 		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 		this.uProof = uProof;
 		this.mmpProofStepIndex = mmpProofStepIndex;
 		this.mmpProofStep = mmpProofStep;
-		this.labelToStatementMap = labelToStatementMap;
+		this.labelToNonSyntaxAssertionMap = labelToNonSyntaxAssertionMap;
 		this.outermostBlock = outermostBlock;
 		this.grammar = grammar;
 		this.workingVars = workingVars;
@@ -84,7 +83,7 @@ export class StepDerivation {
 	tryEHypsDerivation(assertion: AssertionStatement, uSubstitutionBuilder: USubstitutionBuilder,
 		substitution: Map<string, InternalNode>): void {
 		const eHypsDerivation: EHypsDerivation = new EHypsDerivation(this.uProof, this.mmpProofStepIndex,
-			this.mmpProofStep, assertion, this.labelToStatementMap, this.outermostBlock,
+			this.mmpProofStep, assertion, this.labelToNonSyntaxAssertionMap, this.outermostBlock,
 			this.grammar, this.workingVars, this.maxNumberOfHypothesisDispositionsForStepDerivation,
 			uSubstitutionBuilder, substitution);
 		// const eHypsDerivationResult: IEHypsDerivationResult = eHypsDerivation.searchEHyps();
@@ -127,10 +126,12 @@ export class StepDerivation {
 	}
 	//#endregion tryCurrentAssertion
 
-	private tryCurrentLabeledStatement(labeledStatement: LabeledStatement) {
-		if (labeledStatement instanceof AssertionStatement &&
-			!GrammarManager.isSyntaxAxiom2(labeledStatement) &&
-			!this.isWorstCaseTooSlow(labeledStatement))
+	private tryCurrentLabeledStatement(labeledStatement: AssertionStatement) {
+		// if (labeledStatement instanceof AssertionStatement &&
+		// 	!GrammarManager.isSyntaxAxiom2(labeledStatement) &&
+		// 	!this.isWorstCaseTooSlow(labeledStatement))
+		// 	this.tryCurrentAssertion(labeledStatement);
+		if (!this.isWorstCaseTooSlow(labeledStatement))
 			this.tryCurrentAssertion(labeledStatement);
 	}
 	//#endregion tryCurrentLabeledStatement
@@ -145,8 +146,14 @@ export class StepDerivation {
 			// this.mmpProofStep.eHypUSteps.push(<MmpProofStep>this.uProof.uStatements[0]);
 			// this.mmpProofStep.eHypUSteps.push(<MmpProofStep>this.uProof.uStatements[1]);
 			// this.mmpProofStep.stepLabel = 'ax-mp';
-			for (const [_label, labeledStatement] of this.labelToStatementMap)
-				this.tryCurrentLabeledStatement(labeledStatement);
+			//TODO1
+			const debug = this.labelToNonSyntaxAssertionMap.get('weq');
+			console.log(debug);
+			this.labelToNonSyntaxAssertionMap.forEach((assertion: AssertionStatement) => {
+				//TODO1 stop at the first successful
+				this.tryCurrentLabeledStatement(assertion);
+			}); 
+			// (const [_label, labeledStatement] of this.labelToNonSyntaxAssertionMap)
 		}
 	}
 	//#endregion deriveLabelAndHypothesis
