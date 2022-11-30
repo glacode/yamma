@@ -40,3 +40,25 @@ test('StepDerivation ax-ext', () => {
 		'qed:50:df-cleq     |- ( A = B <-> A. x ( x e. A <-> x e. B ) )\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });
+
+test('StepDerivation 3syl', () => {
+	const mmpSource =
+		'2::                |- ( ph -> &W2 )\n' +
+		'3::                |- ( &W2 -> &W3 )\n' +
+		'4::                |- ( &W3 -> ps )\n' +
+		'5::               |- ( ph -> ps )\n' +
+		'qed::a |- ch';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'2::                |- ( ph -> &W2 )\n' +
+		'3::                |- ( &W2 -> &W3 )\n' +
+		'4::                |- ( &W3 -> ps )\n' +
+		'5:2,3,4:3syl       |- ( ph -> ps )\n' +
+		'qed::a |- ch';
+	expect(textEdit.newText).toEqual(expectedText);
+});

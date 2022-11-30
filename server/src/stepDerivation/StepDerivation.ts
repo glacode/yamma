@@ -149,14 +149,17 @@ export class StepDerivation {
 			//TODO1
 			const debug = this.labelToNonSyntaxAssertionMap.get('weq');
 			console.log(debug);
-			this.labelToNonSyntaxAssertionMap.forEach((assertion: AssertionStatement) => {
+			const nonSyntaxAssertions: IterableIterator<AssertionStatement> = this.labelToNonSyntaxAssertionMap.values();
+			let nonSyntaxAssertion: IteratorResult<AssertionStatement, any> = nonSyntaxAssertions.next();
+			while (!nonSyntaxAssertion.done && this.mmpProofStep.stepLabel == undefined) {
+				// this.labelToNonSyntaxAssertionMap.forEach((assertion: AssertionStatement) => {
 				//TODO1 stop at the first successful
-				this.tryCurrentLabeledStatement(assertion);
-			}); 
-			// (const [_label, labeledStatement] of this.labelToNonSyntaxAssertionMap)
+				this.tryCurrentLabeledStatement(nonSyntaxAssertion.value);
+				nonSyntaxAssertion = nonSyntaxAssertions.next();
+			}
 		}
+		// (const [_label, labeledStatement] of this.labelToNonSyntaxAssertionMap)
 	}
 	//#endregion deriveLabelAndHypothesis
-
 }
 

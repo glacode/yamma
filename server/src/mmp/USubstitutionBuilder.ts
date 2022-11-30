@@ -154,6 +154,7 @@ export class USubstitutionBuilder {
 							hasFoundSubstitution = true;
 							// logicalSystemFormulaInternalNode.parseNodes.length > 1 and 
 							// logicalSystemFormulaInternalNode.parseNodes.length == proofStepFormulaInternalNode.parseNodes.length
+							//TODO1 speed up: break the loop when hasFoundSubstitution== false
 							for (let i = 0; i < logicalSystemFormulaInternalNode.parseNodes.length; i++)
 								hasFoundSubstitution &&= this.buildSubstitutionForParseNode(
 									logicalSystemFormulaInternalNode.parseNodes[i],
