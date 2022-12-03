@@ -55,10 +55,10 @@ test('StepDerivation 3syl', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
-		'2::                |- ( ph -> &W2 )\n' +
-		'3::                |- ( &W2 -> &W3 )\n' +
-		'4::                |- ( &W3 -> ps )\n' +
+		'2::                 |- ( ph -> &W2 )\n' +
+		'3::                 |- ( &W2 -> &W3 )\n' +
+		'4::                 |- ( &W3 -> ps )\n' +
 		'5:2,3,4:3syl       |- ( ph -> ps )\n' +
-		'qed::a |- ch';
+		'qed::a             |- ch\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });

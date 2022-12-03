@@ -72,8 +72,14 @@ export class USubstitutionApplier {
 		//if we get here, symbol should be a logical variable, and
 		//a substitution should always be found
 		const newParseNode: InternalNode = <InternalNode>substitution.get(symbol);
-		if (newParseNode == undefined)
-			throw new Error("It should never happen!");
+		if (newParseNode == undefined) {
+			console.log(`Error! The USubstitutionBuilder is trying to ` +
+				`build a build a ParseNode, but the given substitution does not contain ` +
+				`a substitution value for the logical variable '${symbol}'`);
+			throw new Error(`Error! The USubstitutionBuilder is trying to ` +
+				`build a build a ParseNode, but the given substitution does not contain ` +
+				`a substitution value for the logical variable '${symbol}'`);
+		}
 		return newParseNode;
 	}
 

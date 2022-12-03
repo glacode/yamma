@@ -142,7 +142,7 @@ export class EHypsDerivation {
 				// there is no more EHyp to unify
 				this.eHypsDerivationResult.isSuccessful = true;
 			else
-				this.searchEHypsRecursive(currentEHypIndexForStepDerivation++);
+				this.searchEHypsRecursive(currentEHypIndexForStepDerivation + 1);
 		} else
 			// no previous MmpProof step has been found that unifies with the current EHyp
 			this.eHypsDerivationResult.isSuccessful = false;
@@ -178,7 +178,7 @@ export class EHypsDerivation {
 				eHypsMmpProofSteps: []
 			};
 		else if (this.assertion.eHypsOrderForStepDerivation != undefined)
-		// // the logical assertion has at least one EHyp, and 
+			// // the logical assertion has at least one EHyp, and 
 			this.searchEHypsRecursive(0);
 		return this.eHypsDerivationResult!;
 	}

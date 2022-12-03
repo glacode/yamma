@@ -114,7 +114,7 @@ export class StepDerivation {
 	private tryCurrentAssertion(assertion: AssertionStatement) {
 		const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
 		const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(
-			this.mmpProofStep, assertion, this.outermostBlock, this.workingVars, this.grammar, []);
+			this.mmpProofStep, assertion, this.outermostBlock, this.workingVars, this.grammar, [], true);
 		// const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
 		const substitutionFound: boolean =
 			uSubstitutionBuilder.buildSubstitutionForSingleLine(assertion.parseNode, this.mmpProofStep.formula,

@@ -28,8 +28,20 @@ export class USubstitutionBuilder {
 	private logicalSystemEHyps: EHyp[];
 	private eHypUSteps: (MmpProofStep | undefined)[];
 
+	/** when this is true, a working var cannot be a substitution of a "complex" formula,
+	 * it must correspond to a logical variable;
+	 * for instance, if the parse node for the formula ( ph - ps ) had to match with $W1,
+	 * the SubstitutionBuilder should fail;
+	 * instead, when this.requireWorkingVarsToBeASubstitutionOfALogicalVar is false
+	 * the Substitution wil not fail if ( ph - ps ) had to match with $W1 (maybe the
+	 * m.g.u. algoritm will fail, later on);
+	 * the strongest requirement is used by the step derivation process
+	*/
+	requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar: boolean;
+
 	constructor(uProofStep: MmpProofStep, assertion: AssertionStatement, outermostBlock: BlockStatement,
-		workingVars: WorkingVars, grammar: Grammar, diagnostics: Diagnostic[]) {
+		workingVars: WorkingVars, grammar: Grammar, diagnostics: Diagnostic[],
+		requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar?: boolean) {
 		this.uProofStep = uProofStep;
 		this.assertion = assertion;
 		this.outermostBlock = outermostBlock;
@@ -39,6 +51,11 @@ export class USubstitutionBuilder {
 
 		this.logicalSystemEHyps = <EHyp[]>(this.assertion.frame?.eHyps);
 		this.eHypUSteps = this.uProofStep.eHypUSteps;
+
+		if (requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar != undefined)
+			this.requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar = requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar;
+		else
+			this.requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar = false;
 	}
 	//#region buildSubstitution
 
@@ -116,9 +133,9 @@ export class USubstitutionBuilder {
 		uStepParseNode: ParseNode, substitution: Map<string, InternalNode>): boolean {
 		let hasFoundSubstitution: boolean;
 		// if (!(uStepParseNode instanceof MmToken) && uStepParseNode.parseNodes.length )
+		//TODO1 remove the following if
 		if (uStepParseNode instanceof MmToken)
 			hasFoundSubstitution = false;
-		// hasFoundSubstitution = false;
 		else {
 			// uStepParseNode is an internal node
 			if (this.isAWorkingVarOfTheSameKind(logicalSystemFormulaInternalNode, <InternalNode>uStepParseNode)) {
@@ -126,15 +143,30 @@ export class USubstitutionBuilder {
 				// working var could be found by the m.g.u. algorithm, that will run later on,
 				// thus we don't fail here; if no unification for the working var can be found,
 				// the m.g.u. algorithm will fail later on
+				hasFoundSubstitution = true;
 				if (this.isInternalNodeForLogicalVariableNotAddedToSubstitutionYet(logicalSystemFormulaInternalNode,
-					substitution))
+					substitution)) {
 					// logicalSystemFormulaInternalNode.parseNodes.length == 1 &&
 					// logicalSystemFormulaInternalNode.parseNodes[0] instanceof MmToken &&
 					// substitution.get(logicalSystemFormulaInternalNode.parseNodes[0].value) == undefined)
 					// logicalSystemFormulaInternalNode is an internal node for a logical variable
 					// and no substitution has been added, for this variable, yet
 					substitution.set((<MmToken>logicalSystemFormulaInternalNode.parseNodes[0]).value, uStepParseNode);
-				hasFoundSubstitution = true;
+				} else if (this.requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar) {
+					// uStepParseNode is a working vari,
+					if (GrammarManager.isInternalParseNodeForFHyp(logicalSystemFormulaInternalNode, this.outermostBlock.v)) {
+						// uStepParseNode is a working var, logicalSystemFormulaInternalNode is a
+						// node for a logical variable that is already PRESENT in the substitution, and
+						// we've required that working vars do exact match with substitutions
+						const logicalVar: string = GrammarManager.getTokenValueFromInternalNode(logicalSystemFormulaInternalNode);
+						const logicalVarSubstitution: InternalNode = substitution.get(logicalVar)!;
+						hasFoundSubstitution = GrammarManager.areParseNodesEqual(logicalVarSubstitution, uStepParseNode);
+					}
+					else
+						// uStepParseNode is a working var, we've required that working vars do exact match with substitutions,
+						// but logicalSystemFormulaInternalNode is not a node for a logical variable
+						hasFoundSubstitution = false;
+				}
 			}
 			else {
 				if (logicalSystemFormulaInternalNode.kind != uStepParseNode.kind)
