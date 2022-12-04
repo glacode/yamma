@@ -6,6 +6,7 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 import { WorkingVars } from './WorkingVars';
 import { GlobalState } from '../general/GlobalState';
 import { MmpStatistics } from './MmpStatistics';
+import { consoleLogWithTimestamp } from '../mm/Utils';
 
 /** validates a .mmp files and returns diagnostics
  * for the language server event handlers
@@ -124,6 +125,10 @@ export class MmpValidator {
 	//#endregion validateFullDocument
 
 	static addDiagnosticError(message: string, range: Range, code: MmpParserErrorCode, diagnostics: Diagnostic[]) {
+		if (range.start.line < 0 || range.start.character < 0 || range.end.line < 0 || range.end.character < 0) {
+			consoleLogWithTimestamp("diagnostic error NEGATIVE!!!");
+			let forBreakPoint = 0; forBreakPoint = forBreakPoint + 1;
+		}
 		const diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Error,
 			message: message,
@@ -134,6 +139,10 @@ export class MmpValidator {
 	}
 
 	static addDiagnosticWarning(message: string, range: Range, code: MmpParserWarningCode, diagnostics: Diagnostic[]) {
+		if (range.start.line < 0 || range.start.character < 0 || range.end.line < 0 || range.end.character < 0) {
+			consoleLogWithTimestamp("diagnostic warning NEGATIVE!!!");
+			let forBreakPoint = 0; forBreakPoint = forBreakPoint + 1;
+		}
 		const diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Warning,
 			message: message,

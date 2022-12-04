@@ -1,6 +1,6 @@
 import { Connection, Diagnostic, MessageActionItem, Position, Range } from 'vscode-languageserver';
 import { MmToken } from '../grammar/MmLexer';
-import { MmpParserErrorCode } from '../mmp/MmpParser';
+import { MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
 import { MmParserErrorCode } from './MmParser';
 
 
@@ -265,7 +265,7 @@ export function rebuildOriginalStringFromTokens(tokens: MmToken[]): string {
 }
 
 export function doesDiagnosticsContain(diagnostics: Diagnostic[],
-    errorCode: MmpParserErrorCode | MmParserErrorCode): boolean {
+    errorCode: MmpParserErrorCode | MmpParserWarningCode | MmParserErrorCode): boolean {
     let containsErrorCode = false;
     let i = 0;
     while (!containsErrorCode && i < diagnostics.length) {

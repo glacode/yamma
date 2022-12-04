@@ -46,8 +46,7 @@ export class SearchCommandHandler {
 		return currentProofStep;
 	}
 
-	//#region insertSearchStatementBeforeStep
-	// insertSearchStatementBeforeStep(insertPosition: Position) {
+	//#region insertSearchStatementAfterStep
 
 	//#region positionForInsertionOfTheSearchStatement
 	/** if the cursor is on a MmpProofStep, it returns the line where the step begins (it could be
@@ -57,7 +56,7 @@ export class SearchCommandHandler {
 		let line: number = cursorLine;
 		if (currentMmpProofStep != undefined)
 			line = currentMmpProofStep.range.start.line;
-		const insertPosition: Position = { line: line, character: 0 };
+		const insertPosition: Position = { line: line + 1, character: 0 };
 		return insertPosition;
 	}
 	//#endregion positionForInsertionOfTheSearchStatement
@@ -154,7 +153,7 @@ export class SearchCommandHandler {
 	}
 	//#endregion setSuggestedRangeForCursorPosition
 
-	private insertSearchStatementBeforeStep(currentMmpProofStep?: MmpProofStep,) {
+	private insertSearchStatementAfterStep(currentMmpProofStep?: MmpProofStep,) {
 		const insertPosition: Position = SearchCommandHandler.positionForInsertionOfTheSearchStatement(
 			this.searchCommandParameter.cursorLine, currentMmpProofStep);
 		const searchStatement: string = SearchCommandHandler.buildSearchStatement(
@@ -162,11 +161,11 @@ export class SearchCommandHandler {
 		this.insertNewSearchStatement(insertPosition, searchStatement);
 		this.setSuggestedRangeForCursorPosition(insertPosition, searchStatement);
 	}
-	//#endregion insertSearchStatementBeforeStep
+	//#endregion insertSearchStatementAfterStep
 
 	public insertSearchStatement() {
 		const mmpProofStep: MmpProofStep | undefined = this.getCurrentProofStep();
-		this.insertSearchStatementBeforeStep(mmpProofStep);
+		this.insertSearchStatementAfterStep(mmpProofStep);
 	}
 	//#endregion insertSearchStatement
 }

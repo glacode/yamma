@@ -39,7 +39,7 @@ test("expect proper string for search command", () => {
 	const positionForInsertionAbove52: Position =
 		TestSearchCommandHandler.positionForInsertionOfTheSearchStatement(2, mmpProofStep52);
 	//TODO may be you will prefer to insert the search statement below the current MmpStatement
-	const expectedPositionForInsertion: Position = { line: 2, character: 0 };
+	const expectedPositionForInsertion: Position = { line: 3, character: 0 };
 	expect(positionForInsertionAbove52).toEqual(expectedPositionForInsertion);
 });
 

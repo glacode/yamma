@@ -1,7 +1,7 @@
-import { CompletionItem } from 'vscode-languageserver';
+import { CompletionItem, Position, Range, TextEdit } from 'vscode-languageserver';
 import { MmStatistics } from '../mm/MmStatistics';
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { intersection } from '../mm/Utils';
+import { intersection, oneCharacterRange } from '../mm/Utils';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 
 export class SearchStatementCompletionProvider {
@@ -26,9 +26,40 @@ export class SearchStatementCompletionProvider {
 	}
 
 	//#region completionItemsForAssertionsInTheIntersections
-	addAssertion(assertion: AssertionStatement, completionItems: CompletionItem[]) {
+
+	getRangeToInsertLabel(): Range {
+		//TODO1 use the last mmpProofStep above the mmpSearchStatement
+		const position: Position = {
+			line: this.mmpSearchStatement.range.start.line - 1,
+			character: 0
+		};
+		const range: Range = oneCharacterRange(position);
+		return range;
+	}
+
+	//#region addAssertion
+	addAssertion(assertion: AssertionStatement, completionItems: CompletionItem[],
+		_rangeToInsertLabel: Range, _textEditToRemoveSearchStatement: TextEdit) {
+		// const additionalTextEdit: TextEdit = {
+		// 	range: rangeToInsertLabel,
+		// 	newText: assertion.Label + '\n'
+		// };
+		// const insertReplaceEdit: InsertReplaceEdit = {
+		// 	insert: this.mmpSearchStatement.range,
+		// 	replace: this.mmpSearchStatement.range,
+		// 	newText: ''
+		// };
+		// const tEdit: TextEdit = { newText: '', range: this.mmpSearchStatement.range };
 		const completionItem: CompletionItem = {
 			label: assertion.Label,
+			// insertText: 'a',
+			// textEdit: tEdit
+			// textEdit: TextEdit.del(this.mmpSearchStatement.range),
+			// textEdit: textEditToRemoveSearchStatement,
+			// textEdit: insertReplaceEdit,
+			// additionalTextEdits: [_textEditToRemoveSearchStatement, additionalTextEdit],
+			additionalTextEdits: [_textEditToRemoveSearchStatement],
+
 			// detail: detail,
 			// //TODO see if LSP supports a way to disable client side sorting
 			// // sortText: String(index).padStart(3, '0'),
@@ -39,17 +70,22 @@ export class SearchStatementCompletionProvider {
 		};
 		completionItems.push(completionItem);
 	}
+	//#endregion addAssertion
 	completionItemsForAssertionsInTheIntersections(assertionsToBeReturned: Set<AssertionStatement> | undefined): CompletionItem[] {
 		const completionItems: CompletionItem[] = [];
+		const rangeToInsertLabel: Range = this.getRangeToInsertLabel();
+		const textEditToRemoveSearchStatement: TextEdit = {
+			range: this.mmpSearchStatement.range,
+			newText: ''
+		};
 		if (assertionsToBeReturned != undefined)
-		assertionsToBeReturned.forEach((assertion: AssertionStatement) => {
-			this.addAssertion(assertion,completionItems);
-			
-		});
+			assertionsToBeReturned.forEach((assertion: AssertionStatement) => {
+				this.addAssertion(assertion, completionItems, rangeToInsertLabel, textEditToRemoveSearchStatement);
+			});
 		return completionItems;
 	}
 	//#endregion completionItemsForAssertionsInTheIntersections
-	
+
 	completionItems(): CompletionItem[] {
 		const assertionsSets: Set<Set<AssertionStatement>> = this.assertionsSets();
 		const assertionsInTheIntersection: Set<AssertionStatement> | undefined = intersection<AssertionStatement>(assertionsSets);

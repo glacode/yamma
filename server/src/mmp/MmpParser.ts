@@ -55,6 +55,7 @@ export enum MmpParserWarningCode {
 	missingLabel = "missingLabel",
 	missingFormula = "missingFormula",
 	missingRef = "missingRef",
+	missingEHyps = "missingEHyps",
 	missingDjVarsStatement = "missingDjVarsStatement",
 	missingTheoremLabel = "missingTheoremLabel"
 }
@@ -86,21 +87,21 @@ export class MmpParser {
 	//#region constructor
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
-		constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars) {
-			// this.textDocument = textDocument;
-			this.textToParse = textToParse;
-			this.mmParser = mmParser;
-			this.labelToStatementMap = mmParser.labelToStatementMap;
-			this.outermostBlock = mmParser.outermostBlock;
-			this.grammar = mmParser.grammar;
-			this.workingVars = workingVars;
+	constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars) {
+		// this.textDocument = textDocument;
+		this.textToParse = textToParse;
+		this.mmParser = mmParser;
+		this.labelToStatementMap = mmParser.labelToStatementMap;
+		this.outermostBlock = mmParser.outermostBlock;
+		this.grammar = mmParser.grammar;
+		this.workingVars = workingVars;
 
-			// this.mmParser = mmParser;
-			this.refToProofStepMap = new Map<string, MmpProofStep>();
-			// const textToParse: string = textDocument.getText();
-			//this.createMmpStatements(textToParse);
-			this._orderedPairsOfNodesForMGUalgorithm = [];
-		}
+		// this.mmParser = mmParser;
+		this.refToProofStepMap = new Map<string, MmpProofStep>();
+		// const textToParse: string = textDocument.getText();
+		//this.createMmpStatements(textToParse);
+		this._orderedPairsOfNodesForMGUalgorithm = [];
+	}
 
 	private addDiagnosticError(message: string, range: Range, code: MmpParserErrorCode) {
 		MmpValidator.addDiagnosticError(message, range, code, this.diagnostics);
@@ -133,7 +134,8 @@ export class MmpParser {
 		// const stepLabel: MmToken | undefined = firstTokenSplit[firstTokenSplit.length - 1];
 		let isEHyp = false;
 		let stepRef: MmToken;
-		let hypRefs: MmToken[] = [];
+		// let hypRefs: MmToken[] = [];
+		let hypRefs: MmToken[] | undefined;
 		let stepLabel: MmToken | undefined;
 		let unparsableToken: string | undefined;
 
@@ -263,11 +265,20 @@ export class MmpParser {
 				// labeledStatement instanceof AssertionStatement
 				const refEHyps: number = proofStepFirstTokenInfo.eHypRefs == undefined ?
 					0 : proofStepFirstTokenInfo.eHypRefs.length;
-				if (labeledStatement.frame?.eHyps.length != refEHyps) {
+				if (proofStepFirstTokenInfo.stepRef.value != '' &&
+					labeledStatement.frame?.eHyps.length != refEHyps) {
 					const message = `Unification error: the assertion ${proofStepFirstTokenInfo.stepLabel.value} ` +
 						`expects ${labeledStatement.frame?.eHyps.length} $e hypothesis, but ${refEHyps} are given`;
-					MmpValidator.addDiagnosticError(message, <Range>proofStepFirstTokenInfo.eHypRefsRange,
-						MmpParserErrorCode.wrongNumberOfEHyps, this.diagnostics);
+					const range: Range = proofStepFirstTokenInfo.eHypRefs == undefined ?
+						proofStepFirstTokenInfo.stepLabel.range : <Range>proofStepFirstTokenInfo.eHypRefsRange;
+					if (refEHyps == 0)
+						// proofStep EHyps are either undefined or 0, but the logical assertion requires EHyps
+						MmpValidator.addDiagnosticWarning(message, range, MmpParserWarningCode.missingEHyps,
+							this.diagnostics);
+					else
+						// proofStep EHyps are defined, but their number does not match those of the logical assertion
+						MmpValidator.addDiagnosticError(message, range, MmpParserErrorCode.wrongNumberOfEHyps,
+							this.diagnostics);
 				}
 			}
 
@@ -394,8 +405,10 @@ export class MmpParser {
 			const message = "Missing Formula";
 			// the range for the diagnostic is one character after the first token
 			const range: Range = oneCharacterRange({
-				line: nextProofStepTokens[0].line,
-				character: nextProofStepTokens[0].column + 1
+				// line: nextProofStepTokens[0].line,
+				// character: nextProofStepTokens[0].column + 1
+				line: proofStepFirstTokenInfo.firstToken.range.start.line,
+				character: proofStepFirstTokenInfo.firstToken.range.end.character
 			});
 			const code = MmpParserWarningCode.missingFormula;
 			this.addDiagnosticWarning(message, range, code);

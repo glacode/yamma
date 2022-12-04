@@ -1,5 +1,5 @@
 import { Grammar, Rule } from 'nearley';
-import { Diagnostic } from 'vscode-languageserver';
+import { Diagnostic, Range } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { MmToken } from '../grammar/MmLexer';
@@ -384,9 +384,18 @@ test('expect label only to be parsed', () => {
 	mmpParser.parse();
 	expect(mmpParser.uProof?.uStatements.length).toBe(2);
 	expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).stepFormula).toBeUndefined();
-	expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).eHypRefs).toBeDefined();
-	expect(mmpParser.diagnostics.length).toBe(3);
-	expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).stepLabelToken!.value).toEqual('ax-mp');
+	// expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).eHypRefs).toBeDefined();
+	expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).eHypRefs).toBeUndefined();
+	expect(mmpParser.diagnostics.length).toBe(2);
+	const diagnostic: Diagnostic = mmpParser.diagnostics[0];
+	expect(diagnostic.code).toBe(MmpParserWarningCode.missingFormula);
+	const expectedRange: Range = Range.create(0,5,0,6);
+	expect(diagnostic.range).toEqual(expectedRange);
+	// expect(mmpParser.diagnostics.length).toBe(3);
+	// expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).stepLabelToken!.value).toEqual('ax-mp');
+	// const diagnostic: Diagnostic = mmpParser.diagnostics[0];
+	// const expectedRange: Range = Range.create(0,0,0,5);
+	// expect(diagnostic.range).toEqual(expectedRange);
 	// mmpParser.createMmpStatements(mmptext);
 });
 
@@ -482,7 +491,8 @@ test('expect proper diagnostic proof to be parsed', () => {
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unificationError)).toBeTruthy();
-	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.wrongNumberOfEHyps)).toBeTruthy();
+	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.wrongNumberOfEHyps)).toBeTruthy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserWarningCode.missingEHyps)).toBeTruthy();
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
 		if (diagnostic.code == MmpParserErrorCode.unificationError) {
 			expect(diagnostic.message).toEqual(
@@ -494,9 +504,9 @@ test('expect proper diagnostic proof to be parsed', () => {
 		if (diagnostic.code == MmpParserErrorCode.wrongNumberOfEHyps) {
 			expect(diagnostic.message).toEqual(
 				'Unification error: the assertion impbii expects 2 $e hypothesis, but 0 are given');
-			// expect(diagnostic.range.start.line).toBe(0);
-			// expect(diagnostic.range.start.character).toBe(3);
-			// expect(diagnostic.range.end.character).toBe(5);
+			expect(diagnostic.range.start.line).toBe(0);
+			expect(diagnostic.range.start.character).toBe(3);
+			expect(diagnostic.range.end.character).toBe(4);
 		}
 	});
 	// expect(mmpUnifier.thrownError).toBeFalsy();
