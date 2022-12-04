@@ -1,7 +1,7 @@
-import { CompletionItem, Position, Range, TextEdit } from 'vscode-languageserver';
+import { Command, CompletionItem, Range, TextEdit } from 'vscode-languageserver';
 import { MmStatistics } from '../mm/MmStatistics';
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { intersection, oneCharacterRange } from '../mm/Utils';
+import { intersection } from '../mm/Utils';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 
 export class SearchStatementCompletionProvider {
@@ -29,21 +29,31 @@ export class SearchStatementCompletionProvider {
 
 	getRangeToInsertLabel(): Range {
 		//TODO1 use the last mmpProofStep above the mmpSearchStatement
-		const position: Position = {
-			line: this.mmpSearchStatement.range.start.line - 1,
-			character: 0
-		};
-		const range: Range = oneCharacterRange(position);
+		// const position: Position = {
+		// 	line: this.mmpSearchStatement.range.start.line - 1,
+		// 	character: 0
+		// };
+		// const range: Range = oneCharacterRange(position);
+		const range: Range = Range.create(this.mmpSearchStatement.range.start.line - 1, 0,
+			this.mmpSearchStatement.range.start.line - 1, 0);
 		return range;
 	}
 
 	//#region addAssertion
+	createCommand(rangeToInsertLabel: Range, label: string): Command {
+		const range: Range = Range.create(rangeToInsertLabel.start.line,0,
+			rangeToInsertLabel.start.line,label.length);
+		const command: Command = Command.create( "ssssss",'window.activeTextEditor.selection',range);
+		// const command: Command = { command: 'editor.action.triggerSuggest', title: 'Re-trigger completions...' };
+		return command;
+	}
 	addAssertion(assertion: AssertionStatement, completionItems: CompletionItem[],
 		_rangeToInsertLabel: Range, _textEditToRemoveSearchStatement: TextEdit) {
-		// const additionalTextEdit: TextEdit = {
-		// 	range: rangeToInsertLabel,
-		// 	newText: assertion.Label + '\n'
-		// };
+		const additionalTextEdit: TextEdit = {
+			range: _rangeToInsertLabel,
+			newText: "$$" + assertion.Label + '\n'
+		};
+		// const command: Command = this.createCommand(_rangeToInsertLabel,assertion.Label);
 		// const insertReplaceEdit: InsertReplaceEdit = {
 		// 	insert: this.mmpSearchStatement.range,
 		// 	replace: this.mmpSearchStatement.range,
@@ -58,7 +68,8 @@ export class SearchStatementCompletionProvider {
 			// textEdit: textEditToRemoveSearchStatement,
 			// textEdit: insertReplaceEdit,
 			// additionalTextEdits: [_textEditToRemoveSearchStatement, additionalTextEdit],
-			additionalTextEdits: [_textEditToRemoveSearchStatement],
+			// command: command
+			additionalTextEdits: [additionalTextEdit],
 
 			// detail: detail,
 			// //TODO see if LSP supports a way to disable client side sorting

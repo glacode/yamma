@@ -1,10 +1,11 @@
-import { Connection, Diagnostic, Range } from 'vscode-languageserver';
+import { Connection, Diagnostic, Range, TextEdit, TextEditChange, WorkspaceChange } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { MmpParserWarningCode } from '../mmp/MmpParser';
 import { GlobalState } from '../general/GlobalState';
+
 
 
 export class OnDidChangeContentHandler {
@@ -87,6 +88,19 @@ export class OnDidChangeContentHandler {
 	}
 	//#endregion updateCursorPosition
 
+
+	applyTextEdits(textEdits: TextEdit[], textDocumentUri: string) {
+		const workspaceChange: WorkspaceChange = new WorkspaceChange();
+		const textEditChange: TextEditChange = workspaceChange.getTextEditChange(
+			// this.searchCommandParameter.uri);
+			textDocumentUri);
+		textEdits.forEach((textEdit: TextEdit) => {
+			textEditChange.add(textEdit);
+		});
+		// textEditChange.insert(insertPosition, searchStatement);
+		this.connection.workspace.applyEdit(workspaceChange.edit);
+	}
+
 	async validateTextDocument(textDocument: TextDocument, unifyDoneButCursorPositionNotUpdatedYet: boolean): Promise<void> {
 
 
@@ -103,13 +117,16 @@ export class OnDidChangeContentHandler {
 		mmpValidator.validateFullDocument(textDocument);
 		const diagnostics: Diagnostic[] = mmpValidator.diagnostics;
 
-		// The validator creates diagnostics for all uppercase words length 2 and more
+		if (mmpValidator.textEdits != undefined && mmpValidator.textEdits.length > 0)
+			this.applyTextEdits(mmpValidator.textEdits, textDocument.uri);
+		else {
+			// Send the computed diagnostics to VSCode.
+			this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
-		// Send the computed diagnostics to VSCode.
-		this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+			// if (GlobalState.setSuggestedRangeForCursorPosition != undefined || unifyDoneButCursorPositionNotUpdatedYet)
+			this.updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet, diagnostics);
+		}
 
-		// if (GlobalState.setSuggestedRangeForCursorPosition != undefined || unifyDoneButCursorPositionNotUpdatedYet)
-		this.updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet, diagnostics);
 	}
 	//#endregion validateTextDocument
 
