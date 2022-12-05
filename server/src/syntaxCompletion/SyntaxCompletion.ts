@@ -1,5 +1,5 @@
 import { Parser } from 'nearley';
-import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
+import { CompletionItem } from 'vscode-languageserver';
 
 import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
@@ -162,16 +162,16 @@ export class SyntaxCompletion {
 
 	completionItems(): CompletionItem[] {
 		let completionItems: CompletionItem[] = [
-			{
-				label: 'TypeScript',
-				kind: CompletionItemKind.Text,
-				data: 1
-			},
-			{
-				label: 'JavaScript',
-				kind: CompletionItemKind.Text,
-				data: 2
-			}
+			// {
+			// 	label: 'TypeScript',
+			// 	kind: CompletionItemKind.Text,
+			// 	data: 1
+			// },
+			// {
+			// 	label: 'JavaScript',
+			// 	kind: CompletionItemKind.Text,
+			// 	data: 2
+			// }
 		];
 		const symbols: string[] | undefined = this.getSymbols();
 

@@ -1,4 +1,4 @@
-import { CompletionItem, CompletionItemKind, CompletionList, TextDocumentPositionParams } from 'vscode-languageserver';
+import { CompletionItem, CompletionList, TextDocumentPositionParams } from 'vscode-languageserver';
 import { ConfigurationManager } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmStatistics } from '../mm/MmStatistics';
@@ -69,16 +69,16 @@ export class OnCompletionHandler {
 			const mmStatistics: MmStatistics = this.mmStatistics;
 			const mmpParser: MmpParser = this.mmpParser;
 			completionItems = [
-				{
-					label: 'TypeScript',
-					kind: CompletionItemKind.Text,
-					data: 1
-				},
-				{
-					label: 'JavaScript',
-					kind: CompletionItemKind.Text,
-					data: 2
-				}
+				// {
+				// 	label: 'TypeScript',
+				// 	kind: CompletionItemKind.Text,
+				// 	data: 1
+				// },
+				// {
+				// 	label: 'JavaScript',
+				// 	kind: CompletionItemKind.Text,
+				// 	data: 2
+				// }
 			];
 			const cursorContext: CursorContext = new CursorContext(this.cursorLine, this.cursorCharacter, mmpParser);
 			cursorContext.buildContext();
