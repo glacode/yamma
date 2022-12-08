@@ -41,7 +41,7 @@ export class ModelBuilder {
 	private _mmParser: MmParser | undefined;
 
 	/** change this one if you want ConsoleLog messages */
-	private notifyProgressEnabled = false;
+	private notifyProgressEnabled = true;
 
 
 	//TODO use class StepSuggestionMap

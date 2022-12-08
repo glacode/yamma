@@ -84,7 +84,6 @@ export class OnDidChangeContentHandler {
 			range = this.computeRangeForCursor(diagnostics);
 		if (range != undefined)
 			OnDidChangeContentHandler.moveCursorRequest(range, this.connection);
-		// this.connection.sendNotification('yamma/movecursor', range);
 	}
 	//#endregion updateCursorPosition
 
@@ -117,16 +116,9 @@ export class OnDidChangeContentHandler {
 		mmpValidator.validateFullDocument(textDocument);
 		const diagnostics: Diagnostic[] = mmpValidator.diagnostics;
 
-		if (mmpValidator.textEdits != undefined && mmpValidator.textEdits.length > 0)
-			this.applyTextEdits(mmpValidator.textEdits, textDocument.uri);
-		else {
-			// Send the computed diagnostics to VSCode.
-			this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+		this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
-			// if (GlobalState.setSuggestedRangeForCursorPosition != undefined || unifyDoneButCursorPositionNotUpdatedYet)
-			this.updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet, diagnostics);
-		}
-
+		this.updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet, diagnostics);
 	}
 	//#endregion validateTextDocument
 

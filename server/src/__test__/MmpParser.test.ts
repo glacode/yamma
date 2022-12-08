@@ -15,6 +15,7 @@ import { vexTheoryMmParser } from './MmpProofStatement.test';
 import { doesDiagnosticsContain } from '../mm/Utils';
 import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
 import { IUStatement } from '../mmp/UStatement';
+import { MmStatistics } from '../mm/MmStatistics';
 
 
 const emptyLabelStatement = new AxiomStatement('x', [], new BlockStatement());
@@ -365,6 +366,7 @@ test('expect missing ref error', () => {
 	});
 });
 
+//TODO1 move to the global for test
 /**the minimium theory needed to proof mp2 */
 export const mp2Theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. ' +
 	'$v ps $. $v ch $. wph $f wff ph $. wps $f wff ps $. wch $f wff ch $.\n' +
@@ -372,6 +374,9 @@ export const mp2Theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. '
 	'${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}';
 export const mp2Parser: MmParser = new MmParser();
 mp2Parser.ParseText(mp2Theory);
+
+export const mp2Statistics: MmStatistics = new MmStatistics(mp2Parser);
+mp2Statistics.buildStatistics();
 
 test('expect label only to be parsed', () => {
 	const mmpSource =
@@ -389,7 +394,7 @@ test('expect label only to be parsed', () => {
 	expect(mmpParser.diagnostics.length).toBe(2);
 	const diagnostic: Diagnostic = mmpParser.diagnostics[0];
 	expect(diagnostic.code).toBe(MmpParserWarningCode.missingFormula);
-	const expectedRange: Range = Range.create(0,5,0,6);
+	const expectedRange: Range = Range.create(0, 5, 0, 6);
 	expect(diagnostic.range).toEqual(expectedRange);
 	// expect(mmpParser.diagnostics.length).toBe(3);
 	// expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).stepLabelToken!.value).toEqual('ax-mp');

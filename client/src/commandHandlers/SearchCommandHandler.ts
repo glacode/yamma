@@ -19,3 +19,25 @@ export function searchCommandHandler(): any {
 	};
 	(<LanguageClient>this).sendRequest('yamma/search', searchCommandParameter);
 }
+
+//TODO you are defining this interface both on the client and on the server:
+//see if there's a way to define it in a single place
+export interface ISearchCompletionItemCommandParameters {
+	uri: string;
+	searchStatementRangeStartLine: number;
+	searchStatementRangeEndLine: number;
+	label: string;
+}
+
+export function searchCompletionItemSelectedHandler(args: any[]): any {
+	console.log(`Sending search CompletionItem selected!`);
+	const searchCompletionItemCommandParameters: ISearchCompletionItemCommandParameters = {
+		uri: vscode.window.activeTextEditor.document.uri.toString(),
+		searchStatementRangeStartLine: <number>args[0],
+		searchStatementRangeEndLine: <number>args[1],
+		label: args[2]
+	};
+	// (<LanguageClient>this).sendRequest('yamma/search', searchCommandParameter);
+	// (<LanguageClient>this).sendRequest('yamma/searchcompletionitemselected', 4);
+	(<LanguageClient>this).sendRequest('yamma/searchcompletionitemselected', searchCompletionItemCommandParameters);
+}

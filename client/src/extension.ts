@@ -18,7 +18,7 @@ import {
 
 import { loadMmtFilesCommandHandler, storeMmtFileCommandHandler } from "./mmt/MmtCommandHandler";
 
-import { searchCommandHandler } from "./commandHandlers/SearchCommandHandler";
+import { ISearchCompletionItemCommandParameters, searchCommandHandler, searchCompletionItemSelectedHandler } from "./commandHandlers/SearchCommandHandler";
 
 let client: LanguageClient;
 
@@ -74,7 +74,9 @@ export function activate(context: ExtensionContext) {
 		disposable = commands.registerCommand('yamma.loadFromMMTfolder',
 			loadMmtFilesCommandHandler, client);
 		context.subscriptions.push(disposable);
-		disposable = commands.registerCommand('yamma.search',searchCommandHandler, client);
+		disposable = commands.registerCommand('yamma.search', searchCommandHandler, client);
+		disposable = commands.registerCommand('yamma.searchcompletionitemselected',
+			searchCompletionItemSelectedHandler, client);
 		context.subscriptions.push(disposable);
 
 		// the notifications below are now done server side using

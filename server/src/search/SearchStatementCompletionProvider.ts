@@ -40,20 +40,23 @@ export class SearchStatementCompletionProvider {
 	}
 
 	//#region addAssertion
-	createCommand(rangeToInsertLabel: Range, label: string): Command {
-		const range: Range = Range.create(rangeToInsertLabel.start.line,0,
-			rangeToInsertLabel.start.line,label.length);
-		const command: Command = Command.create( "ssssss",'window.activeTextEditor.selection',range);
-		// const command: Command = { command: 'editor.action.triggerSuggest', title: 'Re-trigger completions...' };
+	createCommand(label: string): Command {
+		const args: any[] = [this.mmpSearchStatement.range.start.line, this.mmpSearchStatement.range.end.line, label];
+		// const searchCompletionItemCommandParameters: ISearchCompletionItemCommandParameters = {
+		// 	searchStatementRange: this.mmpSearchStatement.range,
+		// 	uri: 'TODO'
+		// };
+		const command: Command = Command.create('Search completion item selected', 'yamma.searchcompletionitemselected',
+			args);
 		return command;
 	}
 	addAssertion(assertion: AssertionStatement, completionItems: CompletionItem[],
 		_rangeToInsertLabel: Range, _textEditToRemoveSearchStatement: TextEdit) {
 		const additionalTextEdit: TextEdit = {
 			range: _rangeToInsertLabel,
-			newText: "$$" + assertion.Label + '\n'
+			newText: assertion.Label + '\n'
 		};
-		// const command: Command = this.createCommand(_rangeToInsertLabel,assertion.Label);
+		const command: Command = this.createCommand(assertion.Label);
 		// const insertReplaceEdit: InsertReplaceEdit = {
 		// 	insert: this.mmpSearchStatement.range,
 		// 	replace: this.mmpSearchStatement.range,
@@ -68,7 +71,7 @@ export class SearchStatementCompletionProvider {
 			// textEdit: textEditToRemoveSearchStatement,
 			// textEdit: insertReplaceEdit,
 			// additionalTextEdits: [_textEditToRemoveSearchStatement, additionalTextEdit],
-			// command: command
+			command: command,
 			additionalTextEdits: [additionalTextEdit],
 
 			// detail: detail,

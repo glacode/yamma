@@ -51,6 +51,7 @@ import { MmParser } from './mm/MmParser';
 import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
 import { Parameters } from './general/Parameters';
+import { ISearchCompletionItemCommandParameters, SearchCompletionItemSelectedHandler } from './search/SearchCompletionItemSelectedHandler';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -188,6 +189,14 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 		Parameters.maxNumberOfSymbolsComputedForSearch, searchCommandParameters, connection,
 		GlobalState.lastMmpParser, GlobalState.mmStatistics);
 	searchCommandHandler.insertSearchStatement();
+});
+
+connection.onRequest('yamma/searchcompletionitemselected', (searchCompletionItemCommandParameters:
+	ISearchCompletionItemCommandParameters) => {
+	console.log('Completion item selected' + searchCompletionItemCommandParameters.searchStatementRangeStartLine);
+	const searchCompletionItemSelectedHandler: SearchCompletionItemSelectedHandler =
+		new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
+	searchCompletionItemSelectedHandler.deleteSearchStatement();
 });
 
 

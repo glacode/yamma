@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticSeverity, TextEdit } from 'vscode-languageserver';
+import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
 import { Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from './MmpParser';
@@ -14,8 +14,6 @@ import { consoleLogWithTimestamp } from '../mm/Utils';
 export class MmpValidator {
 	mmParser: MmParser
 	diagnostics: Diagnostic[] = [];
-	// workspaceEdit: WorkspaceEdit | undefined;
-	textEdits: TextEdit[] | undefined;
 
 	constructor(mmParser: MmParser) {
 		this.mmParser = mmParser;
@@ -101,7 +99,6 @@ export class MmpValidator {
 		console.log('after mmpParser.parse()');
 		GlobalState.lastMmpParser = mmpParser;
 		this.diagnostics = mmpParser.diagnostics;
-		this.textEdits = mmpParser.textEdits;
 		this.updateStatistics(mmpParser);
 	}
 	//#endregionvalidateFullDocumentText

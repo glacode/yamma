@@ -1,5 +1,5 @@
 import { Grammar, Parser } from 'nearley';
-import { Diagnostic, Position, Range, TextEdit } from 'vscode-languageserver';
+import { Diagnostic, Position, Range } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
 import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { ProofStepFirstTokenInfo } from './MmpStatements';
@@ -11,7 +11,7 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 import { range, oneCharacterRange, concatTokenValuesWithSpaces, concatWithSpaces, splitToTokensAllowingForEmptyValues, AreArrayTheSame, rebuildOriginalStringFromTokens } from '../mm/Utils';
 import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { IMmpStatementWithRange, IUStatement, UComment, UnmanagedStatement, UTheoremLabel } from './UStatement';
+import { IUStatement, UComment, UnmanagedStatement, UTheoremLabel } from './UStatement';
 import { UProof } from './UProof';
 import { SubstitutionResult, USubstitutionBuilder } from './USubstitutionBuilder';
 import { USubstitutionApplier } from './USubstitutionApplier';
@@ -24,7 +24,6 @@ import { TheoremCoherenceChecker } from '../mmt/TeoremCoherenceChecker';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { EHyp } from '../mm/EHyp';
 import { MmParser } from '../mm/MmParser';
-import { GlobalState } from '../general/GlobalState';
 
 
 
@@ -83,10 +82,7 @@ export class MmpParser {
 	// mmpStatements: MmpStatement[] = []
 	refToProofStepMap: Map<string, MmpProofStep>;  // maps each proof step id to the proof step
 	diagnostics: Diagnostic[] = [] // diagnostics built while parsing
-	textEdits: TextEdit[] = [];  // text edits built while parsing
 	uProof: UProof | undefined;
-
-	private areSearchStatementsToBeRemoved = false;
 
 	//#region constructor
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
@@ -226,38 +222,9 @@ export class MmpParser {
 		this.uProof?.addUStatement(comment);
 	}
 
-	//#region handleLabelFromSearchCompletionItem
-	addTextEditForLabelFromSearchCompletionItem(labelWithDoubleDollarPrefix: MmToken) {
-		const labelRange: Range = labelWithDoubleDollarPrefix.range;
-		const rangeToDelete: Range = Range.create(labelRange.start.line,
-			labelRange.start.character, labelRange.start.line, labelRange.start.character + 2);
-		const textEdit: TextEdit = TextEdit.del(rangeToDelete);
-		this.textEdits.push(textEdit);
-	}
-	setNewCursorPositionForSearchCompletionItem(range: Range) {
-		const rangeForCursor: Range =
-			Range.create(range.start.line, 0, range.end.line, range.end.character - 2);
-		GlobalState.suggestedRangeForCursorPosition = rangeForCursor;
-	}
-	handleLabelFromSearchCompletionItem(labelWithDoubleDollarPrefix: MmToken) {
-		this.addTextEditForLabelFromSearchCompletionItem(labelWithDoubleDollarPrefix);
-		this.areSearchStatementsToBeRemoved = true;
-		this.setNewCursorPositionForSearchCompletionItem(labelWithDoubleDollarPrefix.range);
-	}
-	//#endregion handleLabelFromSearchCompletionItem
-
-	addTextEditToRemoveStatement(mmpStatementWithRange: IMmpStatementWithRange) {
-		const range: Range = mmpStatementWithRange.range;
-		const rangeToDelete: Range = Range.create(range.start.line, range.start.character,
-			range.end.line + 1, 0);
-		const textEdit: TextEdit = TextEdit.del(rangeToDelete);
-		this.textEdits.push(textEdit);
-	}
 	addSearchStatement(searchStatementTokens: MmToken[]) {
 		const mmpSearchStatement: MmpSearchStatement = new MmpSearchStatement(searchStatementTokens);
 		this.uProof?.addUStatement(mmpSearchStatement);
-		if (this.areSearchStatementsToBeRemoved)
-			this.addTextEditToRemoveStatement(mmpSearchStatement);
 	}
 
 	addProofStep(proofStep: MmpProofStep) {
@@ -469,9 +436,6 @@ export class MmpParser {
 		else if (nextTokenValue.startsWith('*'))
 			// currente statement is a comment
 			this.addComment(nextProofStepTokens);
-		else if (nextTokenValue.startsWith('$$'))
-			// current line is the label produced by the user chosing a search completion item
-			this.handleLabelFromSearchCompletionItem(nextProofStepTokens[0]);
 		else if (nextTokenValue == MmpSearchStatement.searchSymbolsKeyword)
 			// current statement is a search statement
 			this.addSearchStatement(nextProofStepTokens);
@@ -675,11 +639,6 @@ export class MmpParser {
 		mmLexer.reset(this.textToParse);
 		this.mmTokens = mmLexer.tokens;
 		let token: MmToken | undefined = mmLexer.next();
-		// consoleLogWithTimestamp("Glauco_4: mmLexer has been created");
-		// let tokIndex = 0
-		// while (tokIndex < mmpTokenizer.tokens.length) {
-		// 	tokIndex = this.createNextMmpStatement(mmpTokenizer, tokIndex)
-		// }
 		this.uProof = new UProof(this.outermostBlock, this.workingVars);
 		while (token != undefined) {
 			token = this.createNextMmpStatement(token, mmLexer);

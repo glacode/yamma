@@ -41,7 +41,7 @@ export abstract class GlobalState {
 
 	
 	static suggestedRangeForCursorPosition?: Range;
-
+	
 	static setSuggestedRangeForCursorPosition( range: Range | undefined ) {
 		this.suggestedRangeForCursorPosition = range;
 	}

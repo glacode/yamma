@@ -43,7 +43,7 @@ test("expect proper string for search command", () => {
 	expect(positionForInsertionAbove52).toEqual(expectedPositionForInsertion);
 });
 
-test("computeRangeForCursor", () => {
+test("searchstatement computeRangeForCursor", () => {
 	const insertPosition: Position = { line: 2, character: 0 };
 	const range: Range = TestSearchCommandHandler.computeRangeForCursor(insertPosition,
 		'SearchSymbols: R. X.   SearchComment: \n');
