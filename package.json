@@ -120,10 +120,6 @@
 			{
 				"command": "yamma.search",
 				"title": "Search theorems in the theory"
-			},
-			{
-				"command": "yamma.searchcompletionitemselected",
-				"title": "Search completion item selected"
 			}
 		],
 		"keybindings": [
