@@ -28,12 +28,6 @@ export class SearchStatementCompletionProvider {
 	//#region completionItemsForAssertionsInTheIntersections
 
 	getRangeToInsertLabel(): Range {
-		//TODO1 use the last mmpProofStep above the mmpSearchStatement
-		// const position: Position = {
-		// 	line: this.mmpSearchStatement.range.start.line - 1,
-		// 	character: 0
-		// };
-		// const range: Range = oneCharacterRange(position);
 		const range: Range = Range.create(this.mmpSearchStatement.range.start.line - 1, 0,
 			this.mmpSearchStatement.range.start.line - 1, 0);
 		return range;

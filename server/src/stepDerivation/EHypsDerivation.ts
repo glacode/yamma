@@ -120,7 +120,6 @@ export class EHypsDerivation {
 
 	//#region searchCurrentEHypWithoutAdditionalVarsToBeUnified
 	buildFormulaForCurrentEHypProofStep(currentEHyp: EHyp): string {
-		//TODO1
 		const parseNode: InternalNode =
 			USubstitutionApplier.createParseNodeForInternalNode(currentEHyp.parseNode, this.substitution, this.outermostBlock);
 		const formula: string = parseNode.stringFormula;

@@ -60,25 +60,6 @@ export class StepDerivation {
 
 	//#region tryAllPossibleEHypsPermutations
 
-	//#region buildSubstitutionForCurrentHyp
-	// private buildSubstitutionForCurrentLogicalEHyp(assertion: AssertionStatement, currentLogicalHypIndex: number,
-	// 	currentProofStepEHypsCandidate: (MmpProofStep | undefined)[]): boolean {
-	// 	if (this.)
-	// 		//TODO1
-	// 		const logicalEHypIndex: number = assertion.eHypsOrderForStepDerivation[currentLogicalHypIndex];
-	// 	const currentLogicalEHyp: EHyp = assertion.frame?.eHyps[logicalEHypIndex];
-	// 	let isCandidateUnified = false;
-	// 	const proofStepEHypCandidateIndex = 0;
-	// 	while (!isCandidateUnified && proofStepEHypCandidateIndex < this.mmpProofStepIndex) {
-	// 		const currentUStatement: IUStatement = this.uProof.uStatements[proofStepEHypCandidateIndex];
-	// 		if (currentUStatement instanceof MmpProofStep)
-	// 			isCandidateUnified = this.tryToUnify(currentLogicalEHyp, substitution);
-
-	// 	}
-
-
-	// 	throw new Error('Method not implemented.');
-	// }
 	//#endregion buildSubstitutionForCurrentHyp
 
 	tryEHypsDerivation(assertion: AssertionStatement, uSubstitutionBuilder: USubstitutionBuilder,
@@ -147,17 +128,9 @@ export class StepDerivation {
 	  */
 	deriveLabelAndHypothesis(): void {
 		if (this.isDeriveToBeTried()) {
-			// this.mmpProofStep.eHypUSteps.push(<MmpProofStep>this.uProof.uStatements[0]);
-			// this.mmpProofStep.eHypUSteps.push(<MmpProofStep>this.uProof.uStatements[1]);
-			// this.mmpProofStep.stepLabel = 'ax-mp';
-			//TODO1
-			const debug = this.labelToNonSyntaxAssertionMap.get('weq');
-			console.log(debug);
 			const nonSyntaxAssertions: IterableIterator<AssertionStatement> = this.labelToNonSyntaxAssertionMap.values();
 			let nonSyntaxAssertion: IteratorResult<AssertionStatement, any> = nonSyntaxAssertions.next();
 			while (!nonSyntaxAssertion.done && this.mmpProofStep.stepLabel == undefined) {
-				// this.labelToNonSyntaxAssertionMap.forEach((assertion: AssertionStatement) => {
-				//TODO1 stop at the first successful
 				this.tryCurrentLabeledStatement(nonSyntaxAssertion.value);
 				nonSyntaxAssertion = nonSyntaxAssertions.next();
 			}

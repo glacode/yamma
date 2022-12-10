@@ -286,7 +286,6 @@ test('Expect ref error to leave line unchanged', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1
 test('unify a1i with already present working var', () => {
 	const mmpSource =
 		'a::a1i |- &W1\n' +

@@ -20,7 +20,6 @@ import { StepDerivation } from '../stepDerivation/StepDerivation';
 export class UProofTransformer {
 	// textDocument: TextDocument
 	uProof: UProof;
-	//TODO1 this one is not used, remove it
 	labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>;
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
