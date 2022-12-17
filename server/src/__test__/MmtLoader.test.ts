@@ -1,8 +1,7 @@
 import { MmParser } from '../mm/MmParser';
 import { MmtLoader } from '../mmt/MmtLoader';
-import { mp2Parser } from './MmpParser.test';
 import { vexTheoryMmParser } from './MmpProofStatement.test';
-import { impbiiMmParser } from './GlobalForTest.test';
+import { impbiiMmParser, mp2MmParser } from './GlobalForTest.test';
 
 /**
  * This class is used to test protected methods
@@ -78,7 +77,7 @@ test("expect new theorem can be added ", () => {
 		'mp2 $p         |- ch $=\n' +
 		'  ( wi ax-mp ) BCEABCGDFHH $.\n' +
 		'$}';
-	const testMmtLoader: TestMmtLoader = new TestMmtLoader(mmtFileForMp2, mp2Parser);
+	const testMmtLoader: TestMmtLoader = new TestMmtLoader(mmtFileForMp2, mp2MmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForMp2);
 	expect(canBeAdded).toBeTruthy();
 });

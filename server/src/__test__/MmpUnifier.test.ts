@@ -6,9 +6,8 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
+import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, mp2Theory } from './GlobalForTest.test';
 import { axmpTheory } from './MmParser.test';
-import { mp2Theory } from './MmpParser.test';
 import { vexTheoryMmParser } from './MmpProofStatement.test';
 
 

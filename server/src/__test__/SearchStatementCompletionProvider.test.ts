@@ -3,8 +3,7 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { SearchStatementCompletionProvider } from '../search/SearchStatementCompletionProvider';
-import { kindToPrefixMap } from './GlobalForTest.test';
-import { mp2Parser, mp2Statistics } from './MmpParser.test';
+import { kindToPrefixMap, mp2MmParser, mp2Statistics } from './GlobalForTest.test';
 
 test("SearchStatementCompletionProvider 1", () => {
 	const mmpSource: string =
@@ -14,7 +13,7 @@ test("SearchStatementCompletionProvider 1", () => {
 		'qed:: |- ph';
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2Parser, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.uStatements[2];

@@ -1,7 +1,7 @@
 import { MmtSaver } from '../mmt/MmtSaver';
 import { MmParser } from '../mm/MmParser';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
-import { mp2Theory } from './MmpParser.test';
+import { mp2Theory } from './GlobalForTest.test';
 
 /**
  * This class is used to test protected methods

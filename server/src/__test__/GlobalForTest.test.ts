@@ -2,6 +2,7 @@ import { GlobalState } from '../general/GlobalState';
 import { IVariableKindConfiguration, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import * as fs from 'fs';
+import { MmStatistics } from '../mm/MmStatistics';
 
 
 const variableKindsConfiguration: Map<string, IVariableKindConfiguration> = new Map<string, IVariableKindConfiguration>();
@@ -31,6 +32,21 @@ export function createMmParser(fileName: string): MmParser {
 	return mmParser;
 }
 
+/**the minimium theory needed to proof mp2 */
+export const mp2Theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. ' +
+	'$v ps $. $v ch $. wph $f wff ph $. wps $f wff ps $. wch $f wff ch $.\n' +
+	'wi $a wff ( ph -> ps ) $.\n' +
+	'${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}';
+export const mp2MmParser: MmParser = new MmParser();
+mp2MmParser.ParseText(mp2Theory);
+mp2MmParser.createParseNodesForAssertionsSync();
+
+// export const mp2Parser: MmParser = new MmParser();
+// mp2Parser.ParseText(mp2Theory);
+
+export const mp2Statistics: MmStatistics = new MmStatistics(mp2MmParser);
+mp2Statistics.buildStatistics();
+
 export const impbiiMmParser: MmParser = createMmParser('impbii.mm');
 
 // const eqeq1iTheory: string = readTestFile('eqeq1i.mm');
@@ -42,13 +58,7 @@ eqeq1iMmParser.createParseNodesForAssertionsSync();
 
 export const opelcnMmParser: MmParser = createMmParser('opelcn.mm');
 
-export const mp2Theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. ' +
-	'$v ps $. $v ch $. wph $f wff ph $. wps $f wff ps $. wch $f wff ch $.\n' +
-	'wi $a wff ( ph -> ps ) $.\n' +
-	'${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}';
-export const mp2MmParser: MmParser = new MmParser();
-mp2MmParser.ParseText(mp2Theory);
-mp2MmParser.createParseNodesForAssertionsSync();
+
 
 export const kindToPrefixMap: Map<string, string> = new Map<string, string>();
 kindToPrefixMap.set('wff', 'W');
