@@ -1,6 +1,5 @@
 import { Grammar } from 'nearley';
 import { isMainThread, parentPort, Worker, workerData } from 'worker_threads';
-import { GlobalState } from '../general/GlobalState';
 import { MmpRule } from '../grammar/GrammarManager';
 import { MmLexer } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
@@ -59,8 +58,8 @@ function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string, strin
 
 //TODO1
 //#region creaParseNodesInANewThread
-function createLabelToFormulaMap(): Map<string, string> {
-	const labelToStatementMap: Map<string, LabeledStatement> = GlobalState.mmParser!.labelToStatementMap;
+function createLabelToFormulaMap(mmParser: MmParser): Map<string, string> {
+	const labelToStatementMap: Map<string, LabeledStatement> = mmParser.labelToStatementMap;
 	const labelToFormulaMap: Map<string, string> = new Map<string, string>();
 	labelToStatementMap.forEach((labeledStatement: LabeledStatement) => {
 		if (MmParser.isParsable(labeledStatement)) {
@@ -86,7 +85,7 @@ function addParseNodes(labelToParseNodeForThreadMap: Map<string, ParseNodeForThr
 
 export function creaParseNodesInANewThread(mmParser: MmParser): void {
 	// This code is executed in the main thread and not in the worker.
-	const labelToFormulaMap: Map<string, string> = createLabelToFormulaMap();
+	const labelToFormulaMap: Map<string, string> = createLabelToFormulaMap( mmParser );
 	const mmpRulesForThread: IMmpRuleForThread[] =
 		GrammarManagerForThread.convertMmpRules(<MmpRule[]>mmParser.grammar.rules);
 

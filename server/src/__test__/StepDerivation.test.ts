@@ -1,6 +1,6 @@
 import { TextEdit } from 'vscode-languageserver';
-import { GlobalState } from '../general/GlobalState';
 import { ProofMode } from '../mm/ConfigurationManager';
+import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
@@ -114,9 +114,12 @@ test('Worker Thread for ParseNode(s) creation', async () => {
 		'5:4,2:               |- ( ph -> ps )\n' +
 		'qed::a |- ch';
 	//TODO1
-	GlobalState.mmParser = eqeq1iMmParser;
-	eqeq1iMmParser.createParseNodesForAssertionsAsync();
-	await new Promise(r => setTimeout(r, 1000));
+	const mmParser: MmParser = eqeq1iMmParser;
+	mmParser.areAllParseNodesComplete = false;
+	mmParser.createParseNodesForAssertionsAsync();
+	while (!mmParser.areAllParseNodesComplete)
+		await new Promise(r => setTimeout(r, 10));
+	// await new Promise(r => setTimeout(r, 1000));
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
