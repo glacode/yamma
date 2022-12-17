@@ -113,8 +113,8 @@ export class MmpUnifier {
 		// 	this.uProof = this.buildUProof(textToParse);
 		//TODO see if this can be faster if done in the MmpParser
 		this.uProof!.updateAllWorkingVars();
-		const uProofTransformer: UProofTransformer = new UProofTransformer(this.uProof!, this.mmpParser!.mmParser.labelToNonSyntaxAssertionMap,
-			this.outermostBlock, this.grammar, this.workingVars,this.maxNumberOfHypothesisDispositionsForStepDerivation);
+		const uProofTransformer: UProofTransformer = new UProofTransformer(
+			this.mmpParser, this.maxNumberOfHypothesisDispositionsForStepDerivation);
 		// const newUProof: UProof = this.transformUProof(uProof);
 		uProofTransformer.transformUProof();
 		this.buildProofStatementIfProofIsComplete(this.uProof!);

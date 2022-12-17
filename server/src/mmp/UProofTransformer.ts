@@ -15,6 +15,7 @@ import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
 import { DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmpProofStep } from "./MmpProofStep";
 import { StepDerivation } from '../stepDerivation/StepDerivation';
+import { MmpParser } from './MmpParser';
 
 // Parser for .mmp files
 export class UProofTransformer {
@@ -43,29 +44,20 @@ export class UProofTransformer {
 		return this._orderedPairsOfNodesForMGUalgorithm;
 	}
 
-	//TODO1 pass a single MmParser or a single MmpParser to the constructor
 	//#region constructor
-	constructor(uProof: UProof, labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>,
-		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
-		maxNumberOfHypothesisDispositionsForStepDerivation: number) {
+	// constructor(uProof: UProof, labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>,
+	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
+	// 	maxNumberOfHypothesisDispositionsForStepDerivation: number) {
+	constructor(mmpParser: MmpParser, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 		// this.textDocument = textDocument
-		this.uProof = uProof;
-		this.labelToNonSyntaxAssertionMap = labelToNonSyntaxAssertionMap;
-		this.outermostBlock = outermostBlock;
-		this.grammar = grammar;
-		this.workingVars = workingVars;
+		this.uProof = mmpParser.uProof!;
+		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
+		this.outermostBlock = mmpParser.outermostBlock;
+		this.grammar = mmpParser.grammar;
+		this.workingVars = mmpParser.workingVars;
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 		this._orderedPairsOfNodesForMGUalgorithm = [];
 	}
-
-	// parse(textToParse: string): MmpParser {
-	// 	const mmpParser: MmpParser = new MmpParser(textToParse, this.labelToStatementMap, this.outermostBlock,
-	// 		this.grammar, this.workingVars);
-	// 	// const outermostBlock: BlockStatement = new BlockStatement(null);
-	// 	mmpParser.parse();
-	// 	return mmpParser;
-	// }
-
 
 	//#region transformUProof
 

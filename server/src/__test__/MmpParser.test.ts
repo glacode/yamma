@@ -364,10 +364,6 @@ test('expect missing ref error', () => {
 	});
 });
 
-//TODO1 move to the global for test
-/**the minimium theory needed to proof mp2 */
-
-
 test('expect label only to be parsed', () => {
 	const mmpSource =
 		'ax-mp\n' +
