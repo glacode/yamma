@@ -113,7 +113,6 @@ test('Worker Thread for ParseNode(s) creation', async () => {
 		'4::                |- ( &W3 -> ps )\n' +
 		'5:4,2:               |- ( ph -> ps )\n' +
 		'qed::a |- ch';
-	//TODO1
 	const mmParser: MmParser = eqeq1iMmParser;
 	mmParser.areAllParseNodesComplete = false;
 	mmParser.createParseNodesForAssertionsAsync();

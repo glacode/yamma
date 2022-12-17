@@ -133,7 +133,6 @@ export class USubstitutionBuilder {
 		uStepParseNode: ParseNode, substitution: Map<string, InternalNode>): boolean {
 		let hasFoundSubstitution: boolean;
 		// if (!(uStepParseNode instanceof MmToken) && uStepParseNode.parseNodes.length )
-		//TODO1 remove the following if
 		if (uStepParseNode instanceof MmToken)
 			hasFoundSubstitution = false;
 		else {

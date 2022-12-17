@@ -56,7 +56,6 @@ function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string, strin
 
 //#endregion CHILD THREAD
 
-//TODO1
 //#region creaParseNodesInANewThread
 function createLabelToFormulaMap(mmParser: MmParser): Map<string, string> {
 	const labelToStatementMap: Map<string, LabeledStatement> = mmParser.labelToStatementMap;

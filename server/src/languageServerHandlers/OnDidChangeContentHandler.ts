@@ -130,8 +130,6 @@ export class OnDidChangeContentHandler {
 				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalSettings,
 				GlobalState.configurationManager, GlobalState.mmParser, GlobalState.suggestedRangeForCursorPosition);
 			await onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
-			//TODO1 the line below seems to be useless, remove it
-			unifyDoneButCursorPositionNotUpdatedYet = false;
 		}
 	}
 }
