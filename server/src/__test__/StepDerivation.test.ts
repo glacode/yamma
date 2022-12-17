@@ -1,4 +1,5 @@
 import { TextEdit } from 'vscode-languageserver';
+import { GlobalState } from '../general/GlobalState';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
@@ -90,6 +91,32 @@ test('StepDerivation wrong EHyps order and missing single EHyp', () => {
 		'4::                |- ( &W3 -> ps )\n' +
 		'5:4,2:               |- ( ph -> ps )\n' +
 		'qed::a |- ch';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'2::                 |- ( ph -> &W2 )\n' +
+		'3::                 |- ( &W2 -> &W3 )\n' +
+		'4::                 |- ( &W3 -> ps )\n' +
+		'5:2,3,4:3syl       |- ( ph -> ps )\n' +
+		'qed::a             |- ch\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
+test('Worker Thread for ParseNode(s) creation', async () => {
+	const mmpSource =
+		'2::                |- ( ph -> &W2 )\n' +
+		'3::                |- ( &W2 -> &W3 )\n' +
+		'4::                |- ( &W3 -> ps )\n' +
+		'5:4,2:               |- ( ph -> ps )\n' +
+		'qed::a |- ch';
+	//TODO1
+	GlobalState.mmParser = eqeq1iMmParser;
+	eqeq1iMmParser.createParseNodesForAssertionsAsync();
+	await new Promise(r => setTimeout(r, 1000));
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);

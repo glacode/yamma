@@ -41,7 +41,7 @@ export class ModelBuilder {
 	private _mmParser: MmParser | undefined;
 
 	/** change this one if you want ConsoleLog messages */
-	private notifyProgressEnabled = true;
+	private notifyProgressEnabled;
 
 
 	//TODO use class StepSuggestionMap
@@ -54,9 +54,11 @@ export class ModelBuilder {
 
 
 
-	constructor(mmFilePath: string, formulaClassifiers: IFormulaClassifier[]) {
+	constructor(mmFilePath: string, formulaClassifiers: IFormulaClassifier[],
+		notifyProgressEnabled: boolean) {
 		this.mmFilePath = mmFilePath;
 		this.formulaClassifiers = formulaClassifiers;
+		this.notifyProgressEnabled = notifyProgressEnabled;
 
 		this.stepGiustificationStatistics = new Map<string, Map<string, number>>();
 		this.stepSuggestionTripleMap = new StepSuggestionTripleMap();

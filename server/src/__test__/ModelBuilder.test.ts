@@ -15,7 +15,7 @@ import { fullPathForTestFile } from './GlobalForTest.test';
 test("test 1 ModelBuilder for opelcn.mm", () => {
 	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
 	const mmFilePath = fullPathForTestFile('opelcn.mm');
-	const modelBuilder: TestModelBuilder = new TestModelBuilder(mmFilePath, fomulaClassifiers);
+	const modelBuilder: TestModelBuilder = new TestModelBuilder(mmFilePath, fomulaClassifiers,false);
 	// modelBuilder.buildModel();
 	modelBuilder.buildStepSuggestionTripleMap();
 	const stepSuggestionTripleMap: StepSuggestionTripleMap = modelBuilder.stepSuggestionTripleMap;

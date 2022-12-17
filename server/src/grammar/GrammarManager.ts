@@ -1,5 +1,5 @@
 
-import { Grammar, Postprocessor, Rule } from 'nearley';
+import { Grammar,Rule } from 'nearley';
 import { MmToken } from './MmLexer';
 import { InternalNode, ParseNode } from './ParseNode';
 import { AxiomStatement } from "../mm/AxiomStatement";
@@ -22,10 +22,13 @@ type NearleyType = {
 type NearleyItem = NearleyLiteral | NearleyType | string;
 
 
-class MmpRule extends Rule {
+export class MmpRule extends Rule {
 	label: string  // the label of the statement generating this rule
-	constructor(label: string, name: string, symbols: NearleyItem[], postprocess: Postprocessor) {
-		super(name, symbols, postprocess);
+	// constructor(label: string, name: string, symbols: NearleyItem[], postprocess: Postprocessor) {
+	constructor(label: string, name: string, symbols: NearleyItem[]) {
+		// super(name, symbols, postprocess);
+		super(name, symbols, (d) => { return new InternalNode(label, name, d); });
+
 		this.label = label;
 	}
 }
@@ -86,9 +89,8 @@ export abstract class GrammarManager {
 		// return new Rule(kind, symbols,
 		// 	(d) => { return { label: label, kind: kind, parseNodes: d }; }
 		// );
-		return new MmpRule(label, kind, symbols,
-			// (d) => { return { label: label, kind: kind, parseNodes: d }; }
-			(d) => { return new InternalNode(label, kind, d); }
+		return new MmpRule(label, kind, symbols
+			// (d) => { return new InternalNode(label, kind, d); }
 		);
 	}
 

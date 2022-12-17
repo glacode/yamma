@@ -294,36 +294,36 @@ export function arrayRange(tokens: MmToken[]): Range {
 
 export function notifyInformation(informationMessage: string, connection: Connection) {
     // connection.sendNotification('yamma/showinformation', errorMessage);
-    const messageActionItem: MessageActionItem = {title: "Ok"};
+    const messageActionItem: MessageActionItem = { title: "Ok" };
     const messageActionItems: MessageActionItem[] = [messageActionItem];
-    connection.window.showInformationMessage(informationMessage,...messageActionItems);
+    connection.window.showInformationMessage(informationMessage, ...messageActionItems);
 }
 
 export function notifyWarning(warningMessage: string, connection: Connection) {
     // connection.sendNotification('yamma/showwarning', warningMessage);
-    const messageActionItem: MessageActionItem = {title: "Ok"};
+    const messageActionItem: MessageActionItem = { title: "Ok" };
     const messageActionItems: MessageActionItem[] = [messageActionItem];
-    connection.window.showWarningMessage(warningMessage,...messageActionItems);
+    connection.window.showWarningMessage(warningMessage, ...messageActionItems);
 }
 
 export function notifyError(errorMessage: string, connection: Connection) {
     // connection.sendNotification('yamma/showerror', errorMessage);
-    const messageActionItem: MessageActionItem = {title: "Ok"};
+    const messageActionItem: MessageActionItem = { title: "Ok" };
     const messageActionItems: MessageActionItem[] = [messageActionItem];
-    connection.window.showErrorMessage(errorMessage,...messageActionItems);
+    connection.window.showErrorMessage(errorMessage, ...messageActionItems);
 }
 
 
 //#region intersection
 
 /** true if element is in all sets in set, without considering firstSet */
-function isInIntersection<T>(element: T, set: Set<Set<T>>) : boolean {
+function isInIntersection<T>(element: T, set: Set<Set<T>>): boolean {
     let result = true;
     //TODO using arrays instead of sets and a while loop could be much more efficient
     set.forEach((intersectingSet: Set<T>) => {
         result &&= intersectingSet.has(element);
     });
-    return result;  
+    return result;
 
 }
 /** returns the intersection of a (finite) set ; if the set is empty,
@@ -342,3 +342,12 @@ export function intersection<T>(set: Set<Set<T>>): Set<T> | undefined {
     return result;
 }
 //#endregion intersection
+
+
+export function notifyProgress(current: number, total: number) {
+    const previousPercentageOfWorkDone: number = Math.trunc(((current - 1) * 100) / total);
+    const percentageOfWorkDone: number = Math.trunc((current * 100) / total);
+    if (previousPercentageOfWorkDone < percentageOfWorkDone) {
+        consoleLogWithTimestamp(percentageOfWorkDone + '%');
+    }
+}

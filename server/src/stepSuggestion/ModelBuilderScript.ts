@@ -16,7 +16,7 @@ consoleLogWithTimestamp('model builder start');
 
 // const rpnSyntaxTreeBuilder: RpnSyntaxTreeBuilder = new RpnSyntaxTreeBuilder();
 const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
-const modelBuilder: ModelBuilder = new ModelBuilder(mmFilePath, formulaClassifiers);
+const modelBuilder: ModelBuilder = new ModelBuilder(mmFilePath, formulaClassifiers, true);
 modelBuilder.buildModel();
 
 consoleLogWithTimestamp('model builder end');

@@ -17,26 +17,29 @@ export abstract class LabeledStatement extends NonBlockStatement {
     /** statement number for labeled statements */
     statementNumber: number;
 
-
-    //#region parseNode
-    // parses a formula, without producing diagnostics
-    // we invoke it with theory formulas, thus no error is expected
-    protected parseStrArray(theoryFormula: string[], grammar: Grammar, workingVars: WorkingVars): ParseNode | undefined {
+    public static parseString(formula: string, grammar: Grammar, workingVars: WorkingVars) {
         let parseNode: ParseNode | undefined;
         grammar.lexer = new MmLexer(workingVars);
         const parser: Parser = new Parser(grammar);
         // Parse something!
-        const stepFormulaString = concatWithSpaces(theoryFormula);
         try {
-            parser.feed(stepFormulaString);
+            parser.feed(formula);
             parseNode = parser.results[0];
         } catch (error: any) {
-            console.log("Unexpected error! - parseStrArray : " + stepFormulaString);
-            throw new Error("Unexpected error! - parseStrArray : " + stepFormulaString);
+            console.log("Unexpected error! - parseStrArray : " + formula);
+            throw new Error("Unexpected error! - parseStrArray : " + formula);
         }
         return parseNode;
     }
-    //#endregion parseNode
+
+    // parses a formula, without producing diagnostics
+    // we invoke it with theory formulas, thus no error is expected
+    protected parseStrArray(theoryFormula: string[], grammar: Grammar, workingVars: WorkingVars): ParseNode | undefined {
+        const formula: string = concatWithSpaces(theoryFormula);
+        const parseNode: ParseNode | undefined = LabeledStatement.parseString(formula, grammar, workingVars);
+        return parseNode;
+    }
+
     public get parseNode(): InternalNode {
         if (this._parseNode == undefined)
             // this._parseNode = <InternalNode>this.parseStrArray(this.formula, grammar, new WorkingVars());
@@ -45,9 +48,14 @@ export abstract class LabeledStatement extends NonBlockStatement {
         return this._parseNode;
     }
 
-	private _logicalVariables: Set<string> | undefined;
+    public setParseNode(parseNode: InternalNode) {
+        this._parseNode = parseNode;
+    }
 
-	public get logicalVariables(): Set<string> {
+
+    private _logicalVariables: Set<string> | undefined;
+
+    public get logicalVariables(): Set<string> {
         if (this._logicalVariables == undefined)
             // this._parseNode = <InternalNode>this.parseStrArray(this.formula, grammar, new WorkingVars());
             this._logicalVariables = this.parseNode.logicalVariables(this.outermostBlock!);

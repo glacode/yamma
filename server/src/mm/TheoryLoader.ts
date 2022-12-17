@@ -121,7 +121,7 @@ export class TheoryLoader {
 			mmStatistics.buildStatistics();
 			GlobalState.mmStatistics = mmStatistics;
 		}
-	}
+	}	
 
 	/** checks if the current mmFilePath is different from the one stored in the GlobalState: if that's the
 	 * case, then:
@@ -144,6 +144,10 @@ export class TheoryLoader {
 				console.log('before updateStatistics');
 				this.updateStatistics();
 				console.log('after updateStatistics');
+				console.log('before createParseNodesForAssertions');
+				GlobalState.mmParser.createParseNodesForAssertionsAsync();
+				console.log('after createParseNodesForAssertions');
+
 			}
 		}
 	}

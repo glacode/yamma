@@ -7,7 +7,6 @@ import { UProof } from '../mmp/UProof';
 import { USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { EHypsDerivation } from './EHypsDerivation';
-import { consoleLogWithTimestamp } from '../mm/Utils';
 
 /** tries to derive a label for the given MmpProofStep */
 export class StepDerivation {
@@ -36,7 +35,8 @@ export class StepDerivation {
 	//#region deriveLabelAndHypothesis
 
 	private isDeriveToBeTried(): boolean {
-		const result = !this.mmpProofStep.hasWorkingVars;
+		const result = !this.mmpProofStep.hasWorkingVars && this.outermostBlock.mmParser != undefined &&
+			this.outermostBlock.mmParser?.areAllParseNodesComplete;
 		return result;
 	}
 
@@ -103,10 +103,10 @@ export class StepDerivation {
 				this.mmpProofStep.parseNode, substitution);
 		if (substitutionFound) {
 			// assertion.parseNode has been succesfully unified with this.mmpProofStep.parseNode
-			const totalSize: number = this.labelToNonSyntaxAssertionMap.size;
-			consoleLogWithTimestamp(assertion.statementNumber + " / " + totalSize + " - " + assertion.Label);
+			// const totalSize: number = this.labelToNonSyntaxAssertionMap.size;
+			// consoleLogWithTimestamp(assertion.statementNumber + " / " + totalSize + " - " + assertion.Label);
 			this.tryEHypsDerivation(assertion, uSubstitutionBuilder, substitution);
-			consoleLogWithTimestamp(assertion.statementNumber + " / " + totalSize + " - " + assertion.Label);
+			// consoleLogWithTimestamp(assertion.statementNumber + " / " + totalSize + " - " + assertion.Label);
 		}
 	}
 	//#endregion tryCurrentAssertion

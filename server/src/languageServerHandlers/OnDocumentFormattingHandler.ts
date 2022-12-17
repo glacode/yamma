@@ -31,7 +31,7 @@ export class OnDocumentFormattingHandler {
 		// const mmpUnifier: MmpUnifier =
 		// 	new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
 		// 		this.mmParser.grammar, this.mmParser.workingVars, proofMode, GlobalState.lastMmpParser);
-		//TODO1 manage case GlobalState.lastMmpParser == undefined (invok unify only if it is not undefined) 
+		//TODO1 manage case GlobalState.lastMmpParser == undefined (invoke unify only if it is not undefined) 
 		const mmpUnifier: MmpUnifier =
 			new MmpUnifier(GlobalState.lastMmpParser!, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation);
 		// const textToParse: string = textDocument.getText();

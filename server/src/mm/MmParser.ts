@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as readline from 'readline';
-import events = require('events');
 import { BlockStatement } from "./BlockStatement";
 import { Frame } from "./Frame";
 import { AxiomStatement } from "./AxiomStatement";
@@ -18,7 +17,8 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
 import { EHyp } from './EHyp';
 import { FHyp } from './FHyp';
-
+import * as events from 'events';
+import { creaParseNodesInANewThread } from '../parseNodesCreatorThread/ParseNodesCreator';
 
 export enum MmParserErrorCode {
     varNotInActiveFStatement = "varNotInActiveFStatement",
@@ -47,6 +47,11 @@ export class MmParser {
 
     private _grammar: Grammar | undefined;
     private _percentageOfWorkDone: number;
+
+    /** it will be set by the theory loader, when all theory parse nodes will
+     * be ready
+     */
+    areAllParseNodesComplete: boolean;
 
     public get grammar() {
         if (this._grammar == undefined)
@@ -79,6 +84,8 @@ export class MmParser {
         this.labelToNonSyntaxAssertionMap = new Map<string, AssertionStatement>();
         this.lastComment = "";
         this.parseFailed = false;
+        this.areAllParseNodesComplete = false;
+
 
         this._percentageOfWorkDone = 0;
     }
@@ -387,5 +394,30 @@ export class MmParser {
         this.parseLines(fileLines);
     }
 
+    //#region createParseNodesForAssertions
+    
 
+    public createParseNodesForAssertionsAsync() {
+        creaParseNodesInANewThread(this);
+    }
+
+    /** true iff the formula is a provable statement (typically, it starts with '|-' ) */
+    public static isParsable(labeledStatement: LabeledStatement): boolean {
+        const result: boolean = labeledStatement instanceof EHyp ||
+            labeledStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(labeledStatement);
+        return result;
+    }
+
+    /** use this method only for testing small .mm files */
+    public createParseNodesForAssertionsSync() {
+        this.labelToStatementMap.forEach((labeledStatement: LabeledStatement) => {
+            // if (labeledStatement instanceof EHyp ||
+            //     labeledStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(labeledStatement)) {
+            if (MmParser.isParsable(labeledStatement)) {
+                // if the parseNode is undefined, it will create it
+                labeledStatement.parseNode;
+            }
+        });
+        this.areAllParseNodesComplete = true;
+    }
 }

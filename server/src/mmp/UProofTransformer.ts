@@ -184,8 +184,9 @@ export class UProofTransformer {
 
 	//#region transformUStep
 	private deriveStepLabelIfMissing(uStepIndex: number, mmpProofStep: MmpProofStep) {
-		//TODO1 try to write the Derive here!!!
-		if (mmpProofStep.stepLabel == undefined) {
+		// if (mmpProofStep.stepLabel == undefined && this.outermostBlock.mmParser != undefined
+		// 	&& this.outermostBlock.mmParser.areAllParseNodesComplete) {
+		if (mmpProofStep.stepLabel == undefined && this.outermostBlock.mmParser != undefined) {
 			const stepDerivation: StepDerivation = new StepDerivation(this.uProof, uStepIndex, mmpProofStep,
 				this.labelToNonSyntaxAssertionMap, this.outermostBlock, this.grammar, this.workingVars,
 				this.maxNumberOfHypothesisDispositionsForStepDerivation);

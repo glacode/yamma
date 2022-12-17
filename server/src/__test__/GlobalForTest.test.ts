@@ -38,6 +38,7 @@ export const impbiiMmParser: MmParser = createMmParser('impbii.mm');
 // eqeq1iMmParser.ParseText(eqeq1iTheory);
 
 export const eqeq1iMmParser: MmParser = createMmParser('eqeq1i.mm');
+eqeq1iMmParser.createParseNodesForAssertionsSync();
 
 export const opelcnMmParser: MmParser = createMmParser('opelcn.mm');
 
@@ -47,6 +48,7 @@ export const mp2Theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. '
 	'${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}';
 export const mp2MmParser: MmParser = new MmParser();
 mp2MmParser.ParseText(mp2Theory);
+mp2MmParser.createParseNodesForAssertionsSync();
 
 export const kindToPrefixMap: Map<string, string> = new Map<string, string>();
 kindToPrefixMap.set('wff', 'W');
