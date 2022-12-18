@@ -20,6 +20,7 @@ import { MmpParser } from './MmpParser';
 // Parser for .mmp files
 export class UProofTransformer {
 	// textDocument: TextDocument
+	mmpParser: MmpParser;
 	uProof: UProof;
 	labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>;
 	outermostBlock: BlockStatement;
@@ -49,7 +50,7 @@ export class UProofTransformer {
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
 	// 	maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 	constructor(mmpParser: MmpParser, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
-		// this.textDocument = textDocument
+		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.uProof!;
 		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
 		this.outermostBlock = mmpParser.outermostBlock;
@@ -173,14 +174,12 @@ export class UProofTransformer {
 	}
 	//#endregion setIsProvenIfTheCase
 
-
 	//#region transformUStep
 	private deriveStepLabelIfMissing(uStepIndex: number, mmpProofStep: MmpProofStep) {
 		// if (mmpProofStep.stepLabel == undefined && this.outermostBlock.mmParser != undefined
 		// 	&& this.outermostBlock.mmParser.areAllParseNodesComplete) {
 		if (mmpProofStep.stepLabel == undefined && this.outermostBlock.mmParser != undefined) {
-			const stepDerivation: StepDerivation = new StepDerivation(this.uProof, uStepIndex, mmpProofStep,
-				this.labelToNonSyntaxAssertionMap, this.outermostBlock, this.grammar, this.workingVars,
+			const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
 				this.maxNumberOfHypothesisDispositionsForStepDerivation);
 			stepDerivation.deriveLabelAndHypothesis();
 		}

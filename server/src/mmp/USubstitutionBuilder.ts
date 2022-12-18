@@ -129,6 +129,7 @@ export class USubstitutionBuilder {
 		return result;
 	}
 
+	//TODO1 refactor this function (too nested)
 	buildSubstitutionForInternalNode(logicalSystemFormulaInternalNode: InternalNode,
 		uStepParseNode: ParseNode, substitution: Map<string, InternalNode>): boolean {
 		let hasFoundSubstitution: boolean;

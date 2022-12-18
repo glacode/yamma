@@ -7,6 +7,7 @@ import { UProof } from '../mmp/UProof';
 import { USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { EHypsDerivation } from './EHypsDerivation';
+import { MmpParser } from '../mmp/MmpParser';
 
 /** tries to derive a label for the given MmpProofStep */
 export class StepDerivation {
@@ -18,17 +19,15 @@ export class StepDerivation {
 	grammar: Grammar;
 	workingVars: WorkingVars;
 	maxNumberOfHypothesisDispositionsForStepDerivation: number;
-	//TODO1 pass a single MmpParser to the constructor
-	constructor(uProof: UProof, mmpProofStepIndex: number, mmpProofStep: MmpProofStep, labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>,
-		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
+	constructor(mmpParser: MmpParser, mmpProofStepIndex: number, mmpProofStep: MmpProofStep,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number) {
-		this.uProof = uProof;
+		this.uProof = mmpParser.uProof!;
 		this.mmpProofStepIndex = mmpProofStepIndex;
 		this.mmpProofStep = mmpProofStep;
-		this.labelToNonSyntaxAssertionMap = labelToNonSyntaxAssertionMap;
-		this.outermostBlock = outermostBlock;
-		this.grammar = grammar;
-		this.workingVars = workingVars;
+		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
+		this.outermostBlock = mmpParser.outermostBlock;
+		this.grammar = mmpParser.grammar;
+		this.workingVars = mmpParser.workingVars;
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 	}
 
