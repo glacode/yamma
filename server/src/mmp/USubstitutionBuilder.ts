@@ -169,6 +169,19 @@ export class USubstitutionBuilder {
 	}
 	//#endregion buildSubstitutionForWorkingVarOfTheSameKind
 
+	buildSubstitutionForChildren(logicalSystemParseNodes: ParseNode[],
+		uStepParseNodes: ParseNode[], substitution: Map<string, InternalNode>): boolean {
+		let hasFoundSubstitution = true;
+		// logicalSystemFormulaInternalNode.parseNodes.length == proofStepFormulaInternalNode.parseNodes.length
+		let i = 0;
+		while (hasFoundSubstitution && (i < logicalSystemParseNodes.length)) {
+			hasFoundSubstitution &&= this.buildSubstitutionForParseNode(
+				logicalSystemParseNodes[i], uStepParseNodes[i], substitution);
+			i++;
+		}
+		return hasFoundSubstitution;
+	}
+
 	buildSubstitutionForInternalNodesOfTheSameKindNoWorkingVar(logicalSystemFormulaInternalNode: InternalNode,
 		uStepInternalNode: InternalNode, substitution: Map<string, InternalNode>): boolean {
 		// this method is called when logicalSystemFormulaInternalNode and uStepInternalNode
@@ -179,19 +192,14 @@ export class USubstitutionBuilder {
 			hasFoundSubstitution = this.buildSubstitutionForLeafNodeWithInternalNode(
 				logicalSystemFormulaInternalNode.parseNodes[0], uStepInternalNode, substitution);
 		else
-			// logicalSystemFormulaInternalNode.parseNodes.length > 1
+			// either logicalSystemFormulaInternalNode.parseNodes.length > 1 or
+			// logicalSystemFormulaInternalNode.parseNodes[0] is an InternalNode
 			if (logicalSystemFormulaInternalNode.parseNodes.length !=
 				uStepInternalNode.parseNodes.length)
 				hasFoundSubstitution = false;
 			else {
-				hasFoundSubstitution = true;
-				// logicalSystemFormulaInternalNode.parseNodes.length > 1 and 
-				// logicalSystemFormulaInternalNode.parseNodes.length == proofStepFormulaInternalNode.parseNodes.length
-				//TODO1 speed up: break the loop when hasFoundSubstitution== false
-				for (let i = 0; i < logicalSystemFormulaInternalNode.parseNodes.length; i++)
-					hasFoundSubstitution &&= this.buildSubstitutionForParseNode(
-						logicalSystemFormulaInternalNode.parseNodes[i],
-						uStepInternalNode.parseNodes[i], substitution);
+				hasFoundSubstitution = this.buildSubstitutionForChildren(logicalSystemFormulaInternalNode.parseNodes,
+					uStepInternalNode.parseNodes, substitution);
 			}
 		return hasFoundSubstitution;
 	}
@@ -216,7 +224,6 @@ export class USubstitutionBuilder {
 	}
 	//#endregion buildSubstitutionForBothInternalNode
 
-	//TODO1 refactor this function (too nested)
 	buildSubstitutionForInternalNode(logicalSystemFormulaInternalNode: InternalNode,
 		uStepParseNode: ParseNode, substitution: Map<string, InternalNode>): boolean {
 		let hasFoundSubstitution: boolean;
