@@ -15,7 +15,7 @@ import { ParseNodeForThread, ParseNodeForThreadConverter } from './ParseNodeForT
 if (!isMainThread) {
 	const { labelToFormulaMap, mmpRulesForThread }: { labelToFormulaMap: Map<string, string>, mmpRulesForThread: IMmpRuleForThread[] } = workerData;
 
-	console.log('I am the worker process!!!!!!!!!');
+	console.log('I am the worker thread!!!!!!!!!');
 	console.log('Worker thread!!!!: labelToFormulaMap.size = ' + labelToFormulaMap);
 	const labelToParseNodeForThreadMap: Map<string, ParseNodeForThread> =
 		createLabelToParseNodeForThreadMap(labelToFormulaMap, mmpRulesForThread);
@@ -45,7 +45,9 @@ function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string, strin
 	const workingVars: WorkingVars = new WorkingVars(new Map<string, string>());
 	const grammar: Grammar = createGrammar(mmpRulesForThread, workingVars);
 	// const grammar: Grammar = createGrammar()
+	let i = 0;
 	labelToFormulaMap.forEach((formula: string, label: string) => {
+		notifyProgress(i++, labelToFormulaMap.size, "createLabelToParseNodeForThreadMap" );
 		const parseNodeForThread: ParseNodeForThread | undefined = createParseNodeForThread(formula, grammar, workingVars);
 		if (parseNodeForThread != undefined)
 			labelToParseNodeForThreadMap.set(label, parseNodeForThread);
@@ -71,9 +73,9 @@ function createLabelToFormulaMap(mmParser: MmParser): Map<string, string> {
 
 function addParseNodes(labelToParseNodeForThreadMap: Map<string, ParseNodeForThread>,
 	labelToStatementMap: Map<string, LabeledStatement>) {
-	let i = 0;
+	// let i = 0;
 	labelToParseNodeForThreadMap.forEach((parseNodeForThread: ParseNodeForThread, label: string) => {
-		notifyProgress(i++, labelToParseNodeForThreadMap.size);
+		// notifyProgress(i++, labelToParseNodeForThreadMap.size);
 		const parseNode: ParseNode = ParseNodeForThreadConverter.convertParseNodeForThread(parseNodeForThread);
 		const labeledStatement: LabeledStatement | undefined = labelToStatementMap.get(label);
 		if (labeledStatement != undefined)

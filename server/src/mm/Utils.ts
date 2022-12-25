@@ -344,10 +344,12 @@ export function intersection<T>(set: Set<Set<T>>): Set<T> | undefined {
 //#endregion intersection
 
 
-export function notifyProgress(current: number, total: number) {
+export function notifyProgress(current: number, total: number, message?: string) {
     const previousPercentageOfWorkDone: number = Math.trunc(((current - 1) * 100) / total);
     const percentageOfWorkDone: number = Math.trunc((current * 100) / total);
-    if (previousPercentageOfWorkDone < percentageOfWorkDone) {
-        consoleLogWithTimestamp(percentageOfWorkDone + '%');
-    }
+    const completeMessage: string | number =
+        (message != undefined ? message + " - " + percentageOfWorkDone : percentageOfWorkDone);
+    if (previousPercentageOfWorkDone < percentageOfWorkDone)
+        // consoleLogWithTimestamp(percentageOfWorkDone + '%');
+        consoleLogWithTimestamp(completeMessage + '%');
 }
