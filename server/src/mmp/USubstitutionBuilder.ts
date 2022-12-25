@@ -90,7 +90,7 @@ export class USubstitutionBuilder {
 			isCoherentSubstitution = GrammarManager.areParseNodesCoherent(currentSubstitution, uStepParseNode);
 		return isCoherentSubstitution;
 	}
-	buildSubstitutionForLeafNode(logicalSystemFormulaToken: MmToken, uStepParseNode: InternalNode,
+	buildSubstitutionForLeafNodeWithInternalNode(logicalSystemFormulaToken: MmToken, uStepParseNode: InternalNode,
 		substitution: Map<string, InternalNode>): boolean {
 		let hasFoundSubstitution = false;
 		if (this.outermostBlock.v.has(logicalSystemFormulaToken.value)) {
@@ -108,21 +108,22 @@ export class USubstitutionBuilder {
 				logicalSystemFormulaToken.value == uStepParseNode.parseNodes[0].value);
 		return hasFoundSubstitution;
 	}
-	//#region buildSubstitutionForInternalNode
 
-	isAWorkingVarOfTheSameKind(logicalSystemFormulaInternalNode: InternalNode, uStepParseNode: InternalNode):
-		boolean {
-		const result = logicalSystemFormulaInternalNode.kind == uStepParseNode.kind &&
-			GrammarManager.isInternalParseNodeForWorkingVar(uStepParseNode);
-		// if (logicalSystemFormulaInternalNode.kind == uStepParseNode.kind &&
-		// 	uStepParseNode.parseNodes.length === 1) {
-		// 	const subNode: ParseNode = uStepParseNode.parseNodes[0];
-		// 	result = subNode instanceof MmToken && this.workingVars.isWorkingVar(subNode.value);
-		// }
-		return result;
+	buildSubstitutionForLeafNode(logicalSystemFormulaToken: MmToken, uStepParseNode: ParseNode,
+		substitution: Map<string, InternalNode>): boolean {
+		let hasFoundSubstitution: boolean;
+		if (uStepParseNode instanceof InternalNode)
+			hasFoundSubstitution = this.buildSubstitutionForLeafNodeWithInternalNode(
+				logicalSystemFormulaToken, uStepParseNode, substitution);
+		else
+			hasFoundSubstitution = (uStepParseNode instanceof MmToken) &&
+				logicalSystemFormulaToken.value == uStepParseNode.value;
+		return hasFoundSubstitution;
 	}
 
-	isInternalNodeForLogicalVariableNotAddedToSubstitutionYet(logicalSystemFormulaInternalNode: InternalNode,
+	//#region buildSubstitutionForInternalNode
+
+	private isInternalNodeForLogicalVariableNotAddedToSubstitutionYet(logicalSystemFormulaInternalNode: InternalNode,
 		substitution: Map<string, InternalNode>): boolean {
 		const result = logicalSystemFormulaInternalNode.parseNodes.length == 1 &&
 			logicalSystemFormulaInternalNode.parseNodes[0] instanceof MmToken &&
@@ -175,7 +176,7 @@ export class USubstitutionBuilder {
 		let hasFoundSubstitution: boolean;
 		if (logicalSystemFormulaInternalNode.parseNodes.length === 1 &&
 			logicalSystemFormulaInternalNode.parseNodes[0] instanceof MmToken)
-			hasFoundSubstitution = this.buildSubstitutionForLeafNode(
+			hasFoundSubstitution = this.buildSubstitutionForLeafNodeWithInternalNode(
 				logicalSystemFormulaInternalNode.parseNodes[0], uStepInternalNode, substitution);
 		else
 			// logicalSystemFormulaInternalNode.parseNodes.length > 1
@@ -198,19 +199,19 @@ export class USubstitutionBuilder {
 	buildSubstitutionForBothInternalNode(logicalSystemFormulaInternalNode: InternalNode,
 		uStepInternalNode: InternalNode, substitution: Map<string, InternalNode>): boolean {
 		let hasFoundSubstitution: boolean;
-		if (this.isAWorkingVarOfTheSameKind(logicalSystemFormulaInternalNode, uStepInternalNode))
+		if (logicalSystemFormulaInternalNode.kind != uStepInternalNode.kind)
+			hasFoundSubstitution = false;
+		else if (GrammarManager.isInternalParseNodeForWorkingVar(uStepInternalNode))
 			// if uStepParseNode is a working var, here we assume that a substitution for the
 			// working var could be found by the m.g.u. algorithm, that will run later on,
 			// thus we don't fail here; if no unification for the working var can be found,
 			// the m.g.u. algorithm will fail later on
 			hasFoundSubstitution = this.buildSubstitutionForWorkingVarOfTheSameKind(logicalSystemFormulaInternalNode,
 				uStepInternalNode, substitution);
-		else if (logicalSystemFormulaInternalNode.kind != uStepInternalNode.kind)
-				hasFoundSubstitution = false;
-			else
-				// logicalSystemFormulaInternalNode.kind == proofStepFormulaInternalNode.kind
-				hasFoundSubstitution = this.buildSubstitutionForInternalNodesOfTheSameKindNoWorkingVar(
-					logicalSystemFormulaInternalNode, uStepInternalNode, substitution);
+		else
+			// logicalSystemFormulaInternalNode.kind == proofStepFormulaInternalNode.kind
+			hasFoundSubstitution = this.buildSubstitutionForInternalNodesOfTheSameKindNoWorkingVar(
+				logicalSystemFormulaInternalNode, uStepInternalNode, substitution);
 		return hasFoundSubstitution;
 	}
 	//#endregion buildSubstitutionForBothInternalNode
@@ -233,12 +234,8 @@ export class USubstitutionBuilder {
 		substitution: Map<string, InternalNode>): boolean {
 		let hasFoundSubstitution: boolean;
 		if (parseNodeForLogicalSystemFormula instanceof MmToken) {
-			if (uStepParseNode instanceof InternalNode)
-				hasFoundSubstitution = this.buildSubstitutionForLeafNode(
-					parseNodeForLogicalSystemFormula, uStepParseNode, substitution);
-			else
-				hasFoundSubstitution = (uStepParseNode instanceof MmToken) &&
-					parseNodeForLogicalSystemFormula.value == uStepParseNode.value;
+			hasFoundSubstitution = this.buildSubstitutionForLeafNode(parseNodeForLogicalSystemFormula,
+				uStepParseNode, substitution);
 		}
 		else
 			// parseNodeForLogicalSystemFormula is an InternalNode
@@ -247,14 +244,6 @@ export class USubstitutionBuilder {
 		return hasFoundSubstitution;
 	}
 	//#endregion buildSubstitutionForSingleFormula
-
-	//#region buildSubstitutionForEHyps
-	// buildSubstitutionForUndefinedEHyps(frameEHyps: EHyp[], grammar: Grammar, outermostBlock: BlockStatement,
-	// 	workingVars: WorkingVars, substitution: Map<string, InternalNode>) {
-	// 	frameEHyps.forEach((frameEHyp: EHyp) => {
-	// 		this.buildSubstitutionForUndefinedParseNode(frameEHyp.parseNode(grammar), substitution);
-	// 	});
-	// }
 
 	buildSubstitutionForSingleLine(logicalSystemFormulaInternalNode: InternalNode, uStepFormula: MmToken[] | undefined,
 		uStepParseNode: InternalNode | undefined, substitution: Map<string, InternalNode>): boolean {
@@ -276,20 +265,11 @@ export class USubstitutionBuilder {
 		let hasFoundSubstitution = true;
 		let i = 0;
 		while (hasFoundSubstitution && i < this.logicalSystemEHyps.length) {
-			// if (i >= this.eHypUSteps.length || this.eHypUSteps[i] === undefined ||
-			// 	this.eHypUSteps[i]?.parseNode === undefined) {
-			// 	this.buildSubstitutionForUndefinedParseNode(
-			// 		this.logicalSystemEHyps[i].parseNode(this.grammar), substitution);
-			// } else
 			if (i < this.eHypUSteps.length && this.eHypUSteps[i] !== undefined)
 				// eHypUSteps[i] is an actual step
 				hasFoundSubstitution = this.buildSubstitutionForSingleLine(
 					this.logicalSystemEHyps[i].parseNode, this.eHypUSteps[i]!.stepFormula, this.eHypUSteps[i]!.parseNode,
-					substitution
-				);
-			// hasFoundSubstitution = this.buildSubstitutionForInternalNode(
-			// 	this.logicalSystemEHyps[i].parseNode, this.eHypUSteps[i]!.parseNode!,
-			// 	substitution);
+					substitution);
 			i++;
 		}
 		return hasFoundSubstitution;
@@ -305,9 +285,6 @@ export class USubstitutionBuilder {
 			hasFoundSubstitution = false;
 		else
 			hasFoundSubstitution = this.addSubstitutionForEHypsMoreOrEqual(substitution);
-
-		// case eHypRefs == undefined && frameEHyps.length == 0
-
 		return hasFoundSubstitution;
 	}
 	//#endregion buildSubstitutionForEHyps
@@ -317,9 +294,6 @@ export class USubstitutionBuilder {
 		const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
 		let hasBeenFound = this.buildSubstitutionForEHyps(substitution);
 		if (hasBeenFound)
-			// if (this.uProofStep.parseNode != undefined)
-			// 	hasBeenFound = this.buildSubstitutionForInternalNode(
-			// 		this.assertion.parseNode, this.uProofStep.parseNode, substitution);
 			hasBeenFound = this.buildSubstitutionForSingleLine(this.assertion.parseNode,
 				this.uProofStep.stepFormula, this.uProofStep.parseNode, substitution);
 		return { hasBeenFound: hasBeenFound, substitution: substitution };
@@ -335,8 +309,6 @@ export class USubstitutionBuilder {
 		if (this.isInternalNodeForLogicalVariableNotAddedToSubstitutionYet(logicalSystemFormulaInternalNode,
 			substitution)) {
 			const variable: string = GrammarManager.getTokenValueFromInternalNode(logicalSystemFormulaInternalNode);
-			// const parseNode: InternalNode = USubstitutionApplier.createParseNodeForInternalNode(
-			// 	logicalSystemFormulaInternalNode, substitution);
 			const kind: string = logicalSystemFormulaInternalNode.kind;
 			const newWorkingVar: string = <string>this.workingVars.getNewWorkingVar(kind);
 			const tokenType: string = this.workingVars.tokenTypeFromKind(kind);
@@ -385,12 +357,6 @@ export class USubstitutionBuilder {
 		const substitutionResult: SubstitutionResult = this.buildSubstitutionForExistingParseNodes();
 		if (substitutionResult.hasBeenFound)
 			this.addWorkingVarsForLogicalVarsWithoutASubstitution(<Map<string, InternalNode>>substitutionResult.substitution);
-		// if (hasBeenFound)
-		// 	// the step assertion is either missing or it can be unified with the assertion logical statement
-		// 	hasBeenFound = this.buildSubstitutionForEHyps(
-		// 		frameEHyps, uProofStep.eHypUSteps, grammar, outermostBlock, workingVars, substitution);
-		// const substitution: Map<string, string[]> = new Map<string, string[]>();
-
 		return substitutionResult;
 	}
 
