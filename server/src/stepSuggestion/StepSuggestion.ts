@@ -19,14 +19,14 @@ export class StepSuggestion {
 	// stepSuggestionMap: Map<string, IStepSuggestion[]>;
 	stepSuggestionMap: StepSuggestionMap;
 	formulaClassifiers: IFormulaClassifier[];
-	mmpProofStep: MmpProofStep | undefined;
+	mmpProofStep: MmpProofStep;
 	mmParser: MmParser;
 
 	private completionItemKindOrder: Map<CompletionItemKind, string>;
 	//TODO this is a parameter: you mught want to move it to the Paramter class
 	private completionItemKindForPartialLabel: CompletionItemKind;
 	constructor(cursorContext: CursorContext, stepSuggestionMap: StepSuggestionMap,
-		formulaClassifiers: IFormulaClassifier[], mmpProofStep: MmpProofStep | undefined, mmParser: MmParser) {
+		formulaClassifiers: IFormulaClassifier[], mmpProofStep: MmpProofStep, mmParser: MmParser) {
 		this.cursorContext = cursorContext;
 		this.stepSuggestionMap = stepSuggestionMap;
 		this.formulaClassifiers = formulaClassifiers;
@@ -52,7 +52,6 @@ export class StepSuggestion {
 
 	classifyProofStepFormula(formulaClassifier: IFormulaClassifier): string | undefined {
 		let rpnSyntaxTree: string | undefined;
-		//TODO1 check if you invoke this only when this.cursorContext.mmpStatement is a MmpProofStep
 		const mmpProofStep: MmpProofStep = <MmpProofStep>this.cursorContext.mmpStatement!;
 		const parseNode: InternalNode | undefined = mmpProofStep.parseNode;
 		if (parseNode != undefined) {
@@ -72,8 +71,7 @@ export class StepSuggestion {
 		const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestionLabel);
 		if (assertionStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertionStatement)) {
 			const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(
-				//TODO1 check if you invoke this only when this.cursorContext.mmpStatement is a MmpProofStep
-				<MmpProofStep>this.cursorContext.mmpStatement!, assertionStatement, this.mmParser.outermostBlock,
+				this.mmpProofStep, assertionStatement, this.mmParser.outermostBlock,
 				this.mmParser.workingVars, this.mmParser.grammar, []);
 			const substitutionResult: SubstitutionResult =
 				uSubstitutionBuilder.buildSubstitutionForExistingParseNodes();
