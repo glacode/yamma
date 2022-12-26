@@ -57,6 +57,7 @@ export const eqeq1iMmParser: MmParser = createMmParser('eqeq1i.mm');
 eqeq1iMmParser.createParseNodesForAssertionsSync();
 
 export const opelcnMmParser: MmParser = createMmParser('opelcn.mm');
+opelcnMmParser.createParseNodesForAssertionsSync();
 
 
 

@@ -4,7 +4,7 @@ import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { eqeq1iMmParser, kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
+import { eqeq1iMmParser, kindToPrefixMap, mp2MmParser, opelcnMmParser } from './GlobalForTest.test';
 
 test('StepDerivation ax-mp', () => {
 	const mmpSource =
@@ -133,3 +133,28 @@ test('Worker Thread for ParseNode(s) creation', async () => {
 		'qed::a             |- ch\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });
+
+//TODO1
+test('StepDerivation syl2anc', () => {
+	const mmpSource =
+	'd9::  |- ( ph -> ch )\n' +
+	'd10:: |- ( ph -> ps )\n' +
+	'd11:: |- ( ( ch /\\ ps ) -> th )\n' +
+	'd8:   |- ( ph -> th )\n' +
+	'qed:: |- ch\n';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'd9::                |- ( ph -> ch )\n' +
+		'd10::               |- ( ph -> ps )\n' +
+		'd11::               |- ( ( ch /\\ ps ) -> th )\n' +
+		'd8:d9,d10,d11:syl2anc\n' +
+		'                   |- ( ph -> th )\n' +
+		'qed::              |- ch\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
