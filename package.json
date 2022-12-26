@@ -73,13 +73,24 @@
 						}
 					},
 					"default": [
-						{ "variablekind": "wff" , "workingvarprefix": "W" , "lspsemantictokentype": "variable" } ,
-						{ "variablekind": "setvar" , "workingvarprefix": "S" , "lspsemantictokentype": "string" } ,
-						{ "variablekind": "class" , "workingvarprefix": "C" , "lspsemantictokentype": "keyword" }
+						{
+							"variablekind": "wff",
+							"workingvarprefix": "W",
+							"lspsemantictokentype": "variable"
+						},
+						{
+							"variablekind": "setvar",
+							"workingvarprefix": "S",
+							"lspsemantictokentype": "string"
+						},
+						{
+							"variablekind": "class",
+							"workingvarprefix": "C",
+							"lspsemantictokentype": "keyword"
+						}
 					],
 					"description": "Variable kinds configuration"
 				},
-
 				"yamma.proofMode": {
 					"scope": "resource",
 					"type": "string",
@@ -144,9 +155,9 @@
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
-		"@typescript-eslint/eslint-plugin": "^4.23.0",
-		"@typescript-eslint/parser": "^4.23.0",
-		"eslint": "^7.26.0",
+		"@typescript-eslint/eslint-plugin": "^5.47.0",
+		"@typescript-eslint/parser": "^5.47.0",
+		"eslint": "^8.30.0",
 		"typescript": "^4.4.3"
 	}
 }
