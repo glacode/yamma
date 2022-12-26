@@ -137,11 +137,13 @@ test('Worker Thread for ParseNode(s) creation', async () => {
 //TODO1
 test('StepDerivation syl2anc', () => {
 	const mmpSource =
-	'd9::  |- ( ph -> ch )\n' +
-	'd10:: |- ( ph -> ps )\n' +
-	'd11:: |- ( ( ch /\\ ps ) -> th )\n' +
-	'd8:   |- ( ph -> th )\n' +
-	'qed:: |- ch\n';
+		'd9::  |- ( ph -> ch )\n' +
+		'd10:: |- ( ph -> ps )\n' +
+		'a::   |- ( ( ta /\\ ps ) -> th )\n' +
+		'b::   |- ( ( ta /\\ ps ) -> ch )\n' +
+		'd11:: |- ( ( ch /\\ ps ) -> th )\n' +
+		'd8:   |- ( ph -> th )\n' +
+		'qed:: |- ch\n';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
@@ -151,6 +153,8 @@ test('StepDerivation syl2anc', () => {
 	const expectedText =
 		'd9::                |- ( ph -> ch )\n' +
 		'd10::               |- ( ph -> ps )\n' +
+		'a::                |- ( ( ta /\\ ps ) -> th )\n' +
+		'b::                |- ( ( ta /\\ ps ) -> ch )\n' +
 		'd11::               |- ( ( ch /\\ ps ) -> th )\n' +
 		'd8:d9,d10,d11:syl2anc\n' +
 		'                   |- ( ph -> th )\n' +

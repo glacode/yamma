@@ -95,7 +95,8 @@ export class EHypsDerivation {
 				else
 					this.removeSubstitutionForCurrentEHypIndex(currentEHypIndexForStepDerivation);
 			}
-		}
+		} else
+			this.removeSubstitutionForCurrentEHypIndex(currentEHypIndexForStepDerivation);
 	}
 
 	/** this method is invoked when the current EHyp requires additional logical
