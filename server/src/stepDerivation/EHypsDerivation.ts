@@ -85,17 +85,15 @@ export class EHypsDerivation {
 		currentEHyp: EHyp, eHypProofStepCandidate: MmpProofStep) {
 		const isUnifiable: boolean = this.isEHypUnifiableWithCurrentProofStep(currentEHyp, eHypProofStepCandidate);
 		if (isUnifiable) {
-			if (currentEHypIndexForStepDerivation >= this.assertion.frame!.eHyps.length)
+			if (currentEHypIndexForStepDerivation >= this.assertion.frame!.eHyps.length - 1)
 				// there is no more EHyp to unify
 				this.eHypsDerivationResult.isSuccessful = true;
-			else {
+			else
 				this.searchEHypsRecursive(currentEHypIndexForStepDerivation + 1);
-				if (this.eHypsDerivationResult.isSuccessful)
-					this.eHypsDerivationResult.eHypsMmpProofSteps[currentEHypRealIndex] = eHypProofStepCandidate;
-				else
-					this.removeSubstitutionForCurrentEHypIndex(currentEHypIndexForStepDerivation);
-			}
-		} else
+		}
+		if (this.eHypsDerivationResult.isSuccessful)
+			this.eHypsDerivationResult.eHypsMmpProofSteps[currentEHypRealIndex] = eHypProofStepCandidate;
+		else
 			this.removeSubstitutionForCurrentEHypIndex(currentEHypIndexForStepDerivation);
 	}
 

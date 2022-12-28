@@ -72,7 +72,7 @@ export class StepDerivation {
 		if (eHypsDerivation.eHypsDerivationResult.isSuccessful) {
 			this.mmpProofStep.stepLabel = assertion.Label;
 			// a valid permutation of mmpProofSteps has been found
-			this.mmpProofStep.eHypUSteps = eHypsDerivation.eHypsDerivationResult.eHypsMmpProofSteps!;
+			this.mmpProofStep.eHypUSteps = eHypsDerivation.eHypsDerivationResult.eHypsMmpProofSteps;
 		}
 
 		// let substitutionFound: boolean = true;

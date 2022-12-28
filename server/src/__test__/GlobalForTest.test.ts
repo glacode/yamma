@@ -59,6 +59,10 @@ eqeq1iMmParser.createParseNodesForAssertionsSync();
 export const opelcnMmParser: MmParser = createMmParser('opelcn.mm');
 opelcnMmParser.createParseNodesForAssertionsSync();
 
+export const elexdMmParser: MmParser = createMmParser('elexd.mm');
+elexdMmParser.createParseNodesForAssertionsSync();
+
+
 
 
 export const kindToPrefixMap: Map<string, string> = new Map<string, string>();
