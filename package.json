@@ -151,7 +151,7 @@
 		"watch": "tsc -b -w",
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-		"test": "sh ./scripts/e2e.sh"
+		"test": "npm test --prefix=server && npm run compile && node ./client/out/test/runTest.js"
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
