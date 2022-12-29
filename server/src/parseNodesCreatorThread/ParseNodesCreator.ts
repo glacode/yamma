@@ -31,7 +31,8 @@ function createGrammar(mmpRulesForThread: IMmpRuleForThread[], workingVars: Work
 	return grammar;
 }
 
-function createParseNodeForThread(formula: string, grammar:
+// export for testing, only
+export function createParseNodeForThread(formula: string, grammar:
 	Grammar, workingVars: WorkingVars): ParseNodeForThread | undefined {
 	let parseNodeForThread: ParseNodeForThread | undefined;
 	const parseNode: ParseNode | undefined = LabeledStatement.parseString(formula, grammar, workingVars);
@@ -39,7 +40,9 @@ function createParseNodeForThread(formula: string, grammar:
 		parseNodeForThread = ParseNodeForThreadConverter.convertParseNode(parseNode);
 	return parseNodeForThread;
 }
-function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string, string>,
+
+// export for testing, only
+export function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string, string>,
 	mmpRulesForThread: IMmpRuleForThread[]): Map<string, ParseNodeForThread> {
 	const labelToParseNodeForThreadMap: Map<string, ParseNodeForThread> = new Map<string, ParseNodeForThread>();
 	const workingVars: WorkingVars = new WorkingVars(new Map<string, string>());
@@ -59,7 +62,8 @@ function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string, strin
 //#endregion CHILD THREAD
 
 //#region creaParseNodesInANewThread
-function createLabelToFormulaMap(mmParser: MmParser): Map<string, string> {
+// export for testing, only
+export function createLabelToFormulaMap(mmParser: MmParser): Map<string, string> {
 	const labelToStatementMap: Map<string, LabeledStatement> = mmParser.labelToStatementMap;
 	const labelToFormulaMap: Map<string, string> = new Map<string, string>();
 	labelToStatementMap.forEach((labeledStatement: LabeledStatement) => {
@@ -71,7 +75,8 @@ function createLabelToFormulaMap(mmParser: MmParser): Map<string, string> {
 	return labelToFormulaMap;
 }
 
-function addParseNodes(labelToParseNodeForThreadMap: Map<string, ParseNodeForThread>,
+// export for testing, only
+export function addParseNodes(labelToParseNodeForThreadMap: Map<string, ParseNodeForThread>,
 	labelToStatementMap: Map<string, LabeledStatement>) {
 	// let i = 0;
 	labelToParseNodeForThreadMap.forEach((parseNodeForThread: ParseNodeForThread, label: string) => {
@@ -81,7 +86,6 @@ function addParseNodes(labelToParseNodeForThreadMap: Map<string, ParseNodeForThr
 		if (labeledStatement != undefined)
 			labeledStatement.setParseNode(<InternalNode>parseNode);
 	});
-
 }
 
 export function creaParseNodesInANewThread(mmParser: MmParser): void {

@@ -17,6 +17,7 @@
 	"devDependencies": {
 		"@types/mocha": "^10.0.1",
 		"@types/vscode": "^1.52.0",
-		"@vscode/test-electron": "^1.6.1"
+		"@vscode/test-electron": "^1.6.1",
+		"mocha": "^10.2.0"
 	}
 }

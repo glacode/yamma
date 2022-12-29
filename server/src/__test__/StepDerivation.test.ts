@@ -161,7 +161,6 @@ test('StepDerivation syl2anc', () => {
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
-//TODO1
 test('StepDerivation elexd', () => {
 	const mmpSource =
 		'd13:: |- ( ph -> A e. B )\n' +
