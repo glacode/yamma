@@ -18,6 +18,7 @@ test('semantic tokens', () => {
 		'ax-mp |- ph\n' +
 		'* comment\n' +
 		'd1: |- ( A. x e. A -> x e. B )\n' +
+		'SearchSymbols: aa bb SearchComment: cc\n' +
 		'qed:: |- ps\n' +
 		'd x y';
 	const expectedData: number[] = [
@@ -28,6 +29,8 @@ test('semantic tokens', () => {
 		0, 5, 1, 3, 0,  // A : 3 stands for 'keyword' i.e. 'class'
 		0, 5, 1, 2, 0,  // second x : 2 stands for 'string' i.e. 'setvar'
 		0, 5, 1, 3, 0,  // B : 3 stands for 'keyword' i.e. 'class'
+		1, 0, 14, 4, 0,  // SearchSymbols: : 4 stands for 'method'
+		0, 21, 14, 4, 0,  // SearchComment: : 4 stands for 'method'
 		1, 9, 2, 1, 0,  // ps : 1 stands for 'variable' i.e. 'wff'
 		1, 2, 1, 2, 0,  // third x : 2 stands for 'string' i.e. 'setvar'
 		0, 2, 1, 2, 0  // y : 2 stands for 'string' i.e. 'setvar'
@@ -51,7 +54,7 @@ test('semantic tokens', () => {
 		semanticTokenParams, semanticTokenTypes, dummyConfigurationManager, opelcnMmParser, mmpParser);
 	const semanticTokens: SemanticTokens = testOnSemanticTokensHandler.buildSemanticTokens(opelcnMmParser,
 		mmpParser, varKindsConfiguration);
-	expect(semanticTokens.data.length).toBe(5 * 10);
+	expect(semanticTokens.data.length).toBe(5 * 12);
 	expect(semanticTokens.data).toEqual(expectedData);
 	// 	Tokens are sent to the client as a long list of numbers, each group of 5 numbers describe a single token.
 	// The first 3 numbers describe the token's line number, character index and length, relative to the previous token

@@ -77,7 +77,7 @@ export class UProofStatement implements IUStatement {
 
 /**
  * a IUStatement that should be accepted without parsing and without unification; it has to be
- * left unchanged by a unification process
+ * left unchanged by a unification process; for instance, the proof statement
  */
 export class UnmanagedStatement implements IUStatement {
 	statementTokens: MmToken[];

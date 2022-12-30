@@ -6,19 +6,32 @@ import { DisjVarUStatement } from '../mm/Statements';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { IUStatement, UComment } from '../mmp/UStatement';
+import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
-
 
 export const semanticTokenTypes: SemanticTokenTypes[] = [
 	SemanticTokenTypes.comment,  // comment
 	SemanticTokenTypes.variable,  // wff
 	SemanticTokenTypes.string,  // set
 	SemanticTokenTypes.keyword,  // class
+	SemanticTokenTypes.namespace, // keyword
+	SemanticTokenTypes.method,
+	SemanticTokenTypes.type,
+	SemanticTokenTypes.class,
+	SemanticTokenTypes.enum,
+	SemanticTokenTypes.class,
+	SemanticTokenTypes.interface,
+	SemanticTokenTypes.struct,
+	SemanticTokenTypes.typeParameter,
 	SemanticTokenTypes.parameter,
 	SemanticTokenTypes.property,
-	SemanticTokenTypes.namespace,
-	SemanticTokenTypes.class,
+	SemanticTokenTypes.enumMember,
+	SemanticTokenTypes.event,
+	SemanticTokenTypes.function,
 	SemanticTokenTypes.macro,
+	SemanticTokenTypes.modifier,
+	SemanticTokenTypes.number,
+	SemanticTokenTypes.regexp,
 	SemanticTokenTypes.operator
 ];
 
@@ -159,6 +172,15 @@ export class OnSemanticTokensHandler {
 	}
 	//#endregion addSemanticTokensForArrayOfSymbols
 
+	addSemanticTokensForSearchStatement(searchStatementTokens: MmToken[]) {
+		searchStatementTokens.forEach((mmToken: MmToken) => {
+			if (mmToken.value == MmpSearchStatement.searchSymbolsKeyword ||
+				mmToken.value == MmpSearchStatement.searchCommentKeyword)
+				// namespace or macro or method or 
+				this.addSemanticToken(mmToken.range, SemanticTokenTypes.namespace);
+		});
+	}
+
 	protected buildSemanticTokens(mmParser: MmParser, mmpParser: MmpParser,
 		variableKindsConfiguration: Map<string, IVariableKindConfiguration>): SemanticTokens {
 		// const mmTokens: MmToken = mmpParser.mmTokens;
@@ -170,6 +192,8 @@ export class OnSemanticTokensHandler {
 				this.addSemanticTokensForArrayOfSymbols(uStatement.formula, mmParser, variableKindsConfiguration);
 			else if (uStatement instanceof DisjVarUStatement)
 				this.addSemanticTokensForArrayOfSymbols(uStatement.disjointVars, mmParser, variableKindsConfiguration);
+			else if (uStatement instanceof MmpSearchStatement)
+				this.addSemanticTokensForSearchStatement(uStatement.searchStatementTokens);
 		});
 		// this.semanticTokensData = [ 1 , 0 , 1 , 0 , 0 , 0 , 2 , 2 , 0 , 0];
 		const semanticTokens: SemanticTokens = {

@@ -4,7 +4,7 @@ import { arrayRange, concatTokenValuesWithSpaces } from '../mm/Utils';
 import { IMmpStatementWithRange } from './UStatement';
 
 export class MmpSearchStatement implements IMmpStatementWithRange {
-	private searchStatementTokens: MmToken[];
+	public searchStatementTokens: MmToken[];
 
 	static searchSymbolsKeyword = "SearchSymbols:"
 	static searchCommentKeyword = "SearchComment:"
