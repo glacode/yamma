@@ -93,7 +93,6 @@ export class MmpUnifier {
 				uProof.insertProofStatement(proofStatement);
 			} else {
 				// this.proofMode == ProofMode.compressed
-				// const proofStatement: UCompressedProofStatement = new UCompressedProofStatement(uProof, this.outermostBlock);
 				const proofStatement: UCompressedProofStatement = new UCompressedProofStatement(uProof);
 				uProof.insertProofStatement(proofStatement);
 			}

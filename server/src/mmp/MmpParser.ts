@@ -11,7 +11,7 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 import { range, oneCharacterRange, concatTokenValuesWithSpaces, concatWithSpaces, splitToTokensAllowingForEmptyValues, AreArrayTheSame, rebuildOriginalStringFromTokens } from '../mm/Utils';
 import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { IUStatement, UComment, UnmanagedStatement, UTheoremLabel } from './UStatement';
+import { IUStatement, UComment, TextForProofStatement, UTheoremLabel } from './UStatement';
 import { UProof } from './UProof';
 import { SubstitutionResult, USubstitutionBuilder } from './USubstitutionBuilder';
 import { USubstitutionApplier } from './USubstitutionApplier';
@@ -425,8 +425,8 @@ export class MmpParser {
 			proofStep.skipUnification = true;
 		this.addProofStep(proofStep);
 	}
-	addUnmanagedStatement(nextProofStepTokens: MmToken[]) {
-		const unmanagedStatement: UnmanagedStatement = new UnmanagedStatement(nextProofStepTokens);
+	addRemovableStatement(nextProofStepTokens: MmToken[]) {
+		const unmanagedStatement: TextForProofStatement = new TextForProofStatement(nextProofStepTokens);
 		this.uProof?.addUStatement(unmanagedStatement);
 	}
 	createMmpStatementFromStepTokens(nextProofStepTokens: MmToken[]) {
@@ -444,7 +444,7 @@ export class MmpParser {
 			this.addDisjointVarConstraint(nextProofStepTokens);
 		else if (nextTokenValue == '$=')
 			// current statement is a proof
-			this.addUnmanagedStatement(nextProofStepTokens);
+			this.addRemovableStatement(nextProofStepTokens);
 		else
 			// current statement is a proof step
 			this.createMmpProofStep(nextProofStepTokens);
