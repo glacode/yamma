@@ -268,6 +268,7 @@ documents.onDidChangeContent(async change => {
 	if (GlobalState.mmParser == undefined)
 		await configurationManager.updateTheoryIfTheCase();
 	await validateTextDocument(change.document);
+	GlobalState.validatedSinceLastUnify = true;
 });
 //#endregion onDidChangeContent
 
@@ -340,20 +341,12 @@ connection.onDocumentFormatting(
 	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
 		//return OnDocumentFormattingHandler.formatToLowerCase(params,documents)
 		let result: Promise<TextEdit[]> = Promise.resolve([]);
-		// this is just a test for an additional fixed textEdit
-		// const textEdit: TextEdit = {
-		// 	range: {
-		// 		start: { line: 2, character: 2 }, end: { line: 2, character: 2 }
-		// 	}, newText: "GGGGGGG"
-		// };
-		// textEditArray.push(textEdit);
-
-		// return Promise.resolve(textEditArray);
-		if (GlobalState.mmParser != undefined) {
+		if (GlobalState.mmParser != undefined  && GlobalState.validatedSinceLastUnify) {
 			const onDocumentFormattingHandler: OnDocumentFormattingHandler =
 				new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager,
 					Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
 			result = onDocumentFormattingHandler.unify();
+			GlobalState.validatedSinceLastUnify = false;
 			unifyDoneButCursorPositionNotUpdatedYet = true;
 			// return onDocumentFormattingHandler.unify();
 		}

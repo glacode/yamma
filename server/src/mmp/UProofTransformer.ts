@@ -237,7 +237,8 @@ export class UProofTransformer {
 			} else {
 				if (currentMmpStatement instanceof TextForProofStatement)
 					this.uProof.uStatements.splice(i, 1);
-				i++;
+				else
+					i++;
 			}
 		}
 	}

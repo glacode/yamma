@@ -16,7 +16,8 @@ import { UCompressedProofStatement } from './UCompressedProofStatement';
 
 // Parser for .mmp files
 export class MmpUnifier {
-	// textDocument: TextDocument
+	mmpParser: MmpParser;
+
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
 	workingVars: WorkingVars;
@@ -25,6 +26,8 @@ export class MmpUnifier {
 
 	/** the final proof produced with by the unify() method */
 	uProof: UProof | undefined
+
+	protected textLastLine: number;
 
 
 	// the list of statements, after createMmpStatements() has been invoked
@@ -39,7 +42,6 @@ export class MmpUnifier {
 	/** true iff the last unify() threw an exceptio*/
 	thrownError: boolean;
 
-	mmpParser: MmpParser;
 
 	//#region constructor
 	// constructor(labelToStatementMap: Map<string, LabeledStatement>, outermostBlock: BlockStatement,
@@ -54,6 +56,9 @@ export class MmpUnifier {
 		this.proofMode = proofMode;
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 
+		//TODO use the range of the last actual statement (now I can't, because not all statements implement
+		//the range property (see interface IMmpStatementWithRange and interface interface IUStatement)
+		this.textLastLine = this.uProof!.lastUProofStep!.range.end.line + 3000;
 		this.thrownError = false;
 	}
 
@@ -76,7 +81,8 @@ export class MmpUnifier {
 		const newText: string = newUProof.toText();
 		const start: Position = { line: 0, character: 0 };
 		// end just needs to be larger than the previous text
-		const end: Position = { line: newText.length, character: newText.length };
+		// const end: Position = { line: newText.length, character: newText.length };
+		const end: Position = { line: this.textLastLine, character: 0 };
 		const textEdit: TextEdit = {
 			newText: newText,
 			range: { start: start, end: end }

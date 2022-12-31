@@ -45,4 +45,8 @@ export abstract class GlobalState {
 	static setSuggestedRangeForCursorPosition( range: Range | undefined ) {
 		this.suggestedRangeForCursorPosition = range;
 	}
+
+	/** set to true when a validation occurs; set to false when a unify() occurs */
+	static validatedSinceLastUnify: boolean | undefined;
+
 }
