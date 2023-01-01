@@ -14,7 +14,7 @@ import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { IMmpStatement, MmpComment, TextForProofStatement, MmpTheoremLabel } from './MmpStatement';
 import { MmpProof } from './MmpProof';
 import { SubstitutionResult, MmpSubstitutionBuilder } from './MmpSubstitutionBuilder';
-import { USubstitutionApplier } from './USubstitutionApplier';
+import { MmpSubstitutionApplier } from './MmpSubstitutionApplier';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { OrderedPairOfNodes, UnificationAlgorithmState, WorkingVarsUnifierFinder } from './WorkingVarsUnifierFinder';
 import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
@@ -487,7 +487,7 @@ export class MmpParser {
 
 		// const expectedFormula: string[] =
 		// MmpSubstitutionManager.applySubstitution(frameEHyp.formula, substitution);
-		const expectedNode: ParseNode = USubstitutionApplier.createParseNode(frameEHyp.parseNode,
+		const expectedNode: ParseNode = MmpSubstitutionApplier.createParseNode(frameEHyp.parseNode,
 			substitution, this.outermostBlock);
 		const expectedFormula: string[] = GrammarManager.buildStringArray(expectedNode);
 		const referencedFormula: MmToken[] | undefined = referencedEHypProofStep.stepFormula;
@@ -518,7 +518,7 @@ export class MmpParser {
 	}
 	addDiagnisticsForAssertion(assertionStatement: AssertionStatement, proofStep: MmpProofStep,
 		substitution: Map<string, InternalNode>) {
-		const expectedNode = USubstitutionApplier.createParseNode(
+		const expectedNode = MmpSubstitutionApplier.createParseNode(
 			assertionStatement.parseNode, substitution, this.outermostBlock);
 		// const expectedFormula: string[] =
 		// 	MmpSubstitutionManager.applySubstitution(assertionStatement.formula, substitution);

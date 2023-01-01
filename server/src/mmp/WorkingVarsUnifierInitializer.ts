@@ -3,7 +3,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { USubstitutionApplier } from './USubstitutionApplier';
+import { MmpSubstitutionApplier } from './MmpSubstitutionApplier';
 import { OrderedPairOfNodes } from './WorkingVarsUnifierFinder';
 import { MmpProofStep } from "./MmpProofStep";
 
@@ -68,7 +68,7 @@ export class WorkingVarsUnifierInitializer {
 	// }
 	addStartingPairsForMGUAlgorithmForParseNode(uStepParseNode: InternalNode, logicalSystemFormulaParseNode: InternalNode) {
 		const newNodeWithSubstitution: InternalNode =
-			<InternalNode>USubstitutionApplier.createParseNode(logicalSystemFormulaParseNode,
+			<InternalNode>MmpSubstitutionApplier.createParseNode(logicalSystemFormulaParseNode,
 				this.substitution, this.outermostBlock);
 		if ((GrammarManager.containsWorkingVar(uStepParseNode) || GrammarManager.containsWorkingVar(newNodeWithSubstitution))
 		&& !GrammarManager.areParseNodesEqual(newNodeWithSubstitution,uStepParseNode)) {

@@ -8,7 +8,7 @@ import { WorkingVars } from './WorkingVars';
 import { MmpProofStep } from "./MmpProofStep";
 import { EHyp } from '../mm/EHyp';
 
-export class USubstitutionApplier {
+export class MmpSubstitutionApplier {
 	substitution: Map<string, InternalNode>;
 	uStepIndex: number;
 	assertion: AssertionStatement;
@@ -88,7 +88,7 @@ export class USubstitutionApplier {
 		const parseNodes: ParseNode[] = [];
 		//TODO probably you should check for a substitution here, not at the leaf level
 		parseNodeForLogicalSystemFormula.parseNodes.forEach((parseNode: ParseNode) => {
-			const newParseNode: ParseNode = USubstitutionApplier.createParseNode(parseNode, substitution,
+			const newParseNode: ParseNode = MmpSubstitutionApplier.createParseNode(parseNode, substitution,
 				outermostBlock);
 			parseNodes.push(newParseNode);
 		});
@@ -107,20 +107,20 @@ export class USubstitutionApplier {
 	static createParseNode(parseNodeForLogicalSystemFormula: ParseNode, substitution: Map<string, InternalNode>,
 		outermostBlock: BlockStatement): ParseNode {
 		let newParseNode: ParseNode;
-		if (USubstitutionApplier.isInternalNodeForLogicalVariable(parseNodeForLogicalSystemFormula,
+		if (MmpSubstitutionApplier.isInternalNodeForLogicalVariable(parseNodeForLogicalSystemFormula,
 			outermostBlock)) {
-			newParseNode = USubstitutionApplier.createParseNodeForLogicalVariable(
+			newParseNode = MmpSubstitutionApplier.createParseNodeForLogicalVariable(
 				<InternalNode>parseNodeForLogicalSystemFormula, substitution);
 		} else if (parseNodeForLogicalSystemFormula instanceof MmToken)
 			// we get here only if the MmToken represents a constant, thus there's no
 			// need to clone it and we can use the same token of the logicalSystemFormula
 			// newParseNode = USubstitutionApplier.createParseNodeForMmToken(parseNodeForLogicalSystemFormula,
 			// 	substitution);
-			newParseNode = USubstitutionApplier.createParseNodeForMmToken(parseNodeForLogicalSystemFormula,
+			newParseNode = MmpSubstitutionApplier.createParseNodeForMmToken(parseNodeForLogicalSystemFormula,
 				substitution);
 		else
 			// parseNodeForLogicalSystemFormula is an InternalNode
-			newParseNode = USubstitutionApplier.createParseNodeForInternalNode(parseNodeForLogicalSystemFormula,
+			newParseNode = MmpSubstitutionApplier.createParseNodeForInternalNode(parseNodeForLogicalSystemFormula,
 				substitution, outermostBlock);
 		return newParseNode;
 	}
@@ -142,7 +142,7 @@ export class USubstitutionApplier {
 	applySubstitutionToSingleNode(uProofStep: MmpProofStep,
 		parseNodeForLogicalSystemFormula: InternalNode) {
 		if (uProofStep.parseNode == undefined)
-			uProofStep.parseNode = USubstitutionApplier.createParseNodeForInternalNode(parseNodeForLogicalSystemFormula,
+			uProofStep.parseNode = MmpSubstitutionApplier.createParseNodeForInternalNode(parseNodeForLogicalSystemFormula,
 				this.substitution, this.outermostBlock);
 		// else
 		// 	uProofStep.parseNode = this.applySubstitutionToExistingNode(
@@ -163,7 +163,7 @@ export class USubstitutionApplier {
 					this.eHypUSteps[i] = this.uProof.createEmptyUStepAndAddItBeforeIndex(indexToInsertNewEHyps++);
 				if (this.eHypUSteps[i]!.parseNode === undefined)
 					this.eHypUSteps[i]!.parseNode =
-						USubstitutionApplier.createParseNodeForInternalNode(logicalSystemEHyp.parseNode,
+						MmpSubstitutionApplier.createParseNodeForInternalNode(logicalSystemEHyp.parseNode,
 							this.substitution, this.outermostBlock);
 				// else
 				// 	this.eHypUSteps[i]!.parseNode = this.applySubstitutionToExistingNode(
@@ -171,7 +171,7 @@ export class USubstitutionApplier {
 			} else {
 				// eHypUSteps.length <_ i
 				const newEHypUStep = this.uProof.createEmptyUStepAndAddItBeforeIndex(indexToInsertNewEHyps++);
-				newEHypUStep.parseNode = USubstitutionApplier.createParseNodeForInternalNode(logicalSystemEHyp.parseNode,
+				newEHypUStep.parseNode = MmpSubstitutionApplier.createParseNodeForInternalNode(logicalSystemEHyp.parseNode,
 					this.substitution, this.outermostBlock);
 				this.eHypUSteps.push(newEHypUStep);
 			}

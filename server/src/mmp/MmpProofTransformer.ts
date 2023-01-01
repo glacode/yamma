@@ -7,7 +7,7 @@ import { InternalNode } from '../grammar/ParseNode';
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { MmpProof } from './MmpProof';
 import { IMmpStatement, TextForProofStatement } from "./MmpStatement";
-import { USubstitutionApplier } from './USubstitutionApplier';
+import { MmpSubstitutionApplier } from './MmpSubstitutionApplier';
 import { MmpSubstitutionBuilder, SubstitutionResult } from './MmpSubstitutionBuilder';
 import { WorkingVarsUnifierApplier } from './WorkingVarsUUnifierApplier';
 import { WorkingVars } from './WorkingVars';
@@ -214,7 +214,7 @@ export class MmpProofTransformer {
 					this.setIsProvenIfTheCase(uProofStep, assertion.frame!.eHyps.length);
 					if (uProofStep.stepRef == "")
 						uProofStep.stepRef = this.uProof.getNewRef();
-					const uSubstitutionApplier: USubstitutionApplier = new USubstitutionApplier(
+					const uSubstitutionApplier: MmpSubstitutionApplier = new MmpSubstitutionApplier(
 						<Map<string, InternalNode>>substitutionResult.substitution, uStepIndex,
 						this.uProof, assertion, this.outermostBlock, this.workingVars, this.grammar);
 					nextUStepIndexToBeTransformed = uSubstitutionApplier.applySubstitution() + 1;

@@ -8,7 +8,7 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { MmpSubstitutionBuilder } from '../mmp/MmpSubstitutionBuilder';
 import { InternalNode } from '../grammar/ParseNode';
 import { IMmpStatement } from '../mmp/MmpStatement';
-import { USubstitutionApplier } from '../mmp/USubstitutionApplier';
+import { MmpSubstitutionApplier } from '../mmp/MmpSubstitutionApplier';
 import { EHyp } from '../mm/EHyp';
 
 export interface IEHypsDerivationResult {
@@ -120,7 +120,7 @@ export class EHypsDerivation {
 	//#region searchCurrentEHypWithoutAdditionalVarsToBeUnified
 	buildFormulaForCurrentEHypProofStep(currentEHyp: EHyp): string {
 		const parseNode: InternalNode =
-			USubstitutionApplier.createParseNodeForInternalNode(currentEHyp.parseNode, this.substitution, this.outermostBlock);
+			MmpSubstitutionApplier.createParseNodeForInternalNode(currentEHyp.parseNode, this.substitution, this.outermostBlock);
 		const formula: string = parseNode.stringFormula;
 		return formula;
 	}
