@@ -1,7 +1,7 @@
 import { Range } from 'vscode-languageserver';
 import { MmToken } from '../grammar/MmLexer';
 import { arrayRange, concatTokenValuesWithSpaces } from '../mm/Utils';
-import { IMmpStatementWithRange } from './UStatement';
+import { IMmpStatementWithRange } from './MmpStatement';
 
 export class MmpSearchStatement implements IMmpStatementWithRange {
 	public searchStatementTokens: MmToken[];

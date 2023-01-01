@@ -14,7 +14,7 @@ import { axmpTheory } from './MmParser.test';
 import { vexTheoryMmParser } from './MmpProofStatement.test';
 import { doesDiagnosticsContain } from '../mm/Utils';
 import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
-import { IUStatement } from '../mmp/UStatement';
+import { IMmpStatement } from '../mmp/MmpStatement';
 
 const emptyLabelStatement = new AxiomStatement('x', [], new BlockStatement());
 
@@ -123,7 +123,7 @@ test('createMmpStatements', () => {
 	// const mmpParser: MmpParser = new MmpParser(mmptext, labelToStatementMap, outermostBlock, wiGrammar(), new WorkingVars(kindToPrefixMap));
 	const mmpParser: MmpParser = new MmpParser(mmptext, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpStatements: IUStatement[] = <IUStatement[]>mmpParser.uProof?.uStatements;
+	const mmpStatements: IMmpStatement[] = <IMmpStatement[]>mmpParser.uProof?.uStatements;
 	expect(mmpStatements.length).toBe(6);
 	expect((mmpStatements[0])).toEqual(expect.objectContaining({ comment: expect.any(String) }));
 	expect((<MmToken[]>(<MmpProofStep>mmpStatements[1]).stepFormula)[0].value).toEqual('|-');
@@ -826,7 +826,7 @@ test('expect MmpStatement.range ', () => {
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
-	const mmpStatements: IUStatement[] = mmpParser.uProof!.uStatements;
+	const mmpStatements: IMmpStatement[] = mmpParser.uProof!.uStatements;
 	const mmpProofStep0: MmpProofStep = <MmpProofStep>mmpStatements[0];
 	expect(mmpProofStep0.range.start.line).toBe(0);
 	expect(mmpProofStep0.range.start.character).toBe(0);

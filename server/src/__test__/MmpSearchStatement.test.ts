@@ -1,6 +1,6 @@
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
-import { IUStatement } from '../mmp/UStatement';
+import { IMmpStatement } from '../mmp/MmpStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
 
@@ -14,7 +14,7 @@ test("MmpSearchStatement", () => {
 		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const searchStatement: IUStatement | undefined = mmpParser.uProof?.uStatements[2];
+	const searchStatement: IMmpStatement | undefined = mmpParser.uProof?.uStatements[2];
 	expect(searchStatement instanceof MmpSearchStatement).toBeTruthy();
 	const symbolsToSearch: string[] = (<MmpSearchStatement>searchStatement).symbolsToSearch;
 	expect(symbolsToSearch.length).toBe(2);

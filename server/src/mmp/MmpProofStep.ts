@@ -4,7 +4,7 @@ import { MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { MmpProof } from './MmpProof';
 
-import { IMmpStatementWithRange, UProofStatementStep } from './UStatement';
+import { IMmpStatementWithRange, UProofStatementStep } from './MmpStatement';
 import { concatTokenValuesWithSeparator, concatTokenValuesWithSpaces } from '../mm/Utils';
 import { ProofStepFirstTokenInfo } from './MmpStatements';
 import { GrammarManager } from '../grammar/GrammarManager';

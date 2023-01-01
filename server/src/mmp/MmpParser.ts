@@ -11,7 +11,7 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 import { range, oneCharacterRange, concatTokenValuesWithSpaces, concatWithSpaces, splitToTokensAllowingForEmptyValues, AreArrayTheSame, rebuildOriginalStringFromTokens } from '../mm/Utils';
 import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { IUStatement, UComment, TextForProofStatement, UTheoremLabel } from './UStatement';
+import { IMmpStatement, MmpComment, TextForProofStatement, MmpTheoremLabel } from './MmpStatement';
 import { MmpProof } from './MmpProof';
 import { SubstitutionResult, USubstitutionBuilder } from './USubstitutionBuilder';
 import { USubstitutionApplier } from './USubstitutionApplier';
@@ -200,24 +200,24 @@ export class MmpParser {
 	//#endregion proofStepFirstTokenInfo
 
 	addTheoremLabel(nextProofStepTokens: MmToken[]) {
-		let uTheoremLabel: UTheoremLabel | undefined;
+		let uTheoremLabel: MmpTheoremLabel | undefined;
 		if (nextProofStepTokens.length == 1) {
 			// the theorem label is missing
 			const message = `The theorem label is missing`;
 			const range: Range = oneCharacterRange(nextProofStepTokens[0].range.end);
 			MmpValidator.addDiagnosticWarning(message, range,
 				MmpParserWarningCode.missingTheoremLabel, this.diagnostics);
-			uTheoremLabel = new UTheoremLabel(nextProofStepTokens[0]);
+			uTheoremLabel = new MmpTheoremLabel(nextProofStepTokens[0]);
 		} else
 			// the second token is the theorem label
-			uTheoremLabel = new UTheoremLabel(nextProofStepTokens[0], nextProofStepTokens[1]);
+			uTheoremLabel = new MmpTheoremLabel(nextProofStepTokens[0], nextProofStepTokens[1]);
 		this.uProof?.addUStatement(uTheoremLabel);
 	}
 
 	addComment(nextProofStepTokens: MmToken[]) {
 		// const commentContent: string = MmToken.joinValues(nextProofStepTokens.slice(1), " ");
 		const commentContent: string = rebuildOriginalStringFromTokens(nextProofStepTokens);
-		const comment: UComment = new UComment(nextProofStepTokens, commentContent);
+		const comment: MmpComment = new MmpComment(nextProofStepTokens, commentContent);
 		// this.mmpStatements.push(comment);
 		this.uProof?.addUStatement(comment);
 	}
@@ -611,7 +611,7 @@ export class MmpParser {
 	checkUnificationOfLogicalVars(outermostBlock: BlockStatement,
 		grammar: Grammar, workingVars: WorkingVars) {
 		// this.mmpStatements.forEach((mmpStatement: MmpStatement) => {
-		this.uProof?.uStatements.forEach((mmpStatement: IUStatement) => {
+		this.uProof?.uStatements.forEach((mmpStatement: IMmpStatement) => {
 			// if (mmpStatement instanceof MmpProofStep && !mmpStatement.isEHyp) {
 			if (mmpStatement instanceof MmpProofStep && !mmpStatement.isEHyp) {
 				// const substitutionManager: MmpSubstitutionManager =
@@ -692,7 +692,7 @@ export class MmpParser {
 		});
 	}
 	addDiagnosticForEachOccourenceOfWorkingVar(workingVar: string, errorMessage: string) {
-		this.uProof?.uStatements.forEach((uStatement: IUStatement) => {
+		this.uProof?.uStatements.forEach((uStatement: IMmpStatement) => {
 			// if (uStatement instanceof UProofStep && uStatement.parseNode != undefined) {
 			// 	this.addDiagnosticForOccourenceOfWorkingVarToSingleParseNode(uStatement.parseNode,
 			// 		workingVar, errorMessage);

@@ -7,7 +7,7 @@ import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { InternalNode } from '../grammar/ParseNode';
-import { IUStatement } from '../mmp/UStatement';
+import { IMmpStatement } from '../mmp/MmpStatement';
 import { USubstitutionApplier } from '../mmp/USubstitutionApplier';
 import { EHyp } from '../mm/EHyp';
 
@@ -108,7 +108,7 @@ export class EHypsDerivation {
 		while (!this.eHypsDerivationResult.isSuccessful && i < this.mmpProofStepIndex) {
 			// a previous MmpProofStep that can be unified with the current EHyp
 			// has not been found yet
-			const eHypProofStepCandidate: IUStatement = this.uProof.uStatements[i];
+			const eHypProofStepCandidate: IMmpStatement = this.uProof.uStatements[i];
 			if (eHypProofStepCandidate instanceof MmpProofStep)
 				this.tryEHypProofStepCandidate(currentEHypIndexForStepDerivation, currentEHypRealIndex,
 					currentEHyp, eHypProofStepCandidate);

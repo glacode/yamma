@@ -6,7 +6,7 @@ import { InternalNode } from '../grammar/ParseNode';
 
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { MmpProof } from './MmpProof';
-import { IUStatement, TextForProofStatement } from "./UStatement";
+import { IMmpStatement, TextForProofStatement } from "./MmpStatement";
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { USubstitutionBuilder, SubstitutionResult } from './USubstitutionBuilder';
 import { WorkingVarsUnifierApplier } from './WorkingVarsUUnifierApplier';
@@ -230,7 +230,7 @@ export class MmpProofTransformer {
 	protected transformUSteps() {
 		let i = 0;
 		while (i < this.uProof.uStatements.length) {
-			const currentMmpStatement: IUStatement = this.uProof.uStatements[i];
+			const currentMmpStatement: IMmpStatement = this.uProof.uStatements[i];
 			if (currentMmpStatement instanceof MmpProofStep && !currentMmpStatement.isEHyp) {
 				// this.addUStep(uStatement, uProof.refToUStatementMap, newProof);
 				i = this.transformUStep(i);

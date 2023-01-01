@@ -5,7 +5,7 @@ import { MmpProof } from '../mmp/MmpProof';
 import * as FileSystem from 'fs';
 import { DisjVarUStatement } from '../mm/Statements';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { IUStatement } from '../mmp/UStatement';
+import { IMmpStatement } from '../mmp/MmpStatement';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpParser } from '../mmp/MmpParser';
 import { Parameters } from '../general/Parameters';
@@ -118,7 +118,7 @@ export class MmtSaver {
 	}
 	textForEStatements(uProof: MmpProof): string {
 		let text = "";
-		uProof.uStatements.forEach((ustatement: IUStatement) => {
+		uProof.uStatements.forEach((ustatement: IMmpStatement) => {
 			if (ustatement instanceof MmpProofStep && ustatement.isEHyp) {
 				const textForCurrentEHyp: string = this.textForCurrentEHyp(ustatement);
 				text += `    ${textForCurrentEHyp}\n`;

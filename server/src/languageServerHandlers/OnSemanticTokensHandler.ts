@@ -5,7 +5,7 @@ import { MmParser } from '../mm/MmParser';
 import { DisjVarUStatement } from '../mm/Statements';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
-import { IUStatement, UComment } from '../mmp/UStatement';
+import { IMmpStatement, MmpComment } from '../mmp/MmpStatement';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 
@@ -115,7 +115,7 @@ export class OnSemanticTokensHandler {
 			this.previousTokenStartCharacter = tokenRange.start.character;
 		}
 	}
-	addSemanticTokensForComment(uComment: UComment) {
+	addSemanticTokensForComment(uComment: MmpComment) {
 		uComment.contentTokens.forEach((token: MmToken) => {
 			// this.addSemanticToken(token.range.start.line, token.range.start.character,
 			// 	token.range.end.character - token.range.start.character, SemanticTokenTypes.comment,
@@ -184,8 +184,8 @@ export class OnSemanticTokensHandler {
 	protected buildSemanticTokens(mmParser: MmParser, mmpParser: MmpParser,
 		variableKindsConfiguration: Map<string, IVariableKindConfiguration>): SemanticTokens {
 		// const mmTokens: MmToken = mmpParser.mmTokens;
-		mmpParser.uProof?.uStatements.forEach((uStatement: IUStatement) => {
-			if (uStatement instanceof UComment)
+		mmpParser.uProof?.uStatements.forEach((uStatement: IMmpStatement) => {
+			if (uStatement instanceof MmpComment)
 				this.addSemanticTokensForComment(uStatement);
 			// else if (uStatement instanceof UProofStep)
 			else if (uStatement instanceof MmpProofStep)

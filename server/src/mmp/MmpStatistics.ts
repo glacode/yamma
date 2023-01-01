@@ -1,7 +1,7 @@
 import { MmToken } from '../grammar/MmLexer';
 import { MmpParser } from './MmpParser';
 import { MmpProofStep } from "./MmpProofStep";
-import { IUStatement } from './UStatement';
+import { IMmpStatement } from './MmpStatement';
 
 export class MmpStatistics {
 	mmpParser: MmpParser;
@@ -27,7 +27,7 @@ export class MmpStatistics {
 		if (this.mmpParser.uProof != undefined) {
 			this.symbols = new Set<string>();
 
-			this.mmpParser.uProof?.uStatements.forEach((uStatement: IUStatement) => {
+			this.mmpParser.uProof?.uStatements.forEach((uStatement: IMmpStatement) => {
 				if (uStatement instanceof MmpProofStep)
 					this.addSymbolsForCurrentMmpProofStep(uStatement);
 			});

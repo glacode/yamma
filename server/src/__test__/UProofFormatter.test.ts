@@ -5,7 +5,7 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UProofFormatter } from '../mmp/UProofFormatter';
-import { IUStatement } from '../mmp/UStatement';
+import { IMmpStatement } from '../mmp/MmpStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
 
@@ -28,7 +28,7 @@ test("Test UProofFormatter.computeIndentationLevels()", () => {
 	const uProofFormatter: TestUProofFormatter = new TestUProofFormatter(mmpParser.uProof!);
 	uProofFormatter.computeIndentationLevels();
 	expect(mmpParser.uProof?.uStatements.length).toBeGreaterThanOrEqual(5);
-	mmpParser.uProof?.uStatements.forEach((uStatement: IUStatement) => {
+	mmpParser.uProof?.uStatements.forEach((uStatement: IMmpStatement) => {
 		if (uStatement instanceof MmpProofStep) {
 			if (uStatement.stepRef == 'qed')
 				expect(uStatement.indentationLevel).toBe(0);

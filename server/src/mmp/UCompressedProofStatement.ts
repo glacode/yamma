@@ -1,12 +1,12 @@
 import { Grammar } from 'nearley';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { MmpProof } from './MmpProof';
-import { IUStatement, UProofStatementStep } from './UStatement';
+import { IMmpStatement, UProofStatementStep } from './MmpStatement';
 import { concatWithSpaces } from '../mm/Utils';
 import { Parameters } from '../general/Parameters';
 import { MmpProofStep } from "./MmpProofStep";
 
-export class UCompressedProofStatement implements IUStatement {
+export class UCompressedProofStatement implements IMmpStatement {
 	uProof: MmpProof;
 
 	private _leftMargin: number;
@@ -96,7 +96,7 @@ export class UCompressedProofStatement implements IUStatement {
 		mandatoryFHypsLabelsInRPNorder.forEach((label: string) => {
 			this.addMandatoryHypLabel(label);
 		});
-		this.uProof.uStatements.forEach((uStatement: IUStatement) => {
+		this.uProof.uStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep && uStatement.isEHyp)
 				this.addMandatoryHypLabel(uStatement.stepLabel!);
 		});

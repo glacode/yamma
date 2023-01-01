@@ -4,7 +4,7 @@ import { GrammarManager } from './GrammarManager';
 import { MmToken } from './MmLexer';
 import { AxiomStatement } from "../mm/AxiomStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
-import { UProofStatementStep } from '../mmp/UStatement';
+import { UProofStatementStep } from '../mmp/MmpStatement';
 
 export class InternalNode {
 	label: string;

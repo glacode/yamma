@@ -5,7 +5,7 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmpProofStep } from './MmpProofStep';
 import { MmpProof } from './MmpProof';
-import { IUStatement } from './UStatement';
+import { IMmpStatement } from './MmpStatement';
 
 export class UProofFormatter {
 	uProof: MmpProof;
@@ -86,7 +86,7 @@ export class UProofFormatter {
 	textWithIndentedProof() {
 		this.computeIndentationLevels();
 		let text = "";
-		this.uProof.uStatements.forEach((uStatement: IUStatement) => {
+		this.uProof.uStatements.forEach((uStatement: IMmpStatement) => {
 			let uStatementText: string;
 			if (uStatement instanceof MmpProofStep)
 				uStatementText = this.textForUProofStep(uStatement);

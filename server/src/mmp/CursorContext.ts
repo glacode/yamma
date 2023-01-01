@@ -4,7 +4,7 @@ import { MmpParser } from './MmpParser';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { MmpProofStep } from "./MmpProofStep";
 import { MmpProof } from './MmpProof';
-import { IMmpStatementWithRange, IUStatement } from './UStatement';
+import { IMmpStatementWithRange, IMmpStatement } from './MmpStatement';
 
 /** the cursor position determines which kind of completion is required */
 
@@ -50,7 +50,7 @@ export class CursorContext {
 	}
 
 	/** returns the IMmpStatementWithRange at the given line (it may be a multiline proof step) */
-	public static getMmpStatement(uStatements: IUStatement[], line: number): IMmpStatementWithRange | undefined {
+	public static getMmpStatement(uStatements: IMmpStatement[], line: number): IMmpStatementWithRange | undefined {
 		let i = 0;
 		let mmpStatement: IMmpStatementWithRange | undefined;
 		while (i < uStatements.length && mmpStatement == undefined) {

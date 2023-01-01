@@ -2,7 +2,7 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { MmpProofStep } from "./MmpProofStep";
 import { MmpProof } from './MmpProof';
-import { IUStatement } from './UStatement';
+import { IMmpStatement } from './MmpStatement';
 
 export class WorkingVarsUnifierApplier {
 	unifier: Map<string, InternalNode>;
@@ -51,7 +51,7 @@ export class WorkingVarsUnifierApplier {
 	 * replaced by the given unifier
 	 */
 	applyUnifier() {
-		this.uProof.uStatements.forEach((uStatement: IUStatement) => {
+		this.uProof.uStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep)
 				this.applyUnifierToProofStep(uStatement);
 		});

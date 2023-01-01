@@ -9,7 +9,7 @@ import { CursorContext } from '../mmp/CursorContext';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { MmpProofStep } from "../mmp/MmpProofStep";
-import { IMmpStatementWithRange } from '../mmp/UStatement';
+import { IMmpStatementWithRange } from '../mmp/MmpStatement';
 
 //TODO you are defining this interface both on the client and on the server:
 //see if there's a way to define it in a single place

@@ -5,7 +5,7 @@ import { MmpParser } from './MmpParser';
 import { MmpProof } from './MmpProof';
 import { WorkingVars } from './WorkingVars';
 import { MmpProofTransformer } from './MmpProofTransformer';
-import { UProofStatement, UProofStatementStep } from './UStatement';
+import { UProofStatement, UProofStatementStep } from './MmpStatement';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
 

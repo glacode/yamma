@@ -1,6 +1,6 @@
 import { BlockStatement } from "./BlockStatement";
 import { MmToken } from '../grammar/MmLexer';
-import { IMmpStatementWithRange } from '../mmp/UStatement';
+import { IMmpStatementWithRange } from '../mmp/MmpStatement';
 import { arrayRange } from './Utils';
 import { Range } from 'vscode-languageserver';
 

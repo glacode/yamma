@@ -6,7 +6,7 @@ import { ProofStepFirstTokenInfo } from './MmpStatements';
 import { MmpProofStep } from "./MmpProofStep";
 import { DisjVarUStatement } from '../mm/Statements';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
-import { IUStatement, UComment, UProofStatement, UTheoremLabel } from './UStatement';
+import { IMmpStatement, MmpComment, UProofStatement, MmpTheoremLabel } from './MmpStatement';
 import { WorkingVars } from './WorkingVars';
 import { UProofFormatter } from './UProofFormatter';
 import { ITheoremSignature } from '../mmt/MmtParser';
@@ -17,12 +17,12 @@ export class MmpProof implements ITheoremSignature {
 	workingVars: WorkingVars;
 	maxRefAlreadyAssigned = 0;
 
-	uStatements: IUStatement[];
+	uStatements: IMmpStatement[];
 
 	/** the theorem label is expected to be the first statement */
 	public get theoremLabel(): MmToken | undefined {
 		let theoremLabel: MmToken | undefined;
-		if (this.uStatements[0] instanceof UTheoremLabel && this.uStatements[0].theoremLabel != undefined)
+		if (this.uStatements[0] instanceof MmpTheoremLabel && this.uStatements[0].theoremLabel != undefined)
 			// the first statement is a theorem label statement and the theoremLabel is actually specified
 			theoremLabel = this.uStatements[0].theoremLabel;
 		return theoremLabel;
@@ -32,13 +32,13 @@ export class MmpProof implements ITheoremSignature {
 	 * The main comment is expected to be the second statement, just after
 	 * the theorem label statement
 	 */
-	public get mainComment(): UComment | undefined {
-		let uComment: UComment | undefined;
-		if (this.uStatements[0] instanceof UTheoremLabel && this.uStatements[1] instanceof UComment)
+	public get mainComment(): MmpComment | undefined {
+		let uComment: MmpComment | undefined;
+		if (this.uStatements[0] instanceof MmpTheoremLabel && this.uStatements[1] instanceof MmpComment)
 			// the first statement is a theorem label statement and the second statement is a comment;
 			// this is the expected state with no diagnostics
 			uComment = this.uStatements[1];
-		else if (this.uStatements[0] instanceof UComment)
+		else if (this.uStatements[0] instanceof MmpComment)
 			// the theorem label statement is missing; this will rise a Diagnostic, but if
 			// the first statement is comment, we return it as the main comment
 			uComment = this.uStatements[0];
@@ -96,7 +96,7 @@ export class MmpProof implements ITheoremSignature {
 	/** the set of the mandatory vars for this UProof */
 	get mandatoryVars(): Set<string> {
 		const result: Set<string> = new Set<string>();
-		this.uStatements.forEach((uStatement: IUStatement) => {
+		this.uStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep && (uStatement.isEHyp || uStatement.stepRef == "qed")) {
 				const mandatoryVarsForThisStatement: Set<string> =
 					uStatement.parseNode!.symbolsSubsetOf(this.outermostBlock.v);
@@ -202,7 +202,7 @@ export class MmpProof implements ITheoremSignature {
 
 	updateAllWorkingVars() {
 		this.workingVars.reset();
-		this.uStatements.forEach((uStatement: IUStatement) => {
+		this.uStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep && uStatement.stepFormula != undefined)
 				this.updateWorkingVarsIfTheCase(uStatement.stepFormula);
 		});
@@ -229,7 +229,7 @@ export class MmpProof implements ITheoremSignature {
 		// this.refToUStatementMap.set(uProofStep.stepRef!, uProofStep);
 	}
 
-	addUStatement(uStatement: IUStatement) {
+	addUStatement(uStatement: IMmpStatement) {
 		this.uStatements.push(uStatement);
 		if (uStatement instanceof MmpProofStep) {
 			this.updateMaxRefIfItsTheCase(uStatement.stepRef);
@@ -307,9 +307,9 @@ export class MmpProof implements ITheoremSignature {
 	/** returns the proof text, without indentation */
 	toTextWithoutIndentation(): string {
 		let text = "";
-		this.uStatements.forEach((uStatement: IUStatement) => {
+		this.uStatements.forEach((uStatement: IMmpStatement) => {
 			let uStatementText: string = uStatement.toText();
-			if (uStatement instanceof UComment)
+			if (uStatement instanceof MmpComment)
 				uStatementText = `\n${uStatementText}\n`;
 			text = text + uStatementText + "\n";
 		});
