@@ -7,7 +7,7 @@ import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { range } from '../mm/Utils';
 import { MmpProofStep } from "../mmp/MmpProofStep";
-import { SubstitutionResult, USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
+import { SubstitutionResult, MmpSubstitutionBuilder } from '../mmp/MmpSubstitutionBuilder';
 import { IStepSuggestion } from './ModelBuilder';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { IFormulaClassifier } from './IFormulaClassifier';
@@ -70,7 +70,7 @@ export class StepSuggestion {
 		// const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestion.label);
 		const assertionStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(stepSuggestionLabel);
 		if (assertionStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertionStatement)) {
-			const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(
+			const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(
 				this.mmpProofStep, assertionStatement, this.mmParser.outermostBlock,
 				this.mmParser.workingVars, this.mmParser.grammar, []);
 			const substitutionResult: SubstitutionResult =

@@ -4,7 +4,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { MmpProofStep } from '../mmp/MmpProofStep';
 import { MmpProof } from '../mmp/MmpProof';
-import { USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
+import { MmpSubstitutionBuilder } from '../mmp/MmpSubstitutionBuilder';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { EHypsDerivation } from './EHypsDerivation';
 import { MmpParser } from '../mmp/MmpParser';
@@ -61,7 +61,7 @@ export class StepDerivation {
 
 	//#endregion buildSubstitutionForCurrentHyp
 
-	tryEHypsDerivation(assertion: AssertionStatement, uSubstitutionBuilder: USubstitutionBuilder,
+	tryEHypsDerivation(assertion: AssertionStatement, uSubstitutionBuilder: MmpSubstitutionBuilder,
 		substitution: Map<string, InternalNode>): void {
 		const eHypsDerivation: EHypsDerivation = new EHypsDerivation(this.uProof, this.mmpProofStepIndex,
 			this.mmpProofStep, assertion, this.labelToNonSyntaxAssertionMap, this.outermostBlock,
@@ -94,7 +94,7 @@ export class StepDerivation {
 
 	private tryCurrentAssertion(assertion: AssertionStatement) {
 		const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
-		const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(
+		const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(
 			this.mmpProofStep, assertion, this.outermostBlock, this.workingVars, this.grammar, [], true);
 		// const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
 		const substitutionFound: boolean =

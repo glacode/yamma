@@ -13,7 +13,7 @@ import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { IMmpStatement, MmpComment, TextForProofStatement, MmpTheoremLabel } from './MmpStatement';
 import { MmpProof } from './MmpProof';
-import { SubstitutionResult, USubstitutionBuilder } from './USubstitutionBuilder';
+import { SubstitutionResult, MmpSubstitutionBuilder } from './MmpSubstitutionBuilder';
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { OrderedPairOfNodes, UnificationAlgorithmState, WorkingVarsUnifierFinder } from './WorkingVarsUnifierFinder';
@@ -582,7 +582,7 @@ export class MmpParser {
 				this.labelToStatementMap.get(stepLabelToken.value);
 			if (labeledStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(labeledStatement)) {
 				// labeledStatement instanceof AssertionStatement and it is not a syntax axiom
-				const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(mmpProofStep,
+				const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(mmpProofStep,
 					labeledStatement, outermostBlock, workingVars, grammar, this.diagnostics);
 				// const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitutionForExistingParseNodes();
 				const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();

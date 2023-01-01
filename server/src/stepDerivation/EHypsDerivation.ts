@@ -5,7 +5,7 @@ import { AssertionStatement, IEHypOrderForStepDerivation } from "../mm/Assertion
 import { MmpProofStep } from '../mmp/MmpProofStep';
 import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
+import { MmpSubstitutionBuilder } from '../mmp/MmpSubstitutionBuilder';
 import { InternalNode } from '../grammar/ParseNode';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { USubstitutionApplier } from '../mmp/USubstitutionApplier';
@@ -26,7 +26,7 @@ export class EHypsDerivation {
 	grammar: Grammar;
 	workingVars: WorkingVars;
 	maxNumberOfHypothesisDispositionsForStepDerivation: number;
-	uSubstitutionBuilder: USubstitutionBuilder;
+	uSubstitutionBuilder: MmpSubstitutionBuilder;
 	substitution: Map<string, InternalNode>;
 
 	eHypsDerivationResult: IEHypsDerivationResult;
@@ -35,7 +35,7 @@ export class EHypsDerivation {
 		labelToStatementMap: Map<string, LabeledStatement>,
 		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		uSubstitutionBuilder: USubstitutionBuilder, substitution: Map<string, InternalNode>) {
+		uSubstitutionBuilder: MmpSubstitutionBuilder, substitution: Map<string, InternalNode>) {
 		this.uProof = uProof;
 		this.mmpProofStepIndex = mmpProofStepIndex;
 		this.mmpProofStep = mmpProofStep;

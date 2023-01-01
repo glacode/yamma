@@ -8,7 +8,7 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 import { MmpProof } from './MmpProof';
 import { IMmpStatement, TextForProofStatement } from "./MmpStatement";
 import { USubstitutionApplier } from './USubstitutionApplier';
-import { USubstitutionBuilder, SubstitutionResult } from './USubstitutionBuilder';
+import { MmpSubstitutionBuilder, SubstitutionResult } from './MmpSubstitutionBuilder';
 import { WorkingVarsUnifierApplier } from './WorkingVarsUUnifierApplier';
 import { WorkingVars } from './WorkingVars';
 import { OrderedPairOfNodes, WorkingVarsUnifierFinder } from './WorkingVarsUnifierFinder';
@@ -200,7 +200,7 @@ export class MmpProofTransformer {
 			this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
 			const assertion: AssertionStatement | undefined = uProofStep.assertion;
 			if (assertion instanceof AssertionStatement) {
-				const uSubstitutionBuilder: USubstitutionBuilder = new USubstitutionBuilder(uProofStep,
+				const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(uProofStep,
 					assertion, this.outermostBlock, this.workingVars, this.grammar, []);
 				const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
 				// const substitutionResult: SubstitutionResult =

@@ -15,7 +15,7 @@ export interface SubstitutionResult {
 	substitution: Map<string, InternalNode> | undefined
 }
 
-export class USubstitutionBuilder {
+export class MmpSubstitutionBuilder {
 	uProofStep: MmpProofStep;
 	assertion: AssertionStatement;
 	outermostBlock: BlockStatement;
