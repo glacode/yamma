@@ -143,7 +143,16 @@
 				"command": "yamma.search",
 				"key": "ctrl+h"
 			}
-		]
+		],
+		"menus": {
+			"editor/context": [
+			  {
+				"when": "resourceLangId == yamma",
+				"command": "yamma.search",
+				"group": "navigation"
+			  }
+			]
+		  }
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
