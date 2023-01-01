@@ -2,7 +2,7 @@ import { Grammar } from 'nearley';
 import { Diagnostic, Position, TextEdit } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
 import { MmpParser } from './MmpParser';
-import { MmpProof } from './UProof';
+import { MmpProof } from './MmpProof';
 import { WorkingVars } from './WorkingVars';
 import { UProofTransformer } from './UProofTransformer';
 import { UProofStatement, UProofStatementStep } from './UStatement';

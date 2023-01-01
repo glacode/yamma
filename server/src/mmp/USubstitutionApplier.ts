@@ -3,7 +3,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { MmpProof } from './UProof';
+import { MmpProof } from './MmpProof';
 import { WorkingVars } from './WorkingVars';
 import { MmpProofStep } from "./MmpProofStep";
 import { EHyp } from '../mm/EHyp';

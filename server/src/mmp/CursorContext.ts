@@ -3,7 +3,7 @@ import { MmToken } from '../grammar/MmLexer';
 import { MmpParser } from './MmpParser';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { MmpProofStep } from "./MmpProofStep";
-import { MmpProof } from './UProof';
+import { MmpProof } from './MmpProof';
 import { IMmpStatementWithRange, IUStatement } from './UStatement';
 
 /** the cursor position determines which kind of completion is required */

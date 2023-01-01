@@ -12,7 +12,7 @@ import { range, oneCharacterRange, concatTokenValuesWithSpaces, concatWithSpaces
 import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { IUStatement, UComment, TextForProofStatement, UTheoremLabel } from './UStatement';
-import { MmpProof } from './UProof';
+import { MmpProof } from './MmpProof';
 import { SubstitutionResult, USubstitutionBuilder } from './USubstitutionBuilder';
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { GrammarManager } from '../grammar/GrammarManager';

@@ -1,7 +1,7 @@
 import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { MmpProofStep } from "./MmpProofStep";
-import { MmpProof } from './UProof';
+import { MmpProof } from './MmpProof';
 import { IUStatement } from './UStatement';
 
 export class WorkingVarsUnifierApplier {

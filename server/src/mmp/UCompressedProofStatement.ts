@@ -1,6 +1,6 @@
 import { Grammar } from 'nearley';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { MmpProof } from './UProof';
+import { MmpProof } from './MmpProof';
 import { IUStatement, UProofStatementStep } from './UStatement';
 import { concatWithSpaces } from '../mm/Utils';
 import { Parameters } from '../general/Parameters';

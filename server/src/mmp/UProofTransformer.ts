@@ -5,7 +5,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { InternalNode } from '../grammar/ParseNode';
 
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { MmpProof } from './UProof';
+import { MmpProof } from './MmpProof';
 import { IUStatement, TextForProofStatement } from "./UStatement";
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { USubstitutionBuilder, SubstitutionResult } from './USubstitutionBuilder';

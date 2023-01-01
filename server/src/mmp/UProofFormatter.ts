@@ -4,7 +4,7 @@ import { Parameters } from '../general/Parameters';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmpProofStep } from './MmpProofStep';
-import { MmpProof } from './UProof';
+import { MmpProof } from './MmpProof';
 import { IUStatement } from './UStatement';
 
 export class UProofFormatter {

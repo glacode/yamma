@@ -7,7 +7,7 @@ import { MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { InternalNode } from '../grammar/ParseNode';
 import { AssertionStatement } from "./AssertionStatement";
-import { MmpProof } from '../mmp/UProof';
+import { MmpProof } from '../mmp/MmpProof';
 
 export interface DataFieldForMissingDjVarConstraintsDiagnostic {
 	missingDisjVar1: string
@@ -157,7 +157,7 @@ export class DisjointVarsManager {
 				const parseNode1: InternalNode | undefined = this.substitution.get(var1);
 				const parseNode2: InternalNode | undefined = this.substitution.get(var2);
 				if (parseNode1 != undefined && parseNode2 != undefined)
-						this.addDisjVarsConstraintForCurrentNodes(parseNode1, parseNode2, uProof, missingDisjVarConstraints);
+					this.addDisjVarsConstraintForCurrentNodes(parseNode1, parseNode2, uProof, missingDisjVarConstraints);
 			});
 		});
 		return missingDisjVarConstraints;

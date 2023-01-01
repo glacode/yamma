@@ -4,7 +4,7 @@ import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UCompressedProofStatement } from '../mmp/UCompressedProofStatement';
-import { MmpProof } from '../mmp/UProof';
+import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { Parameters } from '../general/Parameters';

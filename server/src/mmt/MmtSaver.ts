@@ -1,7 +1,7 @@
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
-import { MmpProof } from '../mmp/UProof';
+import { MmpProof } from '../mmp/MmpProof';
 import * as FileSystem from 'fs';
 import { DisjVarUStatement } from '../mm/Statements';
 import { GrammarManager } from '../grammar/GrammarManager';
