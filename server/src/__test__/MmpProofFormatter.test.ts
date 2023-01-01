@@ -9,13 +9,13 @@ import { IMmpStatement } from '../mmp/MmpStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
 
-class TestUProofFormatter extends MmpProofFormatter {
+class TestMmpProofFormatter extends MmpProofFormatter {
 	public computeIndentationLevels() {
 		return super.computeIndentationLevels();
 	}
 }
 
-test("Test UProofFormatter.computeIndentationLevels()", () => {
+test("Test MmpProofFormatter.computeIndentationLevels()", () => {
 	const mmpSource =
 		"h50::mp2.1 |- ph\n" +
 		"h51::mp2.2 |- ps\n" +
@@ -25,8 +25,8 @@ test("Test UProofFormatter.computeIndentationLevels()", () => {
 
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const uProofFormatter: TestUProofFormatter = new TestUProofFormatter(mmpParser.uProof!);
-	uProofFormatter.computeIndentationLevels();
+	const mmpProofFormatter: TestMmpProofFormatter = new TestMmpProofFormatter(mmpParser.uProof!);
+	mmpProofFormatter.computeIndentationLevels();
 	expect(mmpParser.uProof?.uStatements.length).toBeGreaterThanOrEqual(5);
 	mmpParser.uProof?.uStatements.forEach((uStatement: IMmpStatement) => {
 		if (uStatement instanceof MmpProofStep) {
