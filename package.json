@@ -122,16 +122,20 @@
 		},
 		"commands": [
 			{
-				"command": "yamma.storeInMMTfolder",
-				"title": "Unify + Store in MMT Folder"
+				"command": "editor.action.formatDocument",
+				"title": "Unify"
+			},
+			{
+				"command": "yamma.search",
+				"title": "Search theorems in the theory"
 			},
 			{
 				"command": "yamma.loadFromMMTfolder",
 				"title": "Load Theorems from MMT Folder"
 			},
 			{
-				"command": "yamma.search",
-				"title": "Search theorems in the theory"
+				"command": "yamma.storeInMMTfolder",
+				"title": "Unify + Store in MMT Folder"
 			}
 		],
 		"keybindings": [
@@ -146,13 +150,28 @@
 		],
 		"menus": {
 			"editor/context": [
-			  {
-				"when": "resourceLangId == yamma",
-				"command": "yamma.search",
-				"group": "navigation"
-			  }
+				{
+					"when": "resourceLangId == yamma",
+					"command": "editor.action.formatDocument",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == yamma",
+					"command": "yamma.search",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == yamma",
+					"command": "yamma.loadFromMMTfolder",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == yamma",
+					"command": "yamma.storeInMMTfolder",
+					"group": "navigation"
+				}
 			]
-		  }
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
