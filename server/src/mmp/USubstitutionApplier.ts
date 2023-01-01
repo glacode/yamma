@@ -3,7 +3,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 import { WorkingVars } from './WorkingVars';
 import { MmpProofStep } from "./MmpProofStep";
 import { EHyp } from '../mm/EHyp';
@@ -15,13 +15,13 @@ export class USubstitutionApplier {
 	outermostBlock: BlockStatement;
 	workingVars: WorkingVars;
 	grammar: Grammar;
-	uProof: UProof;
+	uProof: MmpProof;
 
 	private uProofStep: MmpProofStep;
 	private logicalSystemEHyps: EHyp[];
 	private eHypUSteps: (MmpProofStep | undefined)[];
 
-	constructor(substitution: Map<string, InternalNode>, uStepIndex: number, uProof: UProof, assertion: AssertionStatement, outermostBlock: BlockStatement,
+	constructor(substitution: Map<string, InternalNode>, uStepIndex: number, uProof: MmpProof, assertion: AssertionStatement, outermostBlock: BlockStatement,
 		workingVars: WorkingVars, grammar: Grammar) {
 		this.substitution = substitution;
 		this.uStepIndex = uStepIndex;

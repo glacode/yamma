@@ -5,7 +5,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { InternalNode } from '../grammar/ParseNode';
 
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 import { IUStatement, TextForProofStatement } from "./UStatement";
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { USubstitutionBuilder, SubstitutionResult } from './USubstitutionBuilder';
@@ -22,7 +22,7 @@ import { MmpParser } from './MmpParser';
 export class UProofTransformer {
 	// textDocument: TextDocument
 	mmpParser: MmpParser;
-	uProof: UProof;
+	uProof: MmpProof;
 	labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>;
 	outermostBlock: BlockStatement;
 	grammar: Grammar;

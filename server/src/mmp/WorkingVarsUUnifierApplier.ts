@@ -1,13 +1,13 @@
 import { GrammarManager } from '../grammar/GrammarManager';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { MmpProofStep } from "./MmpProofStep";
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 import { IUStatement } from './UStatement';
 
 export class WorkingVarsUnifierApplier {
 	unifier: Map<string, InternalNode>;
-	uProof: UProof;
-	constructor(unifier: Map<string, InternalNode>, uProof: UProof) {
+	uProof: MmpProof;
+	constructor(unifier: Map<string, InternalNode>, uProof: MmpProof) {
 		this.unifier = unifier;
 		this.uProof = uProof;
 	}

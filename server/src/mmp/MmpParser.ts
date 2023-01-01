@@ -12,7 +12,7 @@ import { range, oneCharacterRange, concatTokenValuesWithSpaces, concatWithSpaces
 import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { IUStatement, UComment, TextForProofStatement, UTheoremLabel } from './UStatement';
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 import { SubstitutionResult, USubstitutionBuilder } from './USubstitutionBuilder';
 import { USubstitutionApplier } from './USubstitutionApplier';
 import { GrammarManager } from '../grammar/GrammarManager';
@@ -82,7 +82,7 @@ export class MmpParser {
 	// mmpStatements: MmpStatement[] = []
 	refToProofStepMap: Map<string, MmpProofStep>;  // maps each proof step id to the proof step
 	diagnostics: Diagnostic[] = [] // diagnostics built while parsing
-	uProof: UProof | undefined;
+	uProof: MmpProof | undefined;
 
 	//#region constructor
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
@@ -570,7 +570,7 @@ export class MmpParser {
 		const disjointVarsManager: DisjointVarsManager =
 			new DisjointVarsManager(assertion, substitution, this.outermostBlock, true, stepLabelToken, stepRef, this.uProof);
 		disjointVarsManager.checkDisjVarsConstraintsViolation();
-		disjointVarsManager.checkMissingDisjVarsConstraints(<UProof>this.uProof);
+		disjointVarsManager.checkMissingDisjVarsConstraints(<MmpProof>this.uProof);
 		this.diagnostics = this.diagnostics.concat(...disjointVarsManager.diagnostics);
 	}
 
@@ -639,7 +639,7 @@ export class MmpParser {
 		mmLexer.reset(this.textToParse);
 		this.mmTokens = mmLexer.tokens;
 		let token: MmToken | undefined = mmLexer.next();
-		this.uProof = new UProof(this.outermostBlock, this.workingVars);
+		this.uProof = new MmpProof(this.outermostBlock, this.workingVars);
 		while (token != undefined) {
 			token = this.createNextMmpStatement(token, mmLexer);
 			// token = mmLexer.current();

@@ -3,7 +3,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement, IEHypOrderForStepDerivation } from "../mm/AssertionStatement";
 import { MmpProofStep } from '../mmp/MmpProofStep';
-import { UProof } from '../mmp/UProof';
+import { MmpProof } from '../mmp/UProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { InternalNode } from '../grammar/ParseNode';
@@ -17,7 +17,7 @@ export interface IEHypsDerivationResult {
 }
 
 export class EHypsDerivation {
-	uProof: UProof;
+	uProof: MmpProof;
 	mmpProofStepIndex: number;
 	mmpProofStep: MmpProofStep;
 	assertion: AssertionStatement;
@@ -31,7 +31,7 @@ export class EHypsDerivation {
 
 	eHypsDerivationResult: IEHypsDerivationResult;
 
-	constructor(uProof: UProof, mmpProofStepIndex: number, mmpProofStep: MmpProofStep, assertion: AssertionStatement,
+	constructor(uProof: MmpProof, mmpProofStepIndex: number, mmpProofStep: MmpProofStep, assertion: AssertionStatement,
 		labelToStatementMap: Map<string, LabeledStatement>,
 		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number,

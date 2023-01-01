@@ -7,7 +7,7 @@ import { MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { InternalNode } from '../grammar/ParseNode';
 import { AssertionStatement } from "./AssertionStatement";
-import { UProof } from '../mmp/UProof';
+import { MmpProof } from '../mmp/UProof';
 
 export interface DataFieldForMissingDjVarConstraintsDiagnostic {
 	missingDisjVar1: string
@@ -30,7 +30,7 @@ export class DisjointVarsManager {
 	produceDiagnostics: boolean;
 	stepLabelToken?: MmToken;
 	stepRef?: string;
-	uProof?: UProof;
+	uProof?: MmpProof;
 
 
 	diagnostics: Diagnostic[];
@@ -44,7 +44,7 @@ export class DisjointVarsManager {
 
 	constructor(assertion: AssertionStatement, substitution: Map<string, InternalNode>,
 		outermostBlock: BlockStatement, produceDiagnostics: boolean,
-		stepLabelToken?: MmToken, stepRef?: string, uProof?: UProof) {
+		stepLabelToken?: MmToken, stepRef?: string, uProof?: MmpProof) {
 		this.assertion = assertion;
 		this.substitution = substitution;
 		this.outermostBlock = outermostBlock;
@@ -134,7 +134,7 @@ export class DisjointVarsManager {
 
 	//#region getMissingDisjVarConstraints
 	addDisjVarsConstraintForCurrentNodes(parseNode1: InternalNode, parseNode2: InternalNode,
-		uProof: UProof, missingDisjVarConstraints: DisjointVarMap) {
+		uProof: MmpProof, missingDisjVarConstraints: DisjointVarMap) {
 		const varsInNode1: Set<string> = parseNode1.symbolsSubsetOf(this.outermostBlock.v);
 		const varsInNode2: Set<string> = parseNode2.symbolsSubsetOf(this.outermostBlock.v);
 		varsInNode1.forEach((var1: string) =>
@@ -143,7 +143,7 @@ export class DisjointVarsManager {
 					missingDisjVarConstraints.add(var1, var2);
 			}));
 	}
-	private getMissingDisjVarConstraints(uProof: UProof): DisjointVarMap {
+	private getMissingDisjVarConstraints(uProof: MmpProof): DisjointVarMap {
 		const missingDisjVarConstraints: DisjointVarMap = new DisjointVarMap();
 		// this.assertion.frame?.disjVars.forEach((disjVar: DisjVarUStatement) => {
 		// 	const parseNode1: InternalNode | undefined = this.substitution.get(disjVar.var1);
@@ -198,7 +198,7 @@ export class DisjointVarsManager {
 	/** a Diagnostic is added when two vars are in the respective substitution of two
 	 * mandatory vars (for the assertion in the constructor)
 	 */
-	checkMissingDisjVarsConstraints(uProof: UProof) {
+	checkMissingDisjVarsConstraints(uProof: MmpProof) {
 		// const mandatoryVars: Set<string> = this.assertion.mandatoryVars(this.outermostBlock);
 		// const missingDisjVarConstraints: DisjointVarMap = this.getMissingDisjVarConstraints(uProof);
 		this.missingDisjVarConstraints = this.getMissingDisjVarConstraints(uProof);

@@ -4,12 +4,12 @@ import { Parameters } from '../general/Parameters';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmpProofStep } from './MmpProofStep';
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 import { IUStatement } from './UStatement';
 
 export class UProofFormatter {
-	uProof: UProof;
-	constructor(uProof: UProof) {
+	uProof: MmpProof;
+	constructor(uProof: MmpProof) {
 		this.uProof = uProof;
 	}
 

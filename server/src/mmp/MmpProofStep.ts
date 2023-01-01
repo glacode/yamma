@@ -2,7 +2,7 @@ import { Position } from 'vscode-languageserver';
 import { Range } from 'vscode-languageserver-textdocument';
 import { MmToken } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 
 import { IMmpStatementWithRange, UProofStatementStep } from './UStatement';
 import { concatTokenValuesWithSeparator, concatTokenValuesWithSpaces } from '../mm/Utils';
@@ -16,7 +16,7 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 
 
 export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSignature {
-	uProof: UProof;
+	uProof: MmpProof;
 
 	//the first token is not parsable if, for instance, it contains 3 or more colons
 	isFirstTokenParsable: boolean;
@@ -124,7 +124,7 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 	// mmpTokenizer: MmpTokenizer
 	// indexOfFirstToken: number
 	// indexOfLastToken: number
-	constructor(uProof: UProof,
+	constructor(uProof: MmpProof,
 		firstTokenInfo: ProofStepFirstTokenInfo,
 		isFirstTokenParsable: boolean, isEHyp: boolean, stepRefToken: MmToken, eHypRefs?: MmToken[],
 		eHypMmpSteps?: (MmpProofStep | undefined)[],

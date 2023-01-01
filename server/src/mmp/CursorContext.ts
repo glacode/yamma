@@ -3,7 +3,7 @@ import { MmToken } from '../grammar/MmLexer';
 import { MmpParser } from './MmpParser';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { MmpProofStep } from "./MmpProofStep";
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 import { IMmpStatementWithRange, IUStatement } from './UStatement';
 
 /** the cursor position determines which kind of completion is required */
@@ -31,7 +31,7 @@ export class CursorContext {
 	//#region mmpStatement
 	/** sets the mmpStatement the cursor is positioned on */
 	private setMmpStatement() {
-		const uProof: UProof | undefined = this.mmpParser.uProof;
+		const uProof: MmpProof | undefined = this.mmpParser.uProof;
 		if (uProof != undefined)
 			this._mmpStatement = CursorContext.getMmpStatement(uProof.uStatements, this.cursorLine);
 	}
@@ -109,7 +109,7 @@ export class CursorContext {
 	 */
 	public formulaBeforeCursor(): MmToken[] | undefined {
 		let formula: MmToken[] | undefined;
-		const uProof: UProof | undefined = this.mmpParser.uProof;
+		const uProof: MmpProof | undefined = this.mmpParser.uProof;
 		if (uProof != undefined) {
 			const mmpStatement: IMmpStatementWithRange | undefined = this.mmpStatement;
 			if (mmpStatement instanceof MmpProofStep) {

@@ -1,7 +1,7 @@
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
-import { UProof } from '../mmp/UProof';
+import { MmpProof } from '../mmp/UProof';
 import * as FileSystem from 'fs';
 import { DisjVarUStatement } from '../mm/Statements';
 import { GrammarManager } from '../grammar/GrammarManager';
@@ -41,7 +41,7 @@ export class MmtSaver {
 	//#region saveMmt
 
 	//#region tryToCreateTextToBeStored
-	buildUProof(mmpContent: string): UProof {
+	buildUProof(mmpContent: string): MmpProof {
 		// const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser.labelToStatementMap,
 		// 	this.mmParser.outermostBlock, this.mmParser.grammar, this.mmParser.workingVars);
 		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser, this.mmParser.workingVars);
@@ -90,7 +90,7 @@ export class MmtSaver {
 		return orderedDisjVarUStatements;
 	}
 	/** returns the text for the $d statements in the .mmt file; the statements are produced in lexicographic order */
-	private textForDjConstraints(uProof: UProof): string {
+	private textForDjConstraints(uProof: MmpProof): string {
 		let text = '';
 		const orderedSisjVarUStatements: DisjVarUStatement[] = this.orderDisjVarUStatements(uProof.disjVarUStatements);
 		if (orderedSisjVarUStatements.length > 0)
@@ -116,7 +116,7 @@ export class MmtSaver {
 		const text = `${label} $e ${formula} $.`;
 		return text;
 	}
-	textForEStatements(uProof: UProof): string {
+	textForEStatements(uProof: MmpProof): string {
 		let text = "";
 		uProof.uStatements.forEach((ustatement: IUStatement) => {
 			if (ustatement instanceof MmpProofStep && ustatement.isEHyp) {
@@ -128,7 +128,7 @@ export class MmtSaver {
 	}
 	//#endregion textForEStatements
 
-	private textForPStatement(uProof: UProof): string {
+	private textForPStatement(uProof: MmpProof): string {
 		// "  test $p |- ( y e. A -> A. x y e. A ) $=\n"
 		const theoremLabel: string | undefined = uProof.theoremLabel?.value;
 		if (theoremLabel == undefined || theoremLabel == 'example')
@@ -142,7 +142,7 @@ export class MmtSaver {
 	}
 
 
-	protected createTextToBeStored(uProof: UProof): string | undefined {
+	protected createTextToBeStored(uProof: MmpProof): string | undefined {
 		let text = "  ${\n";
 		const textForDjConstraints: string = this.textForDjConstraints(uProof);
 		text += textForDjConstraints;
@@ -161,7 +161,7 @@ export class MmtSaver {
 	//#endregion createTextToBeStored
 
 	protected tryToCreateTextToBeStored(mmpContent: string): string | undefined {
-		const uProof: UProof = this.buildUProof(mmpContent);
+		const uProof: MmpProof = this.buildUProof(mmpContent);
 		let textTobeStored: string | undefined;
 		if (uProof.proofStatement != undefined)
 			// the proof was successfully built

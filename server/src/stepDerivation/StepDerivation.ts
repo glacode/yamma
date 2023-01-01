@@ -3,7 +3,7 @@ import { InternalNode } from '../grammar/ParseNode';
 import { BlockStatement } from '../mm/BlockStatement';
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { MmpProofStep } from '../mmp/MmpProofStep';
-import { UProof } from '../mmp/UProof';
+import { MmpProof } from '../mmp/UProof';
 import { USubstitutionBuilder } from '../mmp/USubstitutionBuilder';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { EHypsDerivation } from './EHypsDerivation';
@@ -11,7 +11,7 @@ import { MmpParser } from '../mmp/MmpParser';
 
 /** tries to derive a label for the given MmpProofStep */
 export class StepDerivation {
-	uProof: UProof;
+	uProof: MmpProof;
 	mmpProofStepIndex: number;
 	mmpProofStep: MmpProofStep;
 	labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>;

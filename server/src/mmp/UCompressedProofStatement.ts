@@ -1,13 +1,13 @@
 import { Grammar } from 'nearley';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 import { IUStatement, UProofStatementStep } from './UStatement';
 import { concatWithSpaces } from '../mm/Utils';
 import { Parameters } from '../general/Parameters';
 import { MmpProofStep } from "./MmpProofStep";
 
 export class UCompressedProofStatement implements IUStatement {
-	uProof: UProof;
+	uProof: MmpProof;
 
 	private _leftMargin: number;
 	private _rightMargin: number;
@@ -53,7 +53,7 @@ export class UCompressedProofStatement implements IUStatement {
 	 * @param leftMargin the number of spaces to the left of the proof
 	 * @param rightMargin the max text column for the proof
 	 */
-	constructor(uProof: UProof, leftMargin?: number, rightMargin?: number) {
+	constructor(uProof: MmpProof, leftMargin?: number, rightMargin?: number) {
 		this.uProof = uProof;
 		if (leftMargin != undefined)
 			this._leftMargin = leftMargin;

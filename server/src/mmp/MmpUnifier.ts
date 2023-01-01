@@ -2,7 +2,7 @@ import { Grammar } from 'nearley';
 import { Diagnostic, Position, TextEdit } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
 import { MmpParser } from './MmpParser';
-import { UProof } from './UProof';
+import { MmpProof } from './UProof';
 import { WorkingVars } from './WorkingVars';
 import { UProofTransformer } from './UProofTransformer';
 import { UProofStatement, UProofStatementStep } from './UStatement';
@@ -25,7 +25,7 @@ export class MmpUnifier {
 	private maxNumberOfHypothesisDispositionsForStepDerivation: number;
 
 	/** the final proof produced with by the unify() method */
-	uProof: UProof | undefined
+	uProof: MmpProof | undefined
 
 	protected textLastLine: number;
 
@@ -77,7 +77,7 @@ export class MmpUnifier {
 	//#endregion buildUstatements
 
 
-	buildTextEditArray(newUProof: UProof): TextEdit[] {
+	buildTextEditArray(newUProof: MmpProof): TextEdit[] {
 		const newText: string = newUProof.toText();
 		const start: Position = { line: 0, character: 0 };
 		// end just needs to be larger than the previous text
@@ -91,7 +91,7 @@ export class MmpUnifier {
 		return textEdits;
 	}
 
-	buildProofStatementIfProofIsComplete(uProof: UProof) {
+	buildProofStatementIfProofIsComplete(uProof: MmpProof) {
 		if (uProof.lastUProofStep?.stepRef == 'qed' && uProof.lastUProofStep.isProven) {
 			if (this.proofMode == ProofMode.normal) {
 				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastUProofStep.proofArray(this.outermostBlock);

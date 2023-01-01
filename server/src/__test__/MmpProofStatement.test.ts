@@ -4,7 +4,7 @@ import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { UCompressedProofStatement } from '../mmp/UCompressedProofStatement';
-import { UProof } from '../mmp/UProof';
+import { MmpProof } from '../mmp/UProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { Parameters } from '../general/Parameters';
@@ -82,7 +82,7 @@ test("Remove exising proof and recreate it", () => {
 
 class TestUCompressedProofStatement extends UCompressedProofStatement {
 	constructor() {
-		const dummyUProof = new UProof(new BlockStatement(), new WorkingVars(kindToPrefixMap));
+		const dummyUProof = new MmpProof(new BlockStatement(), new WorkingVars(kindToPrefixMap));
 		// const dummyUProofStep: UProofStep = new UProofStep(dummyUProof, true, true, "", []);
 		// jest.spyOn(UProofStep.prototype, 'proofArray').mockImplementation(() => []);
 		// dummyUProof.lastUProofStep = dummyUProofStep;

@@ -11,7 +11,7 @@ import { WorkingVars } from './WorkingVars';
 import { UProofFormatter } from './UProofFormatter';
 import { ITheoremSignature } from '../mmt/MmtParser';
 
-export class UProof implements ITheoremSignature {
+export class MmpProof implements ITheoremSignature {
 
 	outermostBlock: BlockStatement;
 	workingVars: WorkingVars;
