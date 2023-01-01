@@ -7,7 +7,7 @@ import { MmpProofStep } from './MmpProofStep';
 import { MmpProof } from './MmpProof';
 import { IMmpStatement } from './MmpStatement';
 
-export class UProofFormatter {
+export class MmpProofFormatter {
 	uProof: MmpProof;
 	constructor(uProof: MmpProof) {
 		this.uProof = uProof;

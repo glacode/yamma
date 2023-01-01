@@ -4,12 +4,12 @@ import { ProofMode } from '../mm/ConfigurationManager';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
-import { UProofFormatter } from '../mmp/UProofFormatter';
+import { MmpProofFormatter } from '../mmp/MmpProofFormatter';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
 
-class TestUProofFormatter extends UProofFormatter {
+class TestUProofFormatter extends MmpProofFormatter {
 	public computeIndentationLevels() {
 		return super.computeIndentationLevels();
 	}

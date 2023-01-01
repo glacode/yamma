@@ -8,7 +8,7 @@ import { DisjVarUStatement } from '../mm/Statements';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
 import { IMmpStatement, MmpComment, UProofStatement, MmpTheoremLabel } from './MmpStatement';
 import { WorkingVars } from './WorkingVars';
-import { UProofFormatter } from './UProofFormatter';
+import { MmpProofFormatter } from './MmpProofFormatter';
 import { ITheoremSignature } from '../mmt/MmtParser';
 
 export class MmpProof implements ITheoremSignature {
@@ -292,8 +292,8 @@ export class MmpProof implements ITheoremSignature {
 
 	// returns the text of the whole proof, built starting from the parse nodes
 	toText(): string {
-		const uProofFormatter: UProofFormatter = new UProofFormatter(this);
-		const text = uProofFormatter.textWithIndentedProof();
+		const mmpProofFormatter: MmpProofFormatter = new MmpProofFormatter(this);
+		const text = mmpProofFormatter.textWithIndentedProof();
 		// let text = "";
 		// this.uStatements.forEach((uStatement: IUStatement) => {
 		// 	let uStatementText: string = uStatement.toText();
