@@ -4,7 +4,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { MmpParser } from './MmpParser';
 import { MmpProof } from './MmpProof';
 import { WorkingVars } from './WorkingVars';
-import { UProofTransformer } from './UProofTransformer';
+import { MmpProofTransformer } from './MmpProofTransformer';
 import { UProofStatement, UProofStatementStep } from './UStatement';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
@@ -118,7 +118,7 @@ export class MmpUnifier {
 		// 	this.uProof = this.buildUProof(textToParse);
 		//TODO see if this can be faster if done in the MmpParser
 		this.uProof!.updateAllWorkingVars();
-		const uProofTransformer: UProofTransformer = new UProofTransformer(
+		const uProofTransformer: MmpProofTransformer = new MmpProofTransformer(
 			this.mmpParser, this.maxNumberOfHypothesisDispositionsForStepDerivation);
 		// const newUProof: UProof = this.transformUProof(uProof);
 		uProofTransformer.transformUProof();

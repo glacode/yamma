@@ -19,7 +19,7 @@ import { StepDerivation } from '../stepDerivation/StepDerivation';
 import { MmpParser } from './MmpParser';
 
 // Parser for .mmp files
-export class UProofTransformer {
+export class MmpProofTransformer {
 	// textDocument: TextDocument
 	mmpParser: MmpParser;
 	uProof: MmpProof;
