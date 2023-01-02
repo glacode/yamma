@@ -8,8 +8,16 @@ A language server for .mmp files (metamath proof files).
 
 This Language Server works for .mmp files.  It has the following language features:
 - Completions
-- Diagnostics regenerated on each file change or configuration change
-- more...
+- Diagnostics
+- Code Actions
+- Quick Fixes
+- Semantic Tokenization
+- On Hover Documentation
+- Unification (and Standard Reformatting)
+- Search (in the theory)
+- Step Suggestions (Model Based)
+- Model Generation
+- Load/Save additional theorems in .mm compatible format
 
 ## Getting started
 
