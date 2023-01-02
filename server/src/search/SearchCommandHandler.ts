@@ -55,7 +55,7 @@ export class SearchCommandHandler {
 		cursorLine: number, currentMmpProofStep?: MmpProofStep): Position {
 		let line: number = cursorLine;
 		if (currentMmpProofStep != undefined)
-			line = currentMmpProofStep.range.start.line;
+			line = currentMmpProofStep.range.end.line;
 		const insertPosition: Position = { line: line + 1, character: 0 };
 		return insertPosition;
 	}

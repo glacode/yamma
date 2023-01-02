@@ -95,7 +95,7 @@ export class OnCompletionHandler {
 					break;
 				case CursorContextForCompletion.searchStatement: {
 					const searchStatementCompletionProvider = new SearchStatementCompletionProvider(
-						<MmpSearchStatement>cursorContext.mmpStatement,this.mmStatistics);
+						<MmpSearchStatement>cursorContext.mmpStatement,this.mmpParser,this.mmStatistics);
 					completionItems = searchStatementCompletionProvider.completionItems();
 				}
 					break;

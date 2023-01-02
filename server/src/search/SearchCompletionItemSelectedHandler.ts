@@ -6,6 +6,7 @@ export interface ISearchCompletionItemCommandParameters {
 	searchStatementRangeStartLine: number;
 	searchStatementRangeEndLine: number;
 	label: string;
+	lineToInsertTheLabel: number
 }
 
 export class SearchCompletionItemSelectedHandler {
@@ -19,7 +20,8 @@ export class SearchCompletionItemSelectedHandler {
 
 	//#region deleteSearchStatement
 	suggestCursorPosition() {
-		const labelLine: number = this.searchCompletionItemCommandParameters.searchStatementRangeStartLine - 1;
+		// const labelLine: number = this.searchCompletionItemCommandParameters.searchStatementRangeStartLine - 1;
+		const labelLine: number = this.searchCompletionItemCommandParameters.lineToInsertTheLabel;
 		const labelLength: number = this.searchCompletionItemCommandParameters.label.length;
 		const rangeForCursor: Range = Range.create(labelLine, labelLength, labelLine, labelLength + 1);
 		GlobalState.setSuggestedRangeForCursorPosition(rangeForCursor);

@@ -3,12 +3,14 @@ import { MmStatistics } from '../mm/MmStatistics';
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { intersection } from '../mm/Utils';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
+import { MmpParser } from '../mmp/MmpParser';
+import { MmpProofStep } from '../mmp/MmpProofStep';
 
 export class SearchStatementCompletionProvider {
 
 	mmpSearchStatement: MmpSearchStatement;
 	mmStatistics: MmStatistics;
-	constructor(mmpSearchStatement: MmpSearchStatement, mmStatistics: MmStatistics) {
+	constructor(mmpSearchStatement: MmpSearchStatement, private mmpParser: MmpParser, mmStatistics: MmStatistics) {
 		this.mmpSearchStatement = mmpSearchStatement;
 		this.mmStatistics = mmStatistics;
 	}
@@ -27,15 +29,35 @@ export class SearchStatementCompletionProvider {
 
 	//#region completionItemsForAssertionsInTheIntersections
 
+	//#region  getRangeToInsertLabel
+	getLineToInsertLabel(): number {
+		let i = 0;
+		while (this.mmpParser.uProof != undefined && i < this.mmpParser.uProof.uStatements.length &&
+			this.mmpParser.uProof.uStatements[i] != this.mmpSearchStatement)
+			i++;
+		let lineToInsertLabel: number = this.mmpSearchStatement.range.start.line;
+		if (this.mmpParser.uProof != undefined && i < this.mmpParser.uProof.uStatements.length &&
+			this.mmpParser.uProof.uStatements[i - 1] instanceof MmpProofStep) {
+			// this.mmpParser.uProof!.uStatements[i - 1] is the MmpProofStep just above this.mmpSearchStatement
+			// this should always be the case, unless the user moved the search statement around
+			const mmpProofStep: MmpProofStep = <MmpProofStep>this.mmpParser.uProof!.uStatements[i - 1];
+			lineToInsertLabel = mmpProofStep.range.start.line;
+		}
+		return lineToInsertLabel;
+	}
 	getRangeToInsertLabel(): Range {
-		const range: Range = Range.create(this.mmpSearchStatement.range.start.line - 1, 0,
-			this.mmpSearchStatement.range.start.line - 1, 0);
+		const lineToInsertLabel: number = this.getLineToInsertLabel();
+		// const range: Range = Range.create(this.mmpSearchStatement.range.start.line - 1, 0,
+		// 	this.mmpSearchStatement.range.start.line - 1, 0);
+		const range: Range = Range.create(lineToInsertLabel, 0, lineToInsertLabel, 0);
 		return range;
 	}
+	//#endregion getRangeToInsertLabel
 
 	//#region addAssertion
-	createCommand(label: string): Command {
-		const args: any[] = [this.mmpSearchStatement.range.start.line, this.mmpSearchStatement.range.end.line, label];
+	createCommand(label: string, labelRange: Range): Command {
+		const args: any[] = [this.mmpSearchStatement.range.start.line, this.mmpSearchStatement.range.end.line, label,
+		labelRange.start.line];
 		// const searchCompletionItemCommandParameters: ISearchCompletionItemCommandParameters = {
 		// 	searchStatementRange: this.mmpSearchStatement.range,
 		// 	uri: 'TODO'
@@ -45,12 +67,12 @@ export class SearchStatementCompletionProvider {
 		return command;
 	}
 	addAssertion(assertion: AssertionStatement, completionItems: CompletionItem[],
-		_rangeToInsertLabel: Range, _textEditToRemoveSearchStatement: TextEdit) {
+		rangeToInsertLabel: Range, _textEditToRemoveSearchStatement: TextEdit) {
 		const additionalTextEdit: TextEdit = {
-			range: _rangeToInsertLabel,
+			range: rangeToInsertLabel,
 			newText: assertion.Label + '\n'
 		};
-		const command: Command = this.createCommand(assertion.Label);
+		const command: Command = this.createCommand(assertion.Label, rangeToInsertLabel);
 		// const insertReplaceEdit: InsertReplaceEdit = {
 		// 	insert: this.mmpSearchStatement.range,
 		// 	replace: this.mmpSearchStatement.range,
