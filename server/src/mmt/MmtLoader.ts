@@ -1,4 +1,4 @@
-import { MmParser } from '../mm/MmParser';
+import { MmParserEvents, MmParser } from '../mm/MmParser';
 import { TopologicalSort } from './TopologicalSort';
 import * as path from "path";
 import * as fs from 'fs';
@@ -204,6 +204,12 @@ export class MmtLoader {
 	}
 	//#endregion loadFiles
 
+	completeDataForStatement(labeledStatement: LabeledStatement): void {
+		if (this.mmParser.labelToNonSyntaxAssertionMap.get(labeledStatement.Label) != null &&
+			!labeledStatement.isParseNodeDefined)
+			labeledStatement.parseNode;
+	}
+
 	addDiagnosticError(message: string, range: Range, code: MmtLoaderErrorCode, diagnostics: Diagnostic[]) {
 		const diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Error,
@@ -218,6 +224,11 @@ export class MmtLoader {
 	loadMmt() {
 		const theoremLabelsInLoadOrder: string[] | undefined = this.theoremLabelsInLoadOrder();
 		if (theoremLabelsInLoadOrder != undefined) {
+			//TODO1 use a function and a const eventHandler
+			this.mmParser.on(MmParserEvents.newAxiomStatement, (labeledStatement: LabeledStatement) =>
+				this.completeDataForStatement(labeledStatement));
+			this.mmParser.on(MmParserEvents.newProvableStatement, (labeledStatement: LabeledStatement) =>
+				this.completeDataForStatement(labeledStatement));
 			this.loadFiles(theoremLabelsInLoadOrder);
 		}
 		else {

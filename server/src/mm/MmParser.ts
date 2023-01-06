@@ -19,6 +19,7 @@ import { EHyp } from './EHyp';
 import { FHyp } from './FHyp';
 import * as events from 'events';
 import { creaParseNodesInANewThread } from '../parseNodesCreatorThread/ParseNodesCreator';
+import { EventEmitter } from 'stream';
 
 export enum MmParserErrorCode {
     varNotInActiveFStatement = "varNotInActiveFStatement",
@@ -28,8 +29,13 @@ export enum MmParserErrorCode {
     missingDjVarsStatement = "missingDjVarsStatement"
 }
 
+export enum MmParserEvents {
+    newAxiomStatement = "newAxiomStatement",
+    newProvableStatement = "newProvableStatement"
+}
+
 // Parser for .mm files
-export class MmParser {
+export class MmParser extends EventEmitter {
     //    blockStack: BlockStack
     outermostBlock: BlockStatement
     labelToStatementMap: Map<string, LabeledStatement>;  // maps each label to its statement
@@ -79,14 +85,13 @@ export class MmParser {
     }
 
     constructor() {
+        super();
         this.outermostBlock = new BlockStatement();
         this.labelToStatementMap = new Map<string, LabeledStatement>();
         this.labelToNonSyntaxAssertionMap = new Map<string, AssertionStatement>();
         this.lastComment = "";
         this.parseFailed = false;
         this.areAllParseNodesComplete = false;
-
-
         this._percentageOfWorkDone = 0;
     }
 
@@ -178,6 +183,7 @@ export class MmParser {
         if (!GrammarManager.isSyntaxAxiom2(statement))
             this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
+        this.emit(MmParserEvents.newAxiomStatement, statement);
     }
     addEStatement(label: MmToken | undefined, toks: TokenReader, currentBlock: BlockStatement) {
         if (label === undefined) {
@@ -220,6 +226,7 @@ export class MmParser {
         if (!GrammarManager.isSyntaxAxiom2(statement))
             this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
+        this.emit(MmParserEvents.newProvableStatement,statement);
     }
     buildLabelToStatementMap(toks: TokenReader, currentBlock?: BlockStatement) {
         //TODO prova a valutare di evitare d'usare BlockStack
@@ -395,7 +402,7 @@ export class MmParser {
     }
 
     //#region createParseNodesForAssertions
-    
+
 
     public createParseNodesForAssertionsAsync() {
         creaParseNodesInANewThread(this);

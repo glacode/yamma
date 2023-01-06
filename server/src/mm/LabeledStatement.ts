@@ -40,6 +40,11 @@ export abstract class LabeledStatement extends NonBlockStatement {
         return parseNode;
     }
 
+    public isParseNodeDefined(): boolean {
+        const isDefined = !!this.parseNode;
+        return isDefined;
+    }
+
     public get parseNode(): InternalNode {
         if (this._parseNode == undefined)
             // this._parseNode = <InternalNode>this.parseStrArray(this.formula, grammar, new WorkingVars());
