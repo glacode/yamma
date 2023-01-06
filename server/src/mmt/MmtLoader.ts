@@ -204,13 +204,13 @@ export class MmtLoader {
 	}
 	//#endregion loadFiles
 
-	completeDataForStatement(labeledStatement: LabeledStatement): void {
+	private completeDataForStatement(labeledStatement: LabeledStatement): void {
 		if (this.mmParser.labelToNonSyntaxAssertionMap.get(labeledStatement.Label) != null &&
 			!labeledStatement.isParseNodeDefined)
 			labeledStatement.parseNode;
 	}
 
-	addDiagnosticError(message: string, range: Range, code: MmtLoaderErrorCode, diagnostics: Diagnostic[]) {
+	private addDiagnosticError(message: string, range: Range, code: MmtLoaderErrorCode, diagnostics: Diagnostic[]) {
 		const diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Error,
 			message: message,
@@ -225,10 +225,8 @@ export class MmtLoader {
 		const theoremLabelsInLoadOrder: string[] | undefined = this.theoremLabelsInLoadOrder();
 		if (theoremLabelsInLoadOrder != undefined) {
 			//TODO1 use a function and a const eventHandler
-			this.mmParser.on(MmParserEvents.newAxiomStatement, (labeledStatement: LabeledStatement) =>
-				this.completeDataForStatement(labeledStatement));
-			this.mmParser.on(MmParserEvents.newProvableStatement, (labeledStatement: LabeledStatement) =>
-				this.completeDataForStatement(labeledStatement));
+			this.mmParser.on(MmParserEvents.newAxiomStatement, this.completeDataForStatement);
+			this.mmParser.on(MmParserEvents.newProvableStatement, this.completeDataForStatement);
 			this.loadFiles(theoremLabelsInLoadOrder);
 		}
 		else {

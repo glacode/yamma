@@ -46,7 +46,7 @@ import { OnCompletionHandler } from './languageServerHandlers/OnCompletionHandle
 import { GlobalState } from './general/GlobalState';
 import { OnCompletionResolveHandler } from './languageServerHandlers/OnCompletionResolveHandler';
 import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHandlers/OnSemanticTokensHandler';
-import { notifyError } from './mm/Utils';
+import { notifyError, notifyInformation } from './mm/Utils';
 import { MmParser } from './mm/MmParser';
 import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
@@ -178,8 +178,10 @@ connection.onRequest('yamma/loadmmt', (fsPath: string) => {
 		if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
 			const errorMessage: string = mmtLoader.diagnostics[0].message;
 			notifyError(errorMessage, connection);
-		}
-		console.log('Method loadmmt() has been invoked');
+		} else if (!mmtLoader.loadFailed)
+			notifyInformation('All .mmt files have been successfully loaded and ' +
+				'added to the theory', connection);
+		// console.log('Method loadmmt() has been invoked');
 	}
 });
 
@@ -341,7 +343,7 @@ connection.onDocumentFormatting(
 	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
 		//return OnDocumentFormattingHandler.formatToLowerCase(params,documents)
 		let result: Promise<TextEdit[]> = Promise.resolve([]);
-		if (GlobalState.mmParser != undefined  && GlobalState.validatedSinceLastUnify) {
+		if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
 			const onDocumentFormattingHandler: OnDocumentFormattingHandler =
 				new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager,
 					Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
