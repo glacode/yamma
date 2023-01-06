@@ -171,16 +171,21 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 	}
 });
 
-connection.onRequest('yamma/loadmmt', (fsPath: string) => {
+connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
 	if (GlobalState.mmParser != undefined) {
-		const mmtLoader: MmtLoader = new MmtLoader(fsPath, GlobalState.mmParser);
+		const mmtLoader: MmtLoader = new MmtLoader(pathAndUri.fsPath, GlobalState.mmParser);
 		mmtLoader.loadMmt();
 		if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
 			const errorMessage: string = mmtLoader.diagnostics[0].message;
 			notifyError(errorMessage, connection);
-		} else if (!mmtLoader.loadFailed)
+		} else if (!mmtLoader.loadFailed) {
 			notifyInformation('All .mmt files have been successfully loaded and ' +
 				'added to the theory', connection);
+			// const textDocument: TextDocument = documents.get(semanticTokenParams.textDocument.uri)!;
+			const textDocument: TextDocument | undefined = documents.get(pathAndUri.uri);
+			if (textDocument != undefined)
+				validateTextDocument(textDocument);
+		}
 		// console.log('Method loadmmt() has been invoked');
 	}
 });

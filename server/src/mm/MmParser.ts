@@ -34,6 +34,11 @@ export enum MmParserEvents {
     newProvableStatement = "newProvableStatement"
 }
 
+export type AssertionParsedArgs = {
+    labeledStatement: LabeledStatement,
+    mmParser: MmParser
+}
+
 // Parser for .mm files
 export class MmParser extends EventEmitter {
     //    blockStack: BlockStack
@@ -183,7 +188,12 @@ export class MmParser extends EventEmitter {
         if (!GrammarManager.isSyntaxAxiom2(statement))
             this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
-        this.emit(MmParserEvents.newAxiomStatement, statement);
+        //TODO1 you need to pass also this (the MmParser, to the handler)
+        const newAssertionParams: AssertionParsedArgs = {
+            labeledStatement: statement,
+            mmParser: this
+        };
+        this.emit(MmParserEvents.newAxiomStatement, newAssertionParams);
     }
     addEStatement(label: MmToken | undefined, toks: TokenReader, currentBlock: BlockStatement) {
         if (label === undefined) {
@@ -226,7 +236,13 @@ export class MmParser extends EventEmitter {
         if (!GrammarManager.isSyntaxAxiom2(statement))
             this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
-        this.emit(MmParserEvents.newProvableStatement,statement);
+        // this.emit(MmParserEvents.newProvableStatement, statement);
+        //TODO1 you need to pass also this (the MmParser, to the handler)
+        const newAssertionParams: AssertionParsedArgs = {
+            labeledStatement: statement,
+            mmParser: this
+        };
+        this.emit(MmParserEvents.newProvableStatement, newAssertionParams);
     }
     buildLabelToStatementMap(toks: TokenReader, currentBlock?: BlockStatement) {
         //TODO prova a valutare di evitare d'usare BlockStack

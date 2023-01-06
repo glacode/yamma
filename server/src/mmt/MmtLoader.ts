@@ -1,4 +1,4 @@
-import { MmParserEvents, MmParser } from '../mm/MmParser';
+import { MmParserEvents, MmParser, AssertionParsedArgs } from '../mm/MmParser';
 import { TopologicalSort } from './TopologicalSort';
 import * as path from "path";
 import * as fs from 'fs';
@@ -14,7 +14,7 @@ enum MmtLoaderErrorCode {
 }
 
 export class MmtLoader {
-	textDocumentUri: string;
+	textDocumentPath: string;
 	mmParser: MmParser;
 
 	diagnostics: Diagnostic[];
@@ -22,15 +22,15 @@ export class MmtLoader {
 
 	private _dirname: string;
 
-	constructor(textDocumentUri: string, mmParser: MmParser) {
-		this.textDocumentUri = textDocumentUri;
+	constructor(textDocumentPath: string, mmParser: MmParser) {
+		this.textDocumentPath = textDocumentPath;
 		this.mmParser = mmParser;
 
 		this.diagnostics = [];
 
 		this.loadFailed = false;
 
-		this._dirname = path.dirname(textDocumentUri);
+		this._dirname = path.dirname(textDocumentPath);
 	}
 
 	//#region loadMmt
@@ -204,9 +204,12 @@ export class MmtLoader {
 	}
 	//#endregion loadFiles
 
-	private completeDataForStatement(labeledStatement: LabeledStatement): void {
-		if (this.mmParser.labelToNonSyntaxAssertionMap.get(labeledStatement.Label) != null &&
-			!labeledStatement.isParseNodeDefined)
+	private completeDataForStatement(newAssertionParams: AssertionParsedArgs): void {
+		const labeledStatement: LabeledStatement = newAssertionParams.labeledStatement;
+		const mmParser: MmParser = newAssertionParams.mmParser;
+		const isNonSyntaxAssertion = mmParser.labelToNonSyntaxAssertionMap.
+			get(labeledStatement.Label) != undefined;
+		if (isNonSyntaxAssertion && !labeledStatement.isParseNodeDefined)
 			labeledStatement.parseNode;
 	}
 
