@@ -138,7 +138,7 @@ export class MmtLoader {
 	//#endregion theoremLabelsInLoadOrder
 
 	//#region loadFiles
-	private addTheoremToTheory(fileContent: string) {
+	protected addTheoremToTheory(fileContent: string) {
 		// const mmtParser: MmtParser = new MmtParser(this.mmParser);
 		// mmtParser.addTheorem(fileContent);
 		this.mmParser.diagnostics = [];

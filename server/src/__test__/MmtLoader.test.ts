@@ -1,7 +1,9 @@
 import { MmParser } from '../mm/MmParser';
 import { MmtLoader } from '../mmt/MmtLoader';
 import { vexTheoryMmParser } from './MmpProofStatement.test';
-import { impbiiMmParser, mp2MmParser } from './GlobalForTest.test';
+import { createMmParser, impbiiMmParser, mp2MmParser } from './GlobalForTest.test';
+import { LabeledStatement } from '../mm/LabeledStatement';
+import { AssertionStatement } from '../mm/AssertionStatement';
 
 /**
  * This class is used to test protected methods
@@ -15,6 +17,9 @@ class TestMmtLoader extends MmtLoader {
 	}
 	canTheoremBeAdded(fileContent: string): boolean {
 		return super.canTheoremBeAdded(fileContent);
+	}
+	addTheoremToTheory(fileContent: string) {
+		return super.addTheoremToTheory(fileContent);
 	}
 }
 
@@ -93,6 +98,32 @@ test("impbii good expect already existing (identical) theorem can be added ", ()
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForImpbii);
 	expect(canBeAdded).toBeTruthy();
+});
+
+test("expect ParseNode created, for new loaded theorems ", () => {
+	const mmtFileForImpbii2 =
+		'${\n' +
+		'impbii2.1 $e |- ( ph -> ps ) $.\n' +
+		'impbii2.2 $e |- ( ps -> ph ) $.\n' +
+		'impbii2 $p |- ( ph <-> ps ) $=\n' +
+		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $.\n' +
+		'$}';
+	const impbiiMmParserLocal: MmParser = createMmParser('impbii.mm');
+	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParserLocal);
+	const impbii2Before: LabeledStatement | undefined =
+		impbiiMmParserLocal.labelToStatementMap.get('impbii2');
+	expect(impbii2Before).toBeUndefined();
+	const impbii2BeforeAssertion: AssertionStatement | undefined =
+		impbiiMmParserLocal.labelToNonSyntaxAssertionMap.get('impbii2');
+	expect(impbii2BeforeAssertion).toBeUndefined();
+	testMmtLoader.addTheoremToTheory(mmtFileForImpbii2);
+	const impbii2After: LabeledStatement | undefined =
+		impbiiMmParserLocal.labelToStatementMap.get('impbii2');
+	expect(impbii2After).toBeDefined();
+	expect(impbii2After?.parseNode).toBeDefined();
+	const impbii2AfterAssertion: AssertionStatement | undefined =
+		impbiiMmParserLocal.labelToNonSyntaxAssertionMap.get('impbii2');
+	expect(impbii2AfterAssertion).toBeDefined();
 });
 
 test("impbii bad 1 expect to be rejected for first label wrong", () => {
