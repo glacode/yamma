@@ -263,7 +263,8 @@ async function validateTextDocument(textDocument: TextDocument) {
 	// 	globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
 	// onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
 	await OnDidChangeContentHandler.validateTextDocument(textDocument, connection, hasConfigurationCapability,
-		hasDiagnosticRelatedInformationCapability, globalSettings, unifyDoneButCursorPositionNotUpdatedYet);
+		hasDiagnosticRelatedInformationCapability, globalSettings, unifyDoneButCursorPositionNotUpdatedYet,
+		GlobalState.formulaToParseNodeCache);
 	unifyDoneButCursorPositionNotUpdatedYet = false;
 }
 

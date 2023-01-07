@@ -7,6 +7,7 @@ import { WorkingVars } from './WorkingVars';
 import { GlobalState } from '../general/GlobalState';
 import { MmpStatistics } from './MmpStatistics';
 import { consoleLogWithTimestamp } from '../mm/Utils';
+import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
 
 /** validates a .mmp files and returns diagnostics
  * for the language server event handlers
@@ -15,15 +16,13 @@ export class MmpValidator {
 	mmParser: MmParser
 	diagnostics: Diagnostic[] = [];
 
-	constructor(mmParser: MmParser) {
+	constructor(mmParser: MmParser, private formulaToParseNodeCache: FormulaToParseNodeCache) {
 		this.mmParser = mmParser;
 	}
 
 	//#region validateFullDocument
 
-	//#region validateProofStep
 
-	//#region verifyProofStep
 	hypStack(assertionStatement: AssertionStatement): string[][] {
 		const stack: string[][] = [];
 		assertionStatement.frame?.fHyps.forEach(fHyp => {
@@ -34,52 +33,6 @@ export class MmpValidator {
 		});
 		return stack;
 	}
-	// verifyProofStep(proofStep: MmpProofStep): Diagnostic[] {
-	// 	const diagnostics: Diagnostic[] = [];
-	// 	if (proofStep.stepLabel == undefined)
-	// 		// TODO handle case proofStep without label
-	// 		throw new Error("Case proofStep without label, not hanlded yet!");
-	// 	else {
-	// 		const labeledStatement: LabeledStatement | undefined = this.mmParser.labelToStatementMap.get(proofStep.stepLabel.value);
-	// 		if (labeledStatement == undefined) {
-	// 			const diagnostic: Diagnostic = {
-	// 				message: `The label ${proofStep.stepLabel.value} doesn't exist`,
-	// 				range: proofStep.stepLabel.range,
-	// 				severity: DiagnosticSeverity.Error
-	// 			};
-	// 			diagnostics.push(diagnostic);
-	// 		} else if (!(labeledStatement instanceof AssertionStatement)) {
-	// 			const diagnostic: Diagnostic = {
-	// 				message: `The label ${proofStep.stepLabel.value} does not refer to an Assertion`,
-	// 				range: proofStep.stepLabel.range,
-	// 				severity: DiagnosticSeverity.Error
-	// 			};
-	// 			diagnostics.push(diagnostic);
-	// 		} else {
-	// 			// assertionStatement is an AssertionStatement
-	// 			const assertionStatement = <AssertionStatement>labeledStatement;
-	// 			const stack: string[][] = this.hypStack(assertionStatement);
-	// 			const diagnostics = Verifier.verifyAssertionStatement(assertionStatement, assertionStatement, stack);
-	// 		}
-	// 	}
-
-
-	// 	return diagnostics;
-	// }
-	//#endregion verifyProofStep
-
-	// validateProofStep(proofStep: MmpProofStep): Diagnostic[] {
-	// 	const diagnostics: Diagnostic[] = this.verifyProofStep(proofStep);
-	// 	// let diagnostics: Diagnostic[] = this.buildDiagnostics(parseErrors)
-	// 	return diagnostics;
-	// }
-	//#endregion validateProofStep
-
-	//#region validateFullDocumentText
-	//TODO may be the validateFullDocument could simply be to
-	// invoke MmpUnifier.unify and use the returned Diagnostic[]
-
-	//#endregion validateFullDocumentText
 
 	//#region validateFullDocumentText
 	private async updateStatistics(mmpParser: MmpParser) {
@@ -93,7 +46,8 @@ export class MmpValidator {
 	validateFullDocumentText(textToValidate: string, mmParser: MmParser, workingVars: WorkingVars) {
 		// const mmpTokenizer = new MmpTokenizer(textToValidate);
 		// const mmpParser: MmpParser = new MmpParser(textToValidate, labelToStatementMap, outermostBlock, grammar, workingVars);
-		const mmpParser: MmpParser = new MmpParser(textToValidate, mmParser, workingVars);
+		const mmpParser: MmpParser = new MmpParser(textToValidate, mmParser, workingVars,
+			this.formulaToParseNodeCache);
 		console.log('before mmpParser.parse()');
 		mmpParser.parse();
 		console.log('after mmpParser.parse()');

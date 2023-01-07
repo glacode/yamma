@@ -24,6 +24,7 @@ import { TheoremCoherenceChecker } from '../mmt/TeoremCoherenceChecker';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { EHyp } from '../mm/EHyp';
 import { MmParser } from '../mm/MmParser';
+import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
 
 
 
@@ -87,7 +88,8 @@ export class MmpParser {
 	//#region constructor
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
-	constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars) {
+	constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars,
+		private formulaToParseNodeCache?: FormulaToParseNodeCache) {
 		// this.textDocument = textDocument;
 		this.textToParse = textToParse;
 		this.mmParser = mmParser;
@@ -283,15 +285,11 @@ export class MmpParser {
 			}
 
 		}
-		// this.labelToStatementMap.get(proofStepFirstTokenInfo.stepLabel.value) === undefined) {
-		// const message = `Unknown label: this label does not exist in the logical system`;
-		// const range: Range = proofStepFirstTokenInfo.stepLabel.range;
-		// const code = MmpParserErrorCode.unknownLabel;
-		// this.addDiagnosticError(message, range, code);
 	}
 
-	static tryToParse(stepFormula: MmToken[], grammar: Grammar, workingVars: WorkingVars,
-		diagnostics: Diagnostic[]): InternalNode | undefined {
+	//#region getParseNode
+	private static tryToParse(stepFormulaString: string, stepFormula: MmToken[], grammar: Grammar,
+		workingVars: WorkingVars, diagnostics: Diagnostic[]): InternalNode | undefined {
 		let parseNode: InternalNode | undefined;
 		// grammar.lexer = new MmLexer(workingVars);
 		grammar.lexer = new MmLexerFromTokens(stepFormula);
@@ -305,7 +303,7 @@ export class MmpParser {
 			if (parser.results.length === 0) {
 				// the formula was parsed till the end and no error was found, but at the end it
 				// was not a valid formula
-				const stepFormulaString = concatTokenValuesWithSpaces(stepFormula);
+				// const stepFormulaString = concatTokenValuesWithSpaces(stepFormula);
 				grammar.lexer = new MmLexer(workingVars);
 				parser = new Parser(grammar);
 				parser.feed(stepFormulaString + " UnxpexcteEndOfFormula");
@@ -326,6 +324,19 @@ export class MmpParser {
 		}
 		return parseNode;
 	}
+	getParseNode(stepFormula: MmToken[]): InternalNode | undefined {
+		const stepFormulaString: string = concatTokenValuesWithSpaces(stepFormula);
+		let parseNode: InternalNode | undefined =
+			this.formulaToParseNodeCache?.formulaToInternalNodeMap.get(stepFormulaString);
+		if (parseNode == undefined) {
+			parseNode = MmpParser.tryToParse(stepFormulaString, stepFormula, this.grammar,
+				this.workingVars, this.diagnostics);
+			if (parseNode != undefined && this.formulaToParseNodeCache != undefined)
+				this.formulaToParseNodeCache.add(stepFormulaString, parseNode);
+		}
+		return parseNode;
+	}
+	//#endregion getParseNode
 
 	//#region getEHypMmpSteps
 	private getEHypMmpStep(eHypRef: MmToken): (MmpProofStep | undefined) {
@@ -398,7 +409,8 @@ export class MmpParser {
 		if (nextProofStepTokens.length > 1) {
 			// the step formula is present
 			stepFormula = nextProofStepTokens.slice(1);
-			formulaParseNode = MmpParser.tryToParse(stepFormula, this.grammar, this.workingVars, this.diagnostics);
+			formulaParseNode = this.getParseNode(stepFormula);
+			// formulaParseNode = MmpParser.tryToParse(stepFormula, this.grammar, this.workingVars, this.diagnostics);
 		}
 		else {
 			// missing formula
@@ -469,17 +481,6 @@ export class MmpParser {
 	//#region checkUnificationWithUSubstitutionManager
 
 	//#region  addDiagnisticsForSubstitution
-	// static applySubstitution(formula: string[], substitution: Map<string, string[]>): string[] {
-	// 	let result: string[] = [];
-	// 	formula.forEach(symbol => {
-	// 		let symbolSubstitution = [symbol];
-	// 		const substituteWith: string[] | undefined = substitution.get(symbol);
-	// 		if (substituteWith != undefined)
-	// 			symbolSubstitution = substituteWith;
-	// 		result = result.concat(symbolSubstitution);
-	// 	});
-	// 	return result;
-	// }
 
 	//#region addDiagnisticsForSubstitutionInEHyps
 	addDiagnisticsForSubstitutionInEHyp(frameEHyp: EHyp, referencedEHypProofStep: MmpProofStep, range: Range,

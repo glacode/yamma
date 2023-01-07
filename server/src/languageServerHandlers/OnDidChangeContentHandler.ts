@@ -5,6 +5,7 @@ import { MmParser } from '../mm/MmParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { MmpParserWarningCode } from '../mmp/MmpParser';
 import { GlobalState } from '../general/GlobalState';
+import { FormulaToParseNodeCache } from '../mmp/FormulaToParseNodeCache';
 
 
 
@@ -22,6 +23,7 @@ export class OnDidChangeContentHandler {
 		hasDiagnosticRelatedInformationCapability: boolean, globalSettings: IExtensionSettings,
 		// documentSettings: Map<string, Thenable<IExtensionSettings>>, mmParser: MmParser) {
 		configurationManager: ConfigurationManager, mmParser: MmParser,
+		private formulaToParseNodeCache: FormulaToParseNodeCache,
 		suggestedRangeForCursorPosition?: Range) {
 		this.connection = connection;
 		this.hasConfigurationCapability = hasConfigurationCapability;
@@ -112,7 +114,7 @@ export class OnDidChangeContentHandler {
 		maxNumOfProblems = maxNumOfProblems + 1 - 1;
 
 		//Glauco
-		const mmpValidator: MmpValidator = new MmpValidator(this.mmParser!);
+		const mmpValidator: MmpValidator = new MmpValidator(this.mmParser!, this.formulaToParseNodeCache);
 		mmpValidator.validateFullDocument(textDocument);
 		const diagnostics: Diagnostic[] = mmpValidator.diagnostics;
 
@@ -124,11 +126,13 @@ export class OnDidChangeContentHandler {
 
 	static async validateTextDocument(textDocument: TextDocument, connection: Connection,
 		hasConfigurationCapability: boolean, hasDiagnosticRelatedInformationCapability: boolean,
-		globalSettings: IExtensionSettings, unifyDoneButCursorPositionNotUpdatedYet: boolean) {
+		globalSettings: IExtensionSettings, unifyDoneButCursorPositionNotUpdatedYet: boolean,
+		formulaToParseNodeCache: FormulaToParseNodeCache) {
 		if (GlobalState.mmParser != undefined) {
 			const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
 				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalSettings,
-				GlobalState.configurationManager, GlobalState.mmParser, GlobalState.suggestedRangeForCursorPosition);
+				GlobalState.configurationManager, GlobalState.mmParser, formulaToParseNodeCache,
+				GlobalState.suggestedRangeForCursorPosition);
 			await onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
 		}
 	}

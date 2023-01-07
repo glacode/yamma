@@ -6,6 +6,7 @@ import { Connection, Range } from 'vscode-languageserver';
 import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmStatistics } from '../mm/MmStatistics';
+import { FormulaToParseNodeCache } from '../mmp/FormulaToParseNodeCache';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpStatistics } from '../mmp/MmpStatistics';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
@@ -39,14 +40,21 @@ export abstract class GlobalState {
 
 	static connection: Connection;
 
-	
+
 	static suggestedRangeForCursorPosition?: Range;
-	
-	static setSuggestedRangeForCursorPosition( range: Range | undefined ) {
+
+	static setSuggestedRangeForCursorPosition(range: Range | undefined) {
 		this.suggestedRangeForCursorPosition = range;
 	}
 
 	/** set to true when a validation occurs; set to false when a unify() occurs */
 	static validatedSinceLastUnify: boolean | undefined;
 
+	private static _formulaToParseNodeCache?: FormulaToParseNodeCache;
+
+	public static get formulaToParseNodeCache(): FormulaToParseNodeCache {
+		if (this._formulaToParseNodeCache == undefined)
+			this._formulaToParseNodeCache = new FormulaToParseNodeCache();
+		return this._formulaToParseNodeCache;
+	}
 }
