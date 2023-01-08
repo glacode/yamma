@@ -79,40 +79,15 @@ export function activate(context: ExtensionContext) {
 			searchCompletionItemSelectedHandler, client);
 		context.subscriptions.push(disposable);
 
-		// the notifications below are now done server side using
-		// connection.window.showInformationMessage()
-		// connection.window.showWarningMessage()
-		// connection.window.showErrorMessage()
-		// client.onNotification('yamma/showinformation', (message: string) => {
-		// 	// the header 'Header caption' is not displayed because modal is false
-		// 	// I leave it there anyway, as a reference, if in the future I want a model message
-		// 	const options: MessageOptions = { detail: 'Header caption', modal: false };
-		// 	window.showInformationMessage(message, options, ...["Ok"]);
-		// 	// window.showInformationMessage(message, options, ...["Ok"]).then((item) => {
-		// 	// 	console.log(item);
-		// 	// });
-		// 	// window.showInformationMessage(message);
-		// });
-
-		//with connection.window.connection.window.showWarningMessage()
-		// client.onNotification('yamma/showwarning', (message: string) => {
-		// 	window.showWarningMessage(message, ...["Ok"]);
-		// });
-
-		//with connection.window.connection.window.showErrorMessage()
-		// client.onNotification('yamma/showerror', (message: string) => {
-		// 	window.showErrorMessage(message, ...["Ok"]);
-		// });
-
-		// client.onNotification('yamma/movecursor', (range: Range) => {
-		// 	window.activeTextEditor.selection = new Selection(range.start,range.end);
-		// });
 		client.onNotification('yamma/movecursor', (range: Range) => {
 			// line++;
 			const start: Position = new Position(range.start.line, range.start.character);
 			const end: Position = new Position(range.end.line, range.end.character);
 			window.activeTextEditor.selection = new Selection(start, end);
 			commands.executeCommand('editor.action.triggerSuggest');
+			//TODO1 see when to use the one below
+			// commands.executeCommand('editor.action.formatDocument');
+
 		});
 	});
 

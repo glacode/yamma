@@ -188,7 +188,6 @@ export class MmParser extends EventEmitter {
         if (!GrammarManager.isSyntaxAxiom2(statement))
             this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
-        //TODO1 you need to pass also this (the MmParser, to the handler)
         const newAssertionParams: AssertionParsedArgs = {
             labeledStatement: statement,
             mmParser: this

@@ -8,6 +8,8 @@ import { MmpProofStep } from '../mmp/MmpProofStep';
 
 export class SearchStatementCompletionProvider {
 
+	public static noAssertionFoundLabel = "No Assertion Found";
+
 	mmpSearchStatement: MmpSearchStatement;
 	mmStatistics: MmStatistics;
 	constructor(mmpSearchStatement: MmpSearchStatement, private mmpParser: MmpParser, mmStatistics: MmStatistics) {
@@ -19,10 +21,11 @@ export class SearchStatementCompletionProvider {
 	assertionsSets(): Set<Set<AssertionStatement>> {
 		const result: Set<Set<AssertionStatement>> = new Set<Set<AssertionStatement>>();
 		this.mmpSearchStatement.symbolsToSearch.forEach((symbol: string) => {
-			const assertionsContainingThisSymbol: Set<AssertionStatement> | undefined =
+			let assertionsContainingThisSymbol: Set<AssertionStatement> | undefined =
 				this.mmStatistics.symbolToAssertionsMap?.get(symbol);
-			if (assertionsContainingThisSymbol != undefined)
-				result.add(assertionsContainingThisSymbol);
+			if (assertionsContainingThisSymbol == undefined)
+				assertionsContainingThisSymbol = new Set<AssertionStatement>();
+			result.add(assertionsContainingThisSymbol);
 		});
 		return result;
 	}
@@ -116,10 +119,22 @@ export class SearchStatementCompletionProvider {
 	}
 	//#endregion completionItemsForAssertionsInTheIntersections
 
+	addItemNotFound(completionItems: CompletionItem[]) {
+		const completionItem: CompletionItem = {
+			label: SearchStatementCompletionProvider.noAssertionFoundLabel,
+			// command: command,
+			// additionalTextEdits: [additionalTextEdit],
+		};
+		completionItems.push(completionItem);
+	}
+
 	completionItems(): CompletionItem[] {
 		const assertionsSets: Set<Set<AssertionStatement>> = this.assertionsSets();
 		const assertionsInTheIntersection: Set<AssertionStatement> | undefined = intersection<AssertionStatement>(assertionsSets);
 		const result: CompletionItem[] = this.completionItemsForAssertionsInTheIntersections(assertionsInTheIntersection);
+		if (result.length == 0)
+			// the search yelds no result
+			this.addItemNotFound(result);
 		return result;
 	}
 	//#endregion completionItems

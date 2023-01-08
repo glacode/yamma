@@ -29,6 +29,26 @@ test("SearchStatementCompletionProvider 1", () => {
 	expect(additionalTextEdit.newText).toEqual('ax-mp\n');
 });
 
+test("SearchStatementCompletionProvider empty", () => {
+	const mmpSource: string =
+		'h50::hyp1 |- ph\n' +
+		'51::      |- ps\n' +
+		'SearchSymbols: ps nonexistent   SearchComment: \n' +
+		'qed:: |- ph';
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	// const outermostBlock: BlockStatement = new BlockStatement(null);
+	mmpParser.parse();
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.uStatements[2];
+	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
+		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, mp2Statistics);
+	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
+	expect(completionItems.length).toBe(1);
+	const completionItem: CompletionItem = completionItems[0];
+	expect(completionItem.label).toBe('No Assertion Found');
+});
+
 test("SearchStatementCompletionProvider multiline", () => {
 	const mmpSource: string =
 		'h50::hyp1 |- ph\n' +

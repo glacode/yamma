@@ -1,5 +1,4 @@
-import { DocumentFormattingParams, TextDocuments, TextEdit } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextEdit } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { ConfigurationManager, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
@@ -8,16 +7,17 @@ import { MmpUnifier } from '../mmp/MmpUnifier';
 
 export class OnDocumentFormattingHandler {
 
-	params: DocumentFormattingParams;
-	documents: TextDocuments<TextDocument>;
+	// params: DocumentFormattingParams;
+	// documents: TextDocuments<TextDocument>;
 	mmParser: MmParser;
 	configurationManager: ConfigurationManager;
 	maxNumberOfHypothesisDispositionsForStepDerivation: number;
 
-	constructor(params: DocumentFormattingParams, documents: TextDocuments<TextDocument>, mmParser: MmParser,
+	// constructor(params: DocumentFormattingParams, mmParser: MmParser,
+	constructor(private textDocumentUri: string, mmParser: MmParser,
 		configurationManager: ConfigurationManager, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
-		this.params = params;
-		this.documents = documents;
+		// this.params = params;
+		// this.documents = documents;
 		this.mmParser = mmParser;
 		this.configurationManager = configurationManager;
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
@@ -40,19 +40,9 @@ export class OnDocumentFormattingHandler {
 		return mmpUnifier.textEditArray;
 	}
 	async unify(): Promise<TextEdit[]> {
-		// const textDocument: TextDocument = <TextDocument>this.documents.get(this.params.textDocument.uri);
-		const proofMode: ProofMode = await this.configurationManager.proofMode(this.params.textDocument.uri);
-		// const textEditArray: TextEdit[] = this.parseMmpFile(textDocument, proofMode);
+		// const proofMode: ProofMode = await this.configurationManager.proofMode(this.params.textDocument.uri);
+		const proofMode: ProofMode = await this.configurationManager.proofMode(this.textDocumentUri);
 		const textEditArray: TextEdit[] = this.parseMmpFile(proofMode);
-
-		// this is just a test for an additional fixed textEdit
-		// const textEdit: TextEdit = {
-		// 	range: {
-		// 		start: { line: 2, character: 2 }, end: { line: 2, character: 2 }
-		// 	}, newText: "GGGGGGG"
-		// };
-		// textEditArray.push(textEdit);
-
 		return Promise.resolve(textEditArray);
 	}
 	//#endregion

@@ -204,6 +204,8 @@ connection.onRequest('yamma/searchcompletionitemselected', (searchCompletionItem
 	const searchCompletionItemSelectedHandler: SearchCompletionItemSelectedHandler =
 		new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
 	searchCompletionItemSelectedHandler.deleteSearchStatement();
+	//TODO1 do unify()
+
 });
 
 
@@ -304,21 +306,6 @@ connection.onCompletion(
 		// const result: CompletionItem[] = await onCompletionHandler.completionItems();
 		const result: CompletionList = await onCompletionHandler.completionItems();
 
-		// The pass parameter contains the position of the text document in
-		// which code complete got requested. For the example we ignore this
-		// info and always provide the same completion items.
-		// return [
-		// 	{
-		// 		label: 'TypeScript',
-		// 		kind: CompletionItemKind.Text,
-		// 		data: 1
-		// 	},
-		// 	{
-		// 		label: 'JavaScript',
-		// 		kind: CompletionItemKind.Text,
-		// 		data: 2
-		// 	}
-		// ];
 		return result;
 	}
 );
@@ -327,20 +314,9 @@ connection.onCompletion(
 // the completion list.
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
-		// if (item.data === 1) {
-		// 	item.detail = 'TypeScript details';
-		// 	item.documentation = 'TypeScript documentation';
-		// } else if (item.data === 2) {
-		// 	item.detail = 'JavaScript details';
-		// 	item.documentation = 'JavaScript documentation';
-		// }
 		const onCompletionResolveHandler: OnCompletionResolveHandler =
 			new OnCompletionResolveHandler();
 		onCompletionResolveHandler.addDocumentationIfPossible(item);
-		// use the two lines below to debug, if VSCode stops showing details and documentation (once happened
-		// and I had to restart VSCode to solve it)
-		// item.detail = 'TypeScript details2';
-		// item.documentation = 'TypeScript documentation2';
 		return item;
 	}
 );
@@ -351,8 +327,10 @@ connection.onDocumentFormatting(
 		let result: Promise<TextEdit[]> = Promise.resolve([]);
 		if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
 			const onDocumentFormattingHandler: OnDocumentFormattingHandler =
-				new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager,
-					Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
+				// new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager,
+				// 	Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
+				new OnDocumentFormattingHandler(params.textDocument.uri, GlobalState.mmParser,
+					configurationManager, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
 			result = onDocumentFormattingHandler.unify();
 			GlobalState.validatedSinceLastUnify = false;
 			unifyDoneButCursorPositionNotUpdatedYet = true;
@@ -377,7 +355,6 @@ connection.onCodeAction(onCodeActionHandler);
 //Glauco
 connection.onHover(async (params): Promise<Hover | undefined> => {
 	let hoverResult: Hover | undefined;
-	// const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, mmParser);
 	if (GlobalState.mmParser != undefined) {
 		const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, GlobalState.mmParser);
 		let content: MarkupContent | undefined;
@@ -389,11 +366,6 @@ connection.onHover(async (params): Promise<Hover | undefined> => {
 		}
 	}
 	return hoverResult;
-
-	// return {
-
-	// 	contents: { language: 'javascript', value: contentValue }
-	// }
 });
 //connection.onHover(OnHoverHandler);
 //#endregion onHover

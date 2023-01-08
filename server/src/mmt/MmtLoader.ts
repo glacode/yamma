@@ -227,7 +227,6 @@ export class MmtLoader {
 	loadMmt() {
 		const theoremLabelsInLoadOrder: string[] | undefined = this.theoremLabelsInLoadOrder();
 		if (theoremLabelsInLoadOrder != undefined) {
-			//TODO1 use a function and a const eventHandler
 			this.mmParser.on(MmParserEvents.newAxiomStatement, this.completeDataForStatement);
 			this.mmParser.on(MmParserEvents.newProvableStatement, this.completeDataForStatement);
 			this.loadFiles(theoremLabelsInLoadOrder);
