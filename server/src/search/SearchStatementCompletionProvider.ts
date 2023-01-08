@@ -120,9 +120,10 @@ export class SearchStatementCompletionProvider {
 	//#endregion completionItemsForAssertionsInTheIntersections
 
 	addItemNotFound(completionItems: CompletionItem[]) {
+		const command: Command = Command.create('Search completion item selected', 'yamma.completionitemselected');
 		const completionItem: CompletionItem = {
 			label: SearchStatementCompletionProvider.noAssertionFoundLabel,
-			// command: command,
+			command: command,
 			// additionalTextEdits: [additionalTextEdit],
 		};
 		completionItems.push(completionItem);

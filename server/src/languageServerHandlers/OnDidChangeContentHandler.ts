@@ -1,4 +1,4 @@
-import { Connection, Diagnostic, Range, TextEdit, TextEditChange, WorkspaceChange } from 'vscode-languageserver';
+import { Connection, Diagnostic, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
@@ -89,18 +89,6 @@ export class OnDidChangeContentHandler {
 	}
 	//#endregion updateCursorPosition
 
-
-	applyTextEdits(textEdits: TextEdit[], textDocumentUri: string) {
-		const workspaceChange: WorkspaceChange = new WorkspaceChange();
-		const textEditChange: TextEditChange = workspaceChange.getTextEditChange(
-			// this.searchCommandParameter.uri);
-			textDocumentUri);
-		textEdits.forEach((textEdit: TextEdit) => {
-			textEditChange.add(textEdit);
-		});
-		// textEditChange.insert(insertPosition, searchStatement);
-		this.connection.workspace.applyEdit(workspaceChange.edit);
-	}
 
 	async validateTextDocument(textDocument: TextDocument, unifyDoneButCursorPositionNotUpdatedYet: boolean): Promise<void> {
 

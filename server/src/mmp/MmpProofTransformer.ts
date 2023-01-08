@@ -17,6 +17,7 @@ import { DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmpProofStep } from "./MmpProofStep";
 import { StepDerivation } from '../stepDerivation/StepDerivation';
 import { MmpParser } from './MmpParser';
+import { MmpSearchStatement } from './MmpSearchStatement';
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -235,7 +236,8 @@ export class MmpProofTransformer {
 				// this.addUStep(uStatement, uProof.refToUStatementMap, newProof);
 				i = this.transformUStep(i);
 			} else {
-				if (currentMmpStatement instanceof TextForProofStatement)
+				if (currentMmpStatement instanceof TextForProofStatement  ||
+					currentMmpStatement instanceof MmpSearchStatement )
 					this.uProof.uStatements.splice(i, 1);
 				else
 					i++;

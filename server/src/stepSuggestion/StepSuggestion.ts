@@ -1,4 +1,4 @@
-import { CompletionItem, CompletionItemKind, InsertReplaceEdit, Range } from 'vscode-languageserver';
+import { Command, CompletionItem, CompletionItemKind, InsertReplaceEdit, Range } from 'vscode-languageserver';
 import { Parameters } from '../general/Parameters';
 import { InternalNode } from '../grammar/ParseNode';
 import { CursorContext } from "../mmp/CursorContext";
@@ -128,11 +128,13 @@ export class StepSuggestion {
 	private addCompletionItem(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
 		completionItems: CompletionItem[]) {
 		// const label = `${stepSuggestion.label} ${stepSuggestion.multiplicity}`;
+		const command: Command = Command.create('Completion item selected', 'yamma.completionitemselected');
 		const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
 		const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
 		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(stepSuggestion);
 		const completionItem: CompletionItem = {
 			label: stepSuggestion.label,
+			command: command,
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
 			// sortText: String(index).padStart(3, '0'),
@@ -218,19 +220,7 @@ export class StepSuggestion {
 	//#endregion addCompletionItemsFromPartialLabel
 
 	completionItems(): CompletionItem[] {
-		let completionItems: CompletionItem[] = [
-			{
-				label: 'Dummy for test',
-				kind: CompletionItemKind.Text,
-				data: 1
-			},
-			{
-				label: 'Dummy for test 2',
-				kind: CompletionItemKind.Text,
-				data: 2
-			}
-		];
-		completionItems = this.getCompletionItemsFromModels();
+		const completionItems = this.getCompletionItemsFromModels();
 		this.addCompletionItemsFromPartialLabel(completionItems);
 
 		return completionItems;

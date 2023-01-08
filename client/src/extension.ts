@@ -19,6 +19,7 @@ import {
 import { loadMmtFilesCommandHandler, storeMmtFileCommandHandler } from "./mmt/MmtCommandHandler";
 
 import { ISearchCompletionItemCommandParameters, searchCommandHandler, searchCompletionItemSelectedHandler } from "./commandHandlers/SearchCommandHandler";
+import { completionItemSelectedHandler } from './commandHandlers/CompletionItemSelectedHandler';
 
 let client: LanguageClient;
 
@@ -77,15 +78,15 @@ export function activate(context: ExtensionContext) {
 		disposable = commands.registerCommand('yamma.search', searchCommandHandler, client);
 		disposable = commands.registerCommand('yamma.searchcompletionitemselected',
 			searchCompletionItemSelectedHandler, client);
+		disposable = commands.registerCommand('yamma.completionitemselected',
+			completionItemSelectedHandler, client);
 		context.subscriptions.push(disposable);
 
 		client.onNotification('yamma/movecursor', (range: Range) => {
-			// line++;
 			const start: Position = new Position(range.start.line, range.start.character);
 			const end: Position = new Position(range.end.line, range.end.character);
 			window.activeTextEditor.selection = new Selection(start, end);
-			commands.executeCommand('editor.action.triggerSuggest');
-			//TODO1 see when to use the one below
+			// commands.executeCommand('editor.action.triggerSuggest');
 			// commands.executeCommand('editor.action.formatDocument');
 
 		});

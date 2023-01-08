@@ -46,12 +46,12 @@ import { OnCompletionHandler } from './languageServerHandlers/OnCompletionHandle
 import { GlobalState } from './general/GlobalState';
 import { OnCompletionResolveHandler } from './languageServerHandlers/OnCompletionResolveHandler';
 import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHandlers/OnSemanticTokensHandler';
-import { notifyError, notifyInformation } from './mm/Utils';
+import { applyTextEdits, notifyError, notifyInformation } from './mm/Utils';
 import { MmParser } from './mm/MmParser';
 import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
 import { Parameters } from './general/Parameters';
-import { ISearchCompletionItemCommandParameters, SearchCompletionItemSelectedHandler } from './search/SearchCompletionItemSelectedHandler';
+import { ISearchCompletionItemCommandParameters } from './search/SearchCompletionItemSelectedHandler';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -152,15 +152,6 @@ connection.onInitialize((params: InitializeParams) => {
 //#endregion onInitialize
 
 //Glauco
-// const mmtSaver: MmtSaver = new MmtSaver(connection,documents);
-// connection.onRequest('yamma/storemmt', (fsPath: string) => {
-// 	const text: string = <string>documents.get(fsPath)?.getText();
-// 	const mmtSaver: MmtSaver = new MmtSaver(fsPath, text, mmParser);
-// 	// const mmtSaver: MmtSaver = new MmtSaver(fsPath, mmParser);
-// 	mmtSaver.saveMmt();
-// 	console.log('Method saveMmt() has been invoked 2');
-
-// });
 connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 	if (GlobalState.mmParser != undefined) {
 		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
@@ -198,14 +189,26 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 	searchCommandHandler.insertSearchStatement();
 });
 
-connection.onRequest('yamma/searchcompletionitemselected', (searchCompletionItemCommandParameters:
+//TODO1 remove this one if not needed anymore
+connection.onRequest('yamma/searchcompletionitemselected', async (searchCompletionItemCommandParameters:
 	ISearchCompletionItemCommandParameters) => {
-	console.log('Completion item selected' + searchCompletionItemCommandParameters.searchStatementRangeStartLine);
-	const searchCompletionItemSelectedHandler: SearchCompletionItemSelectedHandler =
-		new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
-	searchCompletionItemSelectedHandler.deleteSearchStatement();
+	// console.log('Completion item selected' + searchCompletionItemCommandParameters.searchStatementRangeStartLine);
+	// const searchCompletionItemSelectedHandler: SearchCompletionItemSelectedHandler =
+	// 	new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
+	// searchCompletionItemSelectedHandler.deleteSearchStatement();
 	//TODO1 do unify()
+	const result: TextEdit[] = await unifyIfTheCase(searchCompletionItemCommandParameters.uri);
+	applyTextEdits(result,searchCompletionItemCommandParameters.uri,connection);
+});
 
+connection.onRequest('yamma/completionitemselected', async (textDocumentUri: string) => {
+	// console.log('Completion item selected' + searchCompletionItemCommandParameters.searchStatementRangeStartLine);
+	// const searchCompletionItemSelectedHandler: SearchCompletionItemSelectedHandler =
+	// 	new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
+	// searchCompletionItemSelectedHandler.deleteSearchStatement();
+	//TODO1 do unify()
+	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
+	applyTextEdits(result,textDocumentUri,connection);
 });
 
 
@@ -321,21 +324,22 @@ connection.onCompletionResolve(
 	}
 );
 
+function unifyIfTheCase( textDocumentUri: string ) : Promise<TextEdit[]> {
+	let result: Promise<TextEdit[]> = Promise.resolve([]);
+	if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
+		const onDocumentFormattingHandler: OnDocumentFormattingHandler =
+			new OnDocumentFormattingHandler(textDocumentUri, GlobalState.mmParser,
+				configurationManager, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
+		result = onDocumentFormattingHandler.unify();
+		GlobalState.validatedSinceLastUnify = false;
+		unifyDoneButCursorPositionNotUpdatedYet = true;
+	}
+	return result;
+}
+
 connection.onDocumentFormatting(
 	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
-		//return OnDocumentFormattingHandler.formatToLowerCase(params,documents)
-		let result: Promise<TextEdit[]> = Promise.resolve([]);
-		if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
-			const onDocumentFormattingHandler: OnDocumentFormattingHandler =
-				// new OnDocumentFormattingHandler(params, documents, GlobalState.mmParser, configurationManager,
-				// 	Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
-				new OnDocumentFormattingHandler(params.textDocument.uri, GlobalState.mmParser,
-					configurationManager, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
-			result = onDocumentFormattingHandler.unify();
-			GlobalState.validatedSinceLastUnify = false;
-			unifyDoneButCursorPositionNotUpdatedYet = true;
-			// return onDocumentFormattingHandler.unify();
-		}
+		const result: Promise<TextEdit[]> = unifyIfTheCase( params.textDocument.uri );
 		return result;
 	}
 );

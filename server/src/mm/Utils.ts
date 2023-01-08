@@ -1,4 +1,4 @@
-import { Connection, Diagnostic, MessageActionItem, Position, Range } from 'vscode-languageserver';
+import { Connection, Diagnostic, MessageActionItem, Position, Range, TextEdit, TextEditChange, WorkspaceChange } from 'vscode-languageserver';
 import { MmToken } from '../grammar/MmLexer';
 import { MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
 import { MmParserErrorCode } from './MmParser';
@@ -293,21 +293,18 @@ export function arrayRange(tokens: MmToken[]): Range {
 }
 
 export function notifyInformation(informationMessage: string, connection: Connection) {
-    // connection.sendNotification('yamma/showinformation', errorMessage);
     const messageActionItem: MessageActionItem = { title: "Ok" };
     const messageActionItems: MessageActionItem[] = [messageActionItem];
     connection.window.showInformationMessage(informationMessage, ...messageActionItems);
 }
 
 export function notifyWarning(warningMessage: string, connection: Connection) {
-    // connection.sendNotification('yamma/showwarning', warningMessage);
     const messageActionItem: MessageActionItem = { title: "Ok" };
     const messageActionItems: MessageActionItem[] = [messageActionItem];
     connection.window.showWarningMessage(warningMessage, ...messageActionItems);
 }
 
 export function notifyError(errorMessage: string, connection: Connection) {
-    // connection.sendNotification('yamma/showerror', errorMessage);
     const messageActionItem: MessageActionItem = { title: "Ok" };
     const messageActionItems: MessageActionItem[] = [messageActionItem];
     connection.window.showErrorMessage(errorMessage, ...messageActionItems);
@@ -352,4 +349,16 @@ export function notifyProgress(current: number, total: number, message?: string)
     if (previousPercentageOfWorkDone < percentageOfWorkDone)
         // consoleLogWithTimestamp(percentageOfWorkDone + '%');
         consoleLogWithTimestamp(completeMessage + '%');
+}
+
+export function applyTextEdits(textEdits: TextEdit[], textDocumentUri: string, connection: Connection) {
+    const workspaceChange: WorkspaceChange = new WorkspaceChange();
+    const textEditChange: TextEditChange = workspaceChange.getTextEditChange(
+        // this.searchCommandParameter.uri);
+        textDocumentUri);
+    textEdits.forEach((textEdit: TextEdit) => {
+        textEditChange.add(textEdit);
+    });
+    // textEditChange.insert(insertPosition, searchStatement);
+    connection.workspace.applyEdit(workspaceChange.edit);
 }
