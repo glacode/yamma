@@ -51,7 +51,7 @@ test("Build proof for mp2", () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-test("Remove exising proof and recreate it", () => {
+test("Remove existing proof and recreate it", () => {
 	const mmpSource =
 		"h50::mp2.1 |- ph\n" +
 		"h51::mp2.2 |- ps\n" +
