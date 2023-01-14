@@ -66,7 +66,8 @@ export class OnDidChangeContentHandler {
 		diagnostics.forEach((diagnostic: Diagnostic) => {
 			if (diagnostic.code == MmpParserWarningCode.missingLabel &&
 				(range == undefined || diagnostic.range.start.line < range.start.line))
-				range = diagnostic.range;
+				// range = diagnostic.range;
+				range = Range.create(diagnostic.range.start,diagnostic.range.start);
 		});
 		return range;
 	}
