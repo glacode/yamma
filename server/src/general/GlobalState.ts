@@ -47,6 +47,16 @@ export abstract class GlobalState {
 		this.suggestedRangeForCursorPosition = range;
 	}
 
+	static isTriggerSuggestRequired = false;
+
+	static requireTriggerSuggest() {
+		this.isTriggerSuggestRequired = true;
+	}
+
+	static resetTriggerSuggest() {
+		this.isTriggerSuggestRequired = false;
+	}
+
 	/** set to true when a validation occurs; set to false when a unify() occurs */
 	static validatedSinceLastUnify: boolean | undefined;
 

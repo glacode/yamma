@@ -90,6 +90,10 @@ export function activate(context: ExtensionContext) {
 			// commands.executeCommand('editor.action.formatDocument');
 
 		});
+
+		client.onNotification('yamma/triggerSuggest', () => {
+			commands.executeCommand('editor.action.triggerSuggest');
+		});
 	});
 
 	// Start the client. This will also launch the server

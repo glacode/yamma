@@ -173,6 +173,19 @@ export class StepSuggestion {
 	//#endregion completionItemsFromClassifier
 
 	private getCompletionItemsFromModels(): CompletionItem[] {
+		//TODO this is an example to add a snippet, you will use it later
+		// const testSnippet: CompletionItem = {
+		// 	label: "func",
+		// 	kind: CompletionItemKind.Snippet,
+		// 	insertText: [
+		// 		"function ${1:Name}(${2}) ${3:abort}",
+		// 		"\t${0}",
+		// 		"endfunction",
+		// 	].join("\n"),
+		// 	insertTextFormat: InsertTextFormat.Snippet,
+		// };
+		// const completionItemsFromModels: CompletionItem[] = [testSnippet];
+
 		const completionItemsFromModels: CompletionItem[] = [];
 		this.formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
 			const completionItemsFromClassifier: CompletionItem[] =

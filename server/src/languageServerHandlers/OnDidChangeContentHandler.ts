@@ -24,7 +24,8 @@ export class OnDidChangeContentHandler {
 		// documentSettings: Map<string, Thenable<IExtensionSettings>>, mmParser: MmParser) {
 		configurationManager: ConfigurationManager, mmParser: MmParser,
 		private formulaToParseNodeCache: FormulaToParseNodeCache,
-		suggestedRangeForCursorPosition?: Range) {
+		suggestedRangeForCursorPosition?: Range,
+		private isTriggerSuggestRequired?: boolean) {
 		this.connection = connection;
 		this.hasConfigurationCapability = hasConfigurationCapability;
 		this.hasDiagnosticRelatedInformationCapability = hasDiagnosticRelatedInformationCapability;
@@ -61,6 +62,7 @@ export class OnDidChangeContentHandler {
 	/** returns the Range of the first missing label */
 	private computeRangeForCursor(diagnostics: Diagnostic[]): Range | undefined {
 		let range: Range | undefined;
+		//TODO1 use while statement to stop early
 		diagnostics.forEach((diagnostic: Diagnostic) => {
 			if (diagnostic.code == MmpParserWarningCode.missingLabel &&
 				(range == undefined || diagnostic.range.start.line < range.start.line))
@@ -73,7 +75,7 @@ export class OnDidChangeContentHandler {
 	 * this method should be used by all the classes that want to request to
 	 * the client a cursor move
 	 */
-	public static moveCursorRequest(range: Range, connection: Connection) {
+	public static requestMoveCursor(range: Range, connection: Connection) {
 		connection.sendNotification('yamma/movecursor', range);
 		GlobalState.setSuggestedRangeForCursorPosition(undefined);
 	}
@@ -85,10 +87,20 @@ export class OnDidChangeContentHandler {
 		else if (unifyDoneButCursorPositionNotUpdatedYet)
 			range = this.computeRangeForCursor(diagnostics);
 		if (range != undefined)
-			OnDidChangeContentHandler.moveCursorRequest(range, this.connection);
+			OnDidChangeContentHandler.requestMoveCursor(range, this.connection);
 	}
 	//#endregion updateCursorPosition
 
+	//#region requestTriggerSuggest
+	static requestTriggerSuggest(connection: Connection) {
+		connection.sendNotification('yamma/triggerSuggest');
+		GlobalState.resetTriggerSuggest();
+	}
+	private triggerSuggestIfRequired() {
+		if (this.isTriggerSuggestRequired)
+			OnDidChangeContentHandler.requestTriggerSuggest(this.connection);
+	}
+	//#endregion requestTriggerSuggest
 
 	async validateTextDocument(textDocument: TextDocument, unifyDoneButCursorPositionNotUpdatedYet: boolean): Promise<void> {
 
@@ -109,6 +121,7 @@ export class OnDidChangeContentHandler {
 		this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
 		this.updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet, diagnostics);
+		this.triggerSuggestIfRequired();
 	}
 	//#endregion validateTextDocument
 
@@ -120,7 +133,7 @@ export class OnDidChangeContentHandler {
 			const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
 				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalSettings,
 				GlobalState.configurationManager, GlobalState.mmParser, formulaToParseNodeCache,
-				GlobalState.suggestedRangeForCursorPosition);
+				GlobalState.suggestedRangeForCursorPosition, GlobalState.isTriggerSuggestRequired);
 			await onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
 		}
 	}

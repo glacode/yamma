@@ -160,6 +160,7 @@ export class SearchCommandHandler {
 			this.maxNumberOfReturnedSymbols, currentMmpProofStep, this.mmStatistics);
 		this.insertNewSearchStatement(insertPosition, searchStatement);
 		this.setSuggestedRangeForCursorPosition(insertPosition, searchStatement);
+		GlobalState.requireTriggerSuggest();
 	}
 	//#endregion insertSearchStatementAfterStep
 
