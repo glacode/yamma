@@ -122,7 +122,7 @@
 		},
 		"commands": [
 			{
-				"command": "editor.action.formatDocument",
+				"command": "yamma.unify",
 				"title": "Unify"
 			},
 			{
@@ -140,7 +140,7 @@
 		],
 		"keybindings": [
 			{
-				"command": "editor.action.formatDocument",
+				"command": "yamma.unify",
 				"key": "ctrl+u"
 			},
 			{
@@ -152,7 +152,7 @@
 			"editor/context": [
 				{
 					"when": "resourceLangId == yamma",
-					"command": "editor.action.formatDocument",
+					"command": "yamma.unify",
 					"group": "navigation"
 				},
 				{

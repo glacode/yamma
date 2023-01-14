@@ -69,12 +69,15 @@ export function activate(context: ExtensionContext) {
 
 	//Glauco
 	client.onReady().then(() => {
+		//TODO1 use context.subscription.push for any disposable (write a function)
 		let disposable: Disposable = commands.registerCommand('yamma.storeInMMTfolder',
 			storeMmtFileCommandHandler, client);
 		context.subscriptions.push(disposable);
 		disposable = commands.registerCommand('yamma.loadFromMMTfolder',
 			loadMmtFilesCommandHandler, client);
 		context.subscriptions.push(disposable);
+		disposable = commands.registerCommand('yamma.unify',
+			() => { client.sendRequest('yamma/unify', window.activeTextEditor.document.uri.toString()); });
 		disposable = commands.registerCommand('yamma.search', searchCommandHandler, client);
 		disposable = commands.registerCommand('yamma.searchcompletionitemselected',
 			searchCompletionItemSelectedHandler, client);

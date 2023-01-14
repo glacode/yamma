@@ -198,7 +198,7 @@ connection.onRequest('yamma/searchcompletionitemselected', async (searchCompleti
 	// searchCompletionItemSelectedHandler.deleteSearchStatement();
 	//TODO1 do unify()
 	const result: TextEdit[] = await unifyIfTheCase(searchCompletionItemCommandParameters.uri);
-	applyTextEdits(result,searchCompletionItemCommandParameters.uri,connection);
+	applyTextEdits(result, searchCompletionItemCommandParameters.uri, connection);
 });
 
 connection.onRequest('yamma/completionitemselected', async (textDocumentUri: string) => {
@@ -208,7 +208,15 @@ connection.onRequest('yamma/completionitemselected', async (textDocumentUri: str
 	// searchCompletionItemSelectedHandler.deleteSearchStatement();
 	//TODO1 do unify()
 	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
-	applyTextEdits(result,textDocumentUri,connection);
+	applyTextEdits(result, textDocumentUri, connection);
+});
+
+//TODO notice that this is identical to completionitemselected, but maybe they will be
+//different, in the future
+//TODO1
+connection.onRequest('yamma/unify', async (textDocumentUri: string) => {
+	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
+	applyTextEdits(result, textDocumentUri, connection);
 });
 
 
@@ -324,7 +332,7 @@ connection.onCompletionResolve(
 	}
 );
 
-function unifyIfTheCase( textDocumentUri: string ) : Promise<TextEdit[]> {
+function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
 	let result: Promise<TextEdit[]> = Promise.resolve([]);
 	if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
 		const onDocumentFormattingHandler: OnDocumentFormattingHandler =
@@ -333,16 +341,17 @@ function unifyIfTheCase( textDocumentUri: string ) : Promise<TextEdit[]> {
 		result = onDocumentFormattingHandler.unify();
 		GlobalState.validatedSinceLastUnify = false;
 		unifyDoneButCursorPositionNotUpdatedYet = true;
-	}
+	} else
+		unifyDoneButCursorPositionNotUpdatedYet = false;
 	return result;
 }
 
-connection.onDocumentFormatting(
-	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
-		const result: Promise<TextEdit[]> = unifyIfTheCase( params.textDocument.uri );
-		return result;
-	}
-);
+// connection.onDocumentFormatting(
+// 	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
+// 		const result: Promise<TextEdit[]> = unifyIfTheCase(params.textDocument.uri);
+// 		return result;
+// 	}
+// );
 
 //Glauco
 
