@@ -13,7 +13,6 @@ import {
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
 	InitializeResult,
-	DocumentFormattingParams,
 	Hover,
 	MarkupContent,
 	MarkupKind,
@@ -196,17 +195,11 @@ connection.onRequest('yamma/searchcompletionitemselected', async (searchCompleti
 	// const searchCompletionItemSelectedHandler: SearchCompletionItemSelectedHandler =
 	// 	new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
 	// searchCompletionItemSelectedHandler.deleteSearchStatement();
-	//TODO1 do unify()
 	const result: TextEdit[] = await unifyIfTheCase(searchCompletionItemCommandParameters.uri);
 	applyTextEdits(result, searchCompletionItemCommandParameters.uri, connection);
 });
 
 connection.onRequest('yamma/completionitemselected', async (textDocumentUri: string) => {
-	// console.log('Completion item selected' + searchCompletionItemCommandParameters.searchStatementRangeStartLine);
-	// const searchCompletionItemSelectedHandler: SearchCompletionItemSelectedHandler =
-	// 	new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
-	// searchCompletionItemSelectedHandler.deleteSearchStatement();
-	//TODO1 do unify()
 	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
 	applyTextEdits(result, textDocumentUri, connection);
 });
@@ -332,7 +325,19 @@ connection.onCompletionResolve(
 	}
 );
 
-function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
+//#region unifyIfTheCase
+async function requestTextValidationIfUnificationChangedNothing(
+	textDocumentUri: string, textEdits: TextEdit[]) {
+	const textDocument: TextDocument = documents.get(textDocumentUri)!;
+	const currentText: string | undefined = textDocument.getText();
+	if (textEdits.length == 0 || textEdits[0].newText == currentText) {
+		// current unification either didn't run or returns a text that's identical
+		// to the prvious one; in eithre case it will not trigger a new validation,
+		// but we want a new validation after the unification (it will move the cursor)
+		await validateTextDocument(textDocument);
+	}
+}
+async function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
 	let result: Promise<TextEdit[]> = Promise.resolve([]);
 	if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
 		const onDocumentFormattingHandler: OnDocumentFormattingHandler =
@@ -341,10 +346,11 @@ function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
 		result = onDocumentFormattingHandler.unify();
 		GlobalState.validatedSinceLastUnify = false;
 		unifyDoneButCursorPositionNotUpdatedYet = true;
-	} else
-		unifyDoneButCursorPositionNotUpdatedYet = false;
+	}
+	requestTextValidationIfUnificationChangedNothing(textDocumentUri, (await result));
 	return result;
 }
+//#endregion unifyIfTheCase
 
 // connection.onDocumentFormatting(
 // 	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
@@ -417,6 +423,3 @@ documents.listen(connection);
 
 // Listen on the connection
 connection.listen();
-
-
-
