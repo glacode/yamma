@@ -57,9 +57,6 @@ export abstract class GlobalState {
 		this.isTriggerSuggestRequired = false;
 	}
 
-	/** set to true when a validation occurs; set to false when a unify() occurs */
-	static validatedSinceLastUnify: boolean | undefined;
-
 	private static _formulaToParseNodeCache?: FormulaToParseNodeCache;
 
 	public static get formulaToParseNodeCache(): FormulaToParseNodeCache {

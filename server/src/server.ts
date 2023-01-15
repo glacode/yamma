@@ -282,7 +282,6 @@ documents.onDidChangeContent(async change => {
 	if (GlobalState.mmParser == undefined)
 		await configurationManager.updateTheoryIfTheCase();
 	await validateTextDocument(change.document);
-	GlobalState.validatedSinceLastUnify = true;
 });
 //#endregion onDidChangeContent
 
@@ -339,12 +338,12 @@ async function requestTextValidationIfUnificationChangedNothing(
 }
 async function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
 	let result: Promise<TextEdit[]> = Promise.resolve([]);
-	if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
+	// if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
+	if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined) {
 		const onDocumentFormattingHandler: OnDocumentFormattingHandler =
 			new OnDocumentFormattingHandler(textDocumentUri, GlobalState.mmParser,
 				configurationManager, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
 		result = onDocumentFormattingHandler.unify();
-		GlobalState.validatedSinceLastUnify = false;
 		unifyDoneButCursorPositionNotUpdatedYet = true;
 	}
 	requestTextValidationIfUnificationChangedNothing(textDocumentUri, (await result));
