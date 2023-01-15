@@ -341,7 +341,7 @@ async function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
 	// if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
 	if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined) {
 		const onDocumentFormattingHandler: OnDocumentFormattingHandler =
-			new OnDocumentFormattingHandler(textDocumentUri, GlobalState.mmParser,
+			new OnDocumentFormattingHandler(textDocumentUri, GlobalState.mmParser, GlobalState.lastMmpParser,
 				configurationManager, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
 		result = onDocumentFormattingHandler.unify();
 		unifyDoneButCursorPositionNotUpdatedYet = true;

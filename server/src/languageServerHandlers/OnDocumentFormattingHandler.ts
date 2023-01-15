@@ -1,7 +1,7 @@
 import { TextEdit } from 'vscode-languageserver';
-import { GlobalState } from '../general/GlobalState';
 import { ConfigurationManager, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
+import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 
 
@@ -14,7 +14,7 @@ export class OnDocumentFormattingHandler {
 	maxNumberOfHypothesisDispositionsForStepDerivation: number;
 
 	// constructor(params: DocumentFormattingParams, mmParser: MmParser,
-	constructor(private textDocumentUri: string, mmParser: MmParser,
+	constructor(private textDocumentUri: string, mmParser: MmParser, private mmpParser: MmpParser,
 		configurationManager: ConfigurationManager, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 		// this.params = params;
 		// this.documents = documents;
@@ -33,7 +33,7 @@ export class OnDocumentFormattingHandler {
 		// 		this.mmParser.grammar, this.mmParser.workingVars, proofMode, GlobalState.lastMmpParser);
 		//TODO manage case GlobalState.lastMmpParser == undefined (invoke unify only if it is not undefined) 
 		const mmpUnifier: MmpUnifier =
-			new MmpUnifier(GlobalState.lastMmpParser!, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation);
+			new MmpUnifier(this.mmpParser, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation);
 		// const textToParse: string = textDocument.getText();
 		if (this.mmParser.grammar != undefined)
 			mmpUnifier.unify();
