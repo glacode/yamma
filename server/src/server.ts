@@ -34,7 +34,7 @@ import {
 
 
 import { OnHoverHandler } from "./languageServerHandlers/OnHoverHandler";
-import { OnDocumentFormattingHandler } from './languageServerHandlers/OnDocumentFormattingHandler';
+import { OnDocumentFormattingHandler } from './languageServerHandlers/OnUnifyHandler';
 import { OnDidChangeContentHandler } from './languageServerHandlers/OnDidChangeContentHandler';
 import { OnCodeActionHandler } from './languageServerHandlers/OnCodeActionHandler';
 import { ConfigurationManager, defaultSettings, IExtensionSettings } from './mm/ConfigurationManager';
