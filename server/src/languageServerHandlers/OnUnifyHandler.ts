@@ -1,11 +1,14 @@
-import { TextEdit } from 'vscode-languageserver';
+import { TextDocuments, TextEdit } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import { GlobalState } from '../general/GlobalState';
 import { ConfigurationManager, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
+import { validateTextDocument } from '../server';
 
 
-export class OnDocumentFormattingHandler {
+export class OnUnifyHandler {
 
 	// params: DocumentFormattingParams;
 	// documents: TextDocuments<TextDocument>;
@@ -23,9 +26,7 @@ export class OnDocumentFormattingHandler {
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 	}
 
-	//#region  unify
-
-	// parseMmpFile(textDocument: TextDocument, proofMode: ProofMode): TextEdit[] {
+	//#region unify
 	parseMmpFile(proofMode: ProofMode): TextEdit[] {
 		// const mmpParser: MmpParser = new MmpParser(textDocument, mmParser)
 		// const mmpUnifier: MmpUnifier =
@@ -45,5 +46,37 @@ export class OnDocumentFormattingHandler {
 		const textEditArray: TextEdit[] = this.parseMmpFile(proofMode);
 		return Promise.resolve(textEditArray);
 	}
-	//#endregion
+	//#endregion unify
+
+
+	//#region unifyIfTheCase
+	static async requestTextValidationIfUnificationChangedNothing(
+		textDocumentUri: string, documents: TextDocuments<TextDocument>, textEdits: TextEdit[]) {
+		const textDocument: TextDocument = documents.get(textDocumentUri)!;
+		const currentText: string | undefined = textDocument.getText();
+		if (textEdits.length == 0 || textEdits[0].newText == currentText) {
+			// current unification either didn't run or returns a text that's identical
+			// to the prvious one; in eithre case it will not trigger a new validation,
+			// but we want a new validation after the unification (it will move the cursor)
+			await validateTextDocument(textDocument);
+		}
+	}
+	static async unifyIfTheCase(textDocumentUri: string, mmParser: MmParser | undefined,
+		mmpParser: MmpParser | undefined, configurationManager: ConfigurationManager,
+		maxNumberOfHypothesisDispositionsForStepDerivation: number,
+		documents: TextDocuments<TextDocument>): Promise<TextEdit[]> {
+		let result: Promise<TextEdit[]> = Promise.resolve([]);
+		// if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
+		if (mmParser != undefined && mmpParser != undefined) {
+			const onDocumentFormattingHandler: OnUnifyHandler =
+				new OnUnifyHandler(textDocumentUri, mmParser, mmpParser,
+					configurationManager, maxNumberOfHypothesisDispositionsForStepDerivation);
+			result = onDocumentFormattingHandler.unify();
+			GlobalState.unifyDoneButCursorPositionNotUpdatedYet = true;
+		}
+		OnUnifyHandler.requestTextValidationIfUnificationChangedNothing(
+			textDocumentUri, documents, (await result));
+		return result;
+	}
+	//#endregion unifyIfTheCase
 }

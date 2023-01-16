@@ -40,6 +40,9 @@ export abstract class GlobalState {
 
 	static connection: Connection;
 
+	/** true iff a unify() has been performed, but the cursor has not been updated yet*/
+	static unifyDoneButCursorPositionNotUpdatedYet = false;
+
 
 	static suggestedRangeForCursorPosition?: Range;
 

@@ -34,7 +34,7 @@ import {
 
 
 import { OnHoverHandler } from "./languageServerHandlers/OnHoverHandler";
-import { OnDocumentFormattingHandler } from './languageServerHandlers/OnUnifyHandler';
+import { OnUnifyHandler } from './languageServerHandlers/OnUnifyHandler';
 import { OnDidChangeContentHandler } from './languageServerHandlers/OnDidChangeContentHandler';
 import { OnCodeActionHandler } from './languageServerHandlers/OnCodeActionHandler';
 import { ConfigurationManager, defaultSettings, IExtensionSettings } from './mm/ConfigurationManager';
@@ -70,8 +70,7 @@ let hasDiagnosticRelatedInformationCapability = false;
 
 //Glauco
 // let mmParser: MmParser;
-/** true iff a unify() has been performed, but the cursor has not been updated yet*/
-let unifyDoneButCursorPositionNotUpdatedYet = false;
+
 
 
 
@@ -262,16 +261,16 @@ documents.onDidClose(e => {
 });
 
 //#region onDidChangeContent
-async function validateTextDocument(textDocument: TextDocument) {
+export async function validateTextDocument(textDocument: TextDocument) {
 	// const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
 	// 	hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
 	// 	// globalSettings, documentSettings, GlobalState.mmParser);
 	// 	globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
 	// onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
 	await OnDidChangeContentHandler.validateTextDocument(textDocument, connection, hasConfigurationCapability,
-		hasDiagnosticRelatedInformationCapability, globalSettings, unifyDoneButCursorPositionNotUpdatedYet,
-		GlobalState.formulaToParseNodeCache);
-	unifyDoneButCursorPositionNotUpdatedYet = false;
+		hasDiagnosticRelatedInformationCapability, globalSettings,
+		GlobalState.unifyDoneButCursorPositionNotUpdatedYet, GlobalState.formulaToParseNodeCache);
+	GlobalState.unifyDoneButCursorPositionNotUpdatedYet = false;
 }
 
 // The content of a text document has changed. This event is emitted
@@ -324,41 +323,12 @@ connection.onCompletionResolve(
 	}
 );
 
-//#region unifyIfTheCase
-async function requestTextValidationIfUnificationChangedNothing(
-	textDocumentUri: string, textEdits: TextEdit[]) {
-	const textDocument: TextDocument = documents.get(textDocumentUri)!;
-	const currentText: string | undefined = textDocument.getText();
-	if (textEdits.length == 0 || textEdits[0].newText == currentText) {
-		// current unification either didn't run or returns a text that's identical
-		// to the prvious one; in eithre case it will not trigger a new validation,
-		// but we want a new validation after the unification (it will move the cursor)
-		await validateTextDocument(textDocument);
-	}
-}
 async function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
-	let result: Promise<TextEdit[]> = Promise.resolve([]);
-	// if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
-	if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined) {
-		const onDocumentFormattingHandler: OnDocumentFormattingHandler =
-			new OnDocumentFormattingHandler(textDocumentUri, GlobalState.mmParser, GlobalState.lastMmpParser,
-				configurationManager, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
-		result = onDocumentFormattingHandler.unify();
-		unifyDoneButCursorPositionNotUpdatedYet = true;
-	}
-	requestTextValidationIfUnificationChangedNothing(textDocumentUri, (await result));
+	const result: Promise<TextEdit[]> = OnUnifyHandler.unifyIfTheCase(textDocumentUri,
+		GlobalState.mmParser, GlobalState.lastMmpParser, configurationManager,
+		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, documents);
 	return result;
 }
-//#endregion unifyIfTheCase
-
-// connection.onDocumentFormatting(
-// 	(params: DocumentFormattingParams): Promise<TextEdit[]> => {
-// 		const result: Promise<TextEdit[]> = unifyIfTheCase(params.textDocument.uri);
-// 		return result;
-// 	}
-// );
-
-//Glauco
 
 //#region onCodeAction
 function onCodeActionHandler(params: CodeActionParams): CodeAction[] {
