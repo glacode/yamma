@@ -1,5 +1,4 @@
 import { Connection, Range, TextEdit, TextEditChange, WorkspaceChange } from 'vscode-languageserver';
-import { GlobalState } from '../general/GlobalState';
 
 export interface ISearchCompletionItemCommandParameters {
 	uri: string;
@@ -21,10 +20,10 @@ export class SearchCompletionItemSelectedHandler {
 	//#region deleteSearchStatement
 	suggestCursorPosition() {
 		// const labelLine: number = this.searchCompletionItemCommandParameters.searchStatementRangeStartLine - 1;
-		const labelLine: number = this.searchCompletionItemCommandParameters.lineToInsertTheLabel;
-		const labelLength: number = this.searchCompletionItemCommandParameters.label.length;
-		const rangeForCursor: Range = Range.create(labelLine, labelLength, labelLine, labelLength + 1);
-		GlobalState.setSuggestedRangeForCursorPosition(rangeForCursor);
+		// const labelLine: number = this.searchCompletionItemCommandParameters.lineToInsertTheLabel;
+		// const labelLength: number = this.searchCompletionItemCommandParameters.label.length;
+		// const rangeForCursor: Range = Range.create(labelLine, labelLength, labelLine, labelLength + 1);
+		// GlobalState.setSuggestedRangeForCursorPosition(rangeForCursor);
 	}
 	deleteSearchStatement() {
 		// for rangeToDelete we add one line, because the label has been added above, in the meanwhile,

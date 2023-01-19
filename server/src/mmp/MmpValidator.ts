@@ -14,10 +14,12 @@ import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
  */
 export class MmpValidator {
 	mmParser: MmParser
+	private formulaToParseNodeCache: FormulaToParseNodeCache;
 	diagnostics: Diagnostic[] = [];
 
-	constructor(mmParser: MmParser, private formulaToParseNodeCache: FormulaToParseNodeCache) {
+	constructor(mmParser: MmParser, private globalState: GlobalState ) {
 		this.mmParser = mmParser;
+		this.formulaToParseNodeCache = globalState.formulaToParseNodeCache;
 	}
 
 	//#region validateFullDocument
@@ -38,7 +40,7 @@ export class MmpValidator {
 	private async updateStatistics(mmpParser: MmpParser) {
 		const mmpStatistics: MmpStatistics = new MmpStatistics(mmpParser);
 		mmpStatistics.buildStatistics();
-		GlobalState.mmpStatistics = mmpStatistics;
+		this.globalState.mmpStatistics = mmpStatistics;
 	}
 
 	// validateFullDocumentText(textToValidate: string, labelToStatementMap: Map<string, LabeledStatement>,
@@ -51,7 +53,7 @@ export class MmpValidator {
 		console.log('before mmpParser.parse()');
 		mmpParser.parse();
 		console.log('after mmpParser.parse()');
-		GlobalState.lastMmpParser = mmpParser;
+		this.globalState.lastMmpParser = mmpParser;
 		this.diagnostics = mmpParser.diagnostics;
 		this.updateStatistics(mmpParser);
 	}

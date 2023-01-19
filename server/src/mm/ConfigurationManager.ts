@@ -68,7 +68,8 @@ export class ConfigurationManager implements IConfigurationManager {
 	private _documentSettings: Map<string, Thenable<IExtensionSettings>>;
 
 	constructor(hasConfigurationCapability: boolean, hasDiagnosticRelatedInformationCapability: boolean,
-		defaultSettings: IExtensionSettings, globalSettings: IExtensionSettings, connection: Connection) {
+		defaultSettings: IExtensionSettings, globalSettings: IExtensionSettings, connection: Connection,
+		private globalState: GlobalState) {
 		this.hasConfigurationCapability = hasConfigurationCapability;
 		this.hasDiagnosticRelatedInformationCapability = hasDiagnosticRelatedInformationCapability;
 		this.defaultSettings = defaultSettings;
@@ -95,10 +96,11 @@ export class ConfigurationManager implements IConfigurationManager {
 		const currentConfiguration: IExtensionConfiguration = await this.currentConfiguration();
 		// const settings: IExtensionSettings = await this._connection.workspace.getConfiguration();
 		// const settings: IExtensionSettings = _change.settings;
-		const previousMmFilePath = GlobalState.mmFilePath;
+		const previousMmFilePath = this.globalState.mmFilePath;
 		if (currentConfiguration.mmFileFullPath != previousMmFilePath) {
 			this.setGlobalStateSettings();
-			const theoryLoader: TheoryLoader = new TheoryLoader(currentConfiguration.mmFileFullPath, GlobalState.connection);
+			const theoryLoader: TheoryLoader = new TheoryLoader(currentConfiguration.mmFileFullPath, this._connection,
+				this.globalState);
 			await theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
 		}
 	}
@@ -149,7 +151,7 @@ export class ConfigurationManager implements IConfigurationManager {
 			// const currentConfiguration: IExtensionConfiguration = await this._connection.workspace.getConfiguration('yamma');
 			const currentConfiguration: IExtensionConfiguration = await this.currentConfiguration();
 			const extensionSettings: IExtensionSettings = this.extensionSettings(currentConfiguration);
-			GlobalState.lastFetchedSettings = extensionSettings;
+			this.globalState.lastFetchedSettings = extensionSettings;
 		}
 	}
 
@@ -166,7 +168,7 @@ export class ConfigurationManager implements IConfigurationManager {
 			const extensionSettings: IExtensionSettings = this.extensionSettings(currentConfiguration);
 			result = new Promise<IExtensionSettings>((resolve) => { resolve(extensionSettings); });
 			this._documentSettings.set(scopeUri, <Thenable<IExtensionSettings>>result);
-			GlobalState.lastFetchedSettings = extensionSettings;
+			this.globalState.lastFetchedSettings = extensionSettings;
 		}
 		return <Thenable<IExtensionSettings>>result;
 	}

@@ -5,6 +5,7 @@ import { MmParser } from '../mm/MmParser';
 import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
 import { doesDiagnosticsContain } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
+import { GlobalState } from '../general/GlobalState';
 
 export const theoryToTestDjVarViolation = " $c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. $v ps $. " +
 	"wph $f wff ph $. wps $f wff ps $. wi $a wff ( ph -> ps ) $. $c A. $. $c setvar $. $c class $. " +
@@ -104,7 +105,7 @@ test("Expect Disjoint Var automatic completion ", () => {
 	//not listed as DjVars in theorem to be proved: [<j,ph>, <M,j>, <Z,j>]
 	const mmpSource =
 		"qed:ax-5 |- ( y e. A -> A. x y e. A )";
-	const parser: MmParser = new MmParser();
+	const parser: MmParser = new MmParser(new GlobalState());
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);

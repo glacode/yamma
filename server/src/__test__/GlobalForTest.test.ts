@@ -1,18 +1,21 @@
-import { GlobalState } from '../general/GlobalState';
-import { IVariableKindConfiguration, ProofMode } from '../mm/ConfigurationManager';
+import { IExtensionSettings, IVariableKindConfiguration, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import * as fs from 'fs';
 import { MmStatistics } from '../mm/MmStatistics';
+import { GlobalState } from '../general/GlobalState';
 
 
 const variableKindsConfiguration: Map<string, IVariableKindConfiguration> = new Map<string, IVariableKindConfiguration>();
 variableKindsConfiguration.set('wff', { workingVarPrefix: 'W', lspSemantictokenType: 'variable' });
 variableKindsConfiguration.set('setvar', { workingVarPrefix: 'S', lspSemantictokenType: 'string' });
 variableKindsConfiguration.set('class', { workingVarPrefix: 'C', lspSemantictokenType: 'keyword' });
-GlobalState.lastFetchedSettings = {
+export const lastFetchedSettings: IExtensionSettings = {
 	maxNumberOfProblems: 100, mmFileFullPath: '', proofMode: ProofMode.normal,
 	variableKindsConfiguration: variableKindsConfiguration
 };
+
+export const globalState: GlobalState = new GlobalState();
+globalState.lastFetchedSettings = lastFetchedSettings;
 
 export function fullPathForTestFile(fileName: string): string {
 	const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
@@ -27,7 +30,7 @@ export function readTestFile(fileName: string): string {
 
 export function createMmParser(fileName: string): MmParser {
 	const theoryText: string = readTestFile(fileName);
-	const mmParser: MmParser = new MmParser();
+	const mmParser: MmParser = new MmParser(globalState);
 	mmParser.ParseText(theoryText);
 	return mmParser;
 }
@@ -37,7 +40,7 @@ export const mp2Theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. '
 	'$v ps $. $v ch $. wph $f wff ph $. wps $f wff ps $. wch $f wff ch $.\n' +
 	'wi $a wff ( ph -> ps ) $.\n' +
 	'${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}';
-export const mp2MmParser: MmParser = new MmParser();
+export const mp2MmParser: MmParser = new MmParser(globalState);
 mp2MmParser.ParseText(mp2Theory);
 mp2MmParser.createParseNodesForAssertionsSync();
 
@@ -62,6 +65,10 @@ opelcnMmParser.createParseNodesForAssertionsSync();
 export const elexdMmParser: MmParser = createMmParser('elexd.mm');
 elexdMmParser.createParseNodesForAssertionsSync();
 
+// const vexTheory: string = readTestFile('vex.mm');
+// export const vexTheoryMmParser: MmParser = new MmParser();
+// vexTheoryMmParser.ParseText(vexTheory);
+export const vexTheoryMmParser: MmParser = createMmParser('vex.mm');
 
 
 

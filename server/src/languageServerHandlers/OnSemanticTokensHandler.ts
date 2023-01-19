@@ -51,9 +51,7 @@ export class OnSemanticTokensHandler {
 	/** this is used to compute relative character */
 	private previousTokenStartCharacter: number;
 
-	// private semanticTokenTypesMap: Map<SemanticTokenTypes, number>;
 	private semanticTokenTypesMap: Map<string, number>;
-	// private variableKindsConfiguration: Map<string, IVariableKindConfiguration>;
 
 
 	constructor(semanticTokenParams: SemanticTokensParams, semanticTokenTypes: SemanticTokenTypes[],
@@ -84,7 +82,6 @@ export class OnSemanticTokensHandler {
 	//#region semanticTokens
 
 	async setVariableKindsConfiguration(): Promise<Map<string, IVariableKindConfiguration>> {
-		// this.variableKindsConfiguration =
 		return await this.configurationManager.variableKindsConfiguration(this.semanticTokenParams.textDocument.uri);
 	}
 

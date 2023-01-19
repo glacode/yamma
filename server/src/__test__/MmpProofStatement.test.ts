@@ -8,7 +8,7 @@ import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { Parameters } from '../general/Parameters';
-import { kindToPrefixMap, mp2Theory, readTestFile } from './GlobalForTest.test';
+import { kindToPrefixMap, mp2Theory, vexTheoryMmParser } from './GlobalForTest.test';
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmToken } from '../grammar/MmLexer';
@@ -17,9 +17,6 @@ import { MmpParser } from '../mmp/MmpParser';
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
 // const vexTheory: string = fs.readFileSync(mmFilePath, 'utf-8');
-const vexTheory: string = readTestFile('vex.mm');
-export const vexTheoryMmParser: MmParser = new MmParser();
-vexTheoryMmParser.ParseText(vexTheory);
 //TODO
 // export const vexTheoryParser: MmParser = createMmParser('vex.mm');
 

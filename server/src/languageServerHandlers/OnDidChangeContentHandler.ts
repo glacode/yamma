@@ -1,11 +1,10 @@
 import { Connection, Diagnostic, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { ConfigurationManager, IExtensionSettings } from '../mm/ConfigurationManager';
+import { ConfigurationManager } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { MmpParserWarningCode } from '../mmp/MmpParser';
 import { GlobalState } from '../general/GlobalState';
-import { FormulaToParseNodeCache } from '../mmp/FormulaToParseNodeCache';
 
 
 
@@ -13,27 +12,20 @@ export class OnDidChangeContentHandler {
 	connection: Connection;
 	hasConfigurationCapability: boolean;
 	hasDiagnosticRelatedInformationCapability: boolean;
-	globalSettings: IExtensionSettings;
 	// documentSettings: Map<string, Thenable<IExtensionSettings>>;
 	configurationManager: ConfigurationManager;
 	mmParser: MmParser;
 	suggestedRangeForCursorPosition?: Range
 
 	constructor(connection: Connection, hasConfigurationCapability: boolean,
-		hasDiagnosticRelatedInformationCapability: boolean, globalSettings: IExtensionSettings,
-		// documentSettings: Map<string, Thenable<IExtensionSettings>>, mmParser: MmParser) {
-		configurationManager: ConfigurationManager, mmParser: MmParser,
-		private formulaToParseNodeCache: FormulaToParseNodeCache,
-		suggestedRangeForCursorPosition?: Range,
-		private isTriggerSuggestRequired?: boolean) {
+		hasDiagnosticRelatedInformationCapability: boolean, private globalState: GlobalState) {
 		this.connection = connection;
 		this.hasConfigurationCapability = hasConfigurationCapability;
 		this.hasDiagnosticRelatedInformationCapability = hasDiagnosticRelatedInformationCapability;
-		this.globalSettings = globalSettings;
 		// this.documentSettings = documentSettings;
-		this.configurationManager = configurationManager;
-		this.mmParser = mmParser;
-		this.suggestedRangeForCursorPosition = suggestedRangeForCursorPosition;
+		this.configurationManager = globalState.configurationManager!;
+		this.mmParser = globalState.mmParser!;
+		this.suggestedRangeForCursorPosition = globalState.suggestedRangeForCursorPosition;
 	}
 
 	// private mmParser: MmParser | undefined;
@@ -67,7 +59,7 @@ export class OnDidChangeContentHandler {
 			if (diagnostic.code == MmpParserWarningCode.missingLabel &&
 				(range == undefined || diagnostic.range.start.line < range.start.line))
 				// range = diagnostic.range;
-				range = Range.create(diagnostic.range.start,diagnostic.range.start);
+				range = Range.create(diagnostic.range.start, diagnostic.range.start);
 		});
 		return range;
 	}
@@ -76,9 +68,9 @@ export class OnDidChangeContentHandler {
 	 * this method should be used by all the classes that want to request to
 	 * the client a cursor move
 	 */
-	public static requestMoveCursor(range: Range, connection: Connection) {
-		connection.sendNotification('yamma/movecursor', range);
-		GlobalState.setSuggestedRangeForCursorPosition(undefined);
+	private requestMoveCursor(range: Range) {
+		this.connection.sendNotification('yamma/movecursor', range);
+		this.globalState.setSuggestedRangeForCursorPosition(undefined);
 	}
 	private updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet: boolean, diagnostics: Diagnostic[]) {
 		// const range: Range = { start: { line: 2, character: 4 }, end: { line: 2, character: 9 } };
@@ -88,18 +80,18 @@ export class OnDidChangeContentHandler {
 		else if (unifyDoneButCursorPositionNotUpdatedYet)
 			range = this.computeRangeForCursor(diagnostics);
 		if (range != undefined)
-			OnDidChangeContentHandler.requestMoveCursor(range, this.connection);
+			this.requestMoveCursor(range);
 	}
 	//#endregion updateCursorPosition
 
 	//#region requestTriggerSuggest
-	static requestTriggerSuggest(connection: Connection) {
-		connection.sendNotification('yamma/triggerSuggest');
-		GlobalState.resetTriggerSuggest();
+	private requestTriggerSuggest() {
+		this.connection.sendNotification('yamma/triggerSuggest');
+		this.globalState.resetTriggerSuggest();
 	}
 	private triggerSuggestIfRequired() {
-		if (this.isTriggerSuggestRequired)
-			OnDidChangeContentHandler.requestTriggerSuggest(this.connection);
+		if (this.globalState.isTriggerSuggestRequired)
+			this.requestTriggerSuggest();
 	}
 	//#endregion requestTriggerSuggest
 
@@ -115,7 +107,7 @@ export class OnDidChangeContentHandler {
 		maxNumOfProblems = maxNumOfProblems + 1 - 1;
 
 		//Glauco
-		const mmpValidator: MmpValidator = new MmpValidator(this.mmParser!, this.formulaToParseNodeCache);
+		const mmpValidator: MmpValidator = new MmpValidator(this.mmParser!, this.globalState);
 		mmpValidator.validateFullDocument(textDocument);
 		const diagnostics: Diagnostic[] = mmpValidator.diagnostics;
 
@@ -128,14 +120,12 @@ export class OnDidChangeContentHandler {
 
 	static async validateTextDocument(textDocument: TextDocument, connection: Connection,
 		hasConfigurationCapability: boolean, hasDiagnosticRelatedInformationCapability: boolean,
-		globalSettings: IExtensionSettings, unifyDoneButCursorPositionNotUpdatedYet: boolean,
-		formulaToParseNodeCache: FormulaToParseNodeCache) {
-		if (GlobalState.mmParser != undefined) {
+		globalState: GlobalState) {
+		if (globalState.mmParser != undefined) {
 			const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
-				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalSettings,
-				GlobalState.configurationManager, GlobalState.mmParser, formulaToParseNodeCache,
-				GlobalState.suggestedRangeForCursorPosition, GlobalState.isTriggerSuggestRequired);
-			await onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
+				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalState);
+			await onDidChangeContent.validateTextDocument(textDocument, globalState.unifyDoneButCursorPositionNotUpdatedYet);
+			globalState.unifyDoneButCursorPositionNotUpdatedYet = false;
 		}
 	}
 }

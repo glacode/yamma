@@ -61,18 +61,20 @@ export class OnUnifyHandler {
 			await validateTextDocument(textDocument);
 		}
 	}
-	static async unifyIfTheCase(textDocumentUri: string, mmParser: MmParser | undefined,
-		mmpParser: MmpParser | undefined, configurationManager: ConfigurationManager,
+	static async unifyIfTheCase(textDocumentUri: string, globalState: GlobalState,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number,
 		documents: TextDocuments<TextDocument>): Promise<TextEdit[]> {
 		let result: Promise<TextEdit[]> = Promise.resolve([]);
 		// if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
-		if (mmParser != undefined && mmpParser != undefined) {
+		if (globalState.mmParser != undefined && globalState.lastMmpParser != undefined
+			&& globalState.configurationManager != undefined) {
 			const onDocumentFormattingHandler: OnUnifyHandler =
-				new OnUnifyHandler(textDocumentUri, mmParser, mmpParser,
-					configurationManager, maxNumberOfHypothesisDispositionsForStepDerivation);
-			result = onDocumentFormattingHandler.unify();
-			GlobalState.unifyDoneButCursorPositionNotUpdatedYet = true;
+				new OnUnifyHandler(textDocumentUri, globalState.mmParser, globalState.lastMmpParser,
+					globalState.configurationManager, maxNumberOfHypothesisDispositionsForStepDerivation);
+			const textEditArray: TextEdit[] = await onDocumentFormattingHandler.unify();
+			// result = onDocumentFormattingHandler.unify();
+			result = Promise.resolve(textEditArray);
+			globalState.unifyDoneButCursorPositionNotUpdatedYet = true;
 		}
 		OnUnifyHandler.requestTextValidationIfUnificationChangedNothing(
 			textDocumentUri, documents, (await result));

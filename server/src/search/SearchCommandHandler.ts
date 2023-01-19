@@ -25,12 +25,12 @@ export class SearchCommandHandler {
 	mmpParser?: MmpParser;
 	mmStatistics?: MmStatistics;
 	constructor(maxNumberOfReturnedSymbols: number, searchCommandParameter: ISearchCommandParameters,
-		connection: Connection, mmpParser?: MmpParser, mmStatistics?: MmStatistics) {
+		private globalState: GlobalState) {
 		this.maxNumberOfReturnedSymbols = maxNumberOfReturnedSymbols;
 		this.searchCommandParameter = searchCommandParameter;
-		this.connection = connection;
-		this.mmpParser = mmpParser;
-		this.mmStatistics = mmStatistics;
+		this.connection = globalState.connection!;
+		this.mmpParser = globalState.lastMmpParser;
+		this.mmStatistics = globalState.mmStatistics;
 	}
 
 	//#region insertSearchStatement
@@ -149,7 +149,7 @@ export class SearchCommandHandler {
 	private setSuggestedRangeForCursorPosition(insertPosition: Position, searchStatement: string) {
 		const range: Range | undefined = SearchCommandHandler.computeRangeForCursor(insertPosition, searchStatement);
 		if (range != undefined)
-			GlobalState.setSuggestedRangeForCursorPosition(range);
+			this.globalState.setSuggestedRangeForCursorPosition(range);
 	}
 	//#endregion setSuggestedRangeForCursorPosition
 
@@ -160,7 +160,7 @@ export class SearchCommandHandler {
 			this.maxNumberOfReturnedSymbols, currentMmpProofStep, this.mmStatistics);
 		this.insertNewSearchStatement(insertPosition, searchStatement);
 		this.setSuggestedRangeForCursorPosition(insertPosition, searchStatement);
-		GlobalState.requireTriggerSuggest();
+		this.globalState.requireTriggerSuggest();
 	}
 	//#endregion insertSearchStatementAfterStep
 

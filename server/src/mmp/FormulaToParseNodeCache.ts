@@ -4,8 +4,8 @@ export class FormulaToParseNodeCache {
 
 	public formulaToInternalNodeMap: Map<string, InternalNode>;
 
-	/** cache for formula recently parsed. It should speed up MmpParser, because
-	 * it should allow avoiding most of the parsing time (an .mmp file doesn't
+	/** cache for formula recently parsed. It really speeds up the MmpParser, because
+	 * it allows avoiding most of the parsing time (an .mmp file, often doesn't
 	 * change much from an edit to the other)
 	 */
 	constructor() {

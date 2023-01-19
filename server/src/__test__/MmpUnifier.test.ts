@@ -1,14 +1,13 @@
 import { Connection } from 'vscode-languageserver';
 import { TextEdit } from 'vscode-languageserver-textdocument';
+import { GlobalState } from '../general/GlobalState';
 import { ConfigurationManager, IExtensionSettings, ProofMode, IVariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, mp2Theory } from './GlobalForTest.test';
-import { axmpTheory } from './MmParser.test';
-import { vexTheoryMmParser } from './MmpProofStatement.test';
+import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, mp2Theory, vexTheoryMmParser } from './GlobalForTest.test';
 
 
 const exampleSettings: IExtensionSettings = {
@@ -21,15 +20,15 @@ const exampleSettings: IExtensionSettings = {
 let dummyConnection: unknown;
 
 export const exampleConfigurationManager: ConfigurationManager = new ConfigurationManager(true, true, exampleSettings, exampleSettings,
-	<Connection>dummyConnection);
+	<Connection>dummyConnection, new GlobalState());
 
 test('buildNewProof()', () => {
 	const mmpSource =
 		'ax-mp\n' +
 		'qed:: |- ps';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	expect(mmpUnifier.uProof!.uStatements.length).toBe(2);
@@ -40,9 +39,9 @@ test('Unify ax-mp', () => {
 	const mmpSource =
 		'ax-mp\n' +
 		'qed:: |- ps';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -60,9 +59,9 @@ test('Unify ax-mp', () => {
 test('Unify 2 ax-mp', () => {
 	const mmpSource =
 		'qed::ax-mp |- ph';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -80,9 +79,9 @@ test('Unify 3 ax-mp', () => {
 	const mmpSource =
 		'50:: |- ( &W3 -> ph )\n' +
 		'qed:,50:ax-mp |- ph';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -102,9 +101,9 @@ test('Unify with working var ax-mp', () => {
 		'h2::b |- &W1\n' +
 		'5:1,2:ax-mp |- ph\n' +
 		'qed::d |- ps\n';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -123,9 +122,9 @@ test('Unify double ax-mp', () => {
 	const mmpSource =
 		'50:ax-mp\n' +
 		'qed:,50:ax-mp |- ph';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -145,9 +144,9 @@ test('Expect new ref to be d7', () => {
 	const mmpSource =
 		'd6:: |- ( ps -> ph )\n' +
 		'qed:,d6:ax-mp    |- ph\n';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -165,9 +164,9 @@ test('Expect new working var to be &W4', () => {
 	const mmpSource =
 		'd1:: |- &W3\n' +
 		'qed::ax-mp  |- ph';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -185,9 +184,9 @@ test('Expect new working var to be &W4', () => {
 test('Complete ax-mp', () => {
 	const mmpSource =
 		'qed:ax-mp |- ( ps -> ph )';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -205,9 +204,9 @@ test('Expect unify error to leave line unchanged', () => {
 	const mmpSource =
 		'ax-mp:: |- ( ch -> )\n' +
 		'qed:: |- ps';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
@@ -223,9 +222,9 @@ test('Expect unify error to leave line unchanged', () => {
 test('Expect 2 unify error to leave line unchanged', () => {
 	// ZZ is unknown, thus formula is not parsed and the unification should do nothing
 	const mmpSource = 'qed::ax-mp |- M e. ZZ';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();

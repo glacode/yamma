@@ -71,7 +71,7 @@ let hasDiagnosticRelatedInformationCapability = false;
 //Glauco
 // let mmParser: MmParser;
 
-
+const globalState: GlobalState = new GlobalState();
 
 
 
@@ -135,10 +135,10 @@ connection.onInitialize((params: InitializeParams) => {
 
 	//Glauco
 	// parse(params)
+	globalState.connection = connection;
 	configurationManager = new ConfigurationManager(hasConfigurationCapability,
-		hasDiagnosticRelatedInformationCapability, defaultSettings, globalSettings, connection);
-	GlobalState.configurationManager = configurationManager;
-	GlobalState.connection = connection;
+		hasDiagnosticRelatedInformationCapability, defaultSettings, globalSettings, connection, globalState);
+	globalState.configurationManager = configurationManager;
 	// connection.onDidChangeConfiguration(configurationManager.onDidChangeConfiguration);
 
 	// parseMainMMfile(params);
@@ -151,9 +151,9 @@ connection.onInitialize((params: InitializeParams) => {
 
 //Glauco
 connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
-	if (GlobalState.mmParser != undefined) {
+	if (globalState.mmParser != undefined) {
 		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
-		const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, GlobalState.mmParser);
+		const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser);
 		// const mmtSaver: MmtSaver = new MmtSaver(fsPath, mmParser);
 		mmtSaver.saveMmt();
 		console.log('Method saveMmt() has been invoked 2');
@@ -161,8 +161,8 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 });
 
 connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
-	if (GlobalState.mmParser != undefined) {
-		const mmtLoader: MmtLoader = new MmtLoader(pathAndUri.fsPath, GlobalState.mmParser);
+	if (globalState.mmParser != undefined) {
+		const mmtLoader: MmtLoader = new MmtLoader(pathAndUri.fsPath, globalState.mmParser);
 		mmtLoader.loadMmt();
 		if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
 			const errorMessage: string = mmtLoader.diagnostics[0].message;
@@ -182,8 +182,7 @@ connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
 connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandParameters) => {
 	console.log('Search command has been invoked');
 	const searchCommandHandler: SearchCommandHandler = new SearchCommandHandler(
-		Parameters.maxNumberOfSymbolsComputedForSearch, searchCommandParameters, connection,
-		GlobalState.lastMmpParser, GlobalState.mmStatistics);
+		Parameters.maxNumberOfSymbolsComputedForSearch, searchCommandParameters, globalState);
 	searchCommandHandler.insertSearchStatement();
 });
 
@@ -255,8 +254,8 @@ connection.onDidChangeConfiguration(change => {
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
-	if (GlobalState.configurationManager != undefined)
-		GlobalState.configurationManager.delete(e.document.uri);
+	if (globalState.configurationManager != undefined)
+		globalState.configurationManager.delete(e.document.uri);
 	// documentSettings.delete(e.document.uri);
 });
 
@@ -267,18 +266,16 @@ export async function validateTextDocument(textDocument: TextDocument) {
 	// 	// globalSettings, documentSettings, GlobalState.mmParser);
 	// 	globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
 	// onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
-	await OnDidChangeContentHandler.validateTextDocument(textDocument, connection, hasConfigurationCapability,
-		hasDiagnosticRelatedInformationCapability, globalSettings,
-		GlobalState.unifyDoneButCursorPositionNotUpdatedYet, GlobalState.formulaToParseNodeCache);
-	GlobalState.unifyDoneButCursorPositionNotUpdatedYet = false;
+	await OnDidChangeContentHandler.validateTextDocument(textDocument,
+		connection, hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalState);
 }
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(async change => {
 	// await parseMainMMfile(change.document.uri);
-	console.log('onDidChangeContent: GlobalState.mmParser = ' + GlobalState.mmParser);
-	if (GlobalState.mmParser == undefined)
+	console.log('onDidChangeContent: GlobalState.mmParser = ' + globalState.mmParser);
+	if (globalState.mmParser == undefined)
 		await configurationManager.updateTheoryIfTheCase();
 	await validateTextDocument(change.document);
 });
@@ -287,7 +284,7 @@ documents.onDidChangeContent(async change => {
 //TODO I believe this is not triggered by a tab click
 documents.onDidOpen(async change => {
 	console.log('documents.onDidOpen : ' + change.document.uri);
-	GlobalState.lastMmpParser = undefined;
+	globalState.lastMmpParser = undefined;
 	// await parseMainMMfile(change.document.uri);
 	// if (GlobalState.mmParser != undefined)
 	// 	validateTextDocument(change.document);
@@ -303,8 +300,8 @@ connection.onCompletion(
 	// async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> => {
 	async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionList> => {
 		const onCompletionHandler: OnCompletionHandler =
-			new OnCompletionHandler(_textDocumentPosition, configurationManager, GlobalState.stepSuggestionMap,
-				GlobalState.mmParser, GlobalState.lastMmpParser, GlobalState.mmStatistics, GlobalState.mmpStatistics);
+			new OnCompletionHandler(_textDocumentPosition, configurationManager, globalState.stepSuggestionMap,
+				globalState.mmParser, globalState.lastMmpParser, globalState.mmStatistics, globalState.mmpStatistics);
 		// const result: CompletionItem[] = await onCompletionHandler.completionItems();
 		const result: CompletionList = await onCompletionHandler.completionItems();
 
@@ -317,7 +314,7 @@ connection.onCompletion(
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
 		const onCompletionResolveHandler: OnCompletionResolveHandler =
-			new OnCompletionResolveHandler();
+			new OnCompletionResolveHandler(globalState.mmParser);
 		onCompletionResolveHandler.addDocumentationIfPossible(item);
 		return item;
 	}
@@ -325,8 +322,7 @@ connection.onCompletionResolve(
 
 async function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
 	const result: Promise<TextEdit[]> = OnUnifyHandler.unifyIfTheCase(textDocumentUri,
-		GlobalState.mmParser, GlobalState.lastMmpParser, configurationManager,
-		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, documents);
+		globalState, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, documents);
 	return result;
 }
 
@@ -343,8 +339,8 @@ connection.onCodeAction(onCodeActionHandler);
 //Glauco
 connection.onHover(async (params): Promise<Hover | undefined> => {
 	let hoverResult: Hover | undefined;
-	if (GlobalState.mmParser != undefined) {
-		const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, GlobalState.mmParser);
+	if (globalState.mmParser != undefined) {
+		const contentValue: string | undefined = OnHoverHandler.getHoverMessage(params, documents, globalState.mmParser);
 		let content: MarkupContent | undefined;
 		if (contentValue != undefined) {
 			// const content : MarkupContent = { kind: MarkupKind.Markdown ,value: contentValue};
@@ -363,14 +359,14 @@ connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticToken
 	// has already been run on the current document
 	let result: SemanticTokens = { data: [] };
 	console.log('connection.languages.semanticTokens.on1');
-	const mmParser: MmParser | undefined = GlobalState.mmParser;
-	let mmpParser: MmpParser | undefined = GlobalState.lastMmpParser;
+	const mmParser: MmParser | undefined = globalState.mmParser;
+	let mmpParser: MmpParser | undefined = globalState.lastMmpParser;
 	//TODO move all this handler onSemanticTokensHandler.semanticTokens (pass documents to the
 	// OnSemanticTokensHandler constructor) 
 	if (mmParser != undefined && mmpParser == undefined) {
 		const textDocument: TextDocument = documents.get(semanticTokenParams.textDocument.uri)!;
 		await validateTextDocument(textDocument);
-		mmpParser = GlobalState.lastMmpParser;
+		mmpParser = globalState.lastMmpParser;
 	}
 	// if (GlobalState.mmParser != undefined && GlobalState.lastMmpParser != undefined && GlobalState.lastMmpParser.workingVars != undefined) {
 	if (mmParser != undefined && mmpParser != undefined && mmpParser.workingVars != undefined) {

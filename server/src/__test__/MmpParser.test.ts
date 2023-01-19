@@ -3,17 +3,14 @@ import { Diagnostic, Range } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { MmToken } from '../grammar/MmLexer';
-import { MmParser } from '../mm/MmParser';
 import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { AxiomStatement } from "../mm/AxiomStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { WorkingVars } from '../mmp/WorkingVars';
-import { axmpTheory } from './MmParser.test';
-import { vexTheoryMmParser } from './MmpProofStatement.test';
 import { doesDiagnosticsContain } from '../mm/Utils';
-import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser } from './GlobalForTest.test';
+import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { IMmpStatement } from '../mmp/MmpStatement';
 
 const emptyLabelStatement = new AxiomStatement('x', [], new BlockStatement());
@@ -319,10 +316,10 @@ test('expect reference statement unification error', () => {
 		'h50::hyp1 |- ps\n' +
 		'h51::hyp2 |- ph\n' +
 		'55:50,51:ax-mp |- ph';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
 	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars(kindToPrefixMap));
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
@@ -337,9 +334,9 @@ test('expect reference statement unification error', () => {
 
 test('expect missing ref error', () => {
 	const mmpSource = '55:51:ax-mp |- ps';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
@@ -820,9 +817,9 @@ test('expect MmpStatement.range ', () => {
 		':\n' +
 		'55::\n' +
 		' ax-mp |- ph';
-	const parser: MmParser = new MmParser();
-	parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);

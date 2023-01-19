@@ -8,10 +8,8 @@ import { AxiomStatement } from "../mm/AxiomStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { splitToTokensDefault } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { axmpTheory } from './MmParser.test';
-import { kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
+import { globalState, kindToPrefixMap, lastFetchedSettings, mp2Theory, opelcnMmParser } from './GlobalForTest.test';
 import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
-import { GlobalState } from '../general/GlobalState';
 import { FHyp } from '../mm/FHyp';
 
 
@@ -75,7 +73,7 @@ test("GrammarManager.CreateGrammar", () => {
 	// outerBlock.fHyps.push(wps);
 	// const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars(new Map<string, string>()));
 	const kindToPrefixMap: Map<string, string> = WorkingVars.getKindToWorkingVarPrefixMap(
-		GlobalState.lastFetchedSettings!.variableKindsConfiguration);
+		lastFetchedSettings.variableKindsConfiguration);
 	const grammar: Grammar = GrammarManager.CreateGrammar(labelToStatementMap, new WorkingVars(kindToPrefixMap));
 	const rules = grammar.rules;
 	expect(rules.length).toBe(7);
@@ -198,8 +196,8 @@ test("expect statement with working var to be parsed", () => {
 	// 	"h52::mp2.3   |- ( ph -> ( ps -> ch ) )\n" +
 	// 	"53:50,52:ax-mp |- ( ps -> ch )\n" +
 	// 	"qed:51,53:ax-mp |- ch";
-	const mmParser: MmParser = new MmParser();
-	mmParser.ParseText(axmpTheory);
+	const mmParser: MmParser = new MmParser(globalState);
+	mmParser.ParseText(mp2Theory);
 	mmParser.grammar.lexer = new MmLexer(new WorkingVars(kindToPrefixMap));
 	const parser = new Parser(mmParser.grammar);
 	parser.feed('|- &W1');
@@ -223,7 +221,7 @@ test("expect no ambiguity", () => {
 
 test("MmLexerFromStringArray ok", () => {
 	const mmParser: MmParser = new MmParser();
-	mmParser.ParseText(axmpTheory);
+	mmParser.ParseText(mp2Theory);
 	const stringArray = ['|-', '(', 'ph', '->', 'ps', ')'];
 	mmParser.grammar.lexer = new MmLexerFromStringArray(stringArray);
 	const parser = new Parser(mmParser.grammar);

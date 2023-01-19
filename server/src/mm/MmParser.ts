@@ -12,7 +12,7 @@ import { MmToken } from '../grammar/MmLexer';
 import { Grammar } from 'nearley';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { Range } from 'vscode-languageserver-textdocument';
-import { Diagnostic } from 'vscode-languageserver';
+import { Connection, Diagnostic } from 'vscode-languageserver';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
 import { EHyp } from './EHyp';
@@ -20,6 +20,7 @@ import { FHyp } from './FHyp';
 import * as events from 'events';
 import { creaParseNodesInANewThread } from '../parseNodesCreatorThread/ParseNodesCreator';
 import { EventEmitter } from 'stream';
+import { IExtensionSettings } from './ConfigurationManager';
 
 export enum MmParserErrorCode {
     varNotInActiveFStatement = "varNotInActiveFStatement",
@@ -31,12 +32,18 @@ export enum MmParserErrorCode {
 
 export enum MmParserEvents {
     newAxiomStatement = "newAxiomStatement",
-    newProvableStatement = "newProvableStatement"
+    newProvableStatement = "newProvableStatement",
+    parsingProgress = 'newParsingProgress'
 }
 
 export type AssertionParsedArgs = {
     labeledStatement: LabeledStatement,
     mmParser: MmParser
+}
+
+export type ParsingProgressArgs = {
+    percentageOfWorkDone: number,
+    connection: Connection
 }
 
 // Parser for .mm files
@@ -54,7 +61,7 @@ export class MmParser extends EventEmitter {
 
     parseFailed: boolean;  // true iff parsing/validation fails
 
-    progressListener?: (percentageOfWorkDone: number) => void;
+    // progressListener?: (percentageOfWorkDone: number) => void;
 
     private _grammar: Grammar | undefined;
     private _percentageOfWorkDone: number;
@@ -78,8 +85,9 @@ export class MmParser extends EventEmitter {
     public get workingVars(): WorkingVars {
         if (this._workingVars == undefined) {
             let kindToPrefixMap: Map<string, string> = new Map<string, string>();
-            if (GlobalState.lastFetchedSettings != undefined && GlobalState.lastFetchedSettings.variableKindsConfiguration != undefined)
-                kindToPrefixMap = WorkingVars.getKindToWorkingVarPrefixMap(GlobalState.lastFetchedSettings.variableKindsConfiguration);
+            const lastFetchedSettings: IExtensionSettings | undefined = this.globalState?.lastFetchedSettings;
+            if (lastFetchedSettings != undefined && lastFetchedSettings.variableKindsConfiguration != undefined)
+                kindToPrefixMap = WorkingVars.getKindToWorkingVarPrefixMap(lastFetchedSettings.variableKindsConfiguration);
             // GlobalState.lastFetchedSettings.variableKindsConfiguration.forEach((variableKindConfiguration: IVariableKindConfiguration,
             //     kind: string) => {
             //     kindToPrefixMap.set(kind, variableKindConfiguration.workingVarPrefix);
@@ -89,7 +97,7 @@ export class MmParser extends EventEmitter {
         return this._workingVars;
     }
 
-    constructor() {
+    constructor(private globalState?: GlobalState) {
         super();
         this.outermostBlock = new BlockStatement();
         this.labelToStatementMap = new Map<string, LabeledStatement>();
@@ -118,8 +126,15 @@ export class MmParser extends EventEmitter {
         if (this._percentageOfWorkDone < percentageOfWorkDone) {
             this._percentageOfWorkDone = percentageOfWorkDone;
             // console.log(percentageOfWorkDone + '%');
-            if (this.progressListener != undefined)
-                this.progressListener(percentageOfWorkDone);
+            // if (this.progressListener != undefined)
+            //     this.progressListener(percentageOfWorkDone);
+            if (this.globalState?.connection != undefined) {
+                const parsingProgressArgs: ParsingProgressArgs = {
+                    percentageOfWorkDone: percentageOfWorkDone,
+                    connection: this.globalState.connection
+                };
+                this.emit(MmParserEvents.parsingProgress, parsingProgressArgs);
+            }
         }
     }
     private readComment(tokenValue: string, toks: TokenReader) {
@@ -235,8 +250,6 @@ export class MmParser extends EventEmitter {
         if (!GrammarManager.isSyntaxAxiom2(statement))
             this.labelToNonSyntaxAssertionMap.set(label.value, statement);
         label = undefined;
-        // this.emit(MmParserEvents.newProvableStatement, statement);
-        //TODO1 you need to pass also this (the MmParser, to the handler)
         const newAssertionParams: AssertionParsedArgs = {
             labeledStatement: statement,
             mmParser: this

@@ -1,7 +1,6 @@
 import { MmParser } from '../mm/MmParser';
 import { MmtLoader } from '../mmt/MmtLoader';
-import { vexTheoryMmParser } from './MmpProofStatement.test';
-import { createMmParser, impbiiMmParser, mp2MmParser } from './GlobalForTest.test';
+import { createMmParser, impbiiMmParser, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { LabeledStatement } from '../mm/LabeledStatement';
 import { AssertionStatement } from '../mm/AssertionStatement';
 

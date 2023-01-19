@@ -1,5 +1,4 @@
 import { CompletionItem, MarkupContent, MarkupKind } from 'vscode-languageserver';
-import { GlobalState } from '../general/GlobalState';
 import { MmParser } from '../mm/MmParser';
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
@@ -7,11 +6,11 @@ import { OnHoverHandler } from './OnHoverHandler';
 
 export class OnCompletionResolveHandler {
 	// item: CompletionItem
-	constructor() {
+	constructor(private mmParser?: MmParser) {
 		// this.item = item;
 	}
 	addDocumentationIfPossible(item: CompletionItem) {
-		const mmParser: MmParser | undefined = GlobalState.mmParser;
+		const mmParser: MmParser | undefined = this.mmParser;
 		if (mmParser != undefined) {
 			const labeledStatement: LabeledStatement | undefined = mmParser.labelToStatementMap.get(item.label);
 			if (labeledStatement != undefined) {

@@ -11,58 +11,62 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpStatistics } from '../mmp/MmpStatistics';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
 
-export abstract class GlobalState {
+export class GlobalState {
 
 	/** the path of the .mm file containing the current theory */
-	static mmFilePath?: string;
+	mmFilePath?: string;
 
 	/** the mmParser containing the current theory */
-	static mmParser?: MmParser;
+	mmParser?: MmParser;
 
 	/** the statistics for the current theory */
-	static mmStatistics?: MmStatistics;
+	mmStatistics?: MmStatistics;
 
 	/** the last MmpParser used for a validation of the current .mmp file */
-	static lastMmpParser?: MmpParser;
+	lastMmpParser?: MmpParser;
 
 	/** the statistics for the mmp file */
-	static mmpStatistics?: MmpStatistics;
+	mmpStatistics?: MmpStatistics;
 
 	/** maps every rpnSyntaxTree to a list of suggestion */
-	static stepSuggestionMap: StepSuggestionMap;
+	stepSuggestionMap?: StepSuggestionMap;
 	// static stepSuggestionMap: Map<string, IStepSuggestion[]>;
 
 	/** the ConfigurationManager created in server.ts */
-	static configurationManager: ConfigurationManager;
+	configurationManager?: ConfigurationManager;
 
 	/** last settings fetched by the configuration manager from the workspace configuration */
-	static lastFetchedSettings: IExtensionSettings | undefined;
+	lastFetchedSettings: IExtensionSettings | undefined;
 
-	static connection: Connection;
+	connection?: Connection;
 
 	/** true iff a unify() has been performed, but the cursor has not been updated yet*/
-	static unifyDoneButCursorPositionNotUpdatedYet = false;
+	unifyDoneButCursorPositionNotUpdatedYet = false;
 
 
-	static suggestedRangeForCursorPosition?: Range;
+	suggestedRangeForCursorPosition?: Range;
 
-	static setSuggestedRangeForCursorPosition(range: Range | undefined) {
+	setSuggestedRangeForCursorPosition(range: Range | undefined) {
 		this.suggestedRangeForCursorPosition = range;
 	}
 
-	static isTriggerSuggestRequired = false;
+	isTriggerSuggestRequired = false;
 
-	static requireTriggerSuggest() {
+	requireTriggerSuggest() {
 		this.isTriggerSuggestRequired = true;
 	}
 
-	static resetTriggerSuggest() {
+	resetTriggerSuggest() {
 		this.isTriggerSuggestRequired = false;
 	}
 
-	private static _formulaToParseNodeCache?: FormulaToParseNodeCache;
+	private _formulaToParseNodeCache?: FormulaToParseNodeCache;
 
-	public static get formulaToParseNodeCache(): FormulaToParseNodeCache {
+	/** cache for formula recently parsed. It really speeds up the MmpParser, because
+	 * it allows avoiding most of the parsing time (an .mmp file, often doesn't
+	 * change much from an edit to the other)
+	 */
+	public get formulaToParseNodeCache(): FormulaToParseNodeCache {
 		if (this._formulaToParseNodeCache == undefined)
 			this._formulaToParseNodeCache = new FormulaToParseNodeCache();
 		return this._formulaToParseNodeCache;
