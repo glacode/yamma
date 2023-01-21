@@ -18,7 +18,7 @@ import {
 
 import { loadMmtFilesCommandHandler, storeMmtFileCommandHandler } from "./mmt/MmtCommandHandler";
 
-import { ISearchCompletionItemCommandParameters, searchCommandHandler, searchCompletionItemSelectedHandler } from "./commandHandlers/SearchCommandHandler";
+import { searchCommandHandler } from "./commandHandlers/SearchCommandHandler";
 import { completionItemSelectedHandler } from './commandHandlers/CompletionItemSelectedHandler';
 
 let client: LanguageClient;
