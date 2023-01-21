@@ -64,17 +64,9 @@ let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
-//glaucoconnection
-
-//#region onInitialize
-
-//Glauco
-// let mmParser: MmParser;
-
 const globalState: GlobalState = new GlobalState();
 
-
-
+//#region onInitialize
 connection.onInitialize((params: InitializeParams) => {
 	const capabilities = params.capabilities;
 
@@ -133,15 +125,11 @@ connection.onInitialize((params: InitializeParams) => {
 	//Glauco
 	result.capabilities.hoverProvider = true;
 
-	//Glauco
-	// parse(params)
 	globalState.connection = connection;
 	configurationManager = new ConfigurationManager(hasConfigurationCapability,
 		hasDiagnosticRelatedInformationCapability, defaultSettings, globalSettings, connection, globalState);
 	globalState.configurationManager = configurationManager;
-	// connection.onDidChangeConfiguration(configurationManager.onDidChangeConfiguration);
 
-	// parseMainMMfile(params);
 
 
 
@@ -154,7 +142,6 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 	if (globalState.mmParser != undefined) {
 		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
 		const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser);
-		// const mmtSaver: MmtSaver = new MmtSaver(fsPath, mmParser);
 		mmtSaver.saveMmt();
 		console.log('Method saveMmt() has been invoked 2');
 	}
@@ -170,7 +157,6 @@ connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
 		} else if (!mmtLoader.loadFailed) {
 			notifyInformation('All .mmt files have been successfully loaded and ' +
 				'added to the theory', connection);
-			// const textDocument: TextDocument = documents.get(semanticTokenParams.textDocument.uri)!;
 			const textDocument: TextDocument | undefined = documents.get(pathAndUri.uri);
 			if (textDocument != undefined)
 				validateTextDocument(textDocument);
@@ -189,10 +175,6 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 //TODO1 remove this one if not needed anymore
 connection.onRequest('yamma/searchcompletionitemselected', async (searchCompletionItemCommandParameters:
 	ISearchCompletionItemCommandParameters) => {
-	// console.log('Completion item selected' + searchCompletionItemCommandParameters.searchStatementRangeStartLine);
-	// const searchCompletionItemSelectedHandler: SearchCompletionItemSelectedHandler =
-	// 	new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
-	// searchCompletionItemSelectedHandler.deleteSearchStatement();
 	const result: TextEdit[] = await unifyIfTheCase(searchCompletionItemCommandParameters.uri);
 	await applyTextEditsAndValidate(result, searchCompletionItemCommandParameters.uri, connection,
 		documents);
@@ -224,10 +206,6 @@ connection.onInitialized(() => {
 	}
 });
 
-// The example settings
-// interface ExampleSettings {
-// 	maxNumberOfProblems: number;
-// }
 
 let globalSettings: IExtensionSettings = defaultSettings;
 
@@ -248,7 +226,6 @@ connection.onDidChangeConfiguration(change => {
 	}
 
 	// Revalidate all open text documents
-	// documents.all().forEach(validateTextDocument);
 	documents.all().forEach(validateTextDocument);
 });
 
@@ -257,16 +234,10 @@ connection.onDidChangeConfiguration(change => {
 documents.onDidClose(e => {
 	if (globalState.configurationManager != undefined)
 		globalState.configurationManager.delete(e.document.uri);
-	// documentSettings.delete(e.document.uri);
 });
 
 //#region onDidChangeContent
 export async function validateTextDocument(textDocument: TextDocument) {
-	// const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
-	// 	hasConfigurationCapability, hasDiagnosticRelatedInformationCapability,
-	// 	// globalSettings, documentSettings, GlobalState.mmParser);
-	// 	globalSettings, GlobalState.configurationManager, GlobalState.mmParser);
-	// onDidChangeContent.validateTextDocument(textDocument, unifyDoneButCursorPositionNotUpdatedYet);
 	await OnDidChangeContentHandler.validateTextDocument(textDocument,
 		connection, hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalState);
 }
@@ -282,16 +253,9 @@ documents.onDidChangeContent(async change => {
 });
 //#endregion onDidChangeContent
 
-//#region applyTextEdits
+//#region applyTextEditsAndValidate
 async function requireValidation(textDocumentUri: string, documents: TextDocuments<TextDocument>) {
-	// const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
-
 	const textDocument: TextDocument = documents.get(textDocumentUri)!;
-	// const currentText: string | undefined = textDocument.getText();
-	// if (textEdits.length == 0 || textEdits[0].newText == currentText) {
-	// current unification either didn't run or returns a text that's identical
-	// to the prvious one; in eithre case it will not trigger a new validation,
-	// but we want a new validation after the unification (it will move the cursor)
 	await validateTextDocument(textDocument);
 }
 async function applyTextEditsAndValidate(textEdits: TextEdit[], textDocumentUri: string,
@@ -302,7 +266,7 @@ async function applyTextEditsAndValidate(textEdits: TextEdit[], textDocumentUri:
 	// but we want a new validation, because it moves the cursor to the proper position
 	await requireValidation(textDocumentUri, documents);
 }
-//#endregion applyTextEdits
+//#endregion applyTextEditsAndValidate
 
 //TODO I believe this is not triggered by a tab click
 documents.onDidOpen(async change => {
