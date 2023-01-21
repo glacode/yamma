@@ -51,15 +51,15 @@ export class OnUnifyHandler {
 
 	//#region unifyIfTheCase
 	static async requestTextValidationIfUnificationChangedNothing(
-		textDocumentUri: string, documents: TextDocuments<TextDocument>, textEdits: TextEdit[]) {
+		textDocumentUri: string, documents: TextDocuments<TextDocument>) {
 		const textDocument: TextDocument = documents.get(textDocumentUri)!;
-		const currentText: string | undefined = textDocument.getText();
-		if (textEdits.length == 0 || textEdits[0].newText == currentText) {
-			// current unification either didn't run or returns a text that's identical
-			// to the prvious one; in eithre case it will not trigger a new validation,
-			// but we want a new validation after the unification (it will move the cursor)
-			await validateTextDocument(textDocument);
-		}
+		// const currentText: string | undefined = textDocument.getText();
+		// if (textEdits.length == 0 || textEdits[0].newText == currentText) {
+		// current unification either didn't run or returns a text that's identical
+		// to the prvious one; in eithre case it will not trigger a new validation,
+		// but we want a new validation after the unification (it will move the cursor)
+		await validateTextDocument(textDocument);
+		// }
 	}
 	static async unifyIfTheCase(textDocumentUri: string, globalState: GlobalState,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number,
@@ -76,8 +76,7 @@ export class OnUnifyHandler {
 			result = Promise.resolve(textEditArray);
 			globalState.unifyDoneButCursorPositionNotUpdatedYet = true;
 		}
-		OnUnifyHandler.requestTextValidationIfUnificationChangedNothing(
-			textDocumentUri, documents, (await result));
+		OnUnifyHandler.requestTextValidationIfUnificationChangedNothing(textDocumentUri, documents);
 		return result;
 	}
 	//#endregion unifyIfTheCase
