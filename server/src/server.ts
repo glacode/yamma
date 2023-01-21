@@ -172,6 +172,11 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 	searchCommandHandler.insertSearchStatement();
 });
 
+async function unifyAndValidate(textDocumentUri: string) {
+	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
+	await applyTextEditsAndValidate(result, textDocumentUri, connection, documents);
+}
+
 //TODO1 remove this one if not needed anymore
 connection.onRequest('yamma/searchcompletionitemselected', async (searchCompletionItemCommandParameters:
 	ISearchCompletionItemCommandParameters) => {
@@ -180,18 +185,11 @@ connection.onRequest('yamma/searchcompletionitemselected', async (searchCompleti
 		documents);
 });
 
-connection.onRequest('yamma/completionitemselected', async (textDocumentUri: string) => {
-	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
-	await applyTextEditsAndValidate(result, textDocumentUri, connection, documents);
-});
+connection.onRequest('yamma/completionitemselected', unifyAndValidate);
 
 //TODO notice that this is identical to completionitemselected, but maybe they will be
 //different, in the future
-//TODO1
-connection.onRequest('yamma/unify', async (textDocumentUri: string) => {
-	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
-	await applyTextEditsAndValidate(result, textDocumentUri, connection, documents);
-});
+connection.onRequest('yamma/unify', unifyAndValidate);
 
 
 connection.onInitialized(() => {
