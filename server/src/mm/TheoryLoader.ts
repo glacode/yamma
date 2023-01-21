@@ -58,7 +58,6 @@ export class TheoryLoader {
 	}
 	async loadTheoryFromMmFile(mmFilePath: string) {
 		this.mmParser = new MmParser(this.globalState);
-		//TODO1
 		// this.mmParser.progressListener = this.notifyProgress;
 		this.mmParser.on(MmParserEvents.parsingProgress, this.notifyProgress);
 		const progressToken = 'TEST-PROGRESS-TOKEN';

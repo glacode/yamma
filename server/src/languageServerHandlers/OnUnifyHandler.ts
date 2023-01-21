@@ -1,11 +1,9 @@
-import { TextDocuments, TextEdit } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextEdit } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { ConfigurationManager, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
-import { validateTextDocument } from '../server';
 
 
 export class OnUnifyHandler {
@@ -50,20 +48,19 @@ export class OnUnifyHandler {
 
 
 	//#region unifyIfTheCase
-	static async requestTextValidationIfUnificationChangedNothing(
-		textDocumentUri: string, documents: TextDocuments<TextDocument>) {
-		const textDocument: TextDocument = documents.get(textDocumentUri)!;
-		// const currentText: string | undefined = textDocument.getText();
-		// if (textEdits.length == 0 || textEdits[0].newText == currentText) {
-		// current unification either didn't run or returns a text that's identical
-		// to the prvious one; in eithre case it will not trigger a new validation,
-		// but we want a new validation after the unification (it will move the cursor)
-		await validateTextDocument(textDocument);
-		// }
-	}
+	// static async requestTextValidationIfUnificationChangedNothing(
+	// 	textDocumentUri: string, documents: TextDocuments<TextDocument>) {
+	// 	const textDocument: TextDocument = documents.get(textDocumentUri)!;
+	// 	// const currentText: string | undefined = textDocument.getText();
+	// 	// if (textEdits.length == 0 || textEdits[0].newText == currentText) {
+	// 	// current unification either didn't run or returns a text that's identical
+	// 	// to the prvious one; in eithre case it will not trigger a new validation,
+	// 	// but we want a new validation after the unification (it will move the cursor)
+	// 	await validateTextDocument(textDocument);
+	// 	// }
+	// }
 	static async unifyIfTheCase(textDocumentUri: string, globalState: GlobalState,
-		maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		documents: TextDocuments<TextDocument>): Promise<TextEdit[]> {
+		maxNumberOfHypothesisDispositionsForStepDerivation: number): Promise<TextEdit[]> {
 		let result: Promise<TextEdit[]> = Promise.resolve([]);
 		// if (GlobalState.mmParser != undefined && GlobalState.validatedSinceLastUnify) {
 		if (globalState.mmParser != undefined && globalState.lastMmpParser != undefined
@@ -76,7 +73,6 @@ export class OnUnifyHandler {
 			result = Promise.resolve(textEditArray);
 			globalState.unifyDoneButCursorPositionNotUpdatedYet = true;
 		}
-		OnUnifyHandler.requestTextValidationIfUnificationChangedNothing(textDocumentUri, documents);
 		return result;
 	}
 	//#endregion unifyIfTheCase

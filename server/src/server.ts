@@ -194,12 +194,13 @@ connection.onRequest('yamma/searchcompletionitemselected', async (searchCompleti
 	// 	new SearchCompletionItemSelectedHandler(searchCompletionItemCommandParameters, connection);
 	// searchCompletionItemSelectedHandler.deleteSearchStatement();
 	const result: TextEdit[] = await unifyIfTheCase(searchCompletionItemCommandParameters.uri);
-	applyTextEdits(result, searchCompletionItemCommandParameters.uri, connection);
+	await applyTextEditsAndValidate(result, searchCompletionItemCommandParameters.uri, connection,
+		documents);
 });
 
 connection.onRequest('yamma/completionitemselected', async (textDocumentUri: string) => {
 	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
-	applyTextEdits(result, textDocumentUri, connection);
+	await applyTextEditsAndValidate(result, textDocumentUri, connection, documents);
 });
 
 //TODO notice that this is identical to completionitemselected, but maybe they will be
@@ -207,7 +208,7 @@ connection.onRequest('yamma/completionitemselected', async (textDocumentUri: str
 //TODO1
 connection.onRequest('yamma/unify', async (textDocumentUri: string) => {
 	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
-	applyTextEdits(result, textDocumentUri, connection);
+	await applyTextEditsAndValidate(result, textDocumentUri, connection, documents);
 });
 
 
@@ -281,6 +282,28 @@ documents.onDidChangeContent(async change => {
 });
 //#endregion onDidChangeContent
 
+//#region applyTextEdits
+async function requireValidation(textDocumentUri: string, documents: TextDocuments<TextDocument>) {
+	// const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+
+	const textDocument: TextDocument = documents.get(textDocumentUri)!;
+	// const currentText: string | undefined = textDocument.getText();
+	// if (textEdits.length == 0 || textEdits[0].newText == currentText) {
+	// current unification either didn't run or returns a text that's identical
+	// to the prvious one; in eithre case it will not trigger a new validation,
+	// but we want a new validation after the unification (it will move the cursor)
+	await validateTextDocument(textDocument);
+}
+async function applyTextEditsAndValidate(textEdits: TextEdit[], textDocumentUri: string,
+	connection: Connection, documents: TextDocuments<TextDocument>) {
+	await applyTextEdits(textEdits, textDocumentUri, connection);
+	// we require validation explicity, because sometimes applyEdit doesn't trigger a new validation,
+	// at least in VSCode (for instance, if the applied change is equal to the previous text);
+	// but we want a new validation, because it moves the cursor to the proper position
+	await requireValidation(textDocumentUri, documents);
+}
+//#endregion applyTextEdits
+
 //TODO I believe this is not triggered by a tab click
 documents.onDidOpen(async change => {
 	console.log('documents.onDidOpen : ' + change.document.uri);
@@ -322,7 +345,7 @@ connection.onCompletionResolve(
 
 async function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
 	const result: Promise<TextEdit[]> = OnUnifyHandler.unifyIfTheCase(textDocumentUri,
-		globalState, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, documents);
+		globalState, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
 	return result;
 }
 

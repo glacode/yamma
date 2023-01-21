@@ -351,7 +351,7 @@ export function notifyProgress(current: number, total: number, message?: string)
         consoleLogWithTimestamp(completeMessage + '%');
 }
 
-export function applyTextEdits(textEdits: TextEdit[], textDocumentUri: string, connection: Connection) {
+export async function applyTextEdits(textEdits: TextEdit[], textDocumentUri: string, connection: Connection) {
     const workspaceChange: WorkspaceChange = new WorkspaceChange();
     const textEditChange: TextEditChange = workspaceChange.getTextEditChange(
         // this.searchCommandParameter.uri);
@@ -360,5 +360,5 @@ export function applyTextEdits(textEdits: TextEdit[], textDocumentUri: string, c
         textEditChange.add(textEdit);
     });
     // textEditChange.insert(insertPosition, searchStatement);
-    connection.workspace.applyEdit(workspaceChange.edit);
+    await connection.workspace.applyEdit(workspaceChange.edit);
 }
