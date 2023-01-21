@@ -50,7 +50,6 @@ import { MmParser } from './mm/MmParser';
 import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
 import { Parameters } from './general/Parameters';
-import { ISearchCompletionItemCommandParameters } from './search/SearchCompletionItemSelectedHandler';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -176,14 +175,6 @@ async function unifyAndValidate(textDocumentUri: string) {
 	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
 	await applyTextEditsAndValidate(result, textDocumentUri, connection, documents);
 }
-
-//TODO1 remove this one if not needed anymore
-connection.onRequest('yamma/searchcompletionitemselected', async (searchCompletionItemCommandParameters:
-	ISearchCompletionItemCommandParameters) => {
-	const result: TextEdit[] = await unifyIfTheCase(searchCompletionItemCommandParameters.uri);
-	await applyTextEditsAndValidate(result, searchCompletionItemCommandParameters.uri, connection,
-		documents);
-});
 
 connection.onRequest('yamma/completionitemselected', unifyAndValidate);
 

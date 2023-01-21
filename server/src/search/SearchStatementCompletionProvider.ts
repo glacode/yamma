@@ -65,7 +65,7 @@ export class SearchStatementCompletionProvider {
 		// 	searchStatementRange: this.mmpSearchStatement.range,
 		// 	uri: 'TODO'
 		// };
-		const command: Command = Command.create('Search completion item selected', 'yamma.searchcompletionitemselected',
+		const command: Command = Command.create('Search completion item selected', 'yamma.completionitemselected',
 			args);
 		return command;
 	}

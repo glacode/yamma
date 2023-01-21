@@ -40,6 +40,4 @@ export function searchCompletionItemSelectedHandler(args: any[]): any {
 		lineToInsertTheLabel: <number>args[3]
 	};
 	// (<LanguageClient>this).sendRequest('yamma/search', searchCommandParameter);
-	// (<LanguageClient>this).sendRequest('yamma/searchcompletionitemselected', 4);
-	(<LanguageClient>this).sendRequest('yamma/searchcompletionitemselected', searchCompletionItemCommandParameters);
 }
