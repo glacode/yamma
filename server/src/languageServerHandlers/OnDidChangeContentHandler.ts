@@ -124,8 +124,8 @@ export class OnDidChangeContentHandler {
 		if (globalState.mmParser != undefined) {
 			const onDidChangeContent: OnDidChangeContentHandler = new OnDidChangeContentHandler(connection,
 				hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalState);
-			await onDidChangeContent.validateTextDocument(textDocument, globalState.unifyDoneButCursorPositionNotUpdatedYet);
-			globalState.unifyDoneButCursorPositionNotUpdatedYet = false;
+			await onDidChangeContent.validateTextDocument(textDocument, globalState.isCursorPositionUpdateRequired);
+			// globalState.isCursorPositionUpdateRequired = false;
 		}
 	}
 }

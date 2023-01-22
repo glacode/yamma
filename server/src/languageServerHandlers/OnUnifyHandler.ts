@@ -48,7 +48,6 @@ export class OnUnifyHandler {
 	}
 	//#endregion unify
 
-
 	static async unifyIfTheCase(textDocumentUri: string, globalState: GlobalState,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number): Promise<TextEdit[]> {
 		let result: Promise<TextEdit[]> = Promise.resolve([]);
@@ -61,7 +60,8 @@ export class OnUnifyHandler {
 			const textEditArray: TextEdit[] = await onDocumentFormattingHandler.unify();
 			// result = onDocumentFormattingHandler.unify();
 			result = Promise.resolve(textEditArray);
-			globalState.unifyDoneButCursorPositionNotUpdatedYet = true;
+			// globalState.isCursorPositionUpdateRequired = true;
+			globalState.requireCursorPositionUpdate();
 		}
 		return result;
 	}

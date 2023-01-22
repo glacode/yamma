@@ -41,7 +41,17 @@ export class GlobalState {
 	connection?: Connection;
 
 	/** true iff a unify() has been performed, but the cursor has not been updated yet*/
-	unifyDoneButCursorPositionNotUpdatedYet = false;
+	private _isCursorPositionUpdateRequired = false;
+
+	public get isCursorPositionUpdateRequired() {
+		const result: boolean = this._isCursorPositionUpdateRequired;
+		this._isCursorPositionUpdateRequired = false;
+		return result;
+	}
+	
+	public requireCursorPositionUpdate() {
+		this._isCursorPositionUpdateRequired = true;
+	}
 
 
 	suggestedRangeForCursorPosition?: Range;
