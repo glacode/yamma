@@ -21,6 +21,7 @@ export class StepSuggestion {
 	formulaClassifiers: IFormulaClassifier[];
 	mmpProofStep: MmpProofStep;
 	mmParser: MmParser;
+	private command: Command = Command.create('Completion item selected', 'yamma.completionitemselected');
 
 	private completionItemKindOrder: Map<CompletionItemKind, string>;
 	//TODO this is a parameter: you mught want to move it to the Paramter class
@@ -36,7 +37,6 @@ export class StepSuggestion {
 		this.completionItemKindOrder = new Map<CompletionItemKind, string>();
 		this.completionItemKindForPartialLabel = CompletionItemKind.Text;
 		this.initializeCompletionItemKindOrder();
-
 	}
 
 	private initializeCompletionItemKindOrder(): void {
@@ -125,16 +125,17 @@ export class StepSuggestion {
 		const result: string = completionItemKindOrder + String(index).padStart(3, '0');
 		return result;
 	}
+
+
+
 	private addCompletionItem(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
 		completionItems: CompletionItem[]) {
-		// const label = `${stepSuggestion.label} ${stepSuggestion.multiplicity}`;
-		const command: Command = Command.create('Completion item selected', 'yamma.completionitemselected');
 		const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
 		const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
 		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(stepSuggestion);
 		const completionItem: CompletionItem = {
 			label: stepSuggestion.label,
-			command: command,
+			command: this.command,
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
 			// sortText: String(index).padStart(3, '0'),
@@ -198,27 +199,31 @@ export class StepSuggestion {
 	//#endregion getCompletionItemsFromModels
 
 	//#region addCompletionItemsFromPartialLabel
-	private addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
-		// completionItems.push({ label: partialLabel + 'testtest' });
-		// const filteringString: string = partialLabel.substring(0, 2);
+	private buildRegExp(partialLabel: string): RegExp {
 		const c0: string = partialLabel[0];
 		const c1: string = partialLabel[1];
 		const c2: string = partialLabel[2];
 		const regExp = new RegExp(`.*${c0}.*${c1}.*${c2}.*`);
+		return regExp;
+	}
+	createAndAddItem(label: string, i: number, completionItems: CompletionItem[]) {
+		const completionItem: CompletionItem = {
+			label: label,
+			command: this.command,
+			sortText: this.sortText(this.completionItemKindForPartialLabel, i),
+			kind: this.completionItemKindForPartialLabel
+		};
+		completionItems.push(completionItem);
+	}
+	private addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
+		const regExp: RegExp = this.buildRegExp(partialLabel);
 		let i = 0;
 		this.mmParser.labelToNonSyntaxAssertionMap.forEach((_assertion: AssertionStatement, label: string) => {
-			// if (label.indexOf(filteringString) != -1) {
-			if (regExp.test(label))
+			if (regExp.test(label) && this.isUnifiable(label)) {
 				// the current assertion's label contains the partial label input by the user
-				if (this.isUnifiable(label)) {
-					const completionItem: CompletionItem = {
-						label: label,
-						//TODO when partial labels are displye
-						sortText: this.sortText(this.completionItemKindForPartialLabel, i++),
-						kind: this.completionItemKindForPartialLabel
-					};
-					completionItems.push(completionItem);
-				}
+				// and it is unifiable with current mmp statement
+				this.createAndAddItem(label, i++, completionItems);
+			}
 		});
 	}
 	/** when the user inputs some characters, then this method adds more CompletionItem(s), using

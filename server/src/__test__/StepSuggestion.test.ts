@@ -165,6 +165,7 @@ test("test completion items from partial label", () => {
 	expect(completionItems.length).toBe(21);
 	expect(completionItems[17].label).toEqual('con4i');
 	expect(completionItems[17].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[17].command).toBeDefined();
 	expect(completionItems[17].detail).toBeUndefined();
 	expect(completionItems[18].label).toEqual('con2i');
 	expect(completionItems[18].kind).toBe(CompletionItemKind.Text);
