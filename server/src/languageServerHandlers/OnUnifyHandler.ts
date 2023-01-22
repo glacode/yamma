@@ -1,13 +1,15 @@
-import { TextEdit } from 'vscode-languageserver';
+import { Connection, TextDocuments, TextEdit } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlobalState } from '../general/GlobalState';
 import { ConfigurationManager, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
+import { applyTextEdits } from '../mm/Utils';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
+import { OnDidChangeContentHandler } from './OnDidChangeContentHandler';
 
 
 export class OnUnifyHandler {
-
 	// params: DocumentFormattingParams;
 	// documents: TextDocuments<TextDocument>;
 	mmParser: MmParser;
@@ -47,18 +49,6 @@ export class OnUnifyHandler {
 	//#endregion unify
 
 
-	//#region unifyIfTheCase
-	// static async requestTextValidationIfUnificationChangedNothing(
-	// 	textDocumentUri: string, documents: TextDocuments<TextDocument>) {
-	// 	const textDocument: TextDocument = documents.get(textDocumentUri)!;
-	// 	// const currentText: string | undefined = textDocument.getText();
-	// 	// if (textEdits.length == 0 || textEdits[0].newText == currentText) {
-	// 	// current unification either didn't run or returns a text that's identical
-	// 	// to the prvious one; in eithre case it will not trigger a new validation,
-	// 	// but we want a new validation after the unification (it will move the cursor)
-	// 	await validateTextDocument(textDocument);
-	// 	// }
-	// }
 	static async unifyIfTheCase(textDocumentUri: string, globalState: GlobalState,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number): Promise<TextEdit[]> {
 		let result: Promise<TextEdit[]> = Promise.resolve([]);
@@ -75,5 +65,43 @@ export class OnUnifyHandler {
 		}
 		return result;
 	}
-	//#endregion unifyIfTheCase
+
+
+	//#region unifyAndValidate
+	// private static async unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
+	// 	const result: Promise<TextEdit[]> = OnUnifyHandler.unifyIfTheCase(textDocumentUri,
+	// 		globalState, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
+	// 	return result;
+	// }
+
+	//#region applyTextEditsAndValidate
+	private static async requireValidation(textDocumentUri: string, connection: Connection,
+		documents: TextDocuments<TextDocument>, hasConfigurationCapability: boolean,
+		hasDiagnosticRelatedInformationCapability: boolean, globalState: GlobalState) {
+		const textDocument: TextDocument = documents.get(textDocumentUri)!;
+		await OnDidChangeContentHandler.validateTextDocument(textDocument,
+			connection, hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalState);
+	}
+	private static async applyTextEditsAndValidate(textEdits: TextEdit[], textDocumentUri: string,
+		connection: Connection, documents: TextDocuments<TextDocument>,
+		hasConfigurationCapability: boolean,
+		globalState: GlobalState) {
+		await applyTextEdits(textEdits, textDocumentUri, connection);
+		// we require validation explicity, because sometimes applyEdit doesn't trigger a new validation,
+		// at least in VSCode (for instance, if the applied change is equal to the previous text);
+		// but we want a new validation, because it moves the cursor to the proper position
+		await OnUnifyHandler.requireValidation(textDocumentUri, connection, documents, hasConfigurationCapability,
+			hasConfigurationCapability, globalState);
+	}
+	//#endregion applyTextEditsAndValidate
+	static async unifyAndValidate(textDocumentUri: string, connection: Connection, documents: TextDocuments<TextDocument>,
+		hasConfigurationCapability: boolean, maxNumberOfHypothesisDispositionsForStepDerivation: number,
+		globalState: GlobalState) {
+		const result: TextEdit[] = await OnUnifyHandler.unifyIfTheCase(textDocumentUri, globalState,
+			maxNumberOfHypothesisDispositionsForStepDerivation);
+		await OnUnifyHandler.applyTextEditsAndValidate(result, textDocumentUri, connection, documents,
+			hasConfigurationCapability, globalState);
+	}
+	//#endregion unifyAndValidate
+
 }

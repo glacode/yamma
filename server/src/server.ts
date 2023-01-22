@@ -27,8 +27,7 @@ import {
 } from 'vscode-languageserver/node';
 
 import {
-	TextDocument, TextEdit
-} from 'vscode-languageserver-textdocument';
+	TextDocument} from 'vscode-languageserver-textdocument';
 
 
 
@@ -45,7 +44,7 @@ import { OnCompletionHandler } from './languageServerHandlers/OnCompletionHandle
 import { GlobalState } from './general/GlobalState';
 import { OnCompletionResolveHandler } from './languageServerHandlers/OnCompletionResolveHandler';
 import { OnSemanticTokensHandler, semanticTokenTypes } from './languageServerHandlers/OnSemanticTokensHandler';
-import { applyTextEdits, notifyError, notifyInformation } from './mm/Utils';
+import { notifyError, notifyInformation } from './mm/Utils';
 import { MmParser } from './mm/MmParser';
 import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
@@ -172,8 +171,8 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 });
 
 async function unifyAndValidate(textDocumentUri: string) {
-	const result: TextEdit[] = await unifyIfTheCase(textDocumentUri);
-	await applyTextEditsAndValidate(result, textDocumentUri, connection, documents);
+	OnUnifyHandler.unifyAndValidate(textDocumentUri,connection,documents,hasConfigurationCapability,
+		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation,globalState);
 }
 
 connection.onRequest('yamma/completionitemselected', unifyAndValidate);
@@ -242,21 +241,6 @@ documents.onDidChangeContent(async change => {
 });
 //#endregion onDidChangeContent
 
-//#region applyTextEditsAndValidate
-async function requireValidation(textDocumentUri: string, documents: TextDocuments<TextDocument>) {
-	const textDocument: TextDocument = documents.get(textDocumentUri)!;
-	await validateTextDocument(textDocument);
-}
-async function applyTextEditsAndValidate(textEdits: TextEdit[], textDocumentUri: string,
-	connection: Connection, documents: TextDocuments<TextDocument>) {
-	await applyTextEdits(textEdits, textDocumentUri, connection);
-	// we require validation explicity, because sometimes applyEdit doesn't trigger a new validation,
-	// at least in VSCode (for instance, if the applied change is equal to the previous text);
-	// but we want a new validation, because it moves the cursor to the proper position
-	await requireValidation(textDocumentUri, documents);
-}
-//#endregion applyTextEditsAndValidate
-
 //TODO I believe this is not triggered by a tab click
 documents.onDidOpen(async change => {
 	console.log('documents.onDidOpen : ' + change.document.uri);
@@ -295,12 +279,6 @@ connection.onCompletionResolve(
 		return item;
 	}
 );
-
-async function unifyIfTheCase(textDocumentUri: string): Promise<TextEdit[]> {
-	const result: Promise<TextEdit[]> = OnUnifyHandler.unifyIfTheCase(textDocumentUri,
-		globalState, Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
-	return result;
-}
 
 //#region onCodeAction
 function onCodeActionHandler(params: CodeActionParams): CodeAction[] {
