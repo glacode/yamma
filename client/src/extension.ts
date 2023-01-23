@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as path from 'path';
-import { commands, ExtensionContext, MessageOptions, Position, Selection, window, workspace } from 'vscode';
+import { commands, ExtensionContext, Range as VsCodeRange, Position, Selection, TextEditorRevealType, window, workspace } from 'vscode';
 // import {  } from "../../server/src/mmt/MmtSaver";
 
 import {
@@ -20,6 +20,7 @@ import { loadMmtFilesCommandHandler, storeMmtFileCommandHandler } from "./mmt/Mm
 
 import { searchCommandHandler } from "./commandHandlers/SearchCommandHandler";
 import { completionItemSelectedHandler } from './commandHandlers/CompletionItemSelectedHandler';
+import { editor } from './test/helper';
 
 let client: LanguageClient;
 
@@ -87,9 +88,8 @@ export function activate(context: ExtensionContext) {
 			const start: Position = new Position(range.start.line, range.start.character);
 			const end: Position = new Position(range.end.line, range.end.character);
 			window.activeTextEditor.selection = new Selection(start, end);
-			// commands.executeCommand('editor.action.triggerSuggest');
-			// commands.executeCommand('editor.action.formatDocument');
-
+			const vsCodeRange: VsCodeRange = new VsCodeRange(start, end);
+			window.activeTextEditor.revealRange(vsCodeRange, TextEditorRevealType.Default);
 		});
 
 		client.onNotification('yamma/triggerSuggest', () => {

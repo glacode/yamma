@@ -156,7 +156,9 @@ test("Build Compressed proof for mp2", () => {
 		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
 		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
 		"qed:51,53:ax-mp    |- ch\n" +
-		"$= ( wi ax-mp ) BCEABCGDFHH $.\n";
+		'\n' +
+		"$= ( wi ax-mp ) BCEABCGDFHH $.\n" +
+		'\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -202,7 +204,9 @@ test("id - Build Compressed proof for id", () => {
 		"50::ax-1            |- ( ph -> ( ph -> ph ) )\n" +
 		"51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )\n" +
 		"qed:50,51:mpd      |- ( ph -> ph )\n" +
-		"$= ( wi ax-1 mpd ) AAABZAAACAECD $.\n";
+		'\n' +
+		"$= ( wi ax-1 mpd ) AAABZAAACAECD $.\n" +
+		'\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -278,7 +282,9 @@ test("vex - Build Compressed proof for vex", () => {
 		"51::df-v             |- _V = { x | x = x }\n" +
 		"52:51:abeq2i        |- ( x e. _V <-> x = x )\n" +
 		"qed:50,52:mpbir    |- x e. _V\n" +
-		"$= ( cv cvv wcel wceq equid df-v abeq2i mpbir ) ABZCDJJEZAFKACAGHI $.\n";
+		'\n' +
+		"$= ( cv cvv wcel wceq equid df-v abeq2i mpbir ) ABZCDJJEZAFKACAGHI $.\n" +
+		'\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -355,7 +361,9 @@ test("Build compressed proof for use of ax-5", () => {
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
 		"qed::ax-5          |- ( x e. A -> A. y x e. A )\n" +
+		'\n' +
 		"$= ( cv wcel ax-5 ) ADCEBF $.\n" +
+		'\n' +
 		"$d x y\n" +
 		"$d A y\n";
 	const textEdit: TextEdit = textEditArray[0];
@@ -393,8 +401,10 @@ test("Format equvinv compressed proof", () => {
 		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
 		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
 		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
+		'\n' +
 		'$= ( cv wceq wa wex ax6ev equtrr ancld eximdv mpi ax7 imp exlimiv impbii ) ADZB\n' +
 		'  DZEZCDZQEZTREZFZCGZSUACGUDCAHSUAUCCSUAUBABCIJKLUCSCUAUBSCABMNOP $.\n' +
+		'\n' +
 		'$d x z\n' +
 		'$d y z\n';
 	const textEdit: TextEdit = textEditArray[0];
@@ -421,12 +431,14 @@ test("Format equvinv compressed proof", () => {
 		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
 		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
 		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
+		'\n' +
 		'$= ( cv wceq wa wex ax6ev\n' +
 		'  equtrr ancld eximdv mpi ax7\n' +
 		'  imp exlimiv impbii ) ADZBDZ\n' +
 		'  EZCDZQEZTREZFZCGZSUACGUDCAH\n' +
 		'  SUAUCCSUAUBABCIJKLUCSCUAUBS\n' +
 		'  CABMNOP $.\n' +
+		'\n' +
 		'$d x z\n' +
 		'$d y z\n';
 	expect(mmpUnifier2.textEditArray[0].newText).toEqual(newTextExpected2);

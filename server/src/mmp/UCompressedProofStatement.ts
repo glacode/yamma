@@ -379,8 +379,9 @@ export class UCompressedProofStatement implements IMmpStatement {
 	}
 
 	toText(): string {
-		// an array (with a single element) is used, so that it can be passed as in input/output parameters to methods
-		const text: string[] = [''];
+		// an array (with a single element) is used, so that it can be passed as in
+		// input/output parameter
+		const text: string[] = [''];  // we want an empty line, before the proof
 		let lastRow: string = ' '.repeat(this._leftMargin) + '$= (';
 		lastRow = this.addLabels(lastRow, text);
 		lastRow = this.addUpperCaseLetterSequenceAnd(lastRow, text);
