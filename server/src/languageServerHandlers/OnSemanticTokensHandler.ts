@@ -5,7 +5,7 @@ import { MmParser } from '../mm/MmParser';
 import { DisjVarUStatement } from '../mm/Statements';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
-import { IMmpStatement, MmpComment } from '../mmp/MmpStatement';
+import { IMmpStatement, MmpComment, TextForProofStatement } from '../mmp/MmpStatement';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 
@@ -178,6 +178,14 @@ export class OnSemanticTokensHandler {
 		});
 	}
 
+	/** adds two semantic tokens: one for '$=' , the first symbol of the proof,
+	 *  and one for '$.' , the last symbol of the proof */
+	private addSemanticTokensForProofStatement(proofStatement: TextForProofStatement) {
+		this.addSemanticToken(proofStatement.statementTokens[0].range, SemanticTokenTypes.namespace);
+		this.addSemanticToken(proofStatement.statementTokens[
+			proofStatement.statementTokens.length - 1].range, SemanticTokenTypes.namespace);
+	}
+
 	protected buildSemanticTokens(mmParser: MmParser, mmpParser: MmpParser,
 		variableKindsConfiguration: Map<string, IVariableKindConfiguration>): SemanticTokens {
 		// const mmTokens: MmToken = mmpParser.mmTokens;
@@ -191,6 +199,8 @@ export class OnSemanticTokensHandler {
 				this.addSemanticTokensForArrayOfSymbols(uStatement.disjointVars, mmParser, variableKindsConfiguration);
 			else if (uStatement instanceof MmpSearchStatement)
 				this.addSemanticTokensForSearchStatement(uStatement.searchStatementTokens);
+			else if (uStatement instanceof TextForProofStatement)
+				this.addSemanticTokensForProofStatement(uStatement);
 		});
 		// this.semanticTokensData = [ 1 , 0 , 1 , 0 , 0 , 0 , 2 , 2 , 0 , 0];
 		const semanticTokens: SemanticTokens = {
