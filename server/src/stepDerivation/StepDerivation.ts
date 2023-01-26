@@ -11,24 +11,19 @@ import { MmpParser } from '../mmp/MmpParser';
 
 /** tries to derive a label for the given MmpProofStep */
 export class StepDerivation {
-	uProof: MmpProof;
-	mmpProofStepIndex: number;
-	mmpProofStep: MmpProofStep;
+	private uProof: MmpProof;
 	labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>;
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
 	workingVars: WorkingVars;
-	maxNumberOfHypothesisDispositionsForStepDerivation: number;
-	constructor(mmpParser: MmpParser, mmpProofStepIndex: number, mmpProofStep: MmpProofStep,
-		maxNumberOfHypothesisDispositionsForStepDerivation: number) {
+	constructor(mmpParser: MmpParser, private mmpProofStepIndex: number,
+		private mmpProofStep: MmpProofStep,
+		private maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 		this.uProof = mmpParser.uProof!;
-		this.mmpProofStepIndex = mmpProofStepIndex;
-		this.mmpProofStep = mmpProofStep;
 		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
 		this.outermostBlock = mmpParser.outermostBlock;
 		this.grammar = mmpParser.grammar;
 		this.workingVars = mmpParser.workingVars;
-		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 	}
 
 	//#region deriveLabelAndHypothesis
@@ -39,7 +34,7 @@ export class StepDerivation {
 		return result;
 	}
 
-	//#region tryCurrentLabeledStatement
+	//#region tryCurrentAssertion
 
 	//#region isWorstCaseTooSlow
 	computeNumberOfHypothesisDispositions(assertion: AssertionStatement): number {
@@ -55,7 +50,7 @@ export class StepDerivation {
 	}
 	//#endregion isWorstCaseTooSlow
 
-	//#region tryCurrentAssertion
+	//#region tryCurrentAssertionActually
 
 	//#region tryAllPossibleEHypsPermutations
 
@@ -92,7 +87,7 @@ export class StepDerivation {
 	}
 	//#endregion tryAllPossibleEHypsPermutations
 
-	private tryCurrentAssertion(assertion: AssertionStatement) {
+	private tryCurrentAssertionActually(assertion: AssertionStatement) {
 		const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
 		const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(
 			this.mmpProofStep, assertion, this.outermostBlock, this.workingVars, this.grammar, [], true);
@@ -108,17 +103,17 @@ export class StepDerivation {
 			// consoleLogWithTimestamp(assertion.statementNumber + " / " + totalSize + " - " + assertion.Label);
 		}
 	}
-	//#endregion tryCurrentAssertion
+	//#endregion tryCurrentAssertionActually
 
-	private tryCurrentLabeledStatement(labeledStatement: AssertionStatement) {
+	tryCurrentAssertion(labeledStatement: AssertionStatement) {
 		// if (labeledStatement instanceof AssertionStatement &&
 		// 	!GrammarManager.isSyntaxAxiom2(labeledStatement) &&
 		// 	!this.isWorstCaseTooSlow(labeledStatement))
 		// 	this.tryCurrentAssertion(labeledStatement);
 		if (!this.isWorstCaseTooSlow(labeledStatement))
-			this.tryCurrentAssertion(labeledStatement);
+			this.tryCurrentAssertionActually(labeledStatement);
 	}
-	//#endregion tryCurrentLabeledStatement
+	//#endregion tryCurrentAssertion
 
 	/** tries all possibles theorems in the theory, to see if one unifies the
 	 * MmpProofStep, using as hypothesis the preceding steps.
@@ -130,7 +125,7 @@ export class StepDerivation {
 			const nonSyntaxAssertions: IterableIterator<AssertionStatement> = this.labelToNonSyntaxAssertionMap.values();
 			let nonSyntaxAssertion: IteratorResult<AssertionStatement, any> = nonSyntaxAssertions.next();
 			while (!nonSyntaxAssertion.done && this.mmpProofStep.stepLabel == undefined) {
-				this.tryCurrentLabeledStatement(nonSyntaxAssertion.value);
+				this.tryCurrentAssertion(nonSyntaxAssertion.value);
 				nonSyntaxAssertion = nonSyntaxAssertions.next();
 			}
 		}

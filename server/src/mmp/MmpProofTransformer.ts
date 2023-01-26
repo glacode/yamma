@@ -18,6 +18,7 @@ import { MmpProofStep } from "./MmpProofStep";
 import { StepDerivation } from '../stepDerivation/StepDerivation';
 import { MmpParser } from './MmpParser';
 import { MmpSearchStatement } from './MmpSearchStatement';
+import { GrammarManager } from '../grammar/GrammarManager';
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -186,6 +187,12 @@ export class MmpProofTransformer {
 			stepDerivation.deriveLabelAndHypothesis();
 		}
 	}
+	tryToCompleteEhypsIfIncomplete(uStepIndex: number, mmpProofStep: MmpProofStep, assertion: AssertionStatement) {
+		const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
+			this.maxNumberOfHypothesisDispositionsForStepDerivation);
+		//TODO1
+		stepDerivation.tryCurrentAssertion(assertion);
+	}
 	/**
 	 * adds one step to the new proof and returns the index of the next step to be transformed
 	 * (this is needed because new proof steps could have been added)
@@ -200,17 +207,12 @@ export class MmpProofTransformer {
 		if (!uProofStep.skipUnification) {
 			this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
 			const assertion: AssertionStatement | undefined = uProofStep.assertion;
-			if (assertion instanceof AssertionStatement) {
+			if (assertion instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertion)) {
+				this.tryToCompleteEhypsIfIncomplete(uStepIndex, uProofStep, assertion);
 				const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(uProofStep,
 					assertion, this.outermostBlock, this.workingVars, this.grammar, []);
 				const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
-				// const substitutionResult: SubstitutionResult =
-				// 	USubstitutionManager.buildSubstitution(uProofStep,
-				// 		assertion, this.outermostBlock, this.workingVars, this.grammar);
 				if (substitutionResult.hasBeenFound) {
-					// nextUStepIndexToBeTransformed = USubstitutionManager.applySubstitution(
-					// 	<Map<string, InternalNode>>substitutionResult.substitution, uStepIndex,
-					// 	assertion, this.outermostBlock, this.workingVars, this.grammar, newProof) + 1;
 					uProofStep.substitution = substitutionResult.substitution!;
 					this.setIsProvenIfTheCase(uProofStep, assertion.frame!.eHyps.length);
 					if (uProofStep.stepRef == "")
@@ -221,7 +223,7 @@ export class MmpProofTransformer {
 					nextUStepIndexToBeTransformed = uSubstitutionApplier.applySubstitution() + 1;
 					this.addStartingPairsForMGUFinder(uProofStep, assertion,
 						<Map<string, InternalNode>>substitutionResult.substitution);
-				}
+				} //TODO1 add "else" to try to correct eHypsOrder
 			}
 		}
 		return nextUStepIndexToBeTransformed;
@@ -236,8 +238,8 @@ export class MmpProofTransformer {
 				// this.addUStep(uStatement, uProof.refToUStatementMap, newProof);
 				i = this.transformUStep(i);
 			} else {
-				if (currentMmpStatement instanceof TextForProofStatement  ||
-					currentMmpStatement instanceof MmpSearchStatement )
+				if (currentMmpStatement instanceof TextForProofStatement ||
+					currentMmpStatement instanceof MmpSearchStatement)
 					this.uProof.uStatements.splice(i, 1);
 				else
 					i++;
