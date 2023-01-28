@@ -201,11 +201,30 @@ test('StepDerivation unknown eHyp ref', () => {
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
+test('Derive eHps for existing label', () => {
+	const mmpSource =
+		'd1:: |- &W1\n' +
+		'd2:: |- ( &W1 -> ph )\n' +
+		'qed::ax-mp |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 1000);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'd1::                |- &W1\n' +
+		'd2::                |- ( &W1 -> ph )\n' +
+		'qed:d1,d2:ax-mp    |- ph\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
 test('Derive 1 of 2 eHyps', () => {
 	const mmpSource =
-	'd1:: |- &W1\n' +
-	'd2:: |- ( &W1 -> ph )\n' +
-	'qed:,d2:ax-mp |- ph';
+		'd1:: |- &W1\n' +
+		'd2:: |- ( &W1 -> ph )\n' +
+		'qed:,d2:ax-mp |- ph';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 1000);
@@ -222,9 +241,9 @@ test('Derive 1 of 2 eHyps', () => {
 
 test('Derive 2 eHps when 3 are given', () => {
 	const mmpSource =
-	'd1:: |- &W1\n' +
-	'd2:: |- ( &W1 -> ph )\n' +
-	'qed:d1,d1,d1:ax-mp |- ph';
+		'd1:: |- &W1\n' +
+		'd2:: |- ( &W1 -> ph )\n' +
+		'qed:d1,d1,d1:ax-mp |- ph';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 1000);
@@ -239,7 +258,6 @@ test('Derive 2 eHps when 3 are given', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1
 test('EHyps derivation, incomplete and with unknown eHyp ref', () => {
 	const mmpSource =
 		'2::                |- ( ph -> &W2 )\n' +
@@ -262,3 +280,24 @@ test('EHyps derivation, incomplete and with unknown eHyp ref', () => {
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
+//TODO1
+test('Derive eHyps for complete (but wrong) existing refs', () => {
+	const mmpSource =
+		'd1:: |- &W1\n' +
+		'd2:: |- ( &W1 -> ph )\n' +
+		'a:: |-ch\n' +
+		'qed:a,d1:ax-mp |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 1000);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'd1::                |- &W1\n' +
+		'd2::                |- ( &W1 -> ph )\n' +
+		'a::                |-ch\n' +
+		'qed:d1,d2:ax-mp    |- ph\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});

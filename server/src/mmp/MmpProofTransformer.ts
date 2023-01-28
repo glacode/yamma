@@ -196,13 +196,15 @@ export class MmpProofTransformer {
 			(mmpProofStep.eHypUSteps.length != length || mmpProofStep.eHypUSteps.indexOf(undefined) != -1);
 		return isToBeTried;
 	}
-	tryToDeriveEhypsIfIncomplete(uStepIndex: number, mmpProofStep: MmpProofStep, assertion?: AssertionStatement) {
+	private tryEHypsDerivation(mmpStepIndex: number, mmpProofStep: MmpProofStep, assertion: AssertionStatement) {
+		const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, mmpStepIndex, mmpProofStep,
+			this.maxNumberOfHypothesisDispositionsForStepDerivation);
+		stepDerivation.tryCurrentAssertion(assertion);
+	}
+	private tryToDeriveEhypsIfIncomplete(mmpStepIndex: number, mmpProofStep: MmpProofStep, assertion?: AssertionStatement) {
 		if (assertion?.frame != undefined &&
 			this.isEHypsCompletionToBeTriedBeforUnification(mmpProofStep, assertion.frame.eHyps.length)) {
-			// if (mmpProofStep.parseNode != undefined && mmpProofStep.eHypUSteps.length != assertion.frame!.eHyps.length) {
-			const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
-				this.maxNumberOfHypothesisDispositionsForStepDerivation);
-			stepDerivation.tryCurrentAssertion(assertion);
+			this.tryEHypsDerivation(mmpStepIndex, mmpProofStep, assertion);
 		}
 	}
 	//#endregion tryToDeriveEhypsIfIncomplete
@@ -235,7 +237,11 @@ export class MmpProofTransformer {
 					nextUStepIndexToBeTransformed = uSubstitutionApplier.applySubstitution() + 1;
 					this.addStartingPairsForMGUFinder(uProofStep, assertion,
 						<Map<string, InternalNode>>substitutionResult.substitution);
-				} //TODO1 add "else" to try to correct eHypsOrder
+				} else
+					// no valid substitution has been found
+					this.tryEHypsDerivation(uStepIndex, uProofStep, assertion);
+				//TODO1 add "else" to try to correct eHypsOrder
+
 			}
 		}
 		return nextUStepIndexToBeTransformed;
