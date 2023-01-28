@@ -492,7 +492,7 @@ test("Unify() removes search statements", () => {
 	const mmpSource =
 		'h50::mp2.1 |- ph\n' +
 		'SearchSymbols: x y   SearchComment:  \n' +
-		'qed:51,53:ax-mp |- ch';
+		'qed:51:ax-mp |- ch';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -503,7 +503,7 @@ test("Unify() removes search statements", () => {
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
 		'h50::mp2.1         |- ph\n' +
-		'qed:51,53:ax-mp    |- ch\n';
+		'qed:51:ax-mp       |- ch\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

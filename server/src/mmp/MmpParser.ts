@@ -434,7 +434,7 @@ export class MmpParser {
 			proofStepFirstTokenInfo.eHypRefs, eHypMmpSteps, proofStepFirstTokenInfo.stepLabel, stepFormula, formulaParseNode);
 		if (unknownStepRefs.size > 0)
 			// there was at least a step ref pointing to a non existent proof step
-			proofStep.skipUnification = true;
+			proofStep.containsUnknownStepRef = true;
 		this.addProofStep(proofStep);
 	}
 	addRemovableStatement(nextProofStepTokens: MmToken[]) {

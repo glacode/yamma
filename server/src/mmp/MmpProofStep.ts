@@ -31,7 +31,8 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 	stepFormula?: MmToken[]
 	parseNode?: InternalNode   // contains the ParseNode for the fomula, iff the formula nonempty and it is parsable
 
-	skipUnification: boolean;  // when set to true, the unification process is not even tried out on this step
+	/** true iff this step eHyps contain a ref to a nonexistent proof step */
+	containsUnknownStepRef: boolean;  // 
 
 	/** the indentation level for a tree like display of the proof */
 	indentationLevel: number | undefined
@@ -151,7 +152,7 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 		this.parseNode = formulaParseNode;
 
 		this._isProven = false;
-		this.skipUnification = false;
+		this.containsUnknownStepRef = false;
 		this.firstTokenInfo = firstTokenInfo;
 		// this.isEHyp = isEHyp;
 		this.stepRefToken = stepRefToken;

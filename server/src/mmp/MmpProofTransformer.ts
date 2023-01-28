@@ -217,7 +217,7 @@ export class MmpProofTransformer {
 		let nextUStepIndexToBeTransformed = uStepIndex + 1;
 		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
 		// const assertion: AssertionStatement | undefined = uProofStep.getAssertion(this.labelToStatementMap);
-		if (!uProofStep.skipUnification) {
+		if (!uProofStep.containsUnknownStepRef) {
 			this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
 			const assertion: AssertionStatement | undefined = uProofStep.assertion;
 			if (assertion instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertion)) {
