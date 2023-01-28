@@ -196,8 +196,9 @@ export class MmpProofTransformer {
 			(mmpProofStep.eHypUSteps.length != length || mmpProofStep.eHypUSteps.indexOf(undefined) != -1);
 		return isToBeTried;
 	}
-	tryToDeriveEhypsIfIncomplete(uStepIndex: number, mmpProofStep: MmpProofStep, assertion: AssertionStatement) {
-		if (this.isEHypsCompletionToBeTriedBeforUnification(mmpProofStep, assertion.frame!.eHyps.length)) {
+	tryToDeriveEhypsIfIncomplete(uStepIndex: number, mmpProofStep: MmpProofStep, assertion?: AssertionStatement) {
+		if (assertion?.frame != undefined &&
+			this.isEHypsCompletionToBeTriedBeforUnification(mmpProofStep, assertion.frame.eHyps.length)) {
 			// if (mmpProofStep.parseNode != undefined && mmpProofStep.eHypUSteps.length != assertion.frame!.eHyps.length) {
 			const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
 				this.maxNumberOfHypothesisDispositionsForStepDerivation);
@@ -216,10 +217,10 @@ export class MmpProofTransformer {
 		let nextUStepIndexToBeTransformed = uStepIndex + 1;
 		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
 		this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
+		this.tryToDeriveEhypsIfIncomplete(uStepIndex, uProofStep, uProofStep.assertion);
 		if (!uProofStep.containsUnknownStepRef) {
 			const assertion: AssertionStatement | undefined = uProofStep.assertion;
 			if (assertion instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertion)) {
-				this.tryToDeriveEhypsIfIncomplete(uStepIndex, uProofStep, assertion);
 				const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(uProofStep,
 					assertion, this.outermostBlock, this.workingVars, this.grammar, []);
 				const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();

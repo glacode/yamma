@@ -106,29 +106,6 @@ test('StepDerivation wrong EHyps order and missing single EHyp', () => {
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
-//TODO1
-test('StepDerivation unknown eHyp ref', () => {
-	const mmpSource =
-		'2::                |- ( ph -> &W2 )\n' +
-		'3::                |- ( &W2 -> &W3 )\n' +
-		'4::                |- ( &W3 -> ps )\n' +
-		'5:9,2:               |- ( ph -> ps )\n' +
-		'qed::a |- ch';
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
-	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
-	mmpUnifier.unify();
-	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
-	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'2::                 |- ( ph -> &W2 )\n' +
-		'3::                 |- ( &W2 -> &W3 )\n' +
-		'4::                 |- ( &W3 -> ps )\n' +
-		'5:2,3,4:3syl       |- ( ph -> ps )\n' +
-		'qed::a             |- ch\n';
-	expect(textEdit.newText).toEqual(expectedText);
-});
-
 test('Worker Thread for ParseNode(s) creation', async () => {
 	const mmpSource =
 		'2::                |- ( ph -> &W2 )\n' +
@@ -201,3 +178,87 @@ test('StepDerivation elexd', () => {
 		'qed::              |- ch\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });
+
+test('StepDerivation unknown eHyp ref', () => {
+	const mmpSource =
+		'2::                |- ( ph -> &W2 )\n' +
+		'3::                |- ( &W2 -> &W3 )\n' +
+		'4::                |- ( &W3 -> ps )\n' +
+		'5:9,2:               |- ( ph -> ps )\n' +
+		'qed::a |- ch';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'2::                 |- ( ph -> &W2 )\n' +
+		'3::                 |- ( &W2 -> &W3 )\n' +
+		'4::                 |- ( &W3 -> ps )\n' +
+		'5:2,3,4:3syl       |- ( ph -> ps )\n' +
+		'qed::a             |- ch\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
+test('Derive 1 of 2 eHyps', () => {
+	const mmpSource =
+	'd1:: |- &W1\n' +
+	'd2:: |- ( &W1 -> ph )\n' +
+	'qed:,d2:ax-mp |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 1000);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'd1::                |- &W1\n' +
+		'd2::                |- ( &W1 -> ph )\n' +
+		'qed:d1,d2:ax-mp    |- ph\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test('Derive 2 eHps when 3 are given', () => {
+	const mmpSource =
+	'd1:: |- &W1\n' +
+	'd2:: |- ( &W1 -> ph )\n' +
+	'qed:d1,d1,d1:ax-mp |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 1000);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'd1::                |- &W1\n' +
+		'd2::                |- ( &W1 -> ph )\n' +
+		'qed:d1,d2:ax-mp    |- ph\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+//TODO1
+test('EHyps derivation, incomplete and with unknown eHyp ref', () => {
+	const mmpSource =
+		'2::                |- ( ph -> &W2 )\n' +
+		'3::                |- ( &W2 -> &W3 )\n' +
+		'4::                |- ( &W3 -> ps )\n' +
+		'5:9,:3syl               |- ( ph -> ps )\n' +
+		'qed::a |- ch';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'2::                 |- ( ph -> &W2 )\n' +
+		'3::                 |- ( &W2 -> &W3 )\n' +
+		'4::                 |- ( &W3 -> ps )\n' +
+		'5:2,3,4:3syl       |- ( ph -> ps )\n' +
+		'qed::a             |- ch\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
