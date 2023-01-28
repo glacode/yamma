@@ -213,12 +213,10 @@ export class MmpProofTransformer {
 	 * @param newProof 
 	 */
 	protected transformUStep(uStepIndex: number): number {
-		// protected transformUStep(uProofStep: UProofStep, newProof: UProof) {
 		let nextUStepIndexToBeTransformed = uStepIndex + 1;
 		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
-		// const assertion: AssertionStatement | undefined = uProofStep.getAssertion(this.labelToStatementMap);
+		this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
 		if (!uProofStep.containsUnknownStepRef) {
-			this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
 			const assertion: AssertionStatement | undefined = uProofStep.assertion;
 			if (assertion instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertion)) {
 				this.tryToDeriveEhypsIfIncomplete(uStepIndex, uProofStep, assertion);
