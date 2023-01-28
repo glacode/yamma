@@ -187,12 +187,25 @@ export class MmpProofTransformer {
 			stepDerivation.deriveLabelAndHypothesis();
 		}
 	}
-	tryToCompleteEhypsIfIncomplete(uStepIndex: number, mmpProofStep: MmpProofStep, assertion: AssertionStatement) {
-		const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
-			this.maxNumberOfHypothesisDispositionsForStepDerivation);
-		//TODO1
-		stepDerivation.tryCurrentAssertion(assertion);
+	//TODO1
+	//#region tryToDeriveEhypsIfIncomplete
+	/** eHyps derivation should be tried BEFORE a unification attempt,
+	 * if the current step is parsable, and the ehyps are not complete */
+	private isEHypsCompletionToBeTriedBeforUnification(mmpProofStep: MmpProofStep, length: number): boolean {
+		const isToBeTried = mmpProofStep.parseNode != undefined &&
+			(mmpProofStep.eHypUSteps.length != length || mmpProofStep.eHypUSteps.indexOf(undefined) != -1);
+		return isToBeTried;
 	}
+	tryToDeriveEhypsIfIncomplete(uStepIndex: number, mmpProofStep: MmpProofStep, assertion: AssertionStatement) {
+		if (this.isEHypsCompletionToBeTriedBeforUnification(mmpProofStep, assertion.frame!.eHyps.length)) {
+			// if (mmpProofStep.parseNode != undefined && mmpProofStep.eHypUSteps.length != assertion.frame!.eHyps.length) {
+			const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
+				this.maxNumberOfHypothesisDispositionsForStepDerivation);
+			stepDerivation.tryCurrentAssertion(assertion);
+		}
+	}
+	//#endregion tryToDeriveEhypsIfIncomplete
+
 	/**
 	 * adds one step to the new proof and returns the index of the next step to be transformed
 	 * (this is needed because new proof steps could have been added)
@@ -208,7 +221,7 @@ export class MmpProofTransformer {
 			this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
 			const assertion: AssertionStatement | undefined = uProofStep.assertion;
 			if (assertion instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertion)) {
-				this.tryToCompleteEhypsIfIncomplete(uStepIndex, uProofStep, assertion);
+				this.tryToDeriveEhypsIfIncomplete(uStepIndex, uProofStep, assertion);
 				const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(uProofStep,
 					assertion, this.outermostBlock, this.workingVars, this.grammar, []);
 				const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
