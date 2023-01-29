@@ -178,14 +178,17 @@ export class MmpProofTransformer {
 	//#endregion setIsProvenIfTheCase
 
 	//#region transformUStep
-	private deriveStepLabelIfMissing(uStepIndex: number, mmpProofStep: MmpProofStep) {
-		// if (mmpProofStep.stepLabel == undefined && this.outermostBlock.mmParser != undefined
-		// 	&& this.outermostBlock.mmParser.areAllParseNodesComplete) {
-		if (mmpProofStep.stepLabel == undefined && this.outermostBlock.mmParser != undefined) {
+	private deriveStepLabel(uStepIndex: number, mmpProofStep: MmpProofStep) {
+		const stepLabel: string | undefined = mmpProofStep.stepLabel;
+		mmpProofStep.stepLabel = undefined;
+		if (this.outermostBlock.mmParser != undefined) {
 			const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
 				this.maxNumberOfHypothesisDispositionsForStepDerivation);
 			stepDerivation.deriveLabelAndHypothesis();
 		}
+		if (mmpProofStep.stepLabel == undefined)
+			// the step derivation didn't find a label that completely justified the step
+			mmpProofStep.stepLabel = stepLabel;
 	}
 	//TODO1
 	//#region tryToDeriveEhypsIfIncomplete
@@ -209,6 +212,42 @@ export class MmpProofTransformer {
 	}
 	//#endregion tryToDeriveEhypsIfIncomplete
 
+	//#region tranformProofStepWithValidAssertionLabel
+	// private tryToDeriveADifferentStepLabel(uStepIndex: number, mmpProofStep: MmpProofStep) {
+	// 	// this method is invoked only when uProofStep.stepLabel is defined
+	// 	const stepLabel: string = mmpProofStep.stepLabel!;
+	// 	mmpProofStep.stepLabel = undefined;
+	// 	this.deriveStepLabel(uStepIndex, mmpProofStep);
+	// 	if (mmpProofStep.stepLabel == undefined)
+	// 		// the step derivation didn't find a label that completely justified the step
+	// 		mmpProofStep.stepLabel = stepLabel;
+	// }
+	tranformProofStepWithValidAssertionLabel(uStepIndex: number, uProofStep: MmpProofStep,
+		assertion: AssertionStatement): number {
+		// if (assertion instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertion)) {
+		let nextUStepIndexToBeTransformed = uStepIndex + 1;
+		const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(uProofStep,
+			assertion, this.outermostBlock, this.workingVars, this.grammar, []);
+		const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
+		if (substitutionResult.hasBeenFound) {
+			uProofStep.substitution = substitutionResult.substitution!;
+			this.setIsProvenIfTheCase(uProofStep, assertion.frame!.eHyps.length);
+			if (uProofStep.stepRef == "")
+				uProofStep.stepRef = this.uProof.getNewRef();
+			const uSubstitutionApplier: MmpSubstitutionApplier = new MmpSubstitutionApplier(
+				<Map<string, InternalNode>>substitutionResult.substitution, uStepIndex,
+				this.uProof, assertion, this.outermostBlock, this.workingVars, this.grammar);
+			nextUStepIndexToBeTransformed = uSubstitutionApplier.applySubstitution() + 1;
+			this.addStartingPairsForMGUFinder(uProofStep, assertion,
+				<Map<string, InternalNode>>substitutionResult.substitution);
+		} else
+			// no valid substitution has been found
+			this.deriveStepLabel(uStepIndex, uProofStep);
+		//TODO1 add "else" to try to correct eHypsOrder
+		return nextUStepIndexToBeTransformed;
+	}
+	//#endregion tranformProofStepWithValidAssertionLabel
+
 	/**
 	 * adds one step to the new proof and returns the index of the next step to be transformed
 	 * (this is needed because new proof steps could have been added)
@@ -218,31 +257,17 @@ export class MmpProofTransformer {
 	protected transformUStep(uStepIndex: number): number {
 		let nextUStepIndexToBeTransformed = uStepIndex + 1;
 		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
-		this.deriveStepLabelIfMissing(uStepIndex, uProofStep);
+		if (uProofStep.assertion == undefined)
+			this.deriveStepLabel(uStepIndex, uProofStep);
 		this.tryToDeriveEhypsIfIncomplete(uStepIndex, uProofStep, uProofStep.assertion);
-		if (!uProofStep.containsUnknownStepRef) {
-			const assertion: AssertionStatement | undefined = uProofStep.assertion;
-			if (assertion instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(assertion)) {
-				const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(uProofStep,
-					assertion, this.outermostBlock, this.workingVars, this.grammar, []);
-				const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
-				if (substitutionResult.hasBeenFound) {
-					uProofStep.substitution = substitutionResult.substitution!;
-					this.setIsProvenIfTheCase(uProofStep, assertion.frame!.eHyps.length);
-					if (uProofStep.stepRef == "")
-						uProofStep.stepRef = this.uProof.getNewRef();
-					const uSubstitutionApplier: MmpSubstitutionApplier = new MmpSubstitutionApplier(
-						<Map<string, InternalNode>>substitutionResult.substitution, uStepIndex,
-						this.uProof, assertion, this.outermostBlock, this.workingVars, this.grammar);
-					nextUStepIndexToBeTransformed = uSubstitutionApplier.applySubstitution() + 1;
-					this.addStartingPairsForMGUFinder(uProofStep, assertion,
-						<Map<string, InternalNode>>substitutionResult.substitution);
-				} else
-					// no valid substitution has been found
-					this.tryEHypsDerivation(uStepIndex, uProofStep, assertion);
-				//TODO1 add "else" to try to correct eHypsOrder
+		if (!uProofStep.containsUnknownStepRef && uProofStep.assertion instanceof AssertionStatement
+			&& !GrammarManager.isSyntaxAxiom2(uProofStep.assertion)) {
+			// the proof step has a label for a valid assertion
+			nextUStepIndexToBeTransformed = this.tranformProofStepWithValidAssertionLabel(
+				uStepIndex, uProofStep, uProofStep.assertion);
 
-			}
+
+			// }
 		}
 		return nextUStepIndexToBeTransformed;
 	}
