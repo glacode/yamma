@@ -16,7 +16,8 @@
 		"vscode-languageserver-textdocument": "^1.0.1"
 	},
 	"scripts": {
-		"test": "jest"
+		"test": "jest",
+		"testcov": "jest -- --coverage --collectCoverageFrom=[\"./src/**\"]"
 	},
 	"devDependencies": {
 		"@types/jest": "^27.4.1",
