@@ -13,7 +13,7 @@ import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { IMmpStatement, MmpComment, TextForProofStatement, MmpTheoremLabel } from './MmpStatement';
 import { MmpProof } from './MmpProof';
-import { SubstitutionResult, MmpSubstitutionBuilder } from './MmpSubstitutionBuilder';
+import { MmpSubstitutionBuilder, SubstitutionResult } from './MmpSubstitutionBuilder';
 import { MmpSubstitutionApplier } from './MmpSubstitutionApplier';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { OrderedPairOfNodes, UnificationAlgorithmState, WorkingVarsUnifierFinder } from './WorkingVarsUnifierFinder';
@@ -582,11 +582,12 @@ export class MmpParser {
 			const labeledStatement: LabeledStatement | undefined =
 				this.labelToStatementMap.get(stepLabelToken.value);
 			if (labeledStatement instanceof AssertionStatement && !GrammarManager.isSyntaxAxiom2(labeledStatement)) {
-				// labeledStatement instanceof AssertionStatement and it is not a syntax axiom
 				const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(mmpProofStep,
 					labeledStatement, outermostBlock, workingVars, grammar, this.diagnostics);
-				// const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitutionForExistingParseNodes();
 				const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
+				// const uSubstitutionBuilder: MmpSubstitutionBuilderNew = new MmpSubstitutionBuilderNew(mmpProofStep,
+				// 	labeledStatement, outermostBlock, workingVars, grammar, this.diagnostics);
+				// const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
 				if (!substitutionResult.hasBeenFound) {
 					const substitution: Map<string, InternalNode> =
 						uSubstitutionBuilder.buildACompleteSubstitutionEvenIfNonUnifiable();
@@ -714,7 +715,7 @@ export class MmpParser {
 
 	protected checkUnificationOfWorkingVars() {
 		const workingVarsUnifierFinder: WorkingVarsUnifierFinder =
-			new WorkingVarsUnifierFinder(this._orderedPairsOfNodesForMGUalgorithm);
+			new WorkingVarsUnifierFinder(this._orderedPairsOfNodesForMGUalgorithm, this.outermostBlock.v);
 		workingVarsUnifierFinder.findMostGeneralUnifier();
 		if (workingVarsUnifierFinder.currentState == UnificationAlgorithmState.occourCheckFailure) {
 			// the MGU algorithm stopped in error: a Working Var was required to be unified with a

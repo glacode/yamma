@@ -200,6 +200,28 @@ test('Complete ax-mp', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
+//TODO1
+test('Mgu inolving logical vars on the right side', () => {
+	const mmpSource =
+		'd1::              |- &W1\n' +
+		'd2::              |- &W2\n' +
+		'qed:d1,d2:ax-mp     |- ( ph -> ch )';
+	// const parser: MmParser = new MmParser();
+	// parser.ParseText(axmpTheory);
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'd1::                |- &W1\n' +
+		'd2::                |- ( &W1 -> ( ph -> ch ) )\n' +
+		'qed:d1,d2:ax-mp    |- ( ph -> ch )\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
 test('Expect unify error to leave line unchanged', () => {
 	const mmpSource =
 		'ax-mp:: |- ( ch -> )\n' +
@@ -284,6 +306,7 @@ test('Expect ref error to leave line unchanged', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
+//TODO1
 test('unify a1i with already present working var', () => {
 	const mmpSource =
 		'a::a1i |- &W1\n' +

@@ -8,6 +8,8 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 import { WorkingVars } from './WorkingVars';
 import { MmpProofStep } from "./MmpProofStep";
 import { EHyp } from '../mm/EHyp';
+import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
+import { OrderedPairOfNodes, WorkingVarsUnifierFinder, UnificationAlgorithmState } from './WorkingVarsUnifierFinder';
 
 
 export interface SubstitutionResult {
@@ -296,6 +298,20 @@ export class MmpSubstitutionBuilder {
 	}
 	//#endregion buildSubstitutionForEHyps
 
+	//#region tryToUnifyWorkingVars
+	tryToUnifyWorkingVars(substitution: Map<string, InternalNode>): boolean {
+		const workingVarsUnifierInitializer: WorkingVarsUnifierInitializer =
+			new WorkingVarsUnifierInitializer(this.uProofStep, this.assertion, substitution, this.outermostBlock,
+				this.grammar);
+		const startingPairsForMGUAlgorthm: OrderedPairOfNodes[] =
+			workingVarsUnifierInitializer.buildStartingPairsForMGUAlgorithm();
+		const workingVarsUnifierFinder: WorkingVarsUnifierFinder =
+			new WorkingVarsUnifierFinder(startingPairsForMGUAlgorthm, this.outermostBlock.v);
+		workingVarsUnifierFinder.findMostGeneralUnifier();
+		const result: boolean = workingVarsUnifierFinder.currentState == UnificationAlgorithmState.complete;
+		return result;
+	}
+	//#endregion tryToUnifyWorkingVars
 
 	buildSubstitutionForExistingParseNodes(): SubstitutionResult {
 		const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
@@ -303,6 +319,9 @@ export class MmpSubstitutionBuilder {
 		if (hasBeenFound)
 			hasBeenFound = this.buildSubstitutionForSingleLine(this.assertion.parseNode,
 				this.uProofStep.stepFormula, this.uProofStep.parseNode, substitution);
+		//TODO1
+		// if (hasBeenFound)
+		// 	hasBeenFound = this.tryToUnifyWorkingVars(substitution);
 		return { hasBeenFound: hasBeenFound, substitution: substitution };
 	}
 
@@ -362,8 +381,13 @@ export class MmpSubstitutionBuilder {
 		// const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
 		// const frameEHyps: EHyp[] = <EHyp[]>assertion.frame?.eHyps;
 		const substitutionResult: SubstitutionResult = this.buildSubstitutionForExistingParseNodes();
-		if (substitutionResult.hasBeenFound)
+		if (substitutionResult.hasBeenFound) {
 			this.addWorkingVarsForLogicalVarsWithoutASubstitution(<Map<string, InternalNode>>substitutionResult.substitution);
+			if (!this.requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar)
+				// this is invoked by a derivation step (WorkingVars must be exact, no unification should be tried)
+				substitutionResult.hasBeenFound =
+					this.tryToUnifyWorkingVars(<Map<string, InternalNode>>substitutionResult.substitution);
+		}
 		return substitutionResult;
 	}
 

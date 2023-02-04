@@ -294,7 +294,7 @@ export class MmpProofTransformer {
 	protected unifyWorkingVars() {
 		const workingVarsUnifierFinder: WorkingVarsUnifierFinder =
 			// new WorkingVarsUnifierFinder(this.uProof, this.labelToStatementMap, this._orderedPairsOfNodesForMGUalgorithm);
-			new WorkingVarsUnifierFinder(this._orderedPairsOfNodesForMGUalgorithm);
+			new WorkingVarsUnifierFinder(this._orderedPairsOfNodesForMGUalgorithm, new Set<string>());
 		const unifier: Map<string, InternalNode> | undefined = workingVarsUnifierFinder.findMostGeneralUnifier();
 		if (unifier !== undefined) {
 			const uUnifierApplier: WorkingVarsUnifierApplier = new WorkingVarsUnifierApplier(unifier, this.uProof);

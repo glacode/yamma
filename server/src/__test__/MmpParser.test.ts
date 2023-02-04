@@ -400,6 +400,7 @@ test('expect 2 hyp refs', () => {
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unknownStepRef)).toBeTruthy();
 });
 
+//TODO1
 test('Expect Working Var unification error', () => {
 	const mmpSource =
 		'd1:: |- &W2\n' +
@@ -411,6 +412,7 @@ test('Expect Working Var unification error', () => {
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.workingVarUnificationError)).toBeTruthy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unificationError)).toBeTruthy();
 	expect(mmpParser.diagnostics.length).toBe(4);
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
 		if (diagnostic.code == MmpParserErrorCode.workingVarUnificationError) {
@@ -420,6 +422,14 @@ test('Expect Working Var unification error', () => {
 			expect(diagnostic.range.start.line == 0 || diagnostic.range.start.line == 1).toBeTruthy();
 			expect(diagnostic.range.start.character).toBe(8);
 			expect(diagnostic.range.end.character).toBe(11);
+		}
+		if (diagnostic.code == MmpParserErrorCode.workingVarUnificationError) {
+			const errMsg = 'Working Var unification error: the  working var &W2 should be ' +
+				'replaced with the following subformula, containing itself ( &W2 -> ph )';
+			expect(diagnostic.message).toEqual(errMsg);
+			expect(diagnostic.range.start.line).toBe(2);
+			expect(diagnostic.range.start.character).toBe(10);
+			expect(diagnostic.range.end.character).toBe(15);
 		}
 	});
 });

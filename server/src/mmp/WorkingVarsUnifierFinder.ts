@@ -13,6 +13,8 @@ export type OrderedPairOfNodes = {
 export enum UnificationAlgorithmState {
 	// the algorithm needs at least another cycle
 	running = "running",
+	// two constants don't match
+	clashFailure = "clashFailure",
 	// a working var should be replaced with a ParseNode containing it
 	occourCheckFailure = "occourCheckFailure",
 	// the unification was successfully computed
@@ -25,7 +27,7 @@ export enum UnificationAlgorithmState {
  * 
  * Here is a list of the 6 rules, referred in the code:
  * 1. f(s1,...,sn) ~ f(t1,...,tn)                   action: replace by s1=t1,...,sn=tn
- * 2. f(s1,...,sn) ~ g(t1,...,tn)  where f != g     action: halt with "clash" failure (this case will never happen,
+ * 2. f(s1,...,sn) ~ g(t1,...,tm)  where f != g     action: halt with "clash" failure (this case will never happen,
  *                                                          because we get here, only when we've found a valid substitution)
  * 3. x ~ x                                         action: delete the pair
  * 4. t ~ x   where t is not a variable             action: replace by x ~ t
@@ -36,15 +38,23 @@ export enum UnificationAlgorithmState {
 export class WorkingVarsUnifierFinder {
 
 	currentState: UnificationAlgorithmState | undefined;
+	
 	/**
 	 * when the unification is succesfully completed, this substitutionResult will contain
 	 * a Most General Unifier for Working Vars
 	 */
 	mostGeneralUnifierResult: Map<string, InternalNode>;
-	/**if the MGU algorith ends in error, this will contain the pari of nodes that gave the occur check error;
+	
+	/**if the MGU algorith ends in error, this will contain the pair of nodes that gave the occur check error;
 	 * the first node is a node for a working var
 	 */
 	occourCheckOrderedPair: OrderedPairOfNodes | undefined;
+
+	/** if the MGU algorith ends in clash failure error, this will contain the pair of nodes that gave the clash failure error;
+	* the first node is a node for a working var
+	*/
+	clashFailureOrderedPair: OrderedPairOfNodes | undefined;
+
 
 	// private uProof: UProof;
 	// private labelToStatementMap: Map<string, LabeledStatement>;
@@ -54,12 +64,7 @@ export class WorkingVarsUnifierFinder {
 
 	// alreadyReplacedWorkingVars: Set<string>;
 
-	//TODO check why this.uProof and this.labelToStatementMap are never used
-	//you can probably remove the parameters _uProof and _labelToStatementMap
-	// constructor(_uProof: UProof, _labelToStatementMap: Map<string, LabeledStatement>, startingOrderedPairsOfNodes: OrderedPairOfNodes[]) {
-	constructor(startingOrderedPairsOfNodes: OrderedPairOfNodes[]) {
-		// this.uProof = uProof;
-		// this.labelToStatementMap = labelToStatementMap;
+	constructor(startingOrderedPairsOfNodes: OrderedPairOfNodes[], private logicalVariables: Set<string>) {
 		this.currentOrderedPairsOfNodes = startingOrderedPairsOfNodes;
 
 		this.mostGeneralUnifierResult = new Map<string, InternalNode>();
@@ -71,6 +76,12 @@ export class WorkingVarsUnifierFinder {
 	//#region runACycle
 
 	//#region tryToPerformAnActionForCurrentPair
+
+	private isInternalNodeForVariable(parseNode: InternalNode): boolean {
+		const result: boolean = GrammarManager.isInternalParseNodeForWorkingVar(parseNode) ||
+			GrammarManager.isInternalParseNodeForFHyp(parseNode, this.logicalVariables);
+		return result;
+	}
 
 	//#region applyRule1
 	buildOrderedPairsForChildren(node1: InternalNode, node2: InternalNode): OrderedPairOfNodes[] {
@@ -120,19 +131,26 @@ export class WorkingVarsUnifierFinder {
 
 	tryToPerformAnActionForCurrentPair(i: number): boolean {
 		const orderedPair = this.currentOrderedPairsOfNodes[i];
-		const parseNode1 = orderedPair.parseNode1;
-		const parseNode2 = orderedPair.parseNode2;
+		const parseNode1: InternalNode = orderedPair.parseNode1;
+		const parseNode2: InternalNode = orderedPair.parseNode2;
 
-		const isParseNode1WorkingVar = GrammarManager.isInternalParseNodeForWorkingVar(parseNode1);
-		const isParseNode2WorkingVar = GrammarManager.isInternalParseNodeForWorkingVar(parseNode2);
+		const isParseNode1WorkingVar = this.isInternalNodeForVariable(parseNode1);
+		// const isParseNode2WorkingVar = GrammarManager.isInternalParseNodeForWorkingVar(parseNode2);
+		const isParseNode2WorkingVar = this.isInternalNodeForVariable(parseNode2);
 
 		let hasBeenPerformedOneAction = false;
 
-		if (!isParseNode1WorkingVar && !isParseNode2WorkingVar) {
+		if (!isParseNode1WorkingVar && !isParseNode2WorkingVar && parseNode1.label == parseNode2.label) {
 			// rule 1
 			this.applyRule1(i, parseNode1, parseNode2);
 			hasBeenPerformedOneAction = true;
-		} else if (GrammarManager.areParseNodesEqual(parseNode1, parseNode2)) {
+		} else if (!isParseNode1WorkingVar && !isParseNode2WorkingVar && parseNode1.label != parseNode2.label) {
+			// rule 2
+			this.currentState = UnificationAlgorithmState.clashFailure;
+			this.clashFailureOrderedPair = { parseNode1: parseNode1, parseNode2: parseNode2 };
+			hasBeenPerformedOneAction = true;
+		}
+		else if (GrammarManager.areParseNodesEqual(parseNode1, parseNode2)) {
 			// rule 3
 			this.currentOrderedPairsOfNodes.splice(i, 1);
 			hasBeenPerformedOneAction = true;

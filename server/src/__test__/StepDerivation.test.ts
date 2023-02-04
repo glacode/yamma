@@ -220,6 +220,25 @@ test('Derive eHps for existing label', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
+test('Derive from wrong eHps and existing label', () => {
+	const mmpSource =
+		'd1:: |- &W1\n' +
+		'd2:: |- ( &W1 -> ph )\n' +
+		'qed:d2,d1:ax-mp |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 1000);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'd1::                |- &W1\n' +
+		'd2::                |- ( &W1 -> ph )\n' +
+		'qed:d1,d2:ax-mp    |- ph\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
 test('Derive 1 of 2 eHyps', () => {
 	const mmpSource =
 		'd1:: |- &W1\n' +
