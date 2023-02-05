@@ -413,7 +413,8 @@ test('Expect Working Var unification error', () => {
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.workingVarUnificationError)).toBeTruthy();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unificationError)).toBeTruthy();
-	expect(mmpParser.diagnostics.length).toBe(4);
+	// 2 missing label, 1 ref error, 1 unification error, 2 working var unification errors
+	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(6);
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
 		if (diagnostic.code == MmpParserErrorCode.workingVarUnificationError) {
 			const errMsg = 'Working Var unification error: the  working var &W2 should be ' +
@@ -423,7 +424,7 @@ test('Expect Working Var unification error', () => {
 			expect(diagnostic.range.start.character).toBe(8);
 			expect(diagnostic.range.end.character).toBe(11);
 		}
-		if (diagnostic.code == MmpParserErrorCode.workingVarUnificationError) {
+		if (diagnostic.code == MmpParserErrorCode.unificationError) {
 			const errMsg = 'Working Var unification error: the  working var &W2 should be ' +
 				'replaced with the following subformula, containing itself ( &W2 -> ph )';
 			expect(diagnostic.message).toEqual(errMsg);

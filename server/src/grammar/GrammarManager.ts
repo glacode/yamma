@@ -242,6 +242,17 @@ export abstract class GrammarManager {
 		return workingVar;
 	}
 
+	/**
+	 * this method can be invoded only when parseNode is an InternalNode with
+	 * a single child, that is a MmToken
+	 * @param parseNode
+	 * @returns 
+	 */
+	static getTokenFromInternalNode(parseNode: InternalNode): MmToken {
+		const result: MmToken = <MmToken>(parseNode.parseNodes[0]);
+		return result;
+	}
+
 	static createInternalNodeForWorkingVar(workingVar: string, kind: string, tokenType: string):
 		InternalNode {
 		const parseNodes: MmToken[] = [new MmToken(workingVar, 0, 0, tokenType)];

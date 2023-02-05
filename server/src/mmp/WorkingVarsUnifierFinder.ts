@@ -227,5 +227,12 @@ export class WorkingVarsUnifierFinder {
 	}
 	//#endregion findMostGeneralUnifier
 
+	public static buildErrorMessageForOccourCheckOrderedPair(occourCheckOrderedPair: OrderedPairOfNodes): string {
+		const workingVar: string = GrammarManager.getTokenValueFromInternalNode(occourCheckOrderedPair.parseNode1);
+		const strParseNode2: string = GrammarManager.buildStringFormula(occourCheckOrderedPair.parseNode2);
+		const errorMessage: string = `Working Var unification error: the  working var ${workingVar} should be ` +
+			`replaced with the following subformula, containing itself ${strParseNode2}`;
+		return errorMessage;
+	}
 
 }

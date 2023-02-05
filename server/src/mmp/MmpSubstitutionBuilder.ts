@@ -10,6 +10,8 @@ import { MmpProofStep } from "./MmpProofStep";
 import { EHyp } from '../mm/EHyp';
 import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
 import { OrderedPairOfNodes, WorkingVarsUnifierFinder, UnificationAlgorithmState } from './WorkingVarsUnifierFinder';
+import { MmpValidator } from './MmpValidator';
+import { MmpParserErrorCode } from './MmpParser';
 
 
 export interface SubstitutionResult {
@@ -198,6 +200,7 @@ export class MmpSubstitutionBuilder {
 			// logicalSystemFormulaInternalNode.parseNodes[0] is an InternalNode
 			if (logicalSystemFormulaInternalNode.parseNodes.length !=
 				uStepInternalNode.parseNodes.length)
+				//TODO1 add diagnosticts for every hasFoundSubstitution = false case
 				hasFoundSubstitution = false;
 			else {
 				hasFoundSubstitution = this.buildSubstitutionForChildren(logicalSystemFormulaInternalNode.parseNodes,
@@ -299,7 +302,35 @@ export class MmpSubstitutionBuilder {
 	//#endregion buildSubstitutionForEHyps
 
 	//#region tryToUnifyWorkingVars
-	tryToUnifyWorkingVars(substitution: Map<string, InternalNode>): boolean {
+	//#region addDiagnosticsForWorkingVarsIfTheCase
+	addDiagnosticsForWorkingVar(strWorkingVar: string, parseNode: ParseNode, message: string) {
+		if (parseNode instanceof MmToken && parseNode.value == strWorkingVar)
+			// current ParseNode is an instance of the working var token
+			MmpValidator.addDiagnosticError(message, parseNode.range,
+				MmpParserErrorCode.workingVarUnificationError, this.diagnostics);
+		else if (parseNode instanceof InternalNode)
+			parseNode.parseNodes.forEach((childNode: ParseNode) => {
+				this.addDiagnosticsForWorkingVar(strWorkingVar, childNode, message);
+			});
+	}
+	private addDiagnosticsForWorkingVarsIfTheCase(workingVarsUnifierFinder: WorkingVarsUnifierFinder) {
+		if (workingVarsUnifierFinder.currentState == UnificationAlgorithmState.occourCheckFailure) {
+			const occourCheckOrderedPair: OrderedPairOfNodes =
+				workingVarsUnifierFinder.occourCheckOrderedPair!;
+			const parseNode1: ParseNode = workingVarsUnifierFinder.occourCheckOrderedPair!.parseNode1;
+			const parseNode2: ParseNode = workingVarsUnifierFinder.occourCheckOrderedPair!.parseNode2;
+			const message = WorkingVarsUnifierFinder.buildErrorMessageForOccourCheckOrderedPair(
+				occourCheckOrderedPair);
+			MmpValidator.addDiagnosticError(message, this.uProofStep.stepLabelToken!.range,
+				MmpParserErrorCode.unificationError, this.diagnostics);
+			const strWorkingVar: string = GrammarManager.getTokenValueFromInternalNode(
+				occourCheckOrderedPair.parseNode1);
+			this.addDiagnosticsForWorkingVar(strWorkingVar, parseNode1, message);
+			this.addDiagnosticsForWorkingVar(strWorkingVar, parseNode2, message);
+		}
+	}
+	//#endregion addDiagnosticsForWorkingVarsIfTheCase
+	private tryToUnifyWorkingVars(substitution: Map<string, InternalNode>): boolean {
 		const workingVarsUnifierInitializer: WorkingVarsUnifierInitializer =
 			new WorkingVarsUnifierInitializer(this.uProofStep, this.assertion, substitution, this.outermostBlock,
 				this.grammar);
@@ -309,6 +340,7 @@ export class MmpSubstitutionBuilder {
 			new WorkingVarsUnifierFinder(startingPairsForMGUAlgorthm, this.outermostBlock.v);
 		workingVarsUnifierFinder.findMostGeneralUnifier();
 		const result: boolean = workingVarsUnifierFinder.currentState == UnificationAlgorithmState.complete;
+		this.addDiagnosticsForWorkingVarsIfTheCase(workingVarsUnifierFinder);
 		return result;
 	}
 	//#endregion tryToUnifyWorkingVars
@@ -320,7 +352,7 @@ export class MmpSubstitutionBuilder {
 			hasBeenFound = this.buildSubstitutionForSingleLine(this.assertion.parseNode,
 				this.uProofStep.stepFormula, this.uProofStep.parseNode, substitution);
 		//TODO1
-		// if (hasBeenFound)
+		// if (hasBeenFound && !this.requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar)
 		// 	hasBeenFound = this.tryToUnifyWorkingVars(substitution);
 		return { hasBeenFound: hasBeenFound, substitution: substitution };
 	}
@@ -384,7 +416,7 @@ export class MmpSubstitutionBuilder {
 		if (substitutionResult.hasBeenFound) {
 			this.addWorkingVarsForLogicalVarsWithoutASubstitution(<Map<string, InternalNode>>substitutionResult.substitution);
 			if (!this.requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar)
-				// this is invoked by a derivation step (WorkingVars must be exact, no unification should be tried)
+				// this is NOT invoked by a derivation (WorkingVars Unification should be tried)
 				substitutionResult.hasBeenFound =
 					this.tryToUnifyWorkingVars(<Map<string, InternalNode>>substitutionResult.substitution);
 		}

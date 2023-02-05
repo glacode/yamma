@@ -666,13 +666,6 @@ export class MmpParser {
 	//#region checkUnificationOfWorkingVars
 
 	//#region addDiagnosticsForWorkingVarsMGUerror
-	buildErrorMessageForOccourCheckOrderedPair(workingVar: string, parseNode2: InternalNode): string {
-		const strParseNode2: string = GrammarManager.buildStringFormula(parseNode2);
-		const errorMessage: string = `Working Var unification error: the  working var ${workingVar} should be ` +
-			`replaced with the following subformula, containing itself ${strParseNode2}`;
-		return errorMessage;
-	}
-
 	//#region addDiagnosticForEachOccourenceOfWorkingVar
 	addDiagnosticForOccourenceOfWorkingVarToSingleParseNode(parseNode: InternalNode, workingVar: string, errorMessage: string) {
 		parseNode.parseNodes.forEach((childNode: ParseNode) => {
@@ -707,8 +700,9 @@ export class MmpParser {
 	}
 	//#endregion addDiagnosticForEachOccourenceOfWorkingVar
 	protected addDiagnosticsForWorkingVarsMGUerror(occourCheckOrderedPair: OrderedPairOfNodes) {
+		const errorMessage: string = WorkingVarsUnifierFinder.buildErrorMessageForOccourCheckOrderedPair(
+			occourCheckOrderedPair);
 		const workingVar: string = GrammarManager.getTokenValueFromInternalNode(occourCheckOrderedPair.parseNode1);
-		const errorMessage: string = this.buildErrorMessageForOccourCheckOrderedPair(workingVar, occourCheckOrderedPair.parseNode2);
 		this.addDiagnosticForEachOccourenceOfWorkingVar(workingVar, errorMessage);
 	}
 	//#endregion addDiagnosticsForWorkingVarsMGUerror
