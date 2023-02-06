@@ -321,7 +321,6 @@ test('Derive eHyps for complete (but wrong) existing refs', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1
 test('StepDerivation for nonexistent label', () => {
 	const mmpSource =
 		'2:: |- ( ph -> &W2 )\n' +
@@ -340,6 +339,27 @@ test('StepDerivation for nonexistent label', () => {
 		'3::                 |- ( &W2 -> &W3 )\n' +
 		'4::                 |- ( &W3 -> ps )\n' +
 		'5:2,3,4:3syl       |- ( ph -> ps )\n' +
+		'qed::b             |- ch\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
+//TODO1
+test('StepDerivation for given label, with working var', () => {
+	const mmpSource =
+		'd2::                |- &W2\n' +
+		'd3::                |- ( &W2 -> &W1 )\n' +
+		'd1:d3,d2:ax-mp     |- &W1\n' +
+		'qed::b |- ch';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'd2::                |- &W2\n' +
+		'd3::                |- ( &W2 -> &W1 )\n' +
+		'd1:d2,d3:ax-mp     |- &W1\n' +
 		'qed::b             |- ch\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });
