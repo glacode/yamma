@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
+import { Diagnostic, DiagnosticSeverity, TextDocuments } from 'vscode-languageserver';
 import { Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from './MmpParser';
@@ -17,7 +17,7 @@ export class MmpValidator {
 	private formulaToParseNodeCache: FormulaToParseNodeCache;
 	diagnostics: Diagnostic[] = [];
 
-	constructor(mmParser: MmParser, private globalState: GlobalState ) {
+	constructor(mmParser: MmParser, private globalState: GlobalState) {
 		this.mmParser = mmParser;
 		this.formulaToParseNodeCache = globalState.formulaToParseNodeCache;
 	}
@@ -106,5 +106,26 @@ export class MmpValidator {
 			code: code
 		};
 		diagnostics.push(diagnostic);
+	}
+
+	//#region buildMmpParserFromUri
+	static buildMmpParserFromText(textToParse: string, mmParser: MmParser,
+		formulaToParseNodeCache: FormulaToParseNodeCache): MmpParser {
+		const mmpParser = new MmpParser(textToParse, mmParser,
+			mmParser.workingVars, formulaToParseNodeCache);
+		mmpParser.parse();
+		return mmpParser;
+	}
+
+	static buildMmpParserFromUri(textDocumentUri: string, documents: TextDocuments<TextDocument>,
+		mmParser: MmParser, formulaToParseNodeCache: FormulaToParseNodeCache): MmpParser | undefined {
+		const textToParse: string | undefined = documents.get(textDocumentUri)?.getText();
+		let mmpParser: MmpParser | undefined;
+		if (textToParse != undefined) {
+			mmpParser = MmpValidator.buildMmpParserFromText(
+				textToParse, mmParser, formulaToParseNodeCache);
+			return mmpParser;
+		}
+		//#endregion buildMmpParserFromUri
 	}
 }

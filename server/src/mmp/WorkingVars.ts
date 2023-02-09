@@ -40,7 +40,7 @@ export class WorkingVars {
 	static getKindToWorkingVarPrefixMap(variableKindsConfiguration: Map<string, IVariableKindConfiguration>): Map<string, string> {
 		const kindToWorkingVarPrefixMapesult: Map<string, string> = new Map<string, string>();
 		variableKindsConfiguration.forEach((variableKindConfiguration: IVariableKindConfiguration, variableKind: string) => {
-			kindToWorkingVarPrefixMapesult.set(variableKind,variableKindConfiguration.workingVarPrefix);
+			kindToWorkingVarPrefixMapesult.set(variableKind, variableKindConfiguration.workingVarPrefix);
 		});
 		return kindToWorkingVarPrefixMapesult;
 	}
@@ -48,6 +48,7 @@ export class WorkingVars {
 	//TODO this is note used by anything, and _value is not use. What
 	//did you want to do?
 	reset() {
+		this._alreadyCreatedWorkingVars.clear();
 		this.kindToPrefixMap.forEach((_value: string, key: string) => {
 			this._maxIndex.set(key, 0);
 		});
@@ -76,7 +77,7 @@ export class WorkingVars {
 	}
 
 	//#region tokenType
-	isAWorkingVarToken(value: string) {
+	isAWorkingVarSymbol(value: string) {
 		const isAWorkingVar: boolean = value.startsWith('&') && value.length > 2 &&
 			this.kindOf(value) != undefined && !isNaN(parseInt(value.substring(2)));
 		return isAWorkingVar;
@@ -85,7 +86,7 @@ export class WorkingVars {
 		let tokenType: string | undefined;
 		// if (value.startsWith("&") && value.length > 1)
 		// 	tokenType = this.prefixToKindMap.get(value.charAt(1));
-		if (this.isAWorkingVarToken(value)) {
+		if (this.isAWorkingVarSymbol(value)) {
 			// const kind: string | undefined = this.prefixToKindMap.get(value.charAt(1));
 			const kind: string | undefined = this.kindOf(value);
 			if (kind != undefined)
@@ -136,8 +137,9 @@ export class WorkingVars {
 	 * @param symbol 
 	 */
 	updateWorkingVarsIfTheCase(symbol: string): void {
-		this._alreadyCreatedWorkingVars.add(symbol);
-		if (this.isAlreadyExistentWorkingVar(symbol)) {
+		if (this.isAWorkingVarSymbol(symbol)) {
+			this._alreadyCreatedWorkingVars.add(symbol);
+			// if (this.isAlreadyExistentWorkingVar(symbol)) {
 			const kind: string = <string>this.kindOf(symbol);
 			const currentMaxIndex: number = <number>(this._maxIndex.get(kind));
 			const workingVarIndex: number = this.indexOf(symbol);

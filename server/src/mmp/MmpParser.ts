@@ -89,7 +89,7 @@ export class MmpParser {
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
 	constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars,
-		private formulaToParseNodeCache?: FormulaToParseNodeCache) {
+		public formulaToParseNodeCache?: FormulaToParseNodeCache) {
 		// this.textDocument = textDocument;
 		this.textToParse = textToParse;
 		this.mmParser = mmParser;

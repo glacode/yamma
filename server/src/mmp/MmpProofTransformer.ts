@@ -19,6 +19,7 @@ import { StepDerivation } from '../stepDerivation/StepDerivation';
 import { MmpParser } from './MmpParser';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
+import { BuildNewLabelArgs, EHypLabelManager } from './EHypLabelManager';
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -177,6 +178,20 @@ export class MmpProofTransformer {
 	}
 	//#endregion setIsProvenIfTheCase
 
+	transformEHyp(currentMmpStatement: MmpProofStep, currentIndexInEHypLabel: number): number {
+		let nextLabelIndexToBeAssigned: number = currentIndexInEHypLabel;
+		if (this.uProof.theoremLabel != undefined) {
+			const buildNewLabelArgs: BuildNewLabelArgs = {
+				theoremLabel: this.uProof.theoremLabel.value,
+				eHyp: currentMmpStatement,
+				nextLabelIndexToBeAssigned: currentIndexInEHypLabel,
+			};
+			EHypLabelManager.buildNewLabelIfNeeded(buildNewLabelArgs);
+			nextLabelIndexToBeAssigned = buildNewLabelArgs.nextLabelIndexToBeAssigned;
+		}
+		return nextLabelIndexToBeAssigned;
+	}
+
 	//#region transformUStep
 	tryToDeriveEHypsOnly(uStepIndex: number, mmpProofStep: MmpProofStep) {
 		if (mmpProofStep.assertion instanceof AssertionStatement
@@ -292,10 +307,14 @@ export class MmpProofTransformer {
 
 	protected transformUSteps() {
 		let i = 0;
+		let currentIndexInEHypLabel = 1;
 		while (i < this.uProof.uStatements.length) {
 			const currentMmpStatement: IMmpStatement = this.uProof.uStatements[i];
-			if (currentMmpStatement instanceof MmpProofStep && !currentMmpStatement.isEHyp) {
-				// this.addUStep(uStatement, uProof.refToUStatementMap, newProof);
+			if (currentMmpStatement instanceof MmpProofStep && currentMmpStatement.isEHyp) {
+				currentIndexInEHypLabel = this.transformEHyp(currentMmpStatement, currentIndexInEHypLabel);
+				i++;
+			} else if (currentMmpStatement instanceof MmpProofStep) {
+				// !currentMmpStatement.isEHyp
 				i = this.transformUStep(i);
 			} else {
 				if (currentMmpStatement instanceof TextForProofStatement ||
@@ -314,7 +333,8 @@ export class MmpProofTransformer {
 			new WorkingVarsUnifierFinder(this._orderedPairsOfNodesForMGUalgorithm, new Set<string>());
 		const unifier: Map<string, InternalNode> | undefined = workingVarsUnifierFinder.findMostGeneralUnifier();
 		if (unifier !== undefined) {
-			const uUnifierApplier: WorkingVarsUnifierApplier = new WorkingVarsUnifierApplier(unifier, this.uProof);
+			const uUnifierApplier: WorkingVarsUnifierApplier =
+				new WorkingVarsUnifierApplier(unifier, this.uProof, this.mmpParser.formulaToParseNodeCache);
 			uUnifierApplier.applyUnifier();
 		}
 	}
