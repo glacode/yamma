@@ -343,8 +343,7 @@ test('StepDerivation for nonexistent label', () => {
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
-//TODO1
-test('StepDerivation for given label, with working var', () => {
+test('Ehyps derivation for given label, with working var', () => {
 	const mmpSource =
 		'd2::                |- &W2\n' +
 		'd3::                |- ( &W2 -> &W1 )\n' +
@@ -361,5 +360,26 @@ test('StepDerivation for given label, with working var', () => {
 		'd3::                |- ( &W2 -> &W1 )\n' +
 		'd1:d2,d3:ax-mp     |- &W1\n' +
 		'qed::b             |- ch\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
+// this was failing, because in the syl statement, the ch logical var
+// is expected to be substituted in the $p statement, and the
+// first version of the code didn't do it
+test('Ehyps derivation 2 for given label, with ch sustituted in the $p', () => {
+	const mmpSource =
+		'1::      |- ( ph -> ps )\n' +
+		'2::      |- ( ch -> ph )\n' +
+		'qed::syl |- ( ch -> ps )';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'1::                 |- ( ph -> ps )\n' +
+		'2::                 |- ( ch -> ph )\n' +
+		'qed:2,1:syl        |- ( ch -> ps )\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });

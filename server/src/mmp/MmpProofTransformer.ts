@@ -195,13 +195,20 @@ export class MmpProofTransformer {
 	//#region transformUStep
 	tryToDeriveEHypsOnly(uStepIndex: number, mmpProofStep: MmpProofStep) {
 		if (mmpProofStep.assertion instanceof AssertionStatement
-			&& !GrammarManager.isSyntaxAxiom2(mmpProofStep.assertion)) {
+			&& !GrammarManager.isSyntaxAxiom2(mmpProofStep.assertion) &&
+			mmpProofStep.parseNode != undefined) {
+			const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
 			const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(
 				mmpProofStep, mmpProofStep.assertion, this.outermostBlock, this.workingVars, this.grammar, [], true);
-			const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
-				this.maxNumberOfHypothesisDispositionsForStepDerivation);
-			stepDerivation.tryEHypsDerivation(mmpProofStep.assertion, uSubstitutionBuilder,
-				new Map<string, InternalNode>());
+			//TODO1 build substitution for mmpProofStep.parseNode
+			const foundSubstitution: boolean = uSubstitutionBuilder.buildSubstitutionForParseNode(
+				mmpProofStep.assertion.parseNode, mmpProofStep.parseNode, substitution);
+			if (foundSubstitution) {
+				const stepDerivation: StepDerivation = new StepDerivation(this.mmpParser, uStepIndex, mmpProofStep,
+					this.maxNumberOfHypothesisDispositionsForStepDerivation);
+				stepDerivation.tryEHypsDerivation(mmpProofStep.assertion, uSubstitutionBuilder,
+					substitution);
+			}
 		}
 	}
 	deriveLabelAndHypotesisWithoutWorkingVars(uStepIndex: number, mmpProofStep: MmpProofStep) {
