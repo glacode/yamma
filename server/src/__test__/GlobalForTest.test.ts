@@ -70,6 +70,8 @@ elexdMmParser.createParseNodesForAssertionsSync();
 // vexTheoryMmParser.ParseText(vexTheory);
 export const vexTheoryMmParser: MmParser = createMmParser('vex.mm');
 
+export const vexStatistics: MmStatistics = new MmStatistics(vexTheoryMmParser);
+vexStatistics.buildStatistics();
 
 
 export const kindToPrefixMap: Map<string, string> = new Map<string, string>();

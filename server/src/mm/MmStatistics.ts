@@ -2,6 +2,7 @@
 
 import { MmParser } from './MmParser';
 import { AssertionStatement } from "./AssertionStatement";
+import { EHyp } from './EHyp';
 
 export class MmStatistics {
 	mmParser: MmParser;
@@ -14,18 +15,27 @@ export class MmStatistics {
 	}
 
 	//#region buildStatistics
-	//TODO1 decide if you want to add EHyps also
-	private buildStatisticsForAssertion(assertion: AssertionStatement) {
-		assertion.formula.forEach((symbol: string) => {
+
+	//#region buildStatisticsForAssertion
+
+	buildStatisticsForSingleFormula(formula: string[], assertion: AssertionStatement) {
+		formula.forEach((symbol: string) => {
 			let setForThisSymbol: Set<AssertionStatement> | undefined = this.symbolToAssertionsMap?.get(symbol);
 			if (setForThisSymbol == undefined) {
 				// this symbol has not been added to the map yet
 				setForThisSymbol = new Set<AssertionStatement>();
-				this.symbolToAssertionsMap?.set(symbol,setForThisSymbol);
+				this.symbolToAssertionsMap?.set(symbol, setForThisSymbol);
 			}
 			setForThisSymbol.add(assertion);
 		});
 	}
+	private buildStatisticsForAssertion(assertion: AssertionStatement) {
+		this.buildStatisticsForSingleFormula(assertion.formula, assertion);
+		assertion.frame?.eHyps.forEach((eHyp: EHyp) => {
+			this.buildStatisticsForSingleFormula(eHyp.formula, assertion);
+		});
+	}
+	//#endregion buildStatisticsForAssertion
 
 	/**
 	 * builds the statistics for the given theory

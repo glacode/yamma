@@ -16,9 +16,6 @@
 	"engines": {
 		"vscode": "^1.69.0"
 	},
-	"activationEvents": [
-		"onLanguage:yamma"
-	],
 	"main": "./client/out/extension",
 	"contributes": {
 		"languages": [

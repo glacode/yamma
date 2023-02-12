@@ -3,7 +3,7 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { SearchStatementCompletionProvider } from '../search/SearchStatementCompletionProvider';
-import { kindToPrefixMap, mp2MmParser, mp2Statistics } from './GlobalForTest.test';
+import { kindToPrefixMap, mp2MmParser, mp2Statistics, vexStatistics, vexTheoryMmParser } from './GlobalForTest.test';
 
 test("SearchStatementCompletionProvider 1", () => {
 	const mmpSource: string =
@@ -74,4 +74,25 @@ test("SearchStatementCompletionProvider multiline", () => {
 	expect(additionalTextEdit.newText).toEqual('ax-mp\n');
 	const lineForLabelInsertion = completionItem.command!.arguments![0][3];
 	expect(lineForLabelInsertion).toBe(1);
+});
+
+//TODO1
+test("SearchStatementCompletionProvider with symbol in EHyp", () => {
+	const mmpSource: string =
+		'h50::hyp1 |- ph\n' +
+		'51::      |- ps\n' +
+		'SearchSymbols: | A  SearchComment: \n' +
+		'qed:: |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	// const outermostBlock: BlockStatement = new BlockStatement(null);
+	mmpParser.parse();
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.uStatements[2];
+	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
+		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, vexStatistics);
+	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
+	expect(completionItems.length).toBe(2);
+	const completionItem: CompletionItem = completionItems[0];
+	expect(completionItem.label).toBe('abeq2d');
+	expect(completionItems[1].label).toBe('abeq2i');
+	
 });
