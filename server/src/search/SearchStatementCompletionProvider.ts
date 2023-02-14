@@ -130,7 +130,7 @@ export class SearchStatementCompletionProvider {
 	}
 
 	completionItems(): CompletionItem[] {
-		const assertionsSets: Set<Set<AssertionStatement>> = this.assertionsSets();
+		const assertionsSets: Set<Set<AssertionStatement>> = this.		assertionsSets();
 		const assertionsInTheIntersection: Set<AssertionStatement> | undefined = intersection<AssertionStatement>(assertionsSets);
 		const result: CompletionItem[] = this.completionItemsForAssertionsInTheIntersections(assertionsInTheIntersection);
 		if (result.length == 0)

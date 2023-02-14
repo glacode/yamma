@@ -68,6 +68,7 @@ export class EHypsDerivation {
 	//#region isEHypUnifiableWithCurrentProofStep
 	private isEHypUnifiableWithCurrentProofStep(currentEHyp: EHyp, eHypProofStepCandidate: MmpProofStep): boolean {
 		const substitutionFound: boolean =
+			eHypProofStepCandidate.parseNode != undefined &&
 			this.uSubstitutionBuilder.buildSubstitutionForSingleLine(currentEHyp.parseNode, eHypProofStepCandidate.formula,
 				eHypProofStepCandidate.parseNode, this.substitution);
 		return substitutionFound;
@@ -83,6 +84,7 @@ export class EHypsDerivation {
 	}
 	tryEHypProofStepCandidate(currentEHypIndexForStepDerivation: number, currentEHypRealIndex: number,
 		currentEHyp: EHyp, eHypProofStepCandidate: MmpProofStep) {
+		//TODO1 if eHypProofStepCandidate does not have a parse node, this MUST fail
 		const isUnifiable: boolean = this.isEHypUnifiableWithCurrentProofStep(currentEHyp, eHypProofStepCandidate);
 		if (isUnifiable) {
 			if (currentEHypIndexForStepDerivation >= this.assertion.frame!.eHyps.length - 1)

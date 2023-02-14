@@ -366,11 +366,10 @@ test('Ehyps derivation for given label, with working var', () => {
 // this was failing, because in the syl statement, the ch logical var
 // is expected to be substituted in the $p statement, and the
 // first version of the code didn't do it
-test('Ehyps derivation 2 for given label, with ch sustituted in the $p', () => {
+test('Ehyps derivation 3 with a candidate without a parse node', () => {
 	const mmpSource =
-		'1::      |- ( ph -> ps )\n' +
-		'2::      |- ( ch -> ph )\n' +
-		'qed::syl |- ( ch -> ps )';
+		'a\n' +
+		'qed::  |- ( ph -> ps )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
@@ -378,8 +377,7 @@ test('Ehyps derivation 2 for given label, with ch sustituted in the $p', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
-		'1::                 |- ( ph -> ps )\n' +
-		'2::                 |- ( ch -> ph )\n' +
-		'qed:2,1:syl        |- ( ch -> ps )\n';
+	'::a                \n' +
+	'qed::              |- ( ph -> ps )\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });
