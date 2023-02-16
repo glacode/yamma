@@ -30,7 +30,6 @@ test('Complete theorem eHyps labels 1', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1
 test('Complete theorem eHyps labels 1', () => {
 	const mmpSource =
 	'$theorem example\n' +

@@ -400,7 +400,6 @@ test('expect 2 hyp refs', () => {
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unknownStepRef)).toBeTruthy();
 });
 
-//TODO1
 test('Expect Working Var unification error', () => {
 	const mmpSource =
 		'd1:: |- &W2\n' +

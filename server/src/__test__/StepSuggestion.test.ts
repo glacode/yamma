@@ -1,12 +1,13 @@
-import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
-import { CursorContext } from "../mmp/CursorContext";
+import { CompletionItem, CompletionItemKind, InsertReplaceEdit } from 'vscode-languageserver';
+import { MmParser } from '../mm/MmParser';
+import { CursorContext, CursorContextForCompletion } from "../mmp/CursorContext";
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { WorkingVars } from '../mmp/WorkingVars';
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { StepSuggestion } from '../stepSuggestion/StepSuggestion';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
-import { kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
+import { impbiiMmParser, kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
 
 test("test 1 SyntaxTreeClassifierFull", () => {
 	// 	50::df-c             |- CC = ( R. X. R. )
@@ -177,4 +178,37 @@ test("test completion items from partial label", () => {
 	expect(completionItems[20].kind).toBe(CompletionItemKind.Text);
 	expect(completionItems[20].detail).toBeUndefined();
 
+});
+
+//TODO1
+test("step suggestion for empty parse node from partial label", () => {
+
+	const mmParser: MmParser = impbiiMmParser;
+
+	const mmpSource =
+		'ax-\n' +
+		'qed: |- ps';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	// const outermostBlock: BlockStatement = new BlockStatement(null);
+	mmpParser.parse();
+	expect(mmpParser.uProof?.uStatements.length).toBe(2);
+	const cursorContext: CursorContext = new CursorContext(0, 3, mmpParser);
+	cursorContext.buildContext();
+	expect(cursorContext.contextForCompletion).toBe(CursorContextForCompletion.stepLabel);
+	const stepSuggestionMap: StepSuggestionMap = new StepSuggestionMap();
+	//full3,cop cxp wcel wcel wcel wa wb TOP,opelxp,1
+
+	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
+
+	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.uProof?.uStatements[0];
+	const stepSuggestion: StepSuggestion = new StepSuggestion(cursorContext, stepSuggestionMap,
+		fomulaClassifiers, mmpProofStep, mmParser);
+	const completionItems: CompletionItem[] = stepSuggestion.completionItems();
+	expect(completionItems.length).toBe(4);
+	expect(completionItems[0].label).toEqual('ax-mp');
+	expect(completionItems[0].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[0].command).toBeDefined();
+	const textEdit: InsertReplaceEdit = <InsertReplaceEdit>completionItems[0].textEdit;
+	expect(textEdit.insert.start.character).toBe(0);
+	expect(textEdit.insert.end.character).toBe(3);
 });

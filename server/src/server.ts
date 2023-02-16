@@ -27,7 +27,8 @@ import {
 } from 'vscode-languageserver/node';
 
 import {
-	TextDocument} from 'vscode-languageserver-textdocument';
+	TextDocument
+} from 'vscode-languageserver-textdocument';
 
 
 
@@ -90,7 +91,7 @@ connection.onInitialize((params: InitializeParams) => {
 			// Tell the client that this server supports code completion.
 			completionProvider: {
 				resolveProvider: true,
-				triggerCharacters: ['.', ' ']
+				triggerCharacters: ['.', '-', '/', '\\', ' ']
 			},
 
 			//Glauco
@@ -171,8 +172,8 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 });
 
 async function unifyAndValidate(textDocumentUri: string) {
-	OnUnifyHandler.unifyAndValidate(textDocumentUri,connection,documents,hasConfigurationCapability,
-		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation,globalState);
+	OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
+		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState);
 }
 
 connection.onRequest('yamma/completionitemselected', unifyAndValidate);

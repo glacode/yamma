@@ -107,15 +107,15 @@ export class StepSuggestion {
 	//#endregion getUnifiableStepSuggestions
 
 	//#region addCompletionItem
-	private insertReplaceEdit(stepSuggestion: IStepSuggestion): InsertReplaceEdit | undefined {
+	private insertReplaceEdit(stepSuggestionLabel: string): InsertReplaceEdit | undefined {
 		let insertReplaceEdit: InsertReplaceEdit | undefined;
 		if (this.mmpProofStep != undefined && this.mmpProofStep.label != undefined) {
 			const insertRange: Range = this.mmpProofStep!.label!.range;
-			const replaceRange: Range = range(stepSuggestion.label, insertRange.start.line, insertRange.start.character);
+			const replaceRange: Range = range(stepSuggestionLabel, insertRange.start.line, insertRange.start.character);
 			insertReplaceEdit = {
 				insert: insertRange,
 				replace: replaceRange,
-				newText: stepSuggestion.label
+				newText: stepSuggestionLabel
 			};
 		}
 		return insertReplaceEdit;
@@ -128,11 +128,11 @@ export class StepSuggestion {
 
 
 
-	private addCompletionItem(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
+	private addCompletionItemFromModel(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
 		completionItems: CompletionItem[]) {
 		const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
 		const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
-		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(stepSuggestion);
+		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(stepSuggestion.label);
 		const completionItem: CompletionItem = {
 			label: stepSuggestion.label,
 			command: this.command,
@@ -153,7 +153,7 @@ export class StepSuggestion {
 		const totalMultiplicity: number =
 			unifiableStepSuggestions.reduce((sum: number, current: IStepSuggestion) => sum + current.multiplicity, 0);
 		unifiableStepSuggestions.forEach((stepSuggestion: IStepSuggestion, i: number) => {
-			this.addCompletionItem(stepSuggestion, i, totalMultiplicity, completionItems);
+			this.addCompletionItemFromModel(stepSuggestion, i, totalMultiplicity, completionItems);
 		});
 		return completionItems;
 	}
@@ -206,11 +206,13 @@ export class StepSuggestion {
 		const regExp = new RegExp(`.*${c0}.*${c1}.*${c2}.*`);
 		return regExp;
 	}
-	createAndAddItem(label: string, i: number, completionItems: CompletionItem[]) {
+	createAndAddItemFromPartialLabel(label: string, i: number, completionItems: CompletionItem[]) {
+		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(label);
 		const completionItem: CompletionItem = {
 			label: label,
 			command: this.command,
 			sortText: this.sortText(this.completionItemKindForPartialLabel, i),
+			textEdit: insertReplaceEdit,
 			kind: this.completionItemKindForPartialLabel
 		};
 		completionItems.push(completionItem);
@@ -222,7 +224,7 @@ export class StepSuggestion {
 			if (regExp.test(label) && this.isUnifiable(label)) {
 				// the current assertion's label contains the partial label input by the user
 				// and it is unifiable with current mmp statement
-				this.createAndAddItem(label, i++, completionItems);
+				this.createAndAddItemFromPartialLabel(label, i++, completionItems);
 			}
 		});
 	}

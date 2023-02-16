@@ -200,7 +200,6 @@ export class MmpProofTransformer {
 			const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
 			const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(
 				mmpProofStep, mmpProofStep.assertion, this.outermostBlock, this.workingVars, this.grammar, [], true);
-			//TODO1 build substitution for mmpProofStep.parseNode
 			const foundSubstitution: boolean = uSubstitutionBuilder.buildSubstitutionForParseNode(
 				mmpProofStep.assertion.parseNode, mmpProofStep.parseNode, substitution);
 			if (foundSubstitution) {
@@ -229,7 +228,7 @@ export class MmpProofTransformer {
 		else
 			this.deriveLabelAndHypotesisWithoutWorkingVars(uStepIndex, mmpProofStep);
 	}
-	//TODO1
+
 	//#region tryToDeriveEhypsIfIncomplete
 	/** eHyps derivation should be tried BEFORE a unification attempt,
 	 * if the current step is parsable, and the ehyps are not complete */
@@ -282,7 +281,6 @@ export class MmpProofTransformer {
 		} else
 			// no valid substitution has been found
 			this.deriveLabelAndHypotesis(uStepIndex, uProofStep);
-		//TODO1 add "else" to try to correct eHypsOrder
 		return nextUStepIndexToBeTransformed;
 	}
 	//#endregion tranformProofStepWithValidAssertionLabel

@@ -200,7 +200,6 @@ test('Complete ax-mp', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1
 test('Mgu inolving logical vars on the right side', () => {
 	const mmpSource =
 		'd1::              |- &W1\n' +
@@ -306,7 +305,6 @@ test('Expect ref error to leave line unchanged', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1
 test('unify a1i with already present working var', () => {
 	const mmpSource =
 		'a::a1i |- &W1\n' +
