@@ -8,6 +8,8 @@ import { LabeledStatement } from "../mm/LabeledStatement";
 import { TheoremCoherenceChecker } from './TeoremCoherenceChecker';
 import { Diagnostic, DiagnosticSeverity, Range } from 'vscode-languageserver';
 import { dummyRange, oneCharacterRange } from '../mm/Utils';
+import { MmStatistics } from '../mm/MmStatistics';
+import { GlobalState } from '../general/GlobalState';
 
 enum MmtLoaderErrorCode {
 	ciclycMmtTheorems = 'ciclycMmtTheorems'
@@ -20,9 +22,12 @@ export class MmtLoader {
 	diagnostics: Diagnostic[];
 	loadFailed: boolean;
 
+	/** used to allow testing */
+	mmStatistics: MmStatistics | undefined;
+
 	private _dirname: string;
 
-	constructor(textDocumentPath: string, mmParser: MmParser) {
+	constructor(textDocumentPath: string, mmParser: MmParser, private globalState?: GlobalState) {
 		this.textDocumentPath = textDocumentPath;
 		this.mmParser = mmParser;
 
@@ -223,6 +228,11 @@ export class MmtLoader {
 		diagnostics.push(diagnostic);
 	}
 
+	private updateStatistics() {
+		if (this.globalState != undefined)
+			MmStatistics.updateStatistics(this.mmParser, this.globalState);
+	}
+
 	/** loads all the .mmt file found in the current folder */
 	loadMmt() {
 		const theoremLabelsInLoadOrder: string[] | undefined = this.theoremLabelsInLoadOrder();
@@ -230,6 +240,7 @@ export class MmtLoader {
 			this.mmParser.on(MmParserEvents.newAxiomStatement, this.completeDataForStatement);
 			this.mmParser.on(MmParserEvents.newProvableStatement, this.completeDataForStatement);
 			this.loadFiles(theoremLabelsInLoadOrder);
+			this.updateStatistics();
 		}
 		else {
 			this.loadFailed;

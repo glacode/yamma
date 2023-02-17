@@ -180,7 +180,6 @@ test("test completion items from partial label", () => {
 
 });
 
-//TODO1
 test("step suggestion for empty parse node from partial label", () => {
 
 	const mmParser: MmParser = impbiiMmParser;

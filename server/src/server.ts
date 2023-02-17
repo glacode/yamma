@@ -148,7 +148,8 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 
 connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
 	if (globalState.mmParser != undefined) {
-		const mmtLoader: MmtLoader = new MmtLoader(pathAndUri.fsPath, globalState.mmParser);
+		const mmtLoader: MmtLoader = new MmtLoader(pathAndUri.fsPath, globalState.mmParser,
+			globalState);
 		mmtLoader.loadMmt();
 		if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
 			const errorMessage: string = mmtLoader.diagnostics[0].message;

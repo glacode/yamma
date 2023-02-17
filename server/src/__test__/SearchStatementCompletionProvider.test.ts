@@ -93,6 +93,5 @@ test("SearchStatementCompletionProvider with symbol in EHyp", () => {
 	expect(completionItems.length).toBe(2);
 	const completionItem: CompletionItem = completionItems[0];
 	expect(completionItem.label).toBe('abeq2d');
-	expect(completionItems[1].label).toBe('abeq2i');
-	
+	expect(completionItems[1].label).toBe('abeq2i');	
 });

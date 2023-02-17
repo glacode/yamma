@@ -3,6 +3,7 @@
 import { MmParser } from './MmParser';
 import { AssertionStatement } from "./AssertionStatement";
 import { EHyp } from './EHyp';
+import { GlobalState } from '../general/GlobalState';
 
 export class MmStatistics {
 	mmParser: MmParser;
@@ -47,4 +48,10 @@ export class MmStatistics {
 		});
 	}
 	//#endregion buildStatistics
+
+	static updateStatistics(mmParser: MmParser, globalState: GlobalState) {
+		const mmStatistics: MmStatistics = new MmStatistics(mmParser);
+		mmStatistics.buildStatistics();
+		globalState.mmStatistics = mmStatistics;
+	}
 }
