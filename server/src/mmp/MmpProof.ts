@@ -78,7 +78,7 @@ export class MmpProof implements ITheoremSignature {
 	/** the number of steps added by the unification; this is added to
 	 * this.formulaToProofStepMap to find the real step index
 	 */
-	stepsInsertedAtASpecificIndexSoFar = 0;
+	private stepsInsertedAtASpecificIndexSoFar = 0;
 
 
 	constructor(outermostBlock: BlockStatement, workingVars: WorkingVars, startIndexForNewRefs?: number) {
