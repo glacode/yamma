@@ -73,8 +73,12 @@ export class MmpProof implements ITheoremSignature {
 	}
 
 	/** maps a (normalized) formula to the index of its MmpProofStep*/
-	formulaToProofStepMap: Map<string,number>;
+	formulaToProofStepMap: Map<string, number>;
 
+	/** the number of steps added by the unification; this is added to
+	 * this.formulaToProofStepMap to find the real step index
+	 */
+	stepsInsertedAtASpecificIndexSoFar = 0;
 
 
 	constructor(outermostBlock: BlockStatement, workingVars: WorkingVars, startIndexForNewRefs?: number) {
@@ -88,7 +92,7 @@ export class MmpProof implements ITheoremSignature {
 		this.disjVars = new DisjointVarMap();
 		this.eHyps = [];
 		this.disjVarUStatements = [];
-		this.formulaToProofStepMap = new Map<string,number>();
+		this.formulaToProofStepMap = new Map<string, number>();
 	}
 
 
@@ -226,6 +230,7 @@ export class MmpProof implements ITheoremSignature {
 		if (this.lastUProofStep != undefined && this.uStatements.indexOf(this.lastUProofStep) < index)
 			this.lastUProofStep = uProofStep;
 		this.updateMaxRefIfItsTheCase(uProofStep.stepRef);
+		this.stepsInsertedAtASpecificIndexSoFar++;
 		// this.refToUStatementMap.set(uProofStep.stepRef!, uProofStep);
 	}
 
@@ -277,12 +282,12 @@ export class MmpProof implements ITheoremSignature {
 	 */
 	createEmptyUStepAndAddItBeforeIndex(index: number): MmpProofStep {
 		const stepRef: string = this.getNewRef();
-		const stepRefToken: MmToken = new MmToken(stepRef,0,0);
+		const stepRefToken: MmToken = new MmToken(stepRef, 0, 0);
 		const firstTokenValue = stepRef + '::';
-		const firstToken: MmToken = new MmToken(firstTokenValue,0,0);
+		const firstToken: MmToken = new MmToken(firstTokenValue, 0, 0);
 		const proofStepFirstTokenInfo: ProofStepFirstTokenInfo = new ProofStepFirstTokenInfo(
-			firstToken,false,stepRefToken);
-		const mmpProofStep = new MmpProofStep(this,proofStepFirstTokenInfo,true,false,stepRefToken);
+			firstToken, false, stepRefToken);
+		const mmpProofStep = new MmpProofStep(this, proofStepFirstTokenInfo, true, false, stepRefToken);
 		// const uProofStep = new UProofStep(this, true, false, stepRef, [], undefined, undefined, undefined);
 		// this.addUProofStepAtIndex(uProofStep, index);
 		// return uProofStep;
@@ -345,6 +350,14 @@ export class MmpProof implements ITheoremSignature {
 	}
 	//#endregion mandatoryFHypsLabelsInRPNorder
 
-
-
+	/** returns the actual index for the fiven formula; formulaToProofStepMap is
+	 * adjusted, considering proof steps that could have been added, so far
+	 */
+	adjustedStepIndexForThisFormula(formula: string): number | undefined {
+		const originalIndex: number | undefined =
+			this.formulaToProofStepMap.get(formula);
+		const adjustedIndex: number | undefined = originalIndex != undefined ?
+			originalIndex + this.stepsInsertedAtASpecificIndexSoFar : undefined;
+		return adjustedIndex;
+	}
 }

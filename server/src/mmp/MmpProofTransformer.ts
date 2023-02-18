@@ -301,11 +301,12 @@ export class MmpProofTransformer {
 		if (!uProofStep.containsUnknownStepRef && uProofStep.assertion instanceof AssertionStatement
 			&& !GrammarManager.isSyntaxAxiom2(uProofStep.assertion)) {
 			// the proof step has a label for a valid assertion
+			// const nextUStepIndexIfNoProofStepIsAdded = nextUStepIndexToBeTransformed;
 			nextUStepIndexToBeTransformed = this.tranformProofStepWithValidAssertionLabel(
 				uStepIndex, uProofStep, uProofStep.assertion);
-
-
-			// }
+			// const proofStepsAddedByThisStepTransformation = nextUStepIndexToBeTransformed -
+			// 	nextUStepIndexIfNoProofStepIsAdded;
+			// this.uProof.stepsInsertedAtASpecificIndexSoFar += proofStepsAddedByThisStepTransformation;
 		}
 		return nextUStepIndexToBeTransformed;
 	}

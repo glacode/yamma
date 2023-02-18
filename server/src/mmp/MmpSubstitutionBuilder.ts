@@ -351,9 +351,6 @@ export class MmpSubstitutionBuilder {
 		if (hasBeenFound)
 			hasBeenFound = this.buildSubstitutionForSingleLine(this.assertion.parseNode,
 				this.uProofStep.stepFormula, this.uProofStep.parseNode, substitution);
-		//TODO1
-		// if (hasBeenFound && !this.requireWorkingVarsToBeAnExactSubstitutionOfALogicalVar)
-		// 	hasBeenFound = this.tryToUnifyWorkingVars(substitution);
 		return { hasBeenFound: hasBeenFound, substitution: substitution };
 	}
 

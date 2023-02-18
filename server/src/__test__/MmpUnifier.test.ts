@@ -150,6 +150,9 @@ test('Expect new ref to be d7', () => {
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
 	mmpUnifier.unify();
+	//TODO1
+	const adjustedIndex: number | undefined = mmpUnifier.uProof?.adjustedStepIndexForThisFormula('|- ph');
+	expect(adjustedIndex).toBe(2);
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =

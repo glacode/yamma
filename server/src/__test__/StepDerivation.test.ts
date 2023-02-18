@@ -1,10 +1,12 @@
 import { TextEdit } from 'vscode-languageserver';
+import { GlobalState } from '../general/GlobalState';
+import { AssertionStatement } from '../mm/AssertionStatement';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { elexdMmParser, eqeq1iMmParser, kindToPrefixMap, mp2MmParser, opelcnMmParser } from './GlobalForTest.test';
+import { elexdMmParser, eqeq1iMmParser, kindToPrefixMap, mp2MmParser, opelcnMmParser, readTestFile } from './GlobalForTest.test';
 
 test('StepDerivation ax-mp', () => {
 	const mmpSource =
@@ -376,7 +378,35 @@ test('Ehyps derivation 3 with a candidate without a parse node', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
-	'::a                \n' +
-	'qed::              |- ( ph -> ps )\n';
+		'::a                \n' +
+		'qed::              |- ( ph -> ps )\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
+//TODO1
+test('a1ii should not be used to derive itself', () => {
+	const impbiiTheory: string = readTestFile("impbii.mm");
+	const a1iiTheory: string = impbiiTheory +
+		'${ a1ii.1 $e |- ph $. a1ii.2 $e |- ps $. a1ii $p |- ph $= (  ) C $. $}';
+	const a1iiMmParser: MmParser = new MmParser(new GlobalState());
+	a1iiMmParser.ParseText(a1iiTheory);
+	expect(a1iiMmParser.parseFailed).toBeFalsy();
+	a1iiMmParser.createParseNodesForAssertionsSync();
+	expect(a1iiMmParser.areAllParseNodesComplete).toBeTruthy();
+	const a1iiAssertion: AssertionStatement | undefined = a1iiMmParser.labelToNonSyntaxAssertionMap.get('a1ii');
+	expect(a1iiAssertion).toBeDefined();
+	const mmpSource =
+		'1::a1i   |- ( ph -> ch )\n' +
+		'qed:       |- ps';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, a1iiMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'd1::                |- ch\n' +
+		'1:d1:a1i           |- ( ph -> ch )\n' +
+		'qed::              |- ps\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });

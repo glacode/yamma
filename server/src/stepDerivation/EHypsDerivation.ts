@@ -84,7 +84,6 @@ export class EHypsDerivation {
 	}
 	tryEHypProofStepCandidate(currentEHypIndexForStepDerivation: number, currentEHypRealIndex: number,
 		currentEHyp: EHyp, eHypProofStepCandidate: MmpProofStep) {
-		//TODO1 if eHypProofStepCandidate does not have a parse node, this MUST fail
 		const isUnifiable: boolean = this.isEHypUnifiableWithCurrentProofStep(currentEHyp, eHypProofStepCandidate);
 		if (isUnifiable) {
 			if (currentEHypIndexForStepDerivation >= this.assertion.frame!.eHyps.length - 1)
@@ -133,8 +132,10 @@ export class EHypsDerivation {
 	private searchCurrentEHypWithoutAdditionalVarsToBeUnified(currentEHypIndexForStepDerivation: number,
 		currentEHypRealIndex: number, currentEHyp: EHyp) {
 		const formulaForCurrentEHypProofStep: string = this.buildFormulaForCurrentEHypProofStep(currentEHyp);
-		const eHypProofStepIndex: number | undefined = this.uProof.formulaToProofStepMap.get(formulaForCurrentEHypProofStep);
-		//TODO1 if this.mmpProofStepIndex is still the value before the unification added the line
+		//TODO1 this.uProof.formulaToProofStepMap is still the value before the unification added the line
+		const eHypProofStepIndex: number | undefined =
+			this.uProof.adjustedStepIndexForThisFormula(formulaForCurrentEHypProofStep);
+		//TODO1 eHypProofStepIndex is still the value before the unification added the line
 		// and then the following if statement is true (but it should NOT be)
 		if (eHypProofStepIndex != undefined && eHypProofStepIndex < this.mmpProofStepIndex) {
 			// a previous MmpProof step has been found that unifies with the current EHyp

@@ -76,7 +76,6 @@ test("SearchStatementCompletionProvider multiline", () => {
 	expect(lineForLabelInsertion).toBe(1);
 });
 
-//TODO1
 test("SearchStatementCompletionProvider with symbol in EHyp", () => {
 	const mmpSource: string =
 		'h50::hyp1 |- ph\n' +
