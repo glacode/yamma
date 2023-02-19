@@ -25,12 +25,8 @@ export class TheoryLoader {
 	}
 
 	//#region loadNewTheoryIfNeededAndThenTheStepSuggestionModel
-	// notifyProgress(percentageOfWorkDone: number): void {
 	notifyProgress(parsingProgressArgs: ParsingProgressArgs): void {
-		// console.log(percentageOfWorkDone + '%');
 		const strMessage: string = parsingProgressArgs.percentageOfWorkDone + '%';
-		// GlobalState.connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
-		// 	{ kind: 'report', message: strMessage });
 		parsingProgressArgs.connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
 			{ kind: 'report', message: strMessage });
 	}
@@ -42,11 +38,7 @@ export class TheoryLoader {
 		if (workspaceFolders != null) {
 			const workspaceFolder: WorkspaceFolder = workspaceFolders[0];
 			const workspaceFolderUri: string = workspaceFolder.uri;
-			// currentDir = workspaceFolder.name;
 			currentDir = url.fileURLToPath(workspaceFolderUri);
-			// url.pathToFileURL(path);
-			// currentDir = path.dirname(workspaceFolderUri);
-			// const workSpaceDir: string = path.dirname(workspaceFolder.uri);
 		}
 		return currentDir;
 	}
@@ -58,18 +50,15 @@ export class TheoryLoader {
 	}
 	async loadTheoryFromMmFile(mmFilePath: string) {
 		this.mmParser = new MmParser(this.globalState);
-		// this.mmParser.progressListener = this.notifyProgress;
 		this.mmParser.on(MmParserEvents.parsingProgress, this.notifyProgress);
 		const progressToken = 'TEST-PROGRESS-TOKEN';
 		await this.connection.sendRequest(WorkDoneProgressCreateRequest.type, { token: progressToken });
 		console.log('loadNewTheoryIfNeeded_1');
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'begin', title: 'Loading the theory...' });
 		console.log('loadNewTheoryIfNeeded_2');
-		// this.mmParser.ParseFileSync(this.mmFilePath);
 		this.mmParser.ParseFileSync(mmFilePath);
 		let message: string;
 		if (this.mmParser.parseFailed) {
-			// message = `The theory file ${this.mmFilePath} has NOT been successfully parsed`;
 			message = `The theory file ${mmFilePath} has NOT been successfully parsed`;
 			notifyError(message, this.connection);
 		}
@@ -108,19 +97,8 @@ export class TheoryLoader {
 		// we use GlobalState.mmFilePath instead of this.mmFilePath, because the TheoryLoader
 		// might have used the default theory name, if the configuration mmFilePath is empty
 		const formulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
-		// const modelBuilder: ModelBuilder = new ModelBuilder(GlobalState.mmFilePath!, formulaClassifiers);
-		// GlobalState.stepSuggestionMap = await modelBuilder.loadSuggestionsMap(this.connection);
 		const modelLoader: ModelLoader = new ModelLoader(this.globalState.mmFilePath!, formulaClassifiers);
 		this.globalState.stepSuggestionMap = await modelLoader.loadSuggestionsMap(this.connection);
-	}
-
-	/** starts a thread to build the statistics for the current theory  */
-	private async updateStatistics() {
-		if (this.mmParser != undefined) {
-			const mmStatistics: MmStatistics = new MmStatistics(this.mmParser);
-			mmStatistics.buildStatistics();
-			this.globalState.mmStatistics = mmStatistics;
-		}
 	}
 
 	/** checks if the current mmFilePath is different from the one stored in the GlobalState: if that's the
@@ -142,7 +120,7 @@ export class TheoryLoader {
 				this.loadStepSuggestionModelAsync();
 				console.log('after loadStepSuggestionModelAsync');
 				console.log('before updateStatistics');
-				this.updateStatistics();
+				MmStatistics.updateStatistics(this.globalState.mmParser, this.globalState);
 				console.log('after updateStatistics');
 				console.log('before createParseNodesForAssertions');
 				this.globalState.mmParser.createParseNodesForAssertionsAsync();
