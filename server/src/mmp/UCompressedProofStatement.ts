@@ -71,7 +71,7 @@ export class UCompressedProofStatement implements IMmpStatement {
 		this._mandatoryHypsLabels = new Map<string, number>();
 		this._compactProofLabelToStatementMap = new Map<string, UProofStatementStep[]>();
 
-		this._proofInNormalMode = <UProofStatementStep[]>this.uProof.lastUProofStep!.proofArray(uProof.outermostBlock);
+		this._proofInNormalMode = <UProofStatementStep[]>this.uProof.lastMmpProofStep!.proofArray(uProof.outermostBlock);
 
 		this._zStatements = new Set<UProofStatementStep>();
 		this._zStatementsMap = new Map<UProofStatementStep, UProofStatementStep>();

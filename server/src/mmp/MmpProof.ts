@@ -49,9 +49,9 @@ export class MmpProof implements ITheoremSignature {
 	/** if the qed step is proven, proofStatement will contain the proof statement */
 	proofStatement: UProofStatement | UCompressedProofStatement | undefined;
 
-	// lastUProofStep is introduced for better performance, only
+	// lastMmpProofStep is introduced for better performance, only
 	/**the last MmpProofStep in the array of uStatements*/
-	lastUProofStep: MmpProofStep | undefined;
+	lastMmpProofStep: MmpProofStep | undefined;
 	// lastUProofStep: UProofStep | undefined;
 
 
@@ -67,8 +67,8 @@ export class MmpProof implements ITheoremSignature {
 	// needed to implement ITheoremSignature
 	get pStatement(): MmpProofStep | undefined {
 		let pStat: MmpProofStep | undefined;
-		if (this.lastUProofStep?.stepRef == "qed")
-			pStat = this.lastUProofStep;
+		if (this.lastMmpProofStep?.stepRef == "qed")
+			pStat = this.lastMmpProofStep;
 		return pStat;
 	}
 
@@ -192,7 +192,7 @@ export class MmpProof implements ITheoremSignature {
 
 	addUProofStepFromMmpStep(mmpProofStep: MmpProofStep) {
 		this.uStatements.push(mmpProofStep);
-		this.lastUProofStep = mmpProofStep;
+		this.lastMmpProofStep = mmpProofStep;
 		// this.refToUStatementMap.set(mmpProofStep.stepRef, mmpProofStep);
 		this.updateMaxRefIfItsTheCase(mmpProofStep.stepRef);
 		if (mmpProofStep.stepFormula != undefined)
@@ -227,8 +227,8 @@ export class MmpProof implements ITheoremSignature {
 
 	addUProofStepAtIndex(uProofStep: MmpProofStep, index: number) {
 		this.uStatements.splice(index, 0, uProofStep);
-		if (this.lastUProofStep != undefined && this.uStatements.indexOf(this.lastUProofStep) < index)
-			this.lastUProofStep = uProofStep;
+		if (this.lastMmpProofStep != undefined && this.uStatements.indexOf(this.lastMmpProofStep) < index)
+			this.lastMmpProofStep = uProofStep;
 		this.updateMaxRefIfItsTheCase(uProofStep.stepRef);
 		this.stepsInsertedAtASpecificIndexSoFar++;
 		// this.refToUStatementMap.set(uProofStep.stepRef!, uProofStep);
@@ -324,8 +324,8 @@ export class MmpProof implements ITheoremSignature {
 	/**inserts a proofStatement just after the qed step */
 	insertProofStatement(proofStatement: UProofStatement | UCompressedProofStatement) {
 		//this method should only be invoked when the QED step is the last one
-		if (this.lastUProofStep?.stepRef == "qed") {
-			const indexOfQEDstep = this.uStatements.indexOf(this.lastUProofStep);
+		if (this.lastMmpProofStep?.stepRef == "qed") {
+			const indexOfQEDstep = this.uStatements.indexOf(this.lastMmpProofStep);
 			this.uStatements.splice(indexOfQEDstep + 1, 0, proofStatement);
 			this.proofStatement = proofStatement;
 		}
@@ -350,7 +350,7 @@ export class MmpProof implements ITheoremSignature {
 	}
 	//#endregion mandatoryFHypsLabelsInRPNorder
 
-	/** returns the actual index for the fiven formula; formulaToProofStepMap is
+	/** returns the actual index for the given formula; formulaToProofStepMap is
 	 * adjusted, considering proof steps that could have been added, so far
 	 */
 	adjustedStepIndexForThisFormula(formula: string): number | undefined {

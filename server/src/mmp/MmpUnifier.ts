@@ -58,7 +58,7 @@ export class MmpUnifier {
 
 		//TODO use the range of the last actual statement (now I can't, because not all statements implement
 		//the range property (see interface IMmpStatementWithRange and interface interface IUStatement)
-		this.textLastLine = this.uProof!.lastUProofStep!.range.end.line + 3000;
+		this.textLastLine = this.uProof!.lastMmpProofStep!.range.end.line + 3000;
 		this.thrownError = false;
 	}
 
@@ -92,9 +92,9 @@ export class MmpUnifier {
 	}
 
 	buildProofStatementIfProofIsComplete(uProof: MmpProof) {
-		if (uProof.lastUProofStep?.stepRef == 'qed' && uProof.lastUProofStep.isProven) {
+		if (uProof.lastMmpProofStep?.stepRef == 'qed' && uProof.lastMmpProofStep.isProven) {
 			if (this.proofMode == ProofMode.normal) {
-				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastUProofStep.proofArray(this.outermostBlock);
+				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastMmpProofStep.proofArray(this.outermostBlock);
 				const proofStatement: UProofStatement = new UProofStatement(proofArray);
 				uProof.insertProofStatement(proofStatement);
 			} else {

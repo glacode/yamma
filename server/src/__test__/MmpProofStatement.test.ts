@@ -89,7 +89,7 @@ class TestUCompressedProofStatement extends UCompressedProofStatement {
 		const dummyMmpProofStep: MmpProofStep = new MmpProofStep(dummyUProof,
 			proofStepFirstTokenInfo, true, true, refToken, []);
 		jest.spyOn(MmpProofStep.prototype, 'proofArray').mockImplementation(() => []);
-		dummyUProof.lastUProofStep = dummyMmpProofStep;
+		dummyUProof.lastMmpProofStep = dummyMmpProofStep;
 		super(dummyUProof);
 	}
 

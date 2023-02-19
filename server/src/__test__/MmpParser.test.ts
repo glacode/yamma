@@ -138,15 +138,17 @@ test('diagnostic gt2colon', () => {
 	// const outermostBlock: BlockStatement = new BlockStatement();
 	// const mmpParser: MmpParser = new MmpParser('55:50,51:ax-mp:a |- ph', labelToStatementMap,
 	// 	outermostBlock, wiGrammar(), new WorkingVars(kindToPrefixMap));
-	const mmpParser: MmpParser = new MmpParser('55:50,51:ax-mp:a |- ph', mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser('qed:50,51:ax-mp:a |- ph', mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBe(1);
 	const diagnostic: Diagnostic = mmpParser.diagnostics[0];
 	expect(diagnostic.code).toEqual(MmpParserErrorCode.firstTokenWithMoreThanTwoColumns);
+	const message = "The first token can contain, at most, 2 colons";
+	expect(diagnostic.message).toBe(message);
 	expect(diagnostic.range.start.line).toBe(0);
 	expect(diagnostic.range.start.character).toBe(0);
-	expect(diagnostic.range.end.character).toBe(16);
+	expect(diagnostic.range.end.character).toBe(17);
 });
 
 test('diagnostic comma	', () => {
@@ -172,15 +174,15 @@ test('diagnostic missing label', () => {
 	// const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	// const outermostBlock: BlockStatement = new BlockStatement();
 	// const mmpParser: MmpParser = new MmpParser('55::  |- ph', labelToStatementMap, outermostBlock, wiGrammar(), new WorkingVars(kindToPrefixMap));
-	const mmpParser: MmpParser = new MmpParser('55::  |- ph', mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParser: MmpParser = new MmpParser('qed::  |- ph', mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
 	expect(mmpParser.diagnostics.length).toBe(1);
 	const diagnostic: Diagnostic = mmpParser.diagnostics[0];
 	expect(diagnostic.code).toEqual(MmpParserWarningCode.missingLabel);
 	expect(diagnostic.range.start.line).toBe(0);
-	expect(diagnostic.range.start.character).toBe(4);
-	expect(diagnostic.range.end.character).toBe(5);
+	expect(diagnostic.range.start.character).toBe(5);
+	expect(diagnostic.range.end.character).toBe(6);
 });
 
 test('diagnostic unknownLabel', () => {
@@ -310,12 +312,11 @@ test('should be accepted |- x = A ', () => {
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unknownStepRef)).toBeTruthy();
 });
 
-
 test('expect reference statement unification error', () => {
 	const mmpSource: string =
 		'h50::hyp1 |- ps\n' +
 		'h51::hyp2 |- ph\n' +
-		'55:50,51:ax-mp |- ph';
+		'qed:50,51:ax-mp |- ph';
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars(kindToPrefixMap));
@@ -328,12 +329,12 @@ test('expect reference statement unification error', () => {
 	expect(mmpParser.diagnostics[0].message).toEqual(
 		"Unification error: referenced statement is '|- ph' but it was expected to be '|- ( ps -> ph )'");
 	expect(mmpParser.diagnostics[0].range.start.line).toBe(2);
-	expect(mmpParser.diagnostics[0].range.start.character).toBe(6);
-	expect(mmpParser.diagnostics[0].range.end.character).toBe(8);
+	expect(mmpParser.diagnostics[0].range.start.character).toBe(7);
+	expect(mmpParser.diagnostics[0].range.end.character).toBe(9);
 });
 
 test('expect missing ref error', () => {
-	const mmpSource = '55:51:ax-mp |- ps';
+	const mmpSource = 'qed:51:ax-mp |- ps';
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -346,8 +347,8 @@ test('expect missing ref error', () => {
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
 		if (diagnostic.code == MmpParserErrorCode.unknownStepRef) {
 			expect(diagnostic.range.start.line).toBe(0);
-			expect(diagnostic.range.start.character).toBe(3);
-			expect(diagnostic.range.end.character).toBe(5);
+			expect(diagnostic.range.start.character).toBe(4);
+			expect(diagnostic.range.end.character).toBe(6);
 		}
 	});
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
@@ -355,8 +356,8 @@ test('expect missing ref error', () => {
 			const errMsg = 'Unification error: the assertion ax-mp expects 2 $e hypothesis, but 1 are given';
 			expect(diagnostic.message).toEqual(errMsg);
 			expect(diagnostic.range.start.line).toBe(0);
-			expect(diagnostic.range.start.character).toBe(3);
-			expect(diagnostic.range.end.character).toBe(5);
+			expect(diagnostic.range.start.character).toBe(4);
+			expect(diagnostic.range.end.character).toBe(6);
 		}
 	});
 });
@@ -365,26 +366,16 @@ test('expect label only to be parsed', () => {
 	const mmpSource =
 		'ax-mp\n' +
 		'qed:: |- ps';
-	// const mp2Parser: MmParser = new MmParser();
-	// mp2Parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
-	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.uProof?.uStatements.length).toBe(2);
 	expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).stepFormula).toBeUndefined();
-	// expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).eHypRefs).toBeDefined();
 	expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).eHypRefs).toBeUndefined();
 	expect(mmpParser.diagnostics.length).toBe(2);
 	const diagnostic: Diagnostic = mmpParser.diagnostics[0];
 	expect(diagnostic.code).toBe(MmpParserWarningCode.missingFormula);
 	const expectedRange: Range = Range.create(0, 5, 0, 6);
 	expect(diagnostic.range).toEqual(expectedRange);
-	// expect(mmpParser.diagnostics.length).toBe(3);
-	// expect((<MmpProofStep>mmpParser.uProof?.uStatements[0]).stepLabelToken!.value).toEqual('ax-mp');
-	// const diagnostic: Diagnostic = mmpParser.diagnostics[0];
-	// const expectedRange: Range = Range.create(0,0,0,5);
-	// expect(diagnostic.range).toEqual(expectedRange);
-	// mmpParser.createMmpStatements(mmptext);
 });
 
 test('expect 2 hyp refs', () => {
@@ -734,15 +725,19 @@ test('missing qed statement for already existing theorem impbii', () => {
 		'qe:50,51,52:mp2   |- ( ph <-> ps )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	expect(mmpParser.diagnostics.length).toBe(1);
+	expect(mmpParser.diagnostics.length).toBe(2);
 	expect(doesDiagnosticsContain(
 		mmpParser.diagnostics, MmpParserErrorCode.missingQedStatementForAlreadyExistingTheorem)).toBeTruthy();
-	const message = `This theorem is already in the theory, but the qed statement is missing. The expected ` +
-		`qed formula is '|- ( ph <-> ps )'`;
-	expect(mmpParser.diagnostics[0].message).toEqual(message);
-	expect(mmpParser.diagnostics[0].range.start.line).toEqual(0);
-	expect(mmpParser.diagnostics[0].range.start.character).toEqual(9);
-	expect(mmpParser.diagnostics[0].range.end.character).toEqual(15);
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserErrorCode.missingQedStatementForAlreadyExistingTheorem) {
+			const message = `This theorem is already in the theory, but the qed statement is missing. The expected ` +
+				`qed formula is '|- ( ph <-> ps )'`;
+			expect(diagnostic.message).toEqual(message);
+			expect(diagnostic.range.start.line).toEqual(0);
+			expect(diagnostic.range.start.character).toEqual(9);
+			expect(diagnostic.range.end.character).toEqual(15);
+		}
+	});
 });
 
 test('wrong number of eHyps for already existing theorem impbii', () => {
@@ -849,4 +844,27 @@ test('expect MmpStatement.range ', () => {
 	expect(mmpProofStep2.range.start.character).toBe(0);
 	expect(mmpProofStep2.range.end.line).toBe(3);
 	expect(mmpProofStep2.range.end.character).toBe(12);
+});
+
+test('expect qed warning for last step', () => {
+	const mmpSource: string =
+		'h50::hyp1 |- ps\n' +
+		'h51::hyp2 |- ph\n' +
+		'555:50,51:ax-mp |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
+	expect(doesDiagnosticsContain(
+		mmpParser.diagnostics, MmpParserWarningCode.lastStatementShouldBeQed)).toBeTruthy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserWarningCode.lastStatementShouldBeQed) {
+			const expectedMessage =
+				`The last proof step's ref is expected to be 'qed'`;
+			expect(diagnostic.message).toEqual(expectedMessage);
+			expect(diagnostic.range.start.line).toBe(2);
+			expect(diagnostic.range.start.character).toBe(0);
+			expect(diagnostic.range.end.line).toBe(2);
+			expect(diagnostic.range.end.character).toBe(3);
+		}
+	});
 });

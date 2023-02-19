@@ -133,7 +133,7 @@ export class MmtSaver {
 		const theoremLabel: string | undefined = uProof.theoremLabel?.value;
 		if (theoremLabel == undefined || theoremLabel == 'example')
 			throw new Error("The MmtSaver should never be used if the theorem label is not well defined");
-		const qedStatement: MmpProofStep | undefined = uProof.lastUProofStep;
+		const qedStatement: MmpProofStep | undefined = uProof.lastMmpProofStep;
 		if (qedStatement == undefined)
 			throw new Error("The MmtSaver should never be used if the qed statement is not present");
 		const pFormula: string = GrammarManager.buildStringFormula(qedStatement!.parseNode!);

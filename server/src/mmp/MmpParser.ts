@@ -44,7 +44,7 @@ export enum MmpParserErrorCode {
 	djVarsRestrictionViolated = "djVarsRestrictionViolated",
 	disjVarSyntaxError = "disjVarSyntaxError",
 	eHypLabelNotCoherent = "eHypLabelNotCoherent",
-	missingQedStatementForAlreadyExistingTheorem = "missingQedStatement",
+	missingQedStatementForAlreadyExistingTheorem = "missingQedStatementForAlreadyExistingTheorem",
 	doesntMatchTheoryFormula = "doesntMatchTheoryFormula",
 	disjVarConstraintNotInTheTheory = "disjVarConstraintNotInTheTheory",
 	wrongNumberOfEHypsForAlreadyExistingTheorem = "wrongNumberOfEHypsForAlreadyExistingTheorem"
@@ -57,7 +57,8 @@ export enum MmpParserWarningCode {
 	missingRef = "missingRef",
 	missingEHyps = "missingEHyps",
 	missingDjVarsStatement = "missingDjVarsStatement",
-	missingTheoremLabel = "missingTheoremLabel"
+	missingTheoremLabel = "missingTheoremLabel",
+	lastStatementShouldBeQed = "lastStatementShouldBeQED"
 }
 
 // Parser for .mmp files
@@ -648,6 +649,16 @@ export class MmpParser {
 		}
 	}
 
+	checkQedStatement() {
+		const lastMmpProofStep: MmpProofStep | undefined = this.uProof?.lastMmpProofStep;
+		if (lastMmpProofStep != undefined && lastMmpProofStep.stepRef != 'qed') {
+			const message = `The last proof step's ref is expected to be 'qed'`;
+			const range: Range = lastMmpProofStep.stepRefToken.range;
+			MmpValidator.addDiagnosticWarning(message, range,
+				MmpParserWarningCode.lastStatementShouldBeQed, this.diagnostics);
+		}
+	}
+
 	checkCoherenceIfAlreadyExistingTheorem() {
 		const theoremName: string | undefined = this.uProof?.theoremLabel?.value;
 		if (theoremName != undefined) {
@@ -728,9 +739,9 @@ export class MmpParser {
 	parse() {
 		// consoleLogWithTimestamp("Glauco_3: MmpParser.createProofSteps started");
 		// TODO add diagnostics for mmParser.parseFailed == true
-		// TODO add diagnostic for missing qed statement
 		// TODO add diagnostics for missing theorem name
 		this.createMmpStatements();
+		this.checkQedStatement();
 		this.checkCoherenceIfAlreadyExistingTheorem();
 
 		this.checkUnificationOfLogicalVars(this.outermostBlock, this.grammar, this.workingVars);
