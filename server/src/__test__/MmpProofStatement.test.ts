@@ -43,7 +43,7 @@ test("Build proof for mp2", () => {
 		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
 		"qed:51,53:ax-mp    |- ch\n" +
 		"\n" +
-		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n";
+		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n\n";
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -72,7 +72,7 @@ test("Remove existing proof and recreate it", () => {
 		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
 		"qed:51,53:ax-mp    |- ch\n" +
 		"\n" +
-		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n";
+		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n\n";
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -225,7 +225,7 @@ test("alnex - Build normal proof for alnex", () => {
 		"50::df-ex           |- ( E. x ph <-> -. A. x -. ph )\n" +
 		"qed:50:con2bii     |- ( A. x -. ph <-> -. E. x ph )\n" +
 		"\n" +
-		"$=    wph vx wex wph wn vx wal wph vx df-ex con2bii $.\n";
+		"$=    wph vx wex wph wn vx wal wph vx df-ex con2bii $.\n\n";
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -248,7 +248,8 @@ test("vex - Build normal proof for vex", () => {
 		"52:51:abeq2i        |- ( x e. _V <-> x = x )\n" +
 		"qed:50,52:mpbir    |- x e. _V\n" +
 		"\n" +
-		"$=    vx cv cvv wcel vx cv vx cv wceq vx equid vx cv vx cv wceq vx cvv vx df-v abeq2i mpbir $.\n";
+		'$=    vx cv cvv wcel vx cv vx cv wceq vx equid vx cv vx cv wceq vx cvv vx df-v\n' +
+		'      abeq2i mpbir $.\n\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -305,7 +306,7 @@ test("Build normal proof for use of ax-5", () => {
 	const newTextExpected =
 		"qed::ax-5          |- ( x e. A -> A. y x e. A )\n" +
 		"\n" +
-		"$=    vx cv cA wcel vy ax-5 $.\n" +
+		"$=    vx cv cA wcel vy ax-5 $.\n\n" +
 		"$d x y\n" +
 		"$d A y\n";
 	const textEdit: TextEdit = textEditArray[0];
@@ -444,6 +445,105 @@ test("Format equvinv compressed proof", () => {
 	expect(mmpUnifier2.textEditArray[0].newText).toEqual(newTextExpected2);
 
 	Parameters.defaultRightMarginForCompressedProofs = defaultRightMargin;
+
+});
+
+//TODO1
+test("Format equvinv uncompressed proof", () => {
+	const mmpSource =
+		'$theorem equvinv\n' +
+		'50::ax6ev            |- E. z z = x\n' +
+		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
+		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
+		'53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )\n' +
+		'54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )\n' +
+		'55::ax7               |- ( z = x -> ( z = y -> x = y ) )\n' +
+		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
+		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
+		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
+		'$d x z\n' +
+		'$d y z\n';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'$theorem equvinv\n' +
+		'50::ax6ev            |- E. z z = x\n' +
+		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
+		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
+		'53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )\n' +
+		'54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )\n' +
+		'55::ax7               |- ( z = x -> ( z = y -> x = y ) )\n' +
+		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
+		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
+		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
+		'\n' +
+		//cut at 89
+		'$=    vx cv vy cv wceq vz cv vx cv wceq vz cv vy cv wceq wa vz wex vx cv vy cv\n' +
+		'      wceq vz cv vx cv wceq vz wex vz cv vx cv wceq vz cv vy cv wceq wa vz wex\n' +
+		'      vz vx ax6ev vx cv vy cv wceq vz cv vx cv wceq vz cv vx cv wceq vz cv vy\n' +
+		'      cv wceq wa vz vx cv vy cv wceq vz cv vx cv wceq vz cv vy cv wceq vx vy vz\n' +
+		'      equtrr ancld eximdv mpi vz cv vx cv wceq vz cv vy cv wceq wa vx cv vy cv\n' +
+		'      wceq vz vz cv vx cv wceq vz cv vy cv wceq vx cv vy cv wceq vz vx vy ax7\n' +
+		'      imp exlimiv impbii $.\n' +
+		'\n' +
+		'$d x z\n' +
+		'$d y z\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+
+	const defaultRightMargin: number = Parameters.defaultRightMarginForNormalProofs;
+	Parameters.defaultRightMarginForNormalProofs = 30;
+
+
+	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser2.parse();
+
+	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.normal, 0);
+	mmpUnifier2.unify();
+
+	const newTextExpected2 =
+		'$theorem equvinv\n' +
+		'50::ax6ev            |- E. z z = x\n' +
+		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
+		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
+		'53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )\n' +
+		'54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )\n' +
+		'55::ax7               |- ( z = x -> ( z = y -> x = y ) )\n' +
+		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
+		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
+		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
+		'\n' +
+		'$=    vx cv vy cv wceq vz cv\n' +
+		'      vx cv wceq vz cv vy cv\n' +
+		'      wceq wa vz wex vx cv vy\n' +
+		'      cv wceq vz cv vx cv\n' +
+		'      wceq vz wex vz cv vx cv\n' +
+		'      wceq vz cv vy cv wceq\n' +
+		'      wa vz wex vz vx ax6ev\n' +
+		'      vx cv vy cv wceq vz cv\n' +
+		'      vx cv wceq vz cv vx cv\n' +
+		'      wceq vz cv vy cv wceq\n' +
+		'      wa vz vx cv vy cv wceq\n' +
+		'      vz cv vx cv wceq vz cv\n' +
+		'      vy cv wceq vx vy vz\n' +
+		'      equtrr ancld eximdv mpi\n' +
+		'      vz cv vx cv wceq vz cv\n' +
+		'      vy cv wceq wa vx cv vy\n' +
+		'      cv wceq vz vz cv vx cv\n' +
+		'      wceq vz cv vy cv wceq\n' +
+		'      vx cv vy cv wceq vz vx\n' +
+		'      vy ax7 imp exlimiv\n' +
+		'      impbii $.\n' +
+		'\n' +
+		'$d x z\n' +
+		'$d y z\n';
+	expect(mmpUnifier2.textEditArray[0].newText).toEqual(newTextExpected2);
+
+	Parameters.defaultRightMarginForNormalProofs = defaultRightMargin;
 
 });
 

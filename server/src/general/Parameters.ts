@@ -7,6 +7,7 @@ export abstract class Parameters {
 	static startCharForIndentedMmpFormula = 20;
 	static defaultLeftMarginForCompressedProofs = 0;
 	static defaultRightMarginForCompressedProofs = 80
+	static defaultRightMarginForNormalProofs = 80
 	/** the minimum number of characters, for a partial label, that triggers
 	 * the 'last resort' step suggestion
 	 */

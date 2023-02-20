@@ -66,7 +66,7 @@ test("Test simple indentation", () => {
 		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
 		"qed:51,53:ax-mp    |- ch\n" +
 		"\n" +
-		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n";
+		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n\n";
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
