@@ -200,7 +200,7 @@ export class MmpSubstitutionBuilder {
 			// logicalSystemFormulaInternalNode.parseNodes[0] is an InternalNode
 			if (logicalSystemFormulaInternalNode.parseNodes.length !=
 				uStepInternalNode.parseNodes.length)
-				//TODO1 add diagnosticts for every hasFoundSubstitution = false case
+				//TODO1 add diagnostics for every hasFoundSubstitution = false case
 				hasFoundSubstitution = false;
 			else {
 				hasFoundSubstitution = this.buildSubstitutionForChildren(logicalSystemFormulaInternalNode.parseNodes,

@@ -6,7 +6,7 @@ import { ProofStepFirstTokenInfo } from './MmpStatements';
 import { MmpProofStep } from "./MmpProofStep";
 import { DisjVarUStatement } from '../mm/Statements';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
-import { IMmpStatement, MmpComment, MmpTheoremLabel } from './MmpStatement';
+import { IMmpStatement, MmpComment, MmpTheoremLabel, TextForProofStatement } from './MmpStatement';
 import { UProofStatement } from "./UProofStatement";
 import { WorkingVars } from './WorkingVars';
 import { MmpProofFormatter } from './MmpProofFormatter';
@@ -53,7 +53,9 @@ export class MmpProof implements ITheoremSignature {
 	// lastMmpProofStep is introduced for better performance, only
 	/**the last MmpProofStep in the array of uStatements*/
 	lastMmpProofStep: MmpProofStep | undefined;
-	// lastUProofStep: UProofStep | undefined;
+	
+	/** the (compressed or normal) proof text */
+	textProofStatement?: TextForProofStatement;
 
 
 	/**contains an efficient (for search) representation of the Disjoint Vars Statement defined. It's introduced for performance only */

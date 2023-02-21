@@ -3,8 +3,9 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ConfigurationManager } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpValidator } from '../mmp/MmpValidator';
-import { MmpParserWarningCode } from '../mmp/MmpParser';
+import { MmpParser, MmpParserWarningCode } from '../mmp/MmpParser';
 import { GlobalState } from '../general/GlobalState';
+import { TextForProofStatement } from '../mmp/MmpStatement';
 
 
 
@@ -51,18 +52,48 @@ export class OnDidChangeContentHandler {
 
 	//#region updateCursorPosition
 
-	/** returns the Range of the first missing label */
-	private computeRangeForCursor(diagnostics: Diagnostic[]): Range | undefined {
-		let range: Range | undefined;
-		//TODO1 use while statement to stop early
-		diagnostics.forEach((diagnostic: Diagnostic) => {
-			if (diagnostic.code == MmpParserWarningCode.missingLabel &&
-				(range == undefined || diagnostic.range.start.line < range.start.line))
-				// range = diagnostic.range;
-				range = Range.create(diagnostic.range.start, diagnostic.range.start);
-		});
+	//#region computeRangeForCursor
+	private static cursorRangeForTextProofStatement(textProofStatement: TextForProofStatement): Range {
+		const range = textProofStatement.statementTokens[0].range;
 		return range;
 	}
+
+	//#region computeRangeFromDiagnostics
+	private static getFirstDiagnostic(diagnostics: Diagnostic[]): Diagnostic | undefined {
+		let firstDiagnostic: Diagnostic | undefined;
+		diagnostics.forEach((diagnostic: Diagnostic) => {
+			// if (diagnostic.code == MmpParserWarningCode.missingLabel &&
+			if ((firstDiagnostic == undefined || diagnostic.range.start.line < firstDiagnostic.range.start.line
+				|| (diagnostic.range.start.line == firstDiagnostic.range.start.line &&
+					diagnostic.range.start.character < firstDiagnostic.range.start.character)))
+				firstDiagnostic = diagnostic;
+		});
+		return firstDiagnostic;
+	}
+
+	private static computeRangeFromDiagnostics(diagnostics: Diagnostic[]): Range | undefined {
+		let range: Range | undefined;
+		const firstDiagnostic: Diagnostic | undefined = OnDidChangeContentHandler.getFirstDiagnostic(diagnostics);
+		if (firstDiagnostic != undefined)
+			range = firstDiagnostic.code == MmpParserWarningCode.missingLabel ?
+				range = Range.create(firstDiagnostic.range.start, firstDiagnostic.range.start) :
+				range = firstDiagnostic.range;
+		return range;
+	}
+	//#endregion computeRangeFromDiagnostics
+
+
+	/** if the proof text is found, the cursor is moved to that line, otherwise it
+	 * returns the Range of the first missing label */
+	protected static computeRangeForCursor(diagnostics: Diagnostic[], mmpParser?: MmpParser): Range | undefined {
+		let range: Range | undefined;
+		if (mmpParser != undefined && mmpParser.uProof?.textProofStatement != undefined)
+			range = OnDidChangeContentHandler.cursorRangeForTextProofStatement(mmpParser.uProof.textProofStatement);
+		else
+			range = OnDidChangeContentHandler.computeRangeFromDiagnostics(diagnostics);
+		return range;
+	}
+	//#endregion computeRangeForCursor
 
 	/** sends a request to the client, to update the cursor position;
 	 * this method should be used by all the classes that want to request to
@@ -72,13 +103,14 @@ export class OnDidChangeContentHandler {
 		this.connection.sendNotification('yamma/movecursor', range);
 		this.globalState.setSuggestedRangeForCursorPosition(undefined);
 	}
-	private updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet: boolean, diagnostics: Diagnostic[]) {
+	private updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet: boolean, diagnostics: Diagnostic[],
+		mmpParser?: MmpParser) {
 		// const range: Range = { start: { line: 2, character: 4 }, end: { line: 2, character: 9 } };
 		let range: Range | undefined;
 		if (this.suggestedRangeForCursorPosition != undefined)
 			range = this.suggestedRangeForCursorPosition;
 		else if (unifyDoneButCursorPositionNotUpdatedYet)
-			range = this.computeRangeForCursor(diagnostics);
+			range = OnDidChangeContentHandler.computeRangeForCursor(diagnostics, mmpParser);
 		if (range != undefined)
 			this.requestMoveCursor(range);
 	}
@@ -113,7 +145,7 @@ export class OnDidChangeContentHandler {
 
 		this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
-		this.updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet, diagnostics);
+		this.updateCursorPosition(unifyDoneButCursorPositionNotUpdatedYet, diagnostics, mmpValidator.mmpParser);
 		this.triggerSuggestIfRequired();
 	}
 	//#endregion validateTextDocument

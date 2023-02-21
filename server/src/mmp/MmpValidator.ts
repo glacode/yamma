@@ -16,6 +16,7 @@ export class MmpValidator {
 	mmParser: MmParser
 	private formulaToParseNodeCache: FormulaToParseNodeCache;
 	diagnostics: Diagnostic[] = [];
+	mmpParser: MmpParser | undefined;
 
 	constructor(mmParser: MmParser, private globalState: GlobalState) {
 		this.mmParser = mmParser;
@@ -46,16 +47,15 @@ export class MmpValidator {
 	// validateFullDocumentText(textToValidate: string, labelToStatementMap: Map<string, LabeledStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
 	validateFullDocumentText(textToValidate: string, mmParser: MmParser, workingVars: WorkingVars) {
-		// const mmpTokenizer = new MmpTokenizer(textToValidate);
-		// const mmpParser: MmpParser = new MmpParser(textToValidate, labelToStatementMap, outermostBlock, grammar, workingVars);
-		const mmpParser: MmpParser = new MmpParser(textToValidate, mmParser, workingVars,
+		// const mmpParser: MmpParser = new MmpParser(textToValidate, mmParser, workingVars,
+		this.mmpParser = new MmpParser(textToValidate, mmParser, workingVars,
 			this.formulaToParseNodeCache);
 		console.log('before mmpParser.parse()');
-		mmpParser.parse();
+		this.mmpParser.parse();
 		console.log('after mmpParser.parse()');
-		this.globalState.lastMmpParser = mmpParser;
-		this.diagnostics = mmpParser.diagnostics;
-		this.updateStatistics(mmpParser);
+		this.globalState.lastMmpParser = this.mmpParser;
+		this.diagnostics = this.mmpParser.diagnostics;
+		this.updateStatistics(this.mmpParser);
 	}
 	//#endregionvalidateFullDocumentText
 

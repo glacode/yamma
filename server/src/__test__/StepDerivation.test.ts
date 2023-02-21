@@ -383,7 +383,6 @@ test('Ehyps derivation 3 with a candidate without a parse node', () => {
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
-//TODO1
 test('a1ii should not be used to derive itself', () => {
 	const impbiiTheory: string = readTestFile("impbii.mm");
 	const a1iiTheory: string = impbiiTheory +

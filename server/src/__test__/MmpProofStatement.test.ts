@@ -448,7 +448,6 @@ test("Format equvinv compressed proof", () => {
 
 });
 
-//TODO1
 test("Format equvinv uncompressed proof", () => {
 	const mmpSource =
 		'$theorem equvinv\n' +

@@ -438,9 +438,10 @@ export class MmpParser {
 			proofStep.containsUnknownStepRef = true;
 		this.addProofStep(proofStep);
 	}
-	addRemovableStatement(nextProofStepTokens: MmToken[]) {
-		const unmanagedStatement: TextForProofStatement = new TextForProofStatement(nextProofStepTokens);
-		this.uProof?.addUStatement(unmanagedStatement);
+	addTextProofStatement(nextProofStepTokens: MmToken[]) {
+		const textProofStatement: TextForProofStatement = new TextForProofStatement(nextProofStepTokens);
+		this.uProof?.addUStatement(textProofStatement);
+		this.uProof!.textProofStatement = textProofStatement;
 	}
 	createMmpStatementFromStepTokens(nextProofStepTokens: MmToken[]) {
 		const nextTokenValue = nextProofStepTokens[0].value;
@@ -457,7 +458,7 @@ export class MmpParser {
 			this.addDisjointVarConstraint(nextProofStepTokens);
 		else if (nextTokenValue == '$=')
 			// current statement is a proof
-			this.addRemovableStatement(nextProofStepTokens);
+			this.addTextProofStatement(nextProofStepTokens);
 		else
 			// current statement is a proof step
 			this.createMmpProofStep(nextProofStepTokens);
