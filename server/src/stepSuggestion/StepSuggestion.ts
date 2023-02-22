@@ -201,9 +201,17 @@ export class StepSuggestion {
 	//#region addCompletionItemsFromPartialLabel
 	private buildRegExp(partialLabel: string): RegExp {
 		const c0: string = partialLabel[0];
-		const c1: string = partialLabel[1];
-		const c2: string = partialLabel[2];
-		const regExp = new RegExp(`.*${c0}.*${c1}.*${c2}.*`);
+		let strReg = `.*${c0}.*`;
+		if (partialLabel.length > 1)
+			strReg += `${partialLabel[1]}.*`;
+		if (partialLabel.length > 2)
+			strReg += `${partialLabel[2]}.*`;
+		// const c1: string = partialLabel[1];
+		// const c2: string = partialLabel[2];
+		// const regExp = new RegExp(`.*${c0}.*${c1}.*${c2}.*`);
+
+		const regExp = new RegExp(strReg);
+
 		return regExp;
 	}
 	createAndAddItemFromPartialLabel(label: string, i: number, completionItems: CompletionItem[]) {
@@ -220,10 +228,16 @@ export class StepSuggestion {
 	private addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
 		const regExp: RegExp = this.buildRegExp(partialLabel);
 		let i = 0;
+		const debug: AssertionStatement | undefined = this.mmParser.labelToNonSyntaxAssertionMap.get('climinf');
+		console.log(debug?.Label);
 		this.mmParser.labelToNonSyntaxAssertionMap.forEach((_assertion: AssertionStatement, label: string) => {
-			if (regExp.test(label) && this.isUnifiable(label)) {
+			if (label == 'climinf')
+				console.log(label);
+
+			if (regExp.test(label) && (this.mmpProofStep.formula == undefined || this.isUnifiable(label))) {
 				// the current assertion's label contains the partial label input by the user
-				// and it is unifiable with current mmp statement
+				// and either the proof step has no formula, or the current assertion is unifiable with
+				// the current mmp statement
 				this.createAndAddItemFromPartialLabel(label, i++, completionItems);
 			}
 		});

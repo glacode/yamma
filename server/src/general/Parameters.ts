@@ -11,7 +11,7 @@ export abstract class Parameters {
 	/** the minimum number of characters, for a partial label, that triggers
 	 * the 'last resort' step suggestion
 	 */
-	static numberOfCharsTriggeringCompletionItemsFromPartialLabel = 3;
+	static numberOfCharsTriggeringCompletionItemsFromPartialLabel = 1;
 
 	/** the maximum number of characters that will populate a new search statement
 	 * (computed from the statemente where the cursor is placed)
