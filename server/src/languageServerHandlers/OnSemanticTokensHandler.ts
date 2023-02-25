@@ -189,7 +189,7 @@ export class OnSemanticTokensHandler {
 	protected buildSemanticTokens(mmParser: MmParser, mmpParser: MmpParser,
 		variableKindsConfiguration: Map<string, IVariableKindConfiguration>): SemanticTokens {
 		// const mmTokens: MmToken = mmpParser.mmTokens;
-		mmpParser.uProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
+		mmpParser.mmpProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpComment)
 				this.addSemanticTokensForComment(uStatement);
 			// else if (uStatement instanceof UProofStep)

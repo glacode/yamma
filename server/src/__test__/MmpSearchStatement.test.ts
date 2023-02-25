@@ -14,7 +14,7 @@ test("MmpSearchStatement", () => {
 		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const searchStatement: IMmpStatement | undefined = mmpParser.uProof?.mmpStatements[2];
+	const searchStatement: IMmpStatement | undefined = mmpParser.mmpProof?.mmpStatements[2];
 	expect(searchStatement instanceof MmpSearchStatement).toBeTruthy();
 	const symbolsToSearch: string[] = (<MmpSearchStatement>searchStatement).symbolsToSearch;
 	expect(symbolsToSearch.length).toBe(2);

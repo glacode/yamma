@@ -120,7 +120,7 @@ test('createMmpStatements', () => {
 	// const mmpParser: MmpParser = new MmpParser(mmptext, labelToStatementMap, outermostBlock, wiGrammar(), new WorkingVars(kindToPrefixMap));
 	const mmpParser: MmpParser = new MmpParser(mmptext, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpStatements: IMmpStatement[] = <IMmpStatement[]>mmpParser.uProof?.mmpStatements;
+	const mmpStatements: IMmpStatement[] = <IMmpStatement[]>mmpParser.mmpProof?.mmpStatements;
 	expect(mmpStatements.length).toBe(6);
 	expect((mmpStatements[0])).toEqual(expect.objectContaining({ comment: expect.any(String) }));
 	expect((<MmToken[]>(<MmpProofStep>mmpStatements[1]).stepFormula)[0].value).toEqual('|-');
@@ -368,9 +368,9 @@ test('expect label only to be parsed', () => {
 		'qed:: |- ps';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	expect(mmpParser.uProof?.mmpStatements.length).toBe(2);
-	expect((<MmpProofStep>mmpParser.uProof?.mmpStatements[0]).stepFormula).toBeUndefined();
-	expect((<MmpProofStep>mmpParser.uProof?.mmpStatements[0]).eHypRefs).toBeUndefined();
+	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(2);
+	expect((<MmpProofStep>mmpParser.mmpProof?.mmpStatements[0]).stepFormula).toBeUndefined();
+	expect((<MmpProofStep>mmpParser.mmpProof?.mmpStatements[0]).eHypRefs).toBeUndefined();
 	expect(mmpParser.diagnostics.length).toBe(2);
 	const diagnostic: Diagnostic = mmpParser.diagnostics[0];
 	expect(diagnostic.code).toBe(MmpParserWarningCode.missingFormula);
@@ -386,8 +386,8 @@ test('expect 2 hyp refs', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
-	expect(mmpParser.uProof?.mmpStatements.length).toBe(1);
-	expect((<MmpProofStep>mmpParser.uProof?.mmpStatements[0]).eHypRefs?.length).toBe(2);
+	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(1);
+	expect((<MmpProofStep>mmpParser.mmpProof?.mmpStatements[0]).eHypRefs?.length).toBe(2);
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unknownStepRef)).toBeTruthy();
 });
 
@@ -828,7 +828,7 @@ test('expect MmpStatement.range ', () => {
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// mmpParser.createMmpStatements(mmptext);
-	const mmpStatements: IMmpStatement[] = mmpParser.uProof!.mmpStatements;
+	const mmpStatements: IMmpStatement[] = mmpParser.mmpProof!.mmpStatements;
 	const mmpProofStep0: MmpProofStep = <MmpProofStep>mmpStatements[0];
 	expect(mmpProofStep0.range.start.line).toBe(0);
 	expect(mmpProofStep0.range.start.character).toBe(0);

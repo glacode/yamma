@@ -87,8 +87,8 @@ export class OnDidChangeContentHandler {
 	 * returns the Range of the first missing label */
 	protected static computeRangeForCursor(diagnostics: Diagnostic[], mmpParser?: MmpParser): Range | undefined {
 		let range: Range | undefined;
-		if (mmpParser != undefined && mmpParser.uProof?.textProofStatement != undefined)
-			range = OnDidChangeContentHandler.cursorRangeForTextProofStatement(mmpParser.uProof.textProofStatement);
+		if (mmpParser != undefined && mmpParser.mmpProof?.textProofStatement != undefined)
+			range = OnDidChangeContentHandler.cursorRangeForTextProofStatement(mmpParser.mmpProof.textProofStatement);
 		else
 			range = OnDidChangeContentHandler.computeRangeFromDiagnostics(diagnostics);
 		return range;

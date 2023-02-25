@@ -84,7 +84,7 @@ export class MmpParser {
 	// mmpStatements: MmpStatement[] = []
 	refToProofStepMap: Map<string, MmpProofStep>;  // maps each proof step id to the proof step
 	diagnostics: Diagnostic[] = [] // diagnostics built while parsing
-	uProof: MmpProof | undefined;
+	mmpProof: MmpProof | undefined;
 
 	//#region constructor
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
@@ -214,7 +214,7 @@ export class MmpParser {
 		} else
 			// the second token is the theorem label
 			uTheoremLabel = new MmpTheoremLabel(nextProofStepTokens[0], nextProofStepTokens[1]);
-		this.uProof?.addUStatement(uTheoremLabel);
+		this.mmpProof?.addUStatement(uTheoremLabel);
 	}
 
 	addComment(nextProofStepTokens: MmToken[]) {
@@ -222,16 +222,16 @@ export class MmpParser {
 		const commentContent: string = rebuildOriginalStringFromTokens(nextProofStepTokens);
 		const comment: MmpComment = new MmpComment(nextProofStepTokens, commentContent);
 		// this.mmpStatements.push(comment);
-		this.uProof?.addUStatement(comment);
+		this.mmpProof?.addUStatement(comment);
 	}
 
 	addSearchStatement(searchStatementTokens: MmToken[]) {
 		const mmpSearchStatement: MmpSearchStatement = new MmpSearchStatement(searchStatementTokens);
-		this.uProof?.addUStatement(mmpSearchStatement);
+		this.mmpProof?.addUStatement(mmpSearchStatement);
 	}
 
 	addProofStep(proofStep: MmpProofStep) {
-		this.uProof?.addUProofStepFromMmpStep(proofStep);
+		this.mmpProof?.addUProofStepFromMmpStep(proofStep);
 		// this.mmpStatements.push(proofStep);
 		if (proofStep.stepRefToken != undefined) {
 			this.refToProofStepMap.set(proofStep.stepRefToken.value, proofStep);
@@ -241,11 +241,11 @@ export class MmpParser {
 		if (proofStep.formula != undefined) {
 			const normalizedFormula: string = concatTokenValuesWithSpaces(proofStep.formula!);
 			const indexForFormulaIfAlreadyPresent: number | undefined =
-				this.uProof?.formulaToProofStepMap.get(normalizedFormula);
+				this.mmpProof?.formulaToProofStepMap.get(normalizedFormula);
 			if (indexForFormulaIfAlreadyPresent == undefined) {
 				// the current formula has not been encountered, yet
-				const proofStatementIndex: number = this.uProof!.mmpStatements.length - 1;
-				this.uProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
+				const proofStatementIndex: number = this.mmpProof!.mmpStatements.length - 1;
+				this.mmpProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
 			}
 		}
 	}
@@ -399,7 +399,7 @@ export class MmpParser {
 		else
 			// there are exactly 2 distinctvariables, after the $d symbol
 			// this.uProof?.addDisjointVarStatement(nextProofStepTokens[1].value, nextProofStepTokens[2].value);
-			this.uProof?.addDisjointVarStatement(nextProofStepTokens);
+			this.mmpProof?.addDisjointVarStatement(nextProofStepTokens);
 	}
 	//#endregion addDisjointVarConstraint
 
@@ -436,7 +436,7 @@ export class MmpParser {
 		const eHypMmpSteps: (MmpProofStep | undefined)[] =
 			this.getEHypMmpSteps(proofStepFirstTokenInfo.eHypRefs, unknownStepRefs);
 		const isFirstTokenParsable: boolean = proofStepFirstTokenInfo.unparsableToken == undefined;
-		const proofStep: MmpProofStep = new MmpProofStep(this.uProof!, proofStepFirstTokenInfo,
+		const proofStep: MmpProofStep = new MmpProofStep(this.mmpProof!, proofStepFirstTokenInfo,
 			isFirstTokenParsable, proofStepFirstTokenInfo.isEHyp, proofStepFirstTokenInfo.stepRef,
 			proofStepFirstTokenInfo.eHypRefs, eHypMmpSteps, proofStepFirstTokenInfo.stepLabel, stepFormula, formulaParseNode);
 		if (unknownStepRefs.size > 0)
@@ -446,8 +446,8 @@ export class MmpParser {
 	}
 	addTextProofStatement(nextProofStepTokens: MmToken[]) {
 		const textProofStatement: TextForProofStatement = new TextForProofStatement(nextProofStepTokens);
-		this.uProof?.addUStatement(textProofStatement);
-		this.uProof!.textProofStatement = textProofStatement;
+		this.mmpProof?.addUStatement(textProofStatement);
+		this.mmpProof!.textProofStatement = textProofStatement;
 	}
 	createMmpStatementFromStepTokens(nextProofStepTokens: MmToken[]) {
 		const nextTokenValue = nextProofStepTokens[0].value;
@@ -577,9 +577,9 @@ export class MmpParser {
 	protected checkDisjVarConstraints(assertion: AssertionStatement, substitution: Map<string, InternalNode>,
 		stepLabelToken: MmToken, stepRef: string) {
 		const disjointVarsManager: DisjointVarsManager =
-			new DisjointVarsManager(assertion, substitution, this.outermostBlock, true, stepLabelToken, stepRef, this.uProof);
+			new DisjointVarsManager(assertion, substitution, this.outermostBlock, true, stepLabelToken, stepRef, this.mmpProof);
 		disjointVarsManager.checkDisjVarsConstraintsViolation();
-		disjointVarsManager.checkMissingDisjVarsConstraints(<MmpProof>this.uProof);
+		disjointVarsManager.checkMissingDisjVarsConstraints(<MmpProof>this.mmpProof);
 		this.diagnostics = this.diagnostics.concat(...disjointVarsManager.diagnostics);
 	}
 
@@ -621,7 +621,7 @@ export class MmpParser {
 	checkUnificationOfLogicalVars(outermostBlock: BlockStatement,
 		grammar: Grammar, workingVars: WorkingVars) {
 		// this.mmpStatements.forEach((mmpStatement: MmpStatement) => {
-		this.uProof?.mmpStatements.forEach((mmpStatement: IMmpStatement) => {
+		this.mmpProof?.mmpStatements.forEach((mmpStatement: IMmpStatement) => {
 			// if (mmpStatement instanceof MmpProofStep && !mmpStatement.isEHyp) {
 			if (mmpStatement instanceof MmpProofStep && !mmpStatement.isEHyp) {
 				// const substitutionManager: MmpSubstitutionManager =
@@ -649,7 +649,7 @@ export class MmpParser {
 		mmLexer.reset(this.textToParse);
 		this.mmTokens = mmLexer.tokens;
 		let token: MmToken | undefined = mmLexer.next();
-		this.uProof = new MmpProof(this.outermostBlock, this.workingVars);
+		this.mmpProof = new MmpProof(this.outermostBlock, this.workingVars);
 		while (token != undefined) {
 			token = this.createNextMmpStatement(token, mmLexer);
 			// token = mmLexer.current();
@@ -657,7 +657,7 @@ export class MmpParser {
 	}
 
 	checkQedStatement() {
-		const lastMmpProofStep: MmpProofStep | undefined = this.uProof?.lastMmpProofStep;
+		const lastMmpProofStep: MmpProofStep | undefined = this.mmpProof?.lastMmpProofStep;
 		if (lastMmpProofStep != undefined && lastMmpProofStep.stepRef != 'qed') {
 			const message = `The last proof step's ref is expected to be 'qed'`;
 			const range: Range = lastMmpProofStep.stepRefToken.range;
@@ -667,15 +667,15 @@ export class MmpParser {
 	}
 
 	checkCoherenceIfAlreadyExistingTheorem() {
-		const theoremName: string | undefined = this.uProof?.theoremLabel?.value;
+		const theoremName: string | undefined = this.mmpProof?.theoremLabel?.value;
 		if (theoremName != undefined) {
 			// the $theorem statement is present
 			const labeledStatement: LabeledStatement | undefined = this.labelToStatementMap.get(theoremName);
 			if (labeledStatement instanceof ProvableStatement) {
 				// the current theorem is already in the theory
-				const defaultRange: Range = this.uProof!.theoremLabel!.range;
+				const defaultRange: Range = this.mmpProof!.theoremLabel!.range;
 				const theoremCoherenceChecker: TheoremCoherenceChecker = new TheoremCoherenceChecker(
-					this.uProof!, labeledStatement, defaultRange, this.diagnostics);
+					this.mmpProof!, labeledStatement, defaultRange, this.diagnostics);
 				theoremCoherenceChecker.checkCoherence();
 			}
 		}
@@ -705,7 +705,7 @@ export class MmpParser {
 		});
 	}
 	addDiagnosticForEachOccourenceOfWorkingVar(workingVar: string, errorMessage: string) {
-		this.uProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
+		this.mmpProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			// if (uStatement instanceof UProofStep && uStatement.parseNode != undefined) {
 			// 	this.addDiagnosticForOccourenceOfWorkingVarToSingleParseNode(uStatement.parseNode,
 			// 		workingVar, errorMessage);

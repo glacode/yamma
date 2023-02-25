@@ -95,9 +95,9 @@ test("Parse Disjoint Vars", () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
-	expect(mmpParser.uProof!.containsDjVarStatement("A", "x")).toBeTruthy();
-	expect(mmpParser.uProof!.containsDjVarStatement("x", "y")).toBeTruthy();
-	expect(mmpParser.uProof!.containsDjVarStatement("y", "x")).toBeTruthy();
+	expect(mmpParser.mmpProof!.containsDjVarStatement("A", "x")).toBeTruthy();
+	expect(mmpParser.mmpProof!.containsDjVarStatement("x", "y")).toBeTruthy();
+	expect(mmpParser.mmpProof!.containsDjVarStatement("y", "x")).toBeTruthy();
 });
 
 test("Expect Disjoint Var automatic completion ", () => {

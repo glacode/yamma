@@ -37,9 +37,9 @@ export class SearchCommandHandler {
 
 	private getCurrentProofStep(): MmpProofStep | undefined {
 		let currentProofStep: MmpProofStep | undefined;
-		if (this.mmpParser?.uProof != undefined) {
+		if (this.mmpParser?.mmpProof != undefined) {
 			const mmpStatement: IMmpStatementWithRange | undefined = CursorContext.getMmpStatement(
-				this.mmpParser.uProof.mmpStatements, this.searchCommandParameter.cursorLine);
+				this.mmpParser.mmpProof.mmpStatements, this.searchCommandParameter.cursorLine);
 			if (mmpStatement instanceof MmpProofStep)
 				currentProofStep = mmpStatement;
 		}

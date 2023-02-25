@@ -31,7 +31,7 @@ export class CursorContext {
 	//#region mmpStatement
 	/** sets the mmpStatement the cursor is positioned on */
 	private setMmpStatement() {
-		const uProof: MmpProof | undefined = this.mmpParser.uProof;
+		const uProof: MmpProof | undefined = this.mmpParser.mmpProof;
 		if (uProof != undefined)
 			this._mmpStatement = CursorContext.getMmpStatement(uProof.mmpStatements, this.cursorLine);
 	}
@@ -109,7 +109,7 @@ export class CursorContext {
 	 */
 	public formulaBeforeCursor(): MmToken[] | undefined {
 		let formula: MmToken[] | undefined;
-		const uProof: MmpProof | undefined = this.mmpParser.uProof;
+		const uProof: MmpProof | undefined = this.mmpParser.mmpProof;
 		if (uProof != undefined) {
 			const mmpStatement: IMmpStatementWithRange | undefined = this.mmpStatement;
 			if (mmpStatement instanceof MmpProofStep) {

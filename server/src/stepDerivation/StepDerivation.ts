@@ -19,7 +19,7 @@ export class StepDerivation {
 	constructor(mmpParser: MmpParser, private mmpProofStepIndex: number,
 		private mmpProofStep: MmpProofStep,
 		private maxNumberOfHypothesisDispositionsForStepDerivation: number) {
-		this.uProof = mmpParser.uProof!;
+		this.uProof = mmpParser.mmpProof!;
 		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
 		this.outermostBlock = mmpParser.outermostBlock;
 		this.grammar = mmpParser.grammar;

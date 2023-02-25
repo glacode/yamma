@@ -447,9 +447,9 @@ test('MmpParser.uProof.formulaToProofStepMap 1', () => {
 		'qed:: |- ch';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const indexPs: number | undefined = mmpParser.uProof!.formulaToProofStepMap.get('|- ps');
+	const indexPs: number | undefined = mmpParser.mmpProof!.formulaToProofStepMap.get('|- ps');
 	expect(indexPs).toBe(0);
-	const indexWi: number | undefined = mmpParser.uProof!.formulaToProofStepMap.get('|- ( ps -> ph )');
+	const indexWi: number | undefined = mmpParser.mmpProof!.formulaToProofStepMap.get('|- ( ps -> ph )');
 	expect(indexWi).toBe(2);
 });
 

@@ -50,7 +50,7 @@ export class MmpUnifier {
 		private renumber?: boolean) {
 		// this.textDocument = textDocument
 		this.mmpParser = mmpParser;
-		this.uProof = mmpParser.uProof;
+		this.uProof = mmpParser.mmpProof;
 		this.outermostBlock = mmpParser.outermostBlock;
 		this.grammar = mmpParser.grammar;
 		this.workingVars = mmpParser.workingVars;

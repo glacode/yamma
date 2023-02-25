@@ -58,7 +58,7 @@ export class MmpProofTransformer {
 	constructor(mmpParser: MmpParser, maxNumberOfHypothesisDispositionsForStepDerivation: number,
 		private renumber?: boolean) {
 		this.mmpParser = mmpParser;
-		this.uProof = mmpParser.uProof!;
+		this.uProof = mmpParser.mmpProof!;
 		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
 		this.outermostBlock = mmpParser.outermostBlock;
 		this.grammar = mmpParser.grammar;

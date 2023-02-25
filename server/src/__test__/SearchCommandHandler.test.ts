@@ -31,7 +31,7 @@ test("expect proper string for search command", () => {
 		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.uProof?.mmpStatements[2];
+	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[2];
 	const mmStatistics: MmStatistics = new MmStatistics(opelcnMmParser);
 	mmStatistics.buildStatistics();
 	const searchStatement: string = TestSearchCommandHandler.buildSearchStatement(2, mmpProofStep52, mmStatistics);
@@ -50,7 +50,7 @@ test("expect no working var (or other non-defined symbol) in the generated searc
 		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.uProof?.mmpStatements[2];
+	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[2];
 	const mmStatistics: MmStatistics = new MmStatistics(opelcnMmParser);
 	mmStatistics.buildStatistics();
 	const searchStatement: string = TestSearchCommandHandler.buildSearchStatement(2, mmpProofStep52, mmStatistics);
@@ -70,7 +70,7 @@ test("expect proper position for search command below multiline", () => {
 		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.uProof?.mmpStatements[2];
+	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[2];
 	const positionForInsertionAbove52: Position =
 		TestSearchCommandHandler.positionForInsertionOfTheSearchStatement(2, mmpProofStep52);
 	const expectedPositionForInsertion: Position = { line: 4, character: 0 };

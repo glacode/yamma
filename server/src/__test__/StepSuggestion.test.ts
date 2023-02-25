@@ -38,7 +38,7 @@ test("test 1 SyntaxTreeClassifierFull", () => {
 	// it doesn't unify
 	stepSuggestionMap.add('full3', CompletionItemKind.Event,
 		'cop cxp wcel wcel wcel wa wb TOP', 'imp', 1);
-	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.uProof?.mmpStatements[2];
+	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[2];
 	const stepSuggestion: StepSuggestion = new StepSuggestion(cursorContext, stepSuggestionMap,
 		fomulaClassifiers, mmpProofStep, opelcnMmParser);
 	const completionItems: CompletionItem[] = stepSuggestion.completionItems();
@@ -102,7 +102,7 @@ test("test 2 SyntaxTreeClassifierFull and SyntaxTreeClassifierImp", () => {
 	// this below is a fake suggestion: it should not be returned because
 	// it doesn't unify
 	stepSuggestionMap.add('full3', CompletionItemKind.Event, 'wff wn wff wn wi TOP', 'bitri', 6);
-	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.uProof?.mmpStatements[1];
+	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[1];
 	const stepSuggestion: StepSuggestion = new StepSuggestion(cursorContext, stepSuggestionMap,
 		fomulaClassifiers, mmpProofStep, opelcnMmParser);
 	const completionItems: CompletionItem[] = stepSuggestion.completionItems();
@@ -156,7 +156,7 @@ test("test completion items from partial label", () => {
 	// this below is a fake suggestion: it should not be returned because
 	// it doesn't unify
 	stepSuggestionMap.add('full3', CompletionItemKind.Event, 'wff wn wff wn wi TOP', 'bitri', 6);
-	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.uProof?.mmpStatements[1];
+	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[1];
 	const stepSuggestion: StepSuggestion = new StepSuggestion(cursorContext, stepSuggestionMap,
 		fomulaClassifiers, mmpProofStep, opelcnMmParser);
 	const completionItems: CompletionItem[] = stepSuggestion.completionItems();
@@ -190,7 +190,7 @@ test("step suggestion for empty parse node from partial label", () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
-	expect(mmpParser.uProof?.mmpStatements.length).toBe(2);
+	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(2);
 	const cursorContext: CursorContext = new CursorContext(0, 3, mmpParser);
 	cursorContext.buildContext();
 	expect(cursorContext.contextForCompletion).toBe(CursorContextForCompletion.stepLabel);
@@ -199,7 +199,7 @@ test("step suggestion for empty parse node from partial label", () => {
 
 	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
 
-	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.uProof?.mmpStatements[0];
+	const mmpProofStep: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[0];
 	const stepSuggestion: StepSuggestion = new StepSuggestion(cursorContext, stepSuggestionMap,
 		fomulaClassifiers, mmpProofStep, mmParser);
 	const completionItems: CompletionItem[] = stepSuggestion.completionItems();

@@ -24,10 +24,10 @@ export class MmpStatistics {
 	 * builds the statistics for the given MmpParser
 	 */
 	public buildStatistics() {
-		if (this.mmpParser.uProof != undefined) {
+		if (this.mmpParser.mmpProof != undefined) {
 			this.symbols = new Set<string>();
 
-			this.mmpParser.uProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
+			this.mmpParser.mmpProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
 				if (uStatement instanceof MmpProofStep)
 					this.addSymbolsForCurrentMmpProofStep(uStatement);
 			});
