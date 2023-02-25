@@ -61,6 +61,11 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 		return isProven;
 	}
 
+	public get isQed(): boolean {
+		const result = this.stepRef == 'qed';
+		return result;
+	}
+
 	/** call this method if this UProofStep is completeley proven */
 	setIsProven() {
 		this._isProven = true;

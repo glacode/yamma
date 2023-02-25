@@ -21,6 +21,7 @@ import { MmpSearchStatement } from './MmpSearchStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { BuildNewLabelArgs, EHypLabelManager } from './EHypLabelManager';
 import { ProofStepDuplicateRemover } from './ProofStepDuplicateRemover';
+import { RefNumberManager } from './RefNumberManager';
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -54,7 +55,8 @@ export class MmpProofTransformer {
 	// constructor(uProof: UProof, labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
 	// 	maxNumberOfHypothesisDispositionsForStepDerivation: number) {
-	constructor(mmpParser: MmpParser, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
+	constructor(mmpParser: MmpParser, maxNumberOfHypothesisDispositionsForStepDerivation: number,
+		private renumber?: boolean) {
 		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.uProof!;
 		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
@@ -346,11 +348,19 @@ export class MmpProofTransformer {
 			uUnifierApplier.applyUnifier();
 		}
 	}
+	removeStepDuplicates() {
+		ProofStepDuplicateRemover.removeStepDuplicates(this.uProof);
+	}
 
+	renumberIfRequired() {
+		if (this.renumber)
+			RefNumberManager.renumber(this.uProof);
+	}
 	transformUProof() {
 		this.transformUSteps();
 		this.unifyWorkingVars();
-		ProofStepDuplicateRemover.removeStepDuplicates(this.uProof);
+		this.removeStepDuplicates();
+		this.renumberIfRequired();
 	}
 	//#endregion transformUProof
 

@@ -45,9 +45,9 @@ export class MmpUnifier {
 
 
 	//#region constructor
-	// constructor(labelToStatementMap: Map<string, LabeledStatement>, outermostBlock: BlockStatement,
-	// 	grammar: Grammar, workingVars: WorkingVars, proofMode: ProofMode, mmpParser?: MmpParser) {
-	constructor(mmpParser: MmpParser, proofMode: ProofMode, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
+	constructor(mmpParser: MmpParser, proofMode: ProofMode,
+		maxNumberOfHypothesisDispositionsForStepDerivation: number,
+		private renumber?: boolean) {
 		// this.textDocument = textDocument
 		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.uProof;
@@ -112,19 +112,13 @@ export class MmpUnifier {
 	 * @param textToParse 
 	 */
 	unify() {
-		// unify(textToParse: string) {
-		// if (this.uProof != undefined)
-		// 	this.uProof = this.uProof;
-		// else
-		// 	this.uProof = this.buildUProof(textToParse);
 		//TODO see if this can be faster if done in the MmpParser
 		this.uProof!.updateAllWorkingVars();
 		const uProofTransformer: MmpProofTransformer = new MmpProofTransformer(
-			this.mmpParser, this.maxNumberOfHypothesisDispositionsForStepDerivation);
-		// const newUProof: UProof = this.transformUProof(uProof);
+			this.mmpParser, this.maxNumberOfHypothesisDispositionsForStepDerivation,
+			this.renumber);
 		uProofTransformer.transformUProof();
 		this.buildProofStatementIfProofIsComplete(this.uProof!);
-		// this.textEditArray = this.buildTextEditArray(newUProof);
 		this.textEditArray = this.buildTextEditArray(uProofTransformer.uProof);
 	}
 	//#endregion unify
