@@ -123,6 +123,10 @@
 				"title": "Unify"
 			},
 			{
+				"command": "yamma.unifyAndRenumber",
+				"title": "Unify and renumber"
+			},
+			{
 				"command": "yamma.search",
 				"title": "Search theorems in the theory"
 			},
@@ -141,6 +145,10 @@
 				"key": "ctrl+u"
 			},
 			{
+				"command": "yamma.unifyAndRenumber",
+				"key": "ctrl+r"
+			},
+			{
 				"command": "yamma.search",
 				"key": "ctrl+h"
 			}
@@ -153,6 +161,10 @@
 					"group": "navigation"
 				},
 				{
+					"when": "resourceLangId == yamma",
+					"command": "yamma.unifyAndRenumber",
+					"group": "navigation"
+				},				{
 					"when": "resourceLangId == yamma",
 					"command": "yamma.search",
 					"group": "navigation"

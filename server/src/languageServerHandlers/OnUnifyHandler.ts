@@ -19,7 +19,8 @@ export class OnUnifyHandler {
 
 	// constructor(params: DocumentFormattingParams, mmParser: MmParser,
 	constructor(private textDocumentUri: string, mmParser: MmParser, private mmpParser: MmpParser,
-		configurationManager: ConfigurationManager, maxNumberOfHypothesisDispositionsForStepDerivation: number) {
+		configurationManager: ConfigurationManager, maxNumberOfHypothesisDispositionsForStepDerivation: number,
+		private renumber: boolean) {
 		// this.params = params;
 		// this.documents = documents;
 		this.mmParser = mmParser;
@@ -37,7 +38,8 @@ export class OnUnifyHandler {
 		// 		this.mmParser.grammar, this.mmParser.workingVars, proofMode, GlobalState.lastMmpParser);
 		//TODO manage case GlobalState.lastMmpParser == undefined (invoke unify only if it is not undefined) 
 		const mmpUnifier: MmpUnifier =
-			new MmpUnifier(this.mmpParser, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation);
+			new MmpUnifier(this.mmpParser, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation,
+				this.renumber);
 		// const textToParse: string = textDocument.getText();
 		if (this.mmParser.grammar != undefined)
 			mmpUnifier.unify();
@@ -52,7 +54,8 @@ export class OnUnifyHandler {
 	//#endregion unify
 
 	static async unifyIfTheCase(textDocumentUri: string, documents: TextDocuments<TextDocument>,
-		globalState: GlobalState, maxNumberOfHypothesisDispositionsForStepDerivation: number): Promise<TextEdit[]> {
+		globalState: GlobalState, maxNumberOfHypothesisDispositionsForStepDerivation: number,
+		renumber: boolean): Promise<TextEdit[]> {
 		let result: Promise<TextEdit[]> = Promise.resolve([]);
 		if (globalState.mmParser != undefined && globalState.lastMmpParser != undefined
 			&& globalState.configurationManager != undefined) {
@@ -61,7 +64,8 @@ export class OnUnifyHandler {
 			if (mmpParser != undefined) {
 				const onDocumentFormattingHandler: OnUnifyHandler =
 					new OnUnifyHandler(textDocumentUri, globalState.mmParser, mmpParser,
-						globalState.configurationManager, maxNumberOfHypothesisDispositionsForStepDerivation);
+						globalState.configurationManager, maxNumberOfHypothesisDispositionsForStepDerivation,
+						renumber);
 				const textEditArray: TextEdit[] = await onDocumentFormattingHandler.unify();
 				result = Promise.resolve(textEditArray);
 				globalState.requireCursorPositionUpdate();
@@ -101,9 +105,9 @@ export class OnUnifyHandler {
 	//#endregion applyTextEditsAndValidate
 	static async unifyAndValidate(textDocumentUri: string, connection: Connection, documents: TextDocuments<TextDocument>,
 		hasConfigurationCapability: boolean, maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		globalState: GlobalState) {
+		globalState: GlobalState, renumber: boolean) {
 		const result: TextEdit[] = await OnUnifyHandler.unifyIfTheCase(textDocumentUri, documents,
-			globalState, maxNumberOfHypothesisDispositionsForStepDerivation);
+			globalState, maxNumberOfHypothesisDispositionsForStepDerivation, renumber);
 		await OnUnifyHandler.applyTextEditsAndValidate(result, textDocumentUri, connection, documents,
 			hasConfigurationCapability, globalState);
 	}

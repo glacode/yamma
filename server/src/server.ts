@@ -173,8 +173,10 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 });
 
 async function unifyAndValidate(textDocumentUri: string) {
+	//TODO1 feb 25 see if an await here solves the response back before the unify is complete
 	OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
-		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState);
+		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
+		false);
 }
 
 connection.onRequest('yamma/completionitemselected', unifyAndValidate);
@@ -182,6 +184,16 @@ connection.onRequest('yamma/completionitemselected', unifyAndValidate);
 //TODO notice that this is identical to completionitemselected, but maybe they will be
 //different, in the future
 connection.onRequest('yamma/unify', unifyAndValidate);
+
+
+async function unifyRenumberAndValidate(textDocumentUri: string) {
+	await OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
+		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
+		true);
+}
+
+//TODO1 feb 25
+connection.onRequest('yamma/unifyAndRenumber', unifyRenumberAndValidate);
 
 
 connection.onInitialized(() => {

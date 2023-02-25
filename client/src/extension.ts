@@ -79,6 +79,8 @@ export function activate(context: ExtensionContext) {
 		context.subscriptions.push(disposable);
 		disposable = commands.registerCommand('yamma.unify',
 			() => { client.sendRequest('yamma/unify', window.activeTextEditor.document.uri.toString()); });
+		disposable = commands.registerCommand('yamma.unifyAndRenumber',
+			() => { client.sendRequest('yamma/unifyAndRenumber', window.activeTextEditor.document.uri.toString()); });
 		disposable = commands.registerCommand('yamma.search', searchCommandHandler, client);
 		disposable = commands.registerCommand('yamma.completionitemselected',
 			completionItemSelectedHandler, client);
