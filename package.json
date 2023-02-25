@@ -124,7 +124,7 @@
 			},
 			{
 				"command": "yamma.unifyAndRenumber",
-				"title": "Unify and renumber"
+				"title": "Unify and Renumber"
 			},
 			{
 				"command": "yamma.search",
