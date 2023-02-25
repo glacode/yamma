@@ -66,7 +66,7 @@ export class WorkingVarsUnifierApplier {
 	 * replaced by the given unifier
 	 */
 	applyUnifier() {
-		this.uProof.uStatements.forEach((uStatement: IMmpStatement) => {
+		this.uProof.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep)
 				this.applyUnifierToProofStep(uStatement);
 		});

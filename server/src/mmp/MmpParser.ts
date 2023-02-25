@@ -244,7 +244,7 @@ export class MmpParser {
 				this.uProof?.formulaToProofStepMap.get(normalizedFormula);
 			if (indexForFormulaIfAlreadyPresent == undefined) {
 				// the current formula has not been encountered, yet
-				const proofStatementIndex: number = this.uProof!.uStatements.length - 1;
+				const proofStatementIndex: number = this.uProof!.mmpStatements.length - 1;
 				this.uProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
 			}
 		}
@@ -621,7 +621,7 @@ export class MmpParser {
 	checkUnificationOfLogicalVars(outermostBlock: BlockStatement,
 		grammar: Grammar, workingVars: WorkingVars) {
 		// this.mmpStatements.forEach((mmpStatement: MmpStatement) => {
-		this.uProof?.uStatements.forEach((mmpStatement: IMmpStatement) => {
+		this.uProof?.mmpStatements.forEach((mmpStatement: IMmpStatement) => {
 			// if (mmpStatement instanceof MmpProofStep && !mmpStatement.isEHyp) {
 			if (mmpStatement instanceof MmpProofStep && !mmpStatement.isEHyp) {
 				// const substitutionManager: MmpSubstitutionManager =
@@ -705,7 +705,7 @@ export class MmpParser {
 		});
 	}
 	addDiagnosticForEachOccourenceOfWorkingVar(workingVar: string, errorMessage: string) {
-		this.uProof?.uStatements.forEach((uStatement: IMmpStatement) => {
+		this.uProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			// if (uStatement instanceof UProofStep && uStatement.parseNode != undefined) {
 			// 	this.addDiagnosticForOccourenceOfWorkingVarToSingleParseNode(uStatement.parseNode,
 			// 		workingVar, errorMessage);

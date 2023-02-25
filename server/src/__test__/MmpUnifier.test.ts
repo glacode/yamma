@@ -31,8 +31,8 @@ test('buildNewProof()', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
-	expect(mmpUnifier.uProof!.uStatements.length).toBe(2);
-	expect((<MmpProofStep>mmpUnifier.uProof!.uStatements[0]).stepLabel).toEqual('ax-mp');
+	expect(mmpUnifier.uProof!.mmpStatements.length).toBe(2);
+	expect((<MmpProofStep>mmpUnifier.uProof!.mmpStatements[0]).stepLabel).toEqual('ax-mp');
 });
 
 test('Unify ax-mp', () => {

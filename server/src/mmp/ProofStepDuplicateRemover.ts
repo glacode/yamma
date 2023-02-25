@@ -18,10 +18,10 @@ export abstract class ProofStepDuplicateRemover {
 			const duplicatedMmpProofStepIndex: number | undefined = mmpProof.adjustedStepIndexForThisFormula(normalizedFormula);
 			if (duplicatedMmpProofStepIndex != undefined && duplicatedMmpProofStepIndex < index) {
 				// mmpProofStep duplicates mmpProof.uStatements[duplicatedMmpProofStepIndex]
-				duplicatedMmpProofStep = <MmpProofStep>mmpProof.uStatements[duplicatedMmpProofStepIndex];
+				duplicatedMmpProofStep = <MmpProofStep>mmpProof.mmpStatements[duplicatedMmpProofStepIndex];
 				if (mmpProofStep.stepRef != undefined)
 					oldRefToNewRefMap.set(mmpProofStep.stepRef, duplicatedMmpProofStep);
-				mmpProof.uStatements.splice(index, 1);
+				mmpProof.mmpStatements.splice(index, 1);
 				nextIndex = index;
 			}
 		}
@@ -50,8 +50,8 @@ export abstract class ProofStepDuplicateRemover {
 	public static removeStepDuplicates(mmpProof: MmpProof) {
 		const oldRefToNewRefMap: Map<string, MmpProofStep> = new Map<string, MmpProofStep>();
 		let i = 0;
-		while (i < mmpProof.uStatements.length) {
-			const mmpStatement: IMmpStatement = mmpProof.uStatements[i];
+		while (i < mmpProof.mmpStatements.length) {
+			const mmpStatement: IMmpStatement = mmpProof.mmpStatements[i];
 			if (mmpStatement instanceof MmpProofStep) {
 				i = ProofStepDuplicateRemover.removeMmpProofStepIfTheCase(mmpStatement, i, mmpProof, oldRefToNewRefMap);
 				ProofStepDuplicateRemover.updateEHypsIfNeeded(mmpStatement, oldRefToNewRefMap);
@@ -59,7 +59,7 @@ export abstract class ProofStepDuplicateRemover {
 				// mmpStatement is not a MmpProofStep
 				i++;
 		}
-		mmpProof.uStatements.forEach((mmpStatement: IMmpStatement, index: integer) => {
+		mmpProof.mmpStatements.forEach((mmpStatement: IMmpStatement, index: integer) => {
 			if (mmpStatement instanceof MmpProofStep) {
 				ProofStepDuplicateRemover.removeMmpProofStepIfTheCase(mmpStatement, index, mmpProof, oldRefToNewRefMap);
 				ProofStepDuplicateRemover.updateEHypsIfNeeded(mmpStatement, oldRefToNewRefMap);

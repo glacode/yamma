@@ -31,7 +31,7 @@ export class MmpSubstitutionApplier {
 		this.grammar = grammar;
 		this.uProof = uProof;
 
-		this.uProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
+		this.uProofStep = <MmpProofStep>this.uProof.mmpStatements[uStepIndex];
 		this.logicalSystemEHyps = <EHyp[]>(this.assertion.frame?.eHyps);
 		this.eHypUSteps = this.uProofStep.eHypUSteps;
 	}

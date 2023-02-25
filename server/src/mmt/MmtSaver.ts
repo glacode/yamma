@@ -118,7 +118,7 @@ export class MmtSaver {
 	}
 	textForEStatements(uProof: MmpProof): string {
 		let text = "";
-		uProof.uStatements.forEach((ustatement: IMmpStatement) => {
+		uProof.mmpStatements.forEach((ustatement: IMmpStatement) => {
 			if (ustatement instanceof MmpProofStep && ustatement.isEHyp) {
 				const textForCurrentEHyp: string = this.textForCurrentEHyp(ustatement);
 				text += `    ${textForCurrentEHyp}\n`;

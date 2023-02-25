@@ -96,7 +96,7 @@ export class UCompressedProofStatement implements IMmpStatement {
 		mandatoryFHypsLabelsInRPNorder.forEach((label: string) => {
 			this.addMandatoryHypLabel(label);
 		});
-		this.uProof.uStatements.forEach((uStatement: IMmpStatement) => {
+		this.uProof.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep && uStatement.isEHyp)
 				this.addMandatoryHypLabel(uStatement.stepLabel!);
 		});

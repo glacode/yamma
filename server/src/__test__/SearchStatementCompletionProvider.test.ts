@@ -16,7 +16,7 @@ test("SearchStatementCompletionProvider 1", () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
-	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.uStatements[2];
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.mmpStatements[2];
 	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
 		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, mp2Statistics);
 	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
@@ -40,7 +40,7 @@ test("SearchStatementCompletionProvider empty", () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
-	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.uStatements[2];
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.mmpStatements[2];
 	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
 		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, mp2Statistics);
 	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
@@ -61,7 +61,7 @@ test("SearchStatementCompletionProvider multiline", () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
-	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.uStatements[2];
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.mmpStatements[2];
 	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
 		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, mp2Statistics);
 	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
@@ -85,7 +85,7 @@ test("SearchStatementCompletionProvider with symbol in EHyp", () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
-	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.uStatements[2];
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.uProof!.mmpStatements[2];
 	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
 		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, vexStatistics);
 	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();

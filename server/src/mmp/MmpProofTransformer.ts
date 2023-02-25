@@ -296,7 +296,7 @@ export class MmpProofTransformer {
 	 */
 	protected transformUStep(uStepIndex: number): number {
 		let nextUStepIndexToBeTransformed = uStepIndex + 1;
-		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[uStepIndex];
+		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.mmpStatements[uStepIndex];
 		//TODO1
 		if (uProofStep.parseNode != undefined && uProofStep.assertion == undefined)
 			this.deriveLabelAndHypotesis(uStepIndex, uProofStep);
@@ -318,8 +318,8 @@ export class MmpProofTransformer {
 	protected transformUSteps() {
 		let i = 0;
 		let currentIndexInEHypLabel = 1;
-		while (i < this.uProof.uStatements.length) {
-			const currentMmpStatement: IMmpStatement = this.uProof.uStatements[i];
+		while (i < this.uProof.mmpStatements.length) {
+			const currentMmpStatement: IMmpStatement = this.uProof.mmpStatements[i];
 			if (currentMmpStatement instanceof MmpProofStep && currentMmpStatement.isEHyp) {
 				currentIndexInEHypLabel = this.transformEHyp(currentMmpStatement, currentIndexInEHypLabel);
 				i++;
@@ -329,7 +329,7 @@ export class MmpProofTransformer {
 			} else {
 				if (currentMmpStatement instanceof TextForProofStatement ||
 					currentMmpStatement instanceof MmpSearchStatement)
-					this.uProof.uStatements.splice(i, 1);
+					this.uProof.mmpStatements.splice(i, 1);
 				else
 					i++;
 			}

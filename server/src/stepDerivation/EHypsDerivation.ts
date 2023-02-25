@@ -109,7 +109,7 @@ export class EHypsDerivation {
 		while (!this.eHypsDerivationResult.isSuccessful && i < this.mmpProofStepIndex) {
 			// a previous MmpProofStep that can be unified with the current EHyp
 			// has not been found yet
-			const eHypProofStepCandidate: IMmpStatement = this.uProof.uStatements[i];
+			const eHypProofStepCandidate: IMmpStatement = this.uProof.mmpStatements[i];
 			if (eHypProofStepCandidate instanceof MmpProofStep)
 				this.tryEHypProofStepCandidate(currentEHypIndexForStepDerivation, currentEHypRealIndex,
 					currentEHyp, eHypProofStepCandidate);
@@ -136,7 +136,7 @@ export class EHypsDerivation {
 			this.uProof.adjustedStepIndexForThisFormula(formulaForCurrentEHypProofStep);
 		if (eHypProofStepIndex != undefined && eHypProofStepIndex < this.mmpProofStepIndex) {
 			// a previous MmpProof step has been found that unifies with the current EHyp
-			const eHypProofStep: MmpProofStep = <MmpProofStep>this.uProof.uStatements[eHypProofStepIndex];
+			const eHypProofStep: MmpProofStep = <MmpProofStep>this.uProof.mmpStatements[eHypProofStepIndex];
 			this.eHypsDerivationResult.eHypsMmpProofSteps[currentEHypRealIndex] = eHypProofStep;
 			if (currentEHypIndexForStepDerivation >= this.assertion.frame!.eHyps.length - 1)
 				// there is no more EHyp to unify

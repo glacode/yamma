@@ -35,15 +35,15 @@ export class SearchStatementCompletionProvider {
 	//#region  getRangeToInsertLabel
 	getLineToInsertLabel(): number {
 		let i = 0;
-		while (this.mmpParser.uProof != undefined && i < this.mmpParser.uProof.uStatements.length &&
-			this.mmpParser.uProof.uStatements[i] != this.mmpSearchStatement)
+		while (this.mmpParser.uProof != undefined && i < this.mmpParser.uProof.mmpStatements.length &&
+			this.mmpParser.uProof.mmpStatements[i] != this.mmpSearchStatement)
 			i++;
 		let lineToInsertLabel: number = this.mmpSearchStatement.range.start.line;
-		if (this.mmpParser.uProof != undefined && i < this.mmpParser.uProof.uStatements.length &&
-			this.mmpParser.uProof.uStatements[i - 1] instanceof MmpProofStep) {
+		if (this.mmpParser.uProof != undefined && i < this.mmpParser.uProof.mmpStatements.length &&
+			this.mmpParser.uProof.mmpStatements[i - 1] instanceof MmpProofStep) {
 			// this.mmpParser.uProof!.uStatements[i - 1] is the MmpProofStep just above this.mmpSearchStatement
 			// this should always be the case, unless the user moved the search statement around
-			const mmpProofStep: MmpProofStep = <MmpProofStep>this.mmpParser.uProof!.uStatements[i - 1];
+			const mmpProofStep: MmpProofStep = <MmpProofStep>this.mmpParser.uProof!.mmpStatements[i - 1];
 			lineToInsertLabel = mmpProofStep.range.start.line;
 		}
 		return lineToInsertLabel;

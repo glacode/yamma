@@ -27,8 +27,8 @@ test("Test MmpProofFormatter.computeIndentationLevels()", () => {
 	mmpParser.parse();
 	const mmpProofFormatter: TestMmpProofFormatter = new TestMmpProofFormatter(mmpParser.uProof!);
 	mmpProofFormatter.computeIndentationLevels();
-	expect(mmpParser.uProof?.uStatements.length).toBeGreaterThanOrEqual(5);
-	mmpParser.uProof?.uStatements.forEach((uStatement: IMmpStatement) => {
+	expect(mmpParser.uProof?.mmpStatements.length).toBeGreaterThanOrEqual(5);
+	mmpParser.uProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
 		if (uStatement instanceof MmpProofStep) {
 			if (uStatement.stepRef == 'qed')
 				expect(uStatement.indentationLevel).toBe(0);

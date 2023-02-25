@@ -27,7 +27,7 @@ export class MmpStatistics {
 		if (this.mmpParser.uProof != undefined) {
 			this.symbols = new Set<string>();
 
-			this.mmpParser.uProof?.uStatements.forEach((uStatement: IMmpStatement) => {
+			this.mmpParser.uProof?.mmpStatements.forEach((uStatement: IMmpStatement) => {
 				if (uStatement instanceof MmpProofStep)
 					this.addSymbolsForCurrentMmpProofStep(uStatement);
 			});

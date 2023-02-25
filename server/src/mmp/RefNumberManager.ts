@@ -12,7 +12,7 @@ export abstract class RefNumberManager {
 	}
 	public static renumber(mmpProof: MmpProof) {
 		const oldRefToProofStepMap: Map<string, MmpProofStep> = new Map<string, MmpProofStep>();
-		const mmpStatements: IMmpStatement[] = mmpProof.uStatements;
+		const mmpStatements: IMmpStatement[] = mmpProof.mmpStatements;
 		let ref = 1;
 		mmpStatements.forEach((mmpStatement: IMmpStatement) => {
 			if (mmpStatement instanceof MmpProofStep  && !mmpStatement.isQed ) {

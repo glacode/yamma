@@ -18,14 +18,14 @@ export class MmpProof implements ITheoremSignature {
 	workingVars: WorkingVars;
 	maxRefAlreadyAssigned = 0;
 
-	uStatements: IMmpStatement[];
+	mmpStatements: IMmpStatement[];
 
 	/** the theorem label is expected to be the first statement */
 	public get theoremLabel(): MmToken | undefined {
 		let theoremLabel: MmToken | undefined;
-		if (this.uStatements[0] instanceof MmpTheoremLabel && this.uStatements[0].theoremLabel != undefined)
+		if (this.mmpStatements[0] instanceof MmpTheoremLabel && this.mmpStatements[0].theoremLabel != undefined)
 			// the first statement is a theorem label statement and the theoremLabel is actually specified
-			theoremLabel = this.uStatements[0].theoremLabel;
+			theoremLabel = this.mmpStatements[0].theoremLabel;
 		return theoremLabel;
 	}
 
@@ -35,14 +35,14 @@ export class MmpProof implements ITheoremSignature {
 	 */
 	public get mainComment(): MmpComment | undefined {
 		let uComment: MmpComment | undefined;
-		if (this.uStatements[0] instanceof MmpTheoremLabel && this.uStatements[1] instanceof MmpComment)
+		if (this.mmpStatements[0] instanceof MmpTheoremLabel && this.mmpStatements[1] instanceof MmpComment)
 			// the first statement is a theorem label statement and the second statement is a comment;
 			// this is the expected state with no diagnostics
-			uComment = this.uStatements[1];
-		else if (this.uStatements[0] instanceof MmpComment)
+			uComment = this.mmpStatements[1];
+		else if (this.mmpStatements[0] instanceof MmpComment)
 			// the theorem label statement is missing; this will rise a Diagnostic, but if
 			// the first statement is comment, we return it as the main comment
-			uComment = this.uStatements[0];
+			uComment = this.mmpStatements[0];
 		return uComment;
 	}
 
@@ -91,7 +91,7 @@ export class MmpProof implements ITheoremSignature {
 		this.workingVars = workingVars;
 		if (startIndexForNewRefs != undefined)
 			this.maxRefAlreadyAssigned = startIndexForNewRefs - 1;
-		this.uStatements = [];
+		this.mmpStatements = [];
 
 		// this._disjVars = new Map<string, Set<string>>();
 		this.disjVars = new DisjointVarMap();
@@ -105,7 +105,7 @@ export class MmpProof implements ITheoremSignature {
 	/** the set of the mandatory vars for this UProof */
 	get mandatoryVars(): Set<string> {
 		const result: Set<string> = new Set<string>();
-		this.uStatements.forEach((uStatement: IMmpStatement) => {
+		this.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep && (uStatement.isEHyp || uStatement.stepRef == "qed")) {
 				const mandatoryVarsForThisStatement: Set<string> =
 					uStatement.parseNode!.symbolsSubsetOf(this.outermostBlock.v);
@@ -196,7 +196,7 @@ export class MmpProof implements ITheoremSignature {
 	// }
 
 	addUProofStepFromMmpStep(mmpProofStep: MmpProofStep) {
-		this.uStatements.push(mmpProofStep);
+		this.mmpStatements.push(mmpProofStep);
 		this.lastMmpProofStep = mmpProofStep;
 		// this.refToUStatementMap.set(mmpProofStep.stepRef, mmpProofStep);
 		this.updateMaxRefIfItsTheCase(mmpProofStep.stepRef);
@@ -211,7 +211,7 @@ export class MmpProof implements ITheoremSignature {
 
 	updateAllWorkingVars() {
 		this.workingVars.reset();
-		this.uStatements.forEach((uStatement: IMmpStatement) => {
+		this.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep && uStatement.stepFormula != undefined)
 				this.updateWorkingVarsIfTheCase(uStatement.stepFormula);
 		});
@@ -231,8 +231,8 @@ export class MmpProof implements ITheoremSignature {
 	//#endregion createUProofFromMmpProof
 
 	addUProofStepAtIndex(uProofStep: MmpProofStep, index: number) {
-		this.uStatements.splice(index, 0, uProofStep);
-		if (this.lastMmpProofStep != undefined && this.uStatements.indexOf(this.lastMmpProofStep) < index)
+		this.mmpStatements.splice(index, 0, uProofStep);
+		if (this.lastMmpProofStep != undefined && this.mmpStatements.indexOf(this.lastMmpProofStep) < index)
 			this.lastMmpProofStep = uProofStep;
 		this.updateMaxRefIfItsTheCase(uProofStep.stepRef);
 		this.stepsInsertedAtASpecificIndexSoFar++;
@@ -240,7 +240,7 @@ export class MmpProof implements ITheoremSignature {
 	}
 
 	addUStatement(uStatement: IMmpStatement) {
-		this.uStatements.push(uStatement);
+		this.mmpStatements.push(uStatement);
 		if (uStatement instanceof MmpProofStep) {
 			this.updateMaxRefIfItsTheCase(uStatement.stepRef);
 			// this.refToUStatementMap.set(uStatement.stepRef!, uStatement);
@@ -264,7 +264,7 @@ export class MmpProof implements ITheoremSignature {
 		// const disjVar: DisjVarUStatement = new DisjVarUStatement(orderedVar1, orderedVar2);
 		const statementContent: MmToken[] = statement.slice(1);
 		const disjVarUStatement: DisjVarUStatement = new DisjVarUStatement(statementContent);
-		this.uStatements.push(disjVarUStatement);
+		this.mmpStatements.push(disjVarUStatement);
 		this.disjVarUStatements.push(disjVarUStatement);
 		this.disjVars.add(statementContent[0].value, statementContent[1].value);
 	}
@@ -317,7 +317,7 @@ export class MmpProof implements ITheoremSignature {
 	/** returns the proof text, without indentation */
 	toTextWithoutIndentation(): string {
 		let text = "";
-		this.uStatements.forEach((uStatement: IMmpStatement) => {
+		this.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			let uStatementText: string = uStatement.toText();
 			if (uStatement instanceof MmpComment)
 				uStatementText = `\n${uStatementText}\n`;
@@ -330,8 +330,8 @@ export class MmpProof implements ITheoremSignature {
 	insertProofStatement(proofStatement: UProofStatement | UCompressedProofStatement) {
 		//this method should only be invoked when the QED step is the last one
 		if (this.lastMmpProofStep?.stepRef == "qed") {
-			const indexOfQEDstep = this.uStatements.indexOf(this.lastMmpProofStep);
-			this.uStatements.splice(indexOfQEDstep + 1, 0, proofStatement);
+			const indexOfQEDstep = this.mmpStatements.indexOf(this.lastMmpProofStep);
+			this.mmpStatements.splice(indexOfQEDstep + 1, 0, proofStatement);
 			this.proofStatement = proofStatement;
 		}
 	}

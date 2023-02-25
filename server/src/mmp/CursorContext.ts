@@ -33,7 +33,7 @@ export class CursorContext {
 	private setMmpStatement() {
 		const uProof: MmpProof | undefined = this.mmpParser.uProof;
 		if (uProof != undefined)
-			this._mmpStatement = CursorContext.getMmpStatement(uProof.uStatements, this.cursorLine);
+			this._mmpStatement = CursorContext.getMmpStatement(uProof.mmpStatements, this.cursorLine);
 	}
 	/** the MmpProofStep the cursor is positioned on, if any */
 	get mmpStatement(): IMmpStatementWithRange | undefined {

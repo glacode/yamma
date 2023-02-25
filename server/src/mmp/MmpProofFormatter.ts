@@ -29,8 +29,8 @@ export class MmpProofFormatter {
 	}
 
 	protected computeIndentationLevels() {
-		for (let i = this.uProof.uStatements.length - 1; i >= 0; i--) {
-			const uStatement = this.uProof.uStatements[i];
+		for (let i = this.uProof.mmpStatements.length - 1; i >= 0; i--) {
+			const uStatement = this.uProof.mmpStatements[i];
 			if (uStatement instanceof MmpProofStep)
 				this.updateIndentationLevel(uStatement, 0);
 		}
@@ -87,7 +87,7 @@ export class MmpProofFormatter {
 	textWithIndentedProof() {
 		this.computeIndentationLevels();
 		let text = "";
-		this.uProof.uStatements.forEach((uStatement: IMmpStatement) => {
+		this.uProof.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			let uStatementText: string;
 			if (uStatement instanceof MmpProofStep)
 				uStatementText = this.textForUProofStep(uStatement);
