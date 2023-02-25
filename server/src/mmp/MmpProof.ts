@@ -53,7 +53,7 @@ export class MmpProof implements ITheoremSignature {
 	// lastMmpProofStep is introduced for better performance, only
 	/**the last MmpProofStep in the array of uStatements*/
 	lastMmpProofStep: MmpProofStep | undefined;
-	
+
 	/** the (compressed or normal) proof text */
 	textProofStatement?: TextForProofStatement;
 
@@ -84,7 +84,6 @@ export class MmpProof implements ITheoremSignature {
 	 * this.formulaToProofStepMap to find the real step index
 	 */
 	private stepsInsertedAtASpecificIndexSoFar = 0;
-
 
 	constructor(outermostBlock: BlockStatement, workingVars: WorkingVars, startIndexForNewRefs?: number) {
 		this.outermostBlock = outermostBlock;
@@ -217,20 +216,19 @@ export class MmpProof implements ITheoremSignature {
 		});
 	}
 
-	// static createUProofFromMmpProof(mmpStatements: MmpStatement[]): UProof {
-	// 	const uProof: UProof = new UProof();
-	// 	mmpStatements.forEach((mmpStatement: MmpStatement) => {
-	// 		if (mmpStatement instanceof MmpProofStep)
-	// 			uProof.addUProofStepFromMmpStep(mmpStatement);
-	// 		else
-	// 			// mmpStatement instanceof UComment
-	// 			uProof.addUStatement(mmpStatement);
-	// 	});
-	// 	return uProof;
-	// }
-	//#endregion createUProofFromMmpProof
+	//#region insertStatementToTheHeader
+	incrementFormulaToProofStepMap() {
+		this.formulaToProofStepMap.forEach((index: number, ref: string) => {
+			this.formulaToProofStepMap.set(ref, ++index);
+		});
+	}
+	insertStatementToTheHeader(mmpStatement: IMmpStatement, index: number) {
+		this.mmpStatements.splice(index, 0, mmpStatement);
+		this.incrementFormulaToProofStepMap();
+	}
+	//#endregion insertStatementToTheHeader
 
-	addUProofStepAtIndex(uProofStep: MmpProofStep, index: number) {
+	insertMmpProofStepAtIndex(uProofStep: MmpProofStep, index: number) {
 		this.mmpStatements.splice(index, 0, uProofStep);
 		if (this.lastMmpProofStep != undefined && this.mmpStatements.indexOf(this.lastMmpProofStep) < index)
 			this.lastMmpProofStep = uProofStep;
@@ -296,7 +294,7 @@ export class MmpProof implements ITheoremSignature {
 		// const uProofStep = new UProofStep(this, true, false, stepRef, [], undefined, undefined, undefined);
 		// this.addUProofStepAtIndex(uProofStep, index);
 		// return uProofStep;
-		this.addUProofStepAtIndex(mmpProofStep, index);
+		this.insertMmpProofStepAtIndex(mmpProofStep, index);
 		return mmpProofStep;
 	}
 

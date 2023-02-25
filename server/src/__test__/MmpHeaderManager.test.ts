@@ -5,9 +5,8 @@ import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
 
-test('expect proper renumbering', () => {
+test('expect default comment to be added', () => {
 	const mmpSource =
-	'\n* test comment\n\n' +
 		'h50: |- ps\n' +
 		'a::a1i |- &W1\n' +
 		'qed:: |- ch';
@@ -18,7 +17,7 @@ test('expect proper renumbering', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
-	'\n* test comment\n\n' +
+		'\n* WriteYourComment\n\n' +
 		'h1::               |- ps\n' +
 		'2::                 |- &W2\n' +
 		'3:2:a1i            |- ( &W3 -> &W2 )\n' +

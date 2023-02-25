@@ -22,6 +22,7 @@ import { GrammarManager } from '../grammar/GrammarManager';
 import { BuildNewLabelArgs, EHypLabelManager } from './EHypLabelManager';
 import { ProofStepDuplicateRemover } from './ProofStepDuplicateRemover';
 import { RefNumberManager } from './RefNumberManager';
+import { MmpHeaderManager } from './MmpHeaderManager';
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -68,6 +69,11 @@ export class MmpProofTransformer {
 	}
 
 	//#region transformUProof
+
+	private addMissingStatements() {
+		const mmpHeaderManager: MmpHeaderManager = new MmpHeaderManager(this.uProof);
+		mmpHeaderManager.addMissingStatements();
+	}
 
 	//#region transformUSteps
 
@@ -357,6 +363,7 @@ export class MmpProofTransformer {
 			RefNumberManager.renumber(this.uProof);
 	}
 	transformUProof() {
+		this.addMissingStatements();
 		this.transformUSteps();
 		this.unifyWorkingVars();
 		this.removeStepDuplicates();

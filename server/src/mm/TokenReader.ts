@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { MmToken } from '../grammar/MmLexer';
-import { splitToTokensDefultInLine } from './Utils';
+import { splitToTokensDefaultInLine } from './Utils';
 
 export class TokenReader {
     lines_buf: string[]   // TODO remove, slow method
@@ -28,7 +28,7 @@ export class TokenReader {
         for (let i = 0; i < this.lines_buf.length; i++) {
             const line = this.lines_buf[i];
             // const lineTokens = splitToTokensDefault(line);
-            const lineTokens = splitToTokensDefultInLine(line, i);
+            const lineTokens = splitToTokensDefaultInLine(line, i);
             lineTokens.forEach(token => {
                 prova.push(token);
             });

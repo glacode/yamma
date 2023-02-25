@@ -7,6 +7,7 @@ import { mp2MmParser, kindToPrefixMap } from './GlobalForTest.test';
 
 test('Remove 3rd and 4th proof steps', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'h1::a |- ps\n' +
 		'h2::b |- ( ps -> ph )\n' +
 		'3:: |- ( ps -> ph )\n' +
@@ -22,6 +23,7 @@ test('Remove 3rd and 4th proof steps', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		'h1::a               |- ps\n' +
 		'h2::b               |- ( ps -> ph )\n' +
 		'5:1,2:ax-mp        |- ph\n' +
@@ -33,6 +35,7 @@ test('Remove 3rd and 4th proof steps', () => {
 //TODO1 feb 24
 test('Remove 3 after working var unification', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'h1::a |- ps\n' +
 		'h2::b               |- ( ps -> ph )\n' +
 		'3:: |- &W1\n' +
@@ -47,6 +50,7 @@ test('Remove 3 after working var unification', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		'h1::a               |- ps\n' +
 		'h2::b               |- ( ps -> ph )\n' +
 		'5:1,2:ax-mp        |- ph\n' +

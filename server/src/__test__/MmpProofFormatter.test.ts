@@ -46,6 +46,7 @@ test("Test MmpProofFormatter.computeIndentationLevels()", () => {
 
 test("Test simple indentation", () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"h50::mp2.1 |- ph\n" +
 		"h51::mp2.2 |- ps\n" +
 		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
@@ -60,6 +61,7 @@ test("Test simple indentation", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"h50::mp2.1           |- ph\n" +
 		"h51::mp2.2          |- ps\n" +
 		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +

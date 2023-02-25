@@ -10,6 +10,7 @@ import { elexdMmParser, eqeq1iMmParser, kindToPrefixMap, mp2MmParser, opelcnMmPa
 
 test('StepDerivation ax-mp', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'h1::test.1 |- ps\n' +
 		'h2::test.2 |- ( ps -> ph )\n' +
 		'3:: |- ph\n' +
@@ -21,6 +22,7 @@ test('StepDerivation ax-mp', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'h1::test.1          |- ps\n' +
 		'h2::test.2          |- ( ps -> ph )\n' +
 		'3:1,2:ax-mp        |- ph\n' +
@@ -30,6 +32,7 @@ test('StepDerivation ax-mp', () => {
 
 test('StepDerivation ax-mp wrong EHyps order', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'h1::test.1 |- ps\n' +
 		'h2::test.2 |- ( ps -> ph )\n' +
 		'3:2,1: |- ph\n' +
@@ -41,6 +44,7 @@ test('StepDerivation ax-mp wrong EHyps order', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'h1::test.1          |- ps\n' +
 		'h2::test.2          |- ( ps -> ph )\n' +
 		'3:1,2:ax-mp        |- ph\n' +
@@ -50,6 +54,7 @@ test('StepDerivation ax-mp wrong EHyps order', () => {
 
 test('StepDerivation ax-ext', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'50:: |- ( A. x ( x e. y <-> x e. z ) -> y = z )\n' +
 		'qed:50:df-cleq |- ( A = B <-> A. x ( x e. A <-> x e. B ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
@@ -59,6 +64,7 @@ test('StepDerivation ax-ext', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'50::ax-ext          |- ( A. x ( x e. y <-> x e. z ) -> y = z )\n' +
 		'qed:50:df-cleq     |- ( A = B <-> A. x ( x e. A <-> x e. B ) )\n';
 	expect(textEdit.newText).toEqual(expectedText);
@@ -66,6 +72,7 @@ test('StepDerivation ax-ext', () => {
 
 test('StepDerivation 3syl', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'2::                |- ( ph -> &W2 )\n' +
 		'3::                |- ( &W2 -> &W3 )\n' +
 		'4::                |- ( &W3 -> ps )\n' +
@@ -78,6 +85,7 @@ test('StepDerivation 3syl', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'2::                 |- ( ph -> &W2 )\n' +
 		'3::                 |- ( &W2 -> &W3 )\n' +
 		'4::                 |- ( &W3 -> ps )\n' +
@@ -88,6 +96,7 @@ test('StepDerivation 3syl', () => {
 
 test('StepDerivation wrong EHyps order and missing single EHyp', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'2::                |- ( ph -> &W2 )\n' +
 		'3::                |- ( &W2 -> &W3 )\n' +
 		'4::                |- ( &W3 -> ps )\n' +
@@ -100,6 +109,7 @@ test('StepDerivation wrong EHyps order and missing single EHyp', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'2::                 |- ( ph -> &W2 )\n' +
 		'3::                 |- ( &W2 -> &W3 )\n' +
 		'4::                 |- ( &W3 -> ps )\n' +
@@ -110,6 +120,7 @@ test('StepDerivation wrong EHyps order and missing single EHyp', () => {
 
 test('Worker Thread for ParseNode(s) creation', async () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'2::                |- ( ph -> &W2 )\n' +
 		'3::                |- ( &W2 -> &W3 )\n' +
 		'4::                |- ( &W3 -> ps )\n' +
@@ -128,6 +139,7 @@ test('Worker Thread for ParseNode(s) creation', async () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'2::                 |- ( ph -> &W2 )\n' +
 		'3::                 |- ( &W2 -> &W3 )\n' +
 		'4::                 |- ( &W3 -> ps )\n' +
@@ -138,6 +150,7 @@ test('Worker Thread for ParseNode(s) creation', async () => {
 
 test('StepDerivation syl2anc', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'd9::  |- ( ph -> ch )\n' +
 		'd10:: |- ( ph -> ps )\n' +
 		'a::   |- ( ( ta /\\ ps ) -> th )\n' +
@@ -152,6 +165,7 @@ test('StepDerivation syl2anc', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'd9::                |- ( ph -> ch )\n' +
 		'd10::               |- ( ph -> ps )\n' +
 		'a::                |- ( ( ta /\\ ps ) -> th )\n' +
@@ -165,6 +179,7 @@ test('StepDerivation syl2anc', () => {
 
 test('StepDerivation elexd', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'd13:: |- ( ph -> A e. B )\n' +
 		'd12:  |- ( ph -> A e. _V )\n' +
 		'qed:: |- ch\n';
@@ -175,6 +190,7 @@ test('StepDerivation elexd', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'd13::               |- ( ph -> A e. B )\n' +
 		'd12:d13:elexd      |- ( ph -> A e. _V )\n' +
 		'qed::              |- ch\n';
@@ -183,6 +199,7 @@ test('StepDerivation elexd', () => {
 
 test('StepDerivation unknown eHyp ref', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'2::                |- ( ph -> &W2 )\n' +
 		'3::                |- ( &W2 -> &W3 )\n' +
 		'4::                |- ( &W3 -> ps )\n' +
@@ -195,6 +212,7 @@ test('StepDerivation unknown eHyp ref', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'2::                 |- ( ph -> &W2 )\n' +
 		'3::                 |- ( &W2 -> &W3 )\n' +
 		'4::                 |- ( &W3 -> ps )\n' +
@@ -205,6 +223,7 @@ test('StepDerivation unknown eHyp ref', () => {
 
 test('Derive eHps for existing label', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'd1:: |- &W1\n' +
 		'd2:: |- ( &W1 -> ph )\n' +
 		'qed::ax-mp |- ph';
@@ -215,6 +234,7 @@ test('Derive eHps for existing label', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		'd1::                |- &W1\n' +
 		'd2::                |- ( &W1 -> ph )\n' +
 		'qed:d1,d2:ax-mp    |- ph\n';
@@ -224,6 +244,7 @@ test('Derive eHps for existing label', () => {
 
 test('Derive from wrong eHps and existing label', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'd1:: |- &W1\n' +
 		'd2:: |- ( &W1 -> ph )\n' +
 		'qed:d2,d1:ax-mp |- ph';
@@ -234,6 +255,7 @@ test('Derive from wrong eHps and existing label', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		'd1::                |- &W1\n' +
 		'd2::                |- ( &W1 -> ph )\n' +
 		'qed:d1,d2:ax-mp    |- ph\n';
@@ -243,6 +265,7 @@ test('Derive from wrong eHps and existing label', () => {
 
 test('Derive 1 of 2 eHyps', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'd1:: |- &W1\n' +
 		'd2:: |- ( &W1 -> ph )\n' +
 		'qed:,d2:ax-mp |- ph';
@@ -253,6 +276,7 @@ test('Derive 1 of 2 eHyps', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		'd1::                |- &W1\n' +
 		'd2::                |- ( &W1 -> ph )\n' +
 		'qed:d1,d2:ax-mp    |- ph\n';
@@ -262,6 +286,7 @@ test('Derive 1 of 2 eHyps', () => {
 
 test('Derive 2 eHps when 3 are given', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'd1:: |- &W1\n' +
 		'd2:: |- ( &W1 -> ph )\n' +
 		'qed:d1,d1,d1:ax-mp |- ph';
@@ -272,6 +297,7 @@ test('Derive 2 eHps when 3 are given', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		'd1::                |- &W1\n' +
 		'd2::                |- ( &W1 -> ph )\n' +
 		'qed:d1,d2:ax-mp    |- ph\n';
@@ -281,6 +307,7 @@ test('Derive 2 eHps when 3 are given', () => {
 
 test('EHyps derivation, incomplete and with unknown eHyp ref', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'2::                |- ( ph -> &W2 )\n' +
 		'3::                |- ( &W2 -> &W3 )\n' +
 		'4::                |- ( &W3 -> ps )\n' +
@@ -293,6 +320,7 @@ test('EHyps derivation, incomplete and with unknown eHyp ref', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'2::                 |- ( ph -> &W2 )\n' +
 		'3::                 |- ( &W2 -> &W3 )\n' +
 		'4::                 |- ( &W3 -> ps )\n' +
@@ -303,6 +331,7 @@ test('EHyps derivation, incomplete and with unknown eHyp ref', () => {
 
 test('Derive eHyps for complete (but wrong) existing refs', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'd1:: |- &W1\n' +
 		'd2:: |- ( &W1 -> ph )\n' +
 		'a:: |-ch\n' +
@@ -314,6 +343,7 @@ test('Derive eHyps for complete (but wrong) existing refs', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		'd1::                |- &W1\n' +
 		'd2::                |- ( &W1 -> ph )\n' +
 		'a::                |-ch\n' +
@@ -324,6 +354,7 @@ test('Derive eHyps for complete (but wrong) existing refs', () => {
 
 test('StepDerivation for nonexistent label', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'2:: |- ( ph -> &W2 )\n' +
 		'3:: |- ( &W2 -> &W3 )\n' +
 		'4:: |- ( &W3 -> ps )\n' +
@@ -336,6 +367,7 @@ test('StepDerivation for nonexistent label', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'2::                 |- ( ph -> &W2 )\n' +
 		'3::                 |- ( &W2 -> &W3 )\n' +
 		'4::                 |- ( &W3 -> ps )\n' +
@@ -346,6 +378,7 @@ test('StepDerivation for nonexistent label', () => {
 
 test('Ehyps derivation for given label, with working var', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'd2::                |- &W2\n' +
 		'd3::                |- ( &W2 -> &W1 )\n' +
 		'd1:d3,d2:ax-mp     |- &W1\n' +
@@ -357,6 +390,7 @@ test('Ehyps derivation for given label, with working var', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'd2::                |- &W2\n' +
 		'd3::                |- ( &W2 -> &W1 )\n' +
 		'd1:d2,d3:ax-mp     |- &W1\n' +
@@ -369,6 +403,7 @@ test('Ehyps derivation for given label, with working var', () => {
 // first version of the code didn't do it
 test('Ehyps derivation 3 with a candidate without a parse node', () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'a\n' +
 		'qed::  |- ( ph -> ps )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
@@ -378,6 +413,7 @@ test('Ehyps derivation 3 with a candidate without a parse node', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'::a                \n' +
 		'qed::              |- ( ph -> ps )\n';
 	expect(textEdit.newText).toEqual(expectedText);
@@ -395,6 +431,7 @@ test('a1ii should not be used to derive itself', () => {
 	const a1iiAssertion: AssertionStatement | undefined = a1iiMmParser.labelToNonSyntaxAssertionMap.get('a1ii');
 	expect(a1iiAssertion).toBeDefined();
 	const mmpSource =
+		'\n* test comment\n\n' +
 		'1::a1i   |- ( ph -> ch )\n' +
 		'qed:       |- ps';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, a1iiMmParser, new WorkingVars(kindToPrefixMap));
@@ -404,6 +441,7 @@ test('a1ii should not be used to derive itself', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
+		'\n* test comment\n\n' +
 		'd1::                |- ch\n' +
 		'1:d1:a1i           |- ( ph -> ch )\n' +
 		'qed::              |- ps\n';

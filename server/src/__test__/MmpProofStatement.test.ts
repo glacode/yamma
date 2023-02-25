@@ -23,6 +23,7 @@ import { MmpParser } from '../mmp/MmpParser';
 
 test("Build proof for mp2", () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"h50::mp2.1 |- ph\n" +
 		"h51::mp2.2 |- ps\n" +
 		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
@@ -37,6 +38,7 @@ test("Build proof for mp2", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"h50::mp2.1           |- ph\n" +
 		"h51::mp2.2          |- ps\n" +
 		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
@@ -50,6 +52,7 @@ test("Build proof for mp2", () => {
 
 test("Remove existing proof and recreate it", () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"h50::mp2.1 |- ph\n" +
 		"h51::mp2.2 |- ps\n" +
 		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
@@ -66,6 +69,7 @@ test("Remove existing proof and recreate it", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"h50::mp2.1           |- ph\n" +
 		"h51::mp2.2          |- ps\n" +
 		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
@@ -137,6 +141,7 @@ test("Build Compressed proof for mp2", () => {
 	// qed:51,53:ax-mp    |- ch
 
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"h50::mp2.1 |- ph\n" +
 		"h51::mp2.2 |- ps\n" +
 		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
@@ -151,6 +156,7 @@ test("Build Compressed proof for mp2", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"h50::mp2.1           |- ph\n" +
 		"h51::mp2.2          |- ps\n" +
 		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
@@ -189,6 +195,7 @@ test("id - Build Compressed proof for id", () => {
 	// qed:50,51:mpd      |- ( ph -> ph )
 
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"50::ax-1 |- ( ph -> ( ph -> ph ) )\n" +
 		"51::ax-1 |- ( ph -> ( ( ph -> ph ) -> ph ) )\n" +
 		"qed:50,51:mpd |- ( ph -> ph )";
@@ -201,6 +208,7 @@ test("id - Build Compressed proof for id", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"50::ax-1            |- ( ph -> ( ph -> ph ) )\n" +
 		"51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )\n" +
 		"qed:50,51:mpd      |- ( ph -> ph )\n" +
@@ -213,6 +221,7 @@ test("id - Build Compressed proof for id", () => {
 
 test("alnex - Build normal proof for alnex", () => {
 	const mmpSource =
+	'\n* test comment\n\n' +
 		"50::df-ex |- ( E. x ph <-> -. A. x -. ph )\n" +
 		"qed:50:con2bii |- ( A. x -. ph <-> -. E. x ph )";
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
@@ -222,6 +231,7 @@ test("alnex - Build normal proof for alnex", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+	'\n* test comment\n\n' +
 		"50::df-ex           |- ( E. x ph <-> -. A. x -. ph )\n" +
 		"qed:50:con2bii     |- ( A. x -. ph <-> -. E. x ph )\n" +
 		"\n" +
@@ -232,6 +242,7 @@ test("alnex - Build normal proof for alnex", () => {
 
 test("vex - Build normal proof for vex", () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"50::equid |- x = x\n" +
 		"51::df-v |- _V = { x | x = x }\n" +
 		"52:51:abeq2i |- ( x e. _V <-> x = x )\n" +
@@ -243,6 +254,7 @@ test("vex - Build normal proof for vex", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"50::equid           |- x = x\n" +
 		"51::df-v             |- _V = { x | x = x }\n" +
 		"52:51:abeq2i        |- ( x e. _V <-> x = x )\n" +
@@ -268,6 +280,7 @@ test("vex - Build Compressed proof for vex", () => {
 	// vexTheoryParser.ParseText(vexTheory);
 
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"50::equid |- x = x\n" +
 		"51::df-v |- _V = { x | x = x }\n" +
 		"52:51:abeq2i |- ( x e. _V <-> x = x )\n" +
@@ -279,6 +292,7 @@ test("vex - Build Compressed proof for vex", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"50::equid           |- x = x\n" +
 		"51::df-v             |- _V = { x | x = x }\n" +
 		"52:51:abeq2i        |- ( x e. _V <-> x = x )\n" +
@@ -292,6 +306,7 @@ test("vex - Build Compressed proof for vex", () => {
 
 test("Build normal proof for use of ax-5", () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"qed::ax-5 |- ( x e. A -> A. y x e. A )\n" +
 		"$d x y\n" +
 		"$d A y\n";
@@ -304,6 +319,7 @@ test("Build normal proof for use of ax-5", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"qed::ax-5          |- ( x e. A -> A. y x e. A )\n" +
 		"\n" +
 		"$=    vx cv cA wcel vy ax-5 $.\n\n" +
@@ -314,7 +330,9 @@ test("Build normal proof for use of ax-5", () => {
 });
 
 test("Expect proof not to be produced for Disj Var Violation", () => {
-	const mmpSource = 'qed::ax-5 |- ( y e. A -> A. y y e. A )\n';
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'qed::ax-5 |- ( y e. A -> A. y y e. A )\n';
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -328,12 +346,16 @@ test("Expect proof not to be produced for Disj Var Violation", () => {
 	// const newTextExpected =
 	// "qed::ax-5 |- ( x e. A -> A. x x e. A )\n";
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText = 'qed::ax-5          |- ( y e. A -> A. y y e. A )\n';
+	const expectedText =
+		'\n* test comment\n\n' +
+		'qed::ax-5          |- ( y e. A -> A. y y e. A )\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
 test("Expect 2 proof not to be produced for missing Disj Var statement", () => {
-	const mmpSource = "qed::ax-5 |- ( x e. A -> A. y x e. A )\n";
+	const mmpSource =
+		'\n* test comment\n\n' +
+		"qed::ax-5 |- ( x e. A -> A. y x e. A )\n";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -343,12 +365,15 @@ test("Expect 2 proof not to be produced for missing Disj Var statement", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText = "qed::ax-5          |- ( x e. A -> A. y x e. A )\n";
+	const expectedText =
+		'\n* test comment\n\n' +
+		"qed::ax-5          |- ( x e. A -> A. y x e. A )\n";
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
 test("Build compressed proof for use of ax-5", () => {
 	const mmpSource =
+		'\n* test comment\n\n' +
 		"qed::ax-5 |- ( x e. A -> A. y x e. A )\n" +
 		"$d x y\n" +
 		"$d A y\n";
@@ -361,6 +386,7 @@ test("Build compressed proof for use of ax-5", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
+		'\n* test comment\n\n' +
 		"qed::ax-5          |- ( x e. A -> A. y x e. A )\n" +
 		'\n' +
 		"$= ( cv wcel ax-5 ) ADCEBF $.\n" +
@@ -374,6 +400,7 @@ test("Build compressed proof for use of ax-5", () => {
 test("Format equvinv compressed proof", () => {
 	const mmpSource =
 		'$theorem equvinv\n' +
+		'\n* test comment\n\n' +
 		'50::ax6ev            |- E. z z = x\n' +
 		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
 		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
@@ -393,6 +420,7 @@ test("Format equvinv compressed proof", () => {
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
 		'$theorem equvinv\n' +
+		'\n* test comment\n\n' +
 		'50::ax6ev            |- E. z z = x\n' +
 		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
 		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
@@ -423,6 +451,7 @@ test("Format equvinv compressed proof", () => {
 
 	const newTextExpected2 =
 		'$theorem equvinv\n' +
+		'\n* test comment\n\n' +
 		'50::ax6ev            |- E. z z = x\n' +
 		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
 		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
@@ -451,6 +480,7 @@ test("Format equvinv compressed proof", () => {
 test("Format equvinv uncompressed proof", () => {
 	const mmpSource =
 		'$theorem equvinv\n' +
+		'\n* test comment\n\n' +
 		'50::ax6ev            |- E. z z = x\n' +
 		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
 		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
@@ -470,6 +500,7 @@ test("Format equvinv uncompressed proof", () => {
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
 		'$theorem equvinv\n' +
+		'\n* test comment\n\n' +
 		'50::ax6ev            |- E. z z = x\n' +
 		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
 		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
@@ -506,6 +537,7 @@ test("Format equvinv uncompressed proof", () => {
 
 	const newTextExpected2 =
 		'$theorem equvinv\n' +
+		'\n* test comment\n\n' +
 		'50::ax6ev            |- E. z z = x\n' +
 		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
 		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +

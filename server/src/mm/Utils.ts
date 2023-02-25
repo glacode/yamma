@@ -55,7 +55,7 @@ export function splitToTokens(str: string, regex: RegExp,
     return result;
 }
 
-export function splitToTokensDefultInLine(str: string, line: number): MmToken[] {
+export function splitToTokensDefaultInLine(str: string, line: number): MmToken[] {
     const result = splitToTokens(str, /[^\s]+/g, line, 0);
     return result;
 }
