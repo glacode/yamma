@@ -75,7 +75,9 @@ export class MmpProof implements ITheoremSignature {
 		return pStat;
 	}
 
-	/** maps a (normalized) formula to the index of its MmpProofStep*/
+	/** maps a (normalized) formula to the index of its MmpProofStep
+	 * (its first occourence)
+	*/
 	formulaToProofStepMap: Map<string, number>;
 
 	/** the number of steps added by the unification; this is added to

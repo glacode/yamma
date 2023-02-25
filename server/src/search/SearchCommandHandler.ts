@@ -71,11 +71,11 @@ export class SearchCommandHandler {
 	private static addSymbol(symbol: string,
 		symbolToAssertionMap: Map<string, Set<AssertionStatement>> | undefined, symbols: Map<string, number>) {
 		const assertions: Set<AssertionStatement> | undefined = symbolToAssertionMap?.get(symbol);
-		let popularity = 0;
-		if (assertions != undefined)
+		if (assertions != undefined) {
 			// the symbol is in the theory's statistics
-			popularity = assertions.size;
-		symbols.set(symbol, popularity);
+			const popularity = assertions.size;
+			symbols.set(symbol, popularity);
+		}
 	}
 	private static unorderedSymbols(currentMmpProofStep?: MmpProofStep,
 		mmStatistics?: MmStatistics): Map<string, number> {

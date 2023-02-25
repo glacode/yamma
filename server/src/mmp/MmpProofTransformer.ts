@@ -20,6 +20,7 @@ import { MmpParser } from './MmpParser';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { BuildNewLabelArgs, EHypLabelManager } from './EHypLabelManager';
+import { ProofStepDuplicateRemover } from './ProofStepDuplicateRemover';
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -349,14 +350,7 @@ export class MmpProofTransformer {
 	transformUProof() {
 		this.transformUSteps();
 		this.unifyWorkingVars();
-		// const newProof: UProof = new UProof(uProof.maxRefAlreadyAssigned + 1);
-
-		// for (let i = 0; i < uProof.uStatements.length; i++) {
-		// 	if (uProof.uStatements[i] instanceof UProofStep && !(<UProofStep>uProof.uStatements[i]).isEHyp) {
-		// 		// this.addUStep(uStatement, uProof.refToUStatementMap, newProof);
-		// 		this.transformUStep(i, uProof);
-		// 	}
-		// }
+		ProofStepDuplicateRemover.removeStepDuplicates(this.uProof);
 	}
 	//#endregion transformUProof
 

@@ -42,6 +42,25 @@ test("expect proper string for search command", () => {
 	expect(positionForInsertionAbove52).toEqual(expectedPositionForInsertion);
 });
 
+test("expect no working var (or other non-defined symbol) in the generated search command", () => {
+	const mmpSource =
+		'50::df-c             |- CC = ( R. X. R. )\n' +
+		'51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
+		'52::          |- ( <. A , B >. e. ( R. X. &WC1 ) <-> ( A e. R. /\\ B e. R. ) )\n' +
+		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.uProof?.uStatements[2];
+	const mmStatistics: MmStatistics = new MmStatistics(opelcnMmParser);
+	mmStatistics.buildStatistics();
+	const searchStatement: string = TestSearchCommandHandler.buildSearchStatement(2, mmpProofStep52, mmStatistics);
+	expect(searchStatement).toBe('SearchSymbols: R. X.   SearchComment: \n');
+	const positionForInsertionAbove52: Position =
+		TestSearchCommandHandler.positionForInsertionOfTheSearchStatement(2, mmpProofStep52);
+	const expectedPositionForInsertion: Position = { line: 3, character: 0 };
+	expect(positionForInsertionAbove52).toEqual(expectedPositionForInsertion);
+});
+
 test("expect proper position for search command below multiline", () => {
 	const mmpSource =
 		'50::df-c             |- CC = ( R. X. R. )\n' +

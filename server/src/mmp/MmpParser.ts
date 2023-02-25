@@ -237,10 +237,16 @@ export class MmpParser {
 			this.refToProofStepMap.set(proofStep.stepRefToken.value, proofStep);
 		}
 		// TODO handle case for proofStep.stepRef == undefined
+		//TODO1 feb 24 refactor: extract method
 		if (proofStep.formula != undefined) {
 			const normalizedFormula: string = concatTokenValuesWithSpaces(proofStep.formula!);
-			const proofStatementIndex: number = this.uProof!.uStatements.length - 1;
-			this.uProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
+			const indexForFormulaIfAlreadyPresent: number | undefined =
+				this.uProof?.formulaToProofStepMap.get(normalizedFormula);
+			if (indexForFormulaIfAlreadyPresent == undefined) {
+				// the current formula has not been encountered, yet
+				const proofStatementIndex: number = this.uProof!.uStatements.length - 1;
+				this.uProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
+			}
 		}
 	}
 
