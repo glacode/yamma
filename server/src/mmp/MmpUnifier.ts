@@ -47,7 +47,7 @@ export class MmpUnifier {
 	//#region constructor
 	constructor(mmpParser: MmpParser, proofMode: ProofMode,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		private renumber?: boolean) {
+		private renumber?: boolean, private expectedTheoremLabel?: string) {
 		// this.textDocument = textDocument
 		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.mmpProof;
@@ -116,7 +116,7 @@ export class MmpUnifier {
 		this.uProof!.updateAllWorkingVars();
 		const uProofTransformer: MmpProofTransformer = new MmpProofTransformer(
 			this.mmpParser, this.maxNumberOfHypothesisDispositionsForStepDerivation,
-			this.renumber);
+			this.renumber, this.expectedTheoremLabel);
 		uProofTransformer.transformUProof();
 		this.buildProofStatementIfProofIsComplete(this.uProof!);
 		this.textEditArray = this.buildTextEditArray(uProofTransformer.uProof);

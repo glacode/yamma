@@ -1,3 +1,4 @@
+import path = require('path');
 import { Connection, TextDocuments, TextEdit } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlobalState } from '../general/GlobalState';
@@ -36,10 +37,11 @@ export class OnUnifyHandler {
 		// const mmpUnifier: MmpUnifier =
 		// 	new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
 		// 		this.mmParser.grammar, this.mmParser.workingVars, proofMode, GlobalState.lastMmpParser);
-		//TODO manage case GlobalState.lastMmpParser == undefined (invoke unify only if it is not undefined) 
+		//TODO manage case GlobalState.lastMmpParser == undefined (invoke unify only if it is not undefined)
+		const expectedTheoremLabel: string = path.parse(this.textDocumentUri).name;
 		const mmpUnifier: MmpUnifier =
 			new MmpUnifier(this.mmpParser, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation,
-				this.renumber);
+				this.renumber, expectedTheoremLabel);
 		// const textToParse: string = textDocument.getText();
 		if (this.mmParser.grammar != undefined)
 			mmpUnifier.unify();

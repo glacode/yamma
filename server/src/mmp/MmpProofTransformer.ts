@@ -57,7 +57,7 @@ export class MmpProofTransformer {
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
 	// 	maxNumberOfHypothesisDispositionsForStepDerivation: number) {
 	constructor(mmpParser: MmpParser, maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		private renumber?: boolean) {
+		private renumber?: boolean, private expectedTheoremLabel?: string) {
 		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.mmpProof!;
 		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
@@ -71,7 +71,8 @@ export class MmpProofTransformer {
 	//#region transformUProof
 
 	private addMissingStatements() {
-		const mmpHeaderManager: MmpHeaderManager = new MmpHeaderManager(this.uProof);
+		const mmpHeaderManager: MmpHeaderManager = new MmpHeaderManager(
+			this.uProof, this.expectedTheoremLabel);
 		mmpHeaderManager.addMissingStatements();
 	}
 

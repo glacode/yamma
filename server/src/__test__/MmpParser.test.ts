@@ -106,18 +106,15 @@ test('proofStepFirstTokenInfo with hyp refs',
 	}
 );
 
-const mmptext = '* A double modus ponens inference.\n' +
+
+test('createMmpStatements', () => {
+	const mmptext = '* A double modus ponens inference.\n' +
 	'h50::mp2.1           |- ph\n' +
 	'h51::mp2.2          |- ps\n' +
 	'h52::mp2.3           |-\n' +
 	' ( ph -> ( ps -> ch ) )\n' +
 	'53:50,52:ax-mp      |- ( ps -> ch )\n' +
 	'qed:51,53:ax-mp    |- ch\n';
-
-test('createMmpStatements', () => {
-	// const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
-	// const outermostBlock: BlockStatement = new BlockStatement();
-	// const mmpParser: MmpParser = new MmpParser(mmptext, labelToStatementMap, outermostBlock, wiGrammar(), new WorkingVars(kindToPrefixMap));
 	const mmpParser: MmpParser = new MmpParser(mmptext, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpStatements: IMmpStatement[] = <IMmpStatement[]>mmpParser.mmpProof?.mmpStatements;

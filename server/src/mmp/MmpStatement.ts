@@ -11,22 +11,6 @@ export interface IMmpStatementWithRange extends IMmpStatement {
 	range: Range
 }
 
-export class MmpTheoremLabel implements IMmpStatement {
-	dollarStatementKeyword: MmToken;
-	theoremLabel?: MmToken;
-
-	constructor(dollarStatementKeyword: MmToken, theoremLabel?: MmToken) {
-		this.dollarStatementKeyword = dollarStatementKeyword;
-		this.theoremLabel = theoremLabel;
-	}
-
-	toText() {
-		const label: string = ( this.theoremLabel != undefined ? this.theoremLabel?.value : "example" );
-		const text: string = this.dollarStatementKeyword.value + " " + label;
-		return text;
-	}
-}
-
 export class MmpComment implements IMmpStatement {
 	/** comment tokens, exclued the startin '*' character */
 	contentTokens: MmToken[]
@@ -41,7 +25,6 @@ export class MmpComment implements IMmpStatement {
 		return this.comment;
 	}
 }
-
 
 export type UProofStatementStep = {
 	label: string,

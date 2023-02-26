@@ -2,11 +2,12 @@ import { Parameters } from '../general/Parameters';
 import { splitToTokensDefault } from '../mm/Utils';
 import { MmpProof } from './MmpProof';
 import { MmpProofStep } from './MmpProofStep';
-import { MmpComment } from './MmpStatement';
+import { IMmpStatement, MmpComment } from './MmpStatement';
+import { MmpTheoremLabel } from "./MmpTheoremLabel";
 
 export class MmpHeaderManager {
 	private mmpComment: MmpComment;
-	constructor(private mmpProof: MmpProof) {
+	constructor(private mmpProof: MmpProof, private expectedTheoremName?: string) {
 		this.mmpComment = this.buildDefaultComment();
 	}
 
@@ -37,7 +38,29 @@ export class MmpHeaderManager {
 			this.mmpProof.insertStatementToTheHeader(this.mmpComment, index);
 	}
 
+	//#region addTheoremLabelStatementIfMissing
+	getFirstStatement(): IMmpStatement | undefined {
+		let firstStatement: IMmpStatement | undefined;
+		if (this.mmpProof.mmpStatements.length > 0)
+			firstStatement = this.mmpProof.mmpStatements[0];
+		return firstStatement;
+	}
+	addTheoremLabelStatement(expectedTheoremName: string) {
+		const theoremLabel: MmpTheoremLabel = MmpTheoremLabel.CreateMmpTheoremLabel(
+			expectedTheoremName);
+		this.mmpProof.insertStatementToTheHeader(theoremLabel, 0);
+	}
+	private addTheoremLabelStatementIfMissing() {
+		if (this.expectedTheoremName != undefined) {
+			const firstStatement: IMmpStatement | undefined = this.getFirstStatement();
+			if (!(firstStatement instanceof MmpTheoremLabel))
+				this.addTheoremLabelStatement(this.expectedTheoremName);
+		}
+	}
+	//#endregion addTheoremLabelStatementIfMissing
+
 	addMissingStatements() {
+		this.addTheoremLabelStatementIfMissing();
 		this.addCommentIfMissing();
 	}
 	//#endregion addMissingStatements
