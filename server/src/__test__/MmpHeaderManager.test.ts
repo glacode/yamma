@@ -17,7 +17,7 @@ test('expect default comment to be added', () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
-		'\n* WriteYourComment\n\n' +
+		'\n* MissingComment\n\n' +
 		'h1::               |- ps\n' +
 		'2::                 |- &W2\n' +
 		'3:2:a1i            |- ( &W3 -> &W2 )\n' +

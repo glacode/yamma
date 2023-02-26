@@ -109,12 +109,12 @@ test('proofStepFirstTokenInfo with hyp refs',
 
 test('createMmpStatements', () => {
 	const mmptext = '* A double modus ponens inference.\n' +
-	'h50::mp2.1           |- ph\n' +
-	'h51::mp2.2          |- ps\n' +
-	'h52::mp2.3           |-\n' +
-	' ( ph -> ( ps -> ch ) )\n' +
-	'53:50,52:ax-mp      |- ( ps -> ch )\n' +
-	'qed:51,53:ax-mp    |- ch\n';
+		'h50::mp2.1           |- ph\n' +
+		'h51::mp2.2          |- ps\n' +
+		'h52::mp2.3           |-\n' +
+		' ( ph -> ( ps -> ch ) )\n' +
+		'53:50,52:ax-mp      |- ( ps -> ch )\n' +
+		'qed:51,53:ax-mp    |- ch\n';
 	const mmpParser: MmpParser = new MmpParser(mmptext, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpStatements: IMmpStatement[] = <IMmpStatement[]>mmpParser.mmpProof?.mmpStatements;
@@ -862,6 +862,31 @@ test('expect qed warning for last step', () => {
 			expect(diagnostic.range.start.character).toBe(0);
 			expect(diagnostic.range.end.line).toBe(2);
 			expect(diagnostic.range.end.character).toBe(3);
+		}
+	});
+});
+
+//TODO1 feb 26
+test('expect comment edit warning', () => {
+	const mmpSource: string =
+		'\n* MissingComment\n\n' +
+		'h50::hyp1 |- ps\n' +
+		'h51::hyp2 |- ph\n' +
+		'qed:50,51:ax-mp |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
+	expect(doesDiagnosticsContain(
+		mmpParser.diagnostics, MmpParserWarningCode.defaultComment)).toBeTruthy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserWarningCode.defaultComment) {
+			const expectedMessage =
+				`This comment should contain a description of the theorem`;
+			expect(diagnostic.message).toEqual(expectedMessage);
+			expect(diagnostic.range.start.line).toBe(1);
+			expect(diagnostic.range.start.character).toBe(2);
+			expect(diagnostic.range.end.line).toBe(1);
+			expect(diagnostic.range.end.character).toBe(16);
 		}
 	});
 });

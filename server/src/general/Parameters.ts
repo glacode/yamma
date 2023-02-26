@@ -28,5 +28,5 @@ export abstract class Parameters {
 	 */
 	static maxNumberOfHypothesisDispositionsForStepDerivation = 100000;
 
-	static defaultComment = "* WriteYourComment";
+	static defaultComment = "* MissingComment";
 }

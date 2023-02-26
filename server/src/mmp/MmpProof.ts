@@ -148,7 +148,7 @@ export class MmpProof implements ITheoremSignature {
 
 	//#region createUProofFromMmpProof
 
-	//#region addUProofStepFromMmpStep
+	//#region addMmpStep
 
 	//#region getRef
 	updateMaxRefIfItsTheCase(stepRef: string) {
@@ -195,7 +195,7 @@ export class MmpProof implements ITheoremSignature {
 	// 		this.disjVarUStatements.push(mmpProofStep);
 	// }
 
-	addUProofStepFromMmpStep(mmpProofStep: MmpProofStep) {
+	addMmpStep(mmpProofStep: MmpProofStep) {
 		this.mmpStatements.push(mmpProofStep);
 		this.lastMmpProofStep = mmpProofStep;
 		// this.refToUStatementMap.set(mmpProofStep.stepRef, mmpProofStep);
@@ -207,7 +207,7 @@ export class MmpProof implements ITheoremSignature {
 		this.updateEHyps(mmpProofStep);
 		// this.updateDisjVarUStatements(mmpProofStep);
 	}
-	//#endregion addUProofStepFromMmpStep
+	//#endregion addMmpStep
 
 	updateAllWorkingVars() {
 		this.workingVars.reset();
@@ -238,7 +238,7 @@ export class MmpProof implements ITheoremSignature {
 		// this.refToUStatementMap.set(uProofStep.stepRef!, uProofStep);
 	}
 
-	addUStatement(uStatement: IMmpStatement) {
+	addMmpStatement(uStatement: IMmpStatement) {
 		this.mmpStatements.push(uStatement);
 		if (uStatement instanceof MmpProofStep) {
 			this.updateMaxRefIfItsTheCase(uStatement.stepRef);
