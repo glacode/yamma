@@ -8,11 +8,14 @@ import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { Parameters } from '../general/Parameters';
-import { kindToPrefixMap, mp2Theory, vexTheoryMmParser } from './GlobalForTest.test';
+import { kindToPrefixMap, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmToken } from '../grammar/MmLexer';
 import { MmpParser } from '../mmp/MmpParser';
+import { InternalNode } from '../grammar/ParseNode';
+import { UProofStatementStep } from '../mmp/MmpStatement';
+import { UProofStatement } from '../mmp/UProofStatement';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -221,7 +224,7 @@ test("id - Build Compressed proof for id", () => {
 
 test("alnex - Build normal proof for alnex", () => {
 	const mmpSource =
-	'\n* test comment\n\n' +
+		'\n* test comment\n\n' +
 		"50::df-ex |- ( E. x ph <-> -. A. x -. ph )\n" +
 		"qed:50:con2bii |- ( A. x -. ph <-> -. E. x ph )";
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
@@ -231,7 +234,7 @@ test("alnex - Build normal proof for alnex", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const newTextExpected =
-	'\n* test comment\n\n' +
+		'\n* test comment\n\n' +
 		"50::df-ex           |- ( E. x ph <-> -. A. x -. ph )\n" +
 		"qed:50:con2bii     |- ( A. x -. ph <-> -. E. x ph )\n" +
 		"\n" +
@@ -578,4 +581,38 @@ test("Format equvinv uncompressed proof", () => {
 
 });
 
-
+//TODO1 mar 4
+// this test needs the class cab that has x and ph exchanged w.r.t.
+// the rpn order; thus it tests that yamma's proof generation
+// handles properly syntax axioms with variables that don't appear
+// in rpn order
+test("Build proof for abid", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'50::df-clab         |- ( x e. { x | ph } <-> [ x / x ] ph )\n' +
+		'51::sbid            |- ( [ x / x ] ph <-> ph )\n' +
+		'qed:50,51:bitri    |- ( x e. { x | ph } <-> ph )\n';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const qedProofStep: MmpProofStep = <MmpProofStep>mmpParser.mmpProof!.mmpStatements[3];
+	const qedParseNode: InternalNode = qedProofStep.parseNode!;
+	const phParseNode: InternalNode = <InternalNode>(<InternalNode>qedParseNode.parseNodes[1]).parseNodes[1];
+	expect(phParseNode.label).toBe('wcel');
+	const proofArray: UProofStatementStep[] = phParseNode.proofArray(mmpParser.outermostBlock, mmpParser.grammar);
+	const proofString: string[] = UProofStatement.labelsArray(proofArray);
+	expect(proofString).toEqual(["vx", "cv", "wph", "vx", "cab", "wcel"]);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'50::df-clab         |- ( x e. { x | ph } <-> [ x / x ] ph )\n' +
+		'51::sbid            |- ( [ x / x ] ph <-> ph )\n' +
+		'qed:50,51:bitri    |- ( x e. { x | ph } <-> ph )\n' +
+		'\n' +
+		'$=    vx cv wph vx cab wcel wph vx vx wsb wph wph vx vx df-clab wph vx sbid\n' +
+		'      bitri $.\n\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});

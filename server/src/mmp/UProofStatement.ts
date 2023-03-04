@@ -10,6 +10,14 @@ export class UProofStatement implements IMmpStatement {
 		this.proof = proof;
 	}
 
+	public static labelsArray(proof: UProofStatementStep[]): string[] {
+		const labels: string[] = [];
+		proof.forEach((uProofStatementStep: UProofStatementStep) => {
+			labels.push(uProofStatementStep.label);
+		});
+		return labels;
+	}
+
 	//#region toText
 	//#region buildLabelRows
 	buildLabelRows(labels: string[], rightMarginForNormalProofs: number): string[] {
@@ -35,15 +43,13 @@ export class UProofStatement implements IMmpStatement {
 	}
 	//#endregion buildLabelRows
 	toText(): string {
-		const labels: string[] = [];
-		this.proof.forEach((uProofStatementStep: UProofStatementStep) => {
-			labels.push(uProofStatementStep.label);
-		});
-		// const proofStart = "\n$=    ";
-		// const leftPadding = "      ";
-		// const leftPadding = proofStart.length - 2;  // \n is not visible, we subtract it
+		// const labels: string[] = [];
+		// this.proof.forEach((uProofStatementStep: UProofStatementStep) => {
+		// 	labels.push(uProofStatementStep.label);
+		// });
+		const labels: string[] = UProofStatement.labelsArray(this.proof);
+
 		const labelRows: string[] = this.buildLabelRows(labels, Parameters.defaultRightMarginForNormalProofs);
-		// const labelsString = concatWithSpaces(labels);
 		const labelsString = labelRows.join('\n');
 		let text = '\n' + labelsString;
 		const lastRowOfLabels: string = labelRows[labelRows.length - 1];

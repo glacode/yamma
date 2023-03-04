@@ -162,32 +162,14 @@ export class InternalNode {
 	}
 
 	proofArrayWithSubstitution(substitutionInRpnOrder: Map<string, InternalNode>): UProofStatementStep[] {
-		// const proof: UProofStatementStep[] = [{ label: this.label, parseNode: this }];
 		const proof: UProofStatementStep[] = [];
 		substitutionInRpnOrder.forEach((substitution: InternalNode) => {
 			const subProof: UProofStatementStep[] = substitution.proofArrayWithoutAnySubstitution;
-			// proof.unshift(...subProof);
 			proof.push(...subProof);
 		});
 		proof.push({ label: this.label, parseNode: this });
 		return proof;
-		// this.parseNodes.forEach((child: ParseNode) => {
-		// 	if (child instanceof InternalNode) {
-		// 		const childProof: UProofStatementStep[] = child.proofArray();
-		// 		proof.push(...childProof);
-		// 	}
-		// });
 	}
-
-	// private getParseNodeForLogicalSyntaxAssertion(outermostBlock: BlockStatement,
-	// 	grammar: Grammar): InternalNode {
-	// 	const labeledStatement: LabeledStatement | undefined =
-	// 		outermostBlock.getLabeledStatement(this.label);
-	// 	if (labeledStatement == undefined)
-	// 		throw new Error("This method should never be called for a nonexistent labeled statement");
-	// 	return <InternalNode>labeledStatement.parseNodeForSyntaxAxiom(grammar);
-	// }
-
 	//#region buildSubstitutionInRpnOrder
 
 	//#region buildSubstitution
@@ -263,12 +245,12 @@ export class InternalNode {
 	// 	proof.push({ label: this.label, parseNode: this });
 	// 	return proof;
 	// }
+	//TODO1 mar 4 this below is wrong, because it loses the RPN order in subnodes; it must be recursive
 	proofArray(outermostBlock: BlockStatement, grammar: Grammar): UProofStatementStep[] {
 		//esempio: wal deve prima mettere la substitution di ph e dopo deve mettere la substitution di x
 		// this.getParseNodeForLogicalSyntaxAssertion(outermostBlock, grammar);
 		const substitutionInRpnOrder: Map<string, InternalNode> = this.buildSubstitutionInRpnOrder(
 			outermostBlock, grammar);
-		//TODO1 mar 1 this below is wrong, because it loses the RPN order in subnodes
 		const proof: UProofStatementStep[] = this.proofArrayWithSubstitution(substitutionInRpnOrder);
 		// parseNodeForLogicalSyntaxAssertion.fStatementUProofStatementSteps
 		// const proof: UProofStatementStep[] = [];
