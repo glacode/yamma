@@ -37,9 +37,9 @@ export class InternalNode {
 		return label;
 	}
 
-	
-	public get stringFormula() : string {
-		const result : string = GrammarManager.buildStringFormula(this);
+
+	public get stringFormula(): string {
+		const result: string = GrammarManager.buildStringFormula(this);
 		return result;
 	}
 
@@ -64,28 +64,6 @@ export class InternalNode {
 			result.add(labelForFStatement);
 		return result;
 	}
-
-	/**
-	 * returns the array (populated in RPN order) of the labels and relative parse nodes
-	 * of the mandatory* $f statements for the current parse node
-	 */
-	// fStatementUProofStatementSteps(logicalVars: Set<string>): Set<UProofStatementStep> {
-	// 	const result: Set<UProofStatementStep> = new Set<UProofStatementStep>();
-	// 	this.parseNodes.forEach((parseNode: ParseNode) => {
-	// 		if (parseNode instanceof InternalNode) {
-	// 			const subSteps: Set<UProofStatementStep> = parseNode.fStatementUProofStatementSteps(logicalVars);
-	// 			subSteps.forEach((subStep: UProofStatementStep) => {
-	// 				//TODO check if adding an already existing label, keeps the ordering anyway
-	// 				result.add(subStep);
-	// 			});
-	// 		}
-	// 	});
-	// 	const labelForFStatement: string | undefined = this.labelForFStatement(logicalVars);
-	// 	if (labelForFStatement != undefined)
-	// 		// the current node represents a $f statement
-	// 		result.add({ label: labelForFStatement, parseNode: this });
-	// 	return result;
-	// }
 
 	/**
 	 * true iff any of the nodes in the subtree is a MmToken that has the given value
@@ -144,27 +122,29 @@ export class InternalNode {
 	}
 
 	/** the logical variables contained in this parse node */
-	logicalVariables(outermostBlockStatement: BlockStatement) : Set<string> {
+	logicalVariables(outermostBlockStatement: BlockStatement): Set<string> {
 		const result: Set<string> = this.symbolsSubsetOf(outermostBlockStatement.v);
 		return result;
 	}
 
-	get proofArrayWithoutAnySubstitution(): UProofStatementStep[] {
-		const proof: UProofStatementStep[] = [];
-		this.parseNodes.forEach((child: ParseNode) => {
-			if (child instanceof InternalNode) {
-				const childProof: UProofStatementStep[] = child.proofArrayWithoutAnySubstitution;
-				proof.push(...childProof);
-			}
-		});
-		proof.push({ label: this.label, parseNode: this });
-		return proof;
-	}
+	// get proofArrayWithoutAnySubstitution(): UProofStatementStep[] {
+	// 	const proof: UProofStatementStep[] = [];
+	// 	this.parseNodes.forEach((child: ParseNode) => {
+	// 		if (child instanceof InternalNode) {
+	// 			const childProof: UProofStatementStep[] = child.proofArrayWithoutAnySubstitution;
+	// 			proof.push(...childProof);
+	// 		}
+	// 	});
+	// 	proof.push({ label: this.label, parseNode: this });
+	// 	return proof;
+	// }
 
-	proofArrayWithSubstitution(substitutionInRpnOrder: Map<string, InternalNode>): UProofStatementStep[] {
+	proofArrayWithSubstitution(outermostBlock: BlockStatement, grammar: Grammar,
+		substitutionInRpnOrder: Map<string, InternalNode>): UProofStatementStep[] {
 		const proof: UProofStatementStep[] = [];
 		substitutionInRpnOrder.forEach((substitution: InternalNode) => {
-			const subProof: UProofStatementStep[] = substitution.proofArrayWithoutAnySubstitution;
+			// const subProof: UProofStatementStep[] = substitution.proofArrayWithoutAnySubstitution;
+			const subProof: UProofStatementStep[] = substitution.proofArray(outermostBlock, grammar);
 			proof.push(...subProof);
 		});
 		proof.push({ label: this.label, parseNode: this });
@@ -228,40 +208,15 @@ export class InternalNode {
 	}
 	//#endregion buildSubstitutionInRpnOrder
 
-
 	/**
 	 * returns the syntactic proof corresponding to the internal node
 	 */
-	// proofArray(): UProofStatementStep[] {
-	// 	//esempio: wex deve prima mettere la substitution di ph e dopo deve mettere la substitution di x
-	// 	const proof: UProofStatementStep[] = [];
-	// 	this.parseNodes.forEach((child: ParseNode) => {
-	// 		if (child instanceof InternalNode) {
-	// 			const childProof: UProofStatementStep[] = child.proofArray();
-	// 			proof.push(...childProof);
-	// 		}
-
-	// 	});
-	// 	proof.push({ label: this.label, parseNode: this });
-	// 	return proof;
-	// }
-	//TODO1 mar 4 this below is wrong, because it loses the RPN order in subnodes; it must be recursive
 	proofArray(outermostBlock: BlockStatement, grammar: Grammar): UProofStatementStep[] {
 		//esempio: wal deve prima mettere la substitution di ph e dopo deve mettere la substitution di x
-		// this.getParseNodeForLogicalSyntaxAssertion(outermostBlock, grammar);
 		const substitutionInRpnOrder: Map<string, InternalNode> = this.buildSubstitutionInRpnOrder(
 			outermostBlock, grammar);
-		const proof: UProofStatementStep[] = this.proofArrayWithSubstitution(substitutionInRpnOrder);
-		// parseNodeForLogicalSyntaxAssertion.fStatementUProofStatementSteps
-		// const proof: UProofStatementStep[] = [];
-		// this.parseNodes.forEach((child: ParseNode) => {
-		// 	if (child instanceof InternalNode) {
-		// 		const childProof: UProofStatementStep[] = child.proofArray();
-		// 		proof.push(...childProof);
-		// 	}
-
-		// });
-		// proof.push({ label: this.label, parseNode: this });
+		const proof: UProofStatementStep[] = this.proofArrayWithSubstitution(outermostBlock,
+			grammar, substitutionInRpnOrder);
 		return proof;
 	}
 }
