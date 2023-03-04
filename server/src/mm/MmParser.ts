@@ -110,6 +110,11 @@ export class MmParser extends EventEmitter {
 
     //#region Parse
 
+    private fail(message: string) {
+        this.parseFailed = true;
+        throw new Error(message);
+    }
+
     private addDiagnosticError(message: string, range: Range, code: MmParserErrorCode) {
         const diagnostic: Diagnostic = {
             message: message,
@@ -117,6 +122,7 @@ export class MmParser extends EventEmitter {
             code: code
         };
         this.diagnostics.push(diagnostic);
+        this.parseFailed = true;
     }
 
     //#region buildLabelToStatementMap
@@ -144,7 +150,7 @@ export class MmParser extends EventEmitter {
             comment = comment + " " + tokenValue;
             token = toks.Read();
             if (token == undefined)
-                throw new Error("The file has ended before the comment was closed!");
+                this.fail('The file has ended before the comment was closed!');
             else
                 tokenValue = token.value;
         }
@@ -153,24 +159,24 @@ export class MmParser extends EventEmitter {
     private addFStatement(label: MmToken | undefined, toks: TokenReader, currentBlock: BlockStatement) {
         const statementContent = toks.readstat();
         if (label === undefined) {
-            throw new Error("$f must have label");
+            this.fail('$f must have label');
+        } else if (statementContent.length !== 2) {
+            this.fail("$f must have length 2");
+        } else {
+            const fHyp: FHyp = new FHyp(label.value, statementContent, currentBlock);
+            //currentBlock.add_f(statementContent[1], statementContent[0], label)
+            currentBlock.addFHyp(fHyp);
+            //this.labelToStatementMap.set(label, new FHyp(label, statementContent, currentBlock))
+            currentBlock.labelToStatementMap.set(label.value, fHyp);
+            //TODO try to remove this.labelToStatementMap and use the outermost scope, instead
+            if (currentBlock.ParentBlock == null)
+                // the current block is the outermost scope
+                this.labelToStatementMap.set(label.value, fHyp);
+            // else
+            //     // the current block is not the outermost scope
+            //     currentBlock.labelToStatementMap.set(label.value, fHyp);
+            label = undefined;
         }
-        if (statementContent.length !== 2) {
-            throw new Error("$f must have length 2");
-        }
-        const fHyp: FHyp = new FHyp(label.value, statementContent, currentBlock);
-        //currentBlock.add_f(statementContent[1], statementContent[0], label)
-        currentBlock.addFHyp(fHyp);
-        //this.labelToStatementMap.set(label, new FHyp(label, statementContent, currentBlock))
-        currentBlock.labelToStatementMap.set(label.value, fHyp);
-        //TODO try to remove this.labelToStatementMap and use the outermost scope, instead
-        if (currentBlock.ParentBlock == null)
-            // the current block is the outermost scope
-            this.labelToStatementMap.set(label.value, fHyp);
-        // else
-        //     // the current block is not the outermost scope
-        //     currentBlock.labelToStatementMap.set(label.value, fHyp);
-        label = undefined;
     }
 
     // Implements the control required by the spec in the Metamath book P. 114:
@@ -186,75 +192,80 @@ export class MmParser extends EventEmitter {
                 const range: Range = token.range;
                 const code = MmParserErrorCode.varNotInActiveFStatement;
                 this.addDiagnosticError(message, range, code);
-                throw new Error(message);
+                this.fail(message);
             }
         });
     }
     addAStatement(label: MmToken | undefined, toks: TokenReader, currentBlock: BlockStatement) {
-        if (label === undefined) {
-            throw new Error("$a must have label");
+        if (label === undefined)
+            this.fail('$a must have label');
+        else {
+            const statementContent = toks.readstat();
+            this.checkEveryVarIsInActiveFStatement(statementContent, currentBlock);
+            const statement: AxiomStatement = new AxiomStatement(label.value, statementContent, currentBlock, toks.lastComment);
+            Frame.createFrame(statement);
+            currentBlock.labelToStatementMap.set(label.value, statement);
+            this.labelToStatementMap.set(label.value, statement);
+            if (!GrammarManager.isSyntaxAxiom2(statement))
+                this.labelToNonSyntaxAssertionMap.set(label.value, statement);
+            label = undefined;
+            const newAssertionParams: AssertionParsedArgs = {
+                labeledStatement: statement,
+                mmParser: this
+            };
+            this.emit(MmParserEvents.newAxiomStatement, newAssertionParams);
         }
-        const statementContent = toks.readstat();
-        this.checkEveryVarIsInActiveFStatement(statementContent, currentBlock);
-        const statement: AxiomStatement = new AxiomStatement(label.value, statementContent, currentBlock, toks.lastComment);
-        Frame.createFrame(statement);
-        currentBlock.labelToStatementMap.set(label.value, statement);
-        this.labelToStatementMap.set(label.value, statement);
-        if (!GrammarManager.isSyntaxAxiom2(statement))
-            this.labelToNonSyntaxAssertionMap.set(label.value, statement);
-        label = undefined;
-        const newAssertionParams: AssertionParsedArgs = {
-            labeledStatement: statement,
-            mmParser: this
-        };
-        this.emit(MmParserEvents.newAxiomStatement, newAssertionParams);
     }
     addEStatement(label: MmToken | undefined, toks: TokenReader, currentBlock: BlockStatement) {
-        if (label === undefined) {
-            throw new Error("$e must have label");
+        if (label === undefined)
+            this.fail("$e must have label");
+        else {
+
+            const statementContent = toks.readstat();
+            this.checkEveryVarIsInActiveFStatement(statementContent, currentBlock);
+            const statement: EHyp = new EHyp(label.value, statementContent, currentBlock, toks.lastComment);
+            currentBlock.eHyps.push(statement);
+            currentBlock.labelToStatementMap.set(label.value, statement);
+            // if (currentBlock.ParentBlock == null)
+            //     this.labelToStatementMap.set(label.value, statement);
+            // else
+            //     // the current block is not the outermost scope
+            //     currentBlock.labelToStatementMap.set(label.value, statement);
+            currentBlock.labelToStatementMap.set(label.value, statement);
+            this.labelToStatementMap.set(label.value, statement);
+            label = undefined;
         }
-        const statementContent = toks.readstat();
-        this.checkEveryVarIsInActiveFStatement(statementContent, currentBlock);
-        const statement: EHyp = new EHyp(label.value, statementContent, currentBlock, toks.lastComment);
-        currentBlock.eHyps.push(statement);
-        currentBlock.labelToStatementMap.set(label.value, statement);
-        // if (currentBlock.ParentBlock == null)
-        //     this.labelToStatementMap.set(label.value, statement);
-        // else
-        //     // the current block is not the outermost scope
-        //     currentBlock.labelToStatementMap.set(label.value, statement);
-        currentBlock.labelToStatementMap.set(label.value, statement);
-        this.labelToStatementMap.set(label.value, statement);
-        label = undefined;
     }
     addPStatement(label: MmToken | undefined, toks: TokenReader, currentBlock: BlockStatement) {
-        if (label === undefined) {
-            throw new Error("$p must have label");
-        }
-        const statementContent = toks.readstat();
-        const statementContentStrings = MmToken.fromTokensToStrings(statementContent);
-        const i: number = statementContentStrings.indexOf('$=');
-        if (i === -1) {
-            // statementContent doesn't contain '$='
-            throw new Error("$p must contain proof after $=");
-        }
-        const proof = statementContentStrings.slice(i + 1);
-        const statement: ProvableStatement =
-            new ProvableStatement(label.value, statementContent, currentBlock, toks.lastComment);
-        Frame.createFrame(statement);
-        const verifier: Verifier = new Verifier(this.diagnostics);
-        verifier.verify(statement, proof, this.labelToStatementMap);
-        this.parseFailed ||= verifier.verificationFailed;
+        if (label === undefined)
+            this.fail('$p must have label');
+        else {
+            const statementContent = toks.readstat();
+            const statementContentStrings = MmToken.fromTokensToStrings(statementContent);
+            const i: number = statementContentStrings.indexOf('$=');
+            if (i === -1)
+                // statementContent doesn't contain '$='
+                this.fail('$p must contain proof after $=');
+            else {
+                const proof = statementContentStrings.slice(i + 1);
+                const statement: ProvableStatement =
+                    new ProvableStatement(label.value, statementContent, currentBlock, toks.lastComment);
+                Frame.createFrame(statement);
+                const verifier: Verifier = new Verifier(this.diagnostics);
+                verifier.verify(statement, proof, this.labelToStatementMap);
+                this.parseFailed ||= verifier.verificationFailed;
 
-        this.labelToStatementMap.set(label.value, statement);
-        if (!GrammarManager.isSyntaxAxiom2(statement))
-            this.labelToNonSyntaxAssertionMap.set(label.value, statement);
-        label = undefined;
-        const newAssertionParams: AssertionParsedArgs = {
-            labeledStatement: statement,
-            mmParser: this
-        };
-        this.emit(MmParserEvents.newProvableStatement, newAssertionParams);
+                this.labelToStatementMap.set(label.value, statement);
+                if (!GrammarManager.isSyntaxAxiom2(statement))
+                    this.labelToNonSyntaxAssertionMap.set(label.value, statement);
+                label = undefined;
+                const newAssertionParams: AssertionParsedArgs = {
+                    labeledStatement: statement,
+                    mmParser: this
+                };
+                this.emit(MmParserEvents.newProvableStatement, newAssertionParams);
+            }
+        }
     }
     buildLabelToStatementMap(toks: TokenReader, currentBlock?: BlockStatement) {
         //TODO prova a valutare di evitare d'usare BlockStack
@@ -316,27 +327,17 @@ export class MmParser extends EventEmitter {
                     break;
                 }
                 default:
-                    if (tok.value.substring(0, 0) !== "$") {
+                    if (tok.value.substring(0, 0) !== "$")
                         label = tok;
-                    } else {
-                        throw new Error("Unexpexcted token: " + tok);
-                    }
+                    else
+                        this.fail('"Unexpexcted token: " + tok');
                     break;
             }
             tok = toks.Readc();
         }
-        // this.outermostBlock.pop() ; not needed with the currentBlock approach
-        //TODO complete this method                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-        //throw Error("Method not complete yet!!")
     }
     //#endregion buildLabelToStatementMap
 
-    //#region buildGrammar
-    // buildGrammar(labelToStatementMap: Map<string, LabeledStatement>) {
-    //     throw new Error('Method not implemented.');
-    // }
-
-    //#endregion buildGrammar
     Parse(tokenReader: TokenReader, currentBlock?: BlockStatement) {
         // this.isParsingComplete = false;
         this.buildLabelToStatementMap(tokenReader, currentBlock);

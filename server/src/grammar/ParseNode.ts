@@ -268,6 +268,7 @@ export class InternalNode {
 		// this.getParseNodeForLogicalSyntaxAssertion(outermostBlock, grammar);
 		const substitutionInRpnOrder: Map<string, InternalNode> = this.buildSubstitutionInRpnOrder(
 			outermostBlock, grammar);
+		//TODO1 mar 1 this below is wrong, because it loses the RPN order in subnodes
 		const proof: UProofStatementStep[] = this.proofArrayWithSubstitution(substitutionInRpnOrder);
 		// parseNodeForLogicalSyntaxAssertion.fStatementUProofStatementSteps
 		// const proof: UProofStatementStep[] = [];
