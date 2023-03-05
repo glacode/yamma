@@ -36,7 +36,7 @@ export abstract class EHypLabelManager {
 			// current eHyp has a label and it is not equal to the theorem name
 			const dotIndex: number = eHypLabel.indexOf('.');
 			const prefix: string = eHypLabel.substring(0, dotIndex);
-			const suffix: string = eHypLabel.substring(dotIndex + 1, dotIndex);
+			const suffix: string = eHypLabel.substring(dotIndex + 1);
 			if (prefix == buildNewLabelArgs.theoremLabel && !isNaN(parseInt(suffix)))
 				EHypLabelManager.buildNewLabel(buildNewLabelArgs);
 		}
