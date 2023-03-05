@@ -611,7 +611,7 @@ test('expect first label wrong impbii w.r.t. already existing theorem', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBe(1);
-	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.eHypLabelNotCoherent)).toBeTruthy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.eHypLabelNotCoherentForAlreadyExistingTheorem)).toBeTruthy();
 	const message = `The label does not match the label in the theory. The expected label is impbii.1`;
 	expect(mmpParser.diagnostics[0].message).toEqual(message);
 	expect(mmpParser.diagnostics[0].range.start.line).toEqual(1);
@@ -635,7 +635,7 @@ test('expect second label wrong impbii w.r.t. already existing theorem', () => {
 	// 	mmpParser.uProof!, <ProvableStatement>impbiiStatement, dummyRange, mmpParser.diagnostics);
 	// theoremCoherenceChecker.checkCoherence();
 	expect(mmpParser.diagnostics.length).toBe(1);
-	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.eHypLabelNotCoherent)).toBeTruthy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.eHypLabelNotCoherentForAlreadyExistingTheorem)).toBeTruthy();
 	const message = `The label does not match the label in the theory. The expected label is impbii.2`;
 	expect(mmpParser.diagnostics[0].message).toEqual(message);
 	expect(mmpParser.diagnostics[0].range.start.line).toEqual(2);
@@ -866,7 +866,6 @@ test('expect qed warning for last step', () => {
 	});
 });
 
-//TODO1 feb 26
 test('expect comment edit warning', () => {
 	const mmpSource: string =
 		'\n* MissingComment\n\n' +
@@ -877,9 +876,9 @@ test('expect comment edit warning', () => {
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
 	expect(doesDiagnosticsContain(
-		mmpParser.diagnostics, MmpParserWarningCode.defaultComment)).toBeTruthy();
+		mmpParser.diagnostics, MmpParserWarningCode.missingComment)).toBeTruthy();
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
-		if (diagnostic.code == MmpParserWarningCode.defaultComment) {
+		if (diagnostic.code == MmpParserWarningCode.missingComment) {
 			const expectedMessage =
 				`This comment should contain a description of the theorem`;
 			expect(diagnostic.message).toEqual(expectedMessage);
@@ -887,6 +886,29 @@ test('expect comment edit warning', () => {
 			expect(diagnostic.range.start.character).toBe(2);
 			expect(diagnostic.range.end.line).toBe(1);
 			expect(diagnostic.range.end.character).toBe(16);
+		}
+	});
+});
+
+//TODO1 mar 5
+test('expect comment edit warning', () => {
+	const mmpSource: string =
+		'h50::hyp1 |- ps\n' +
+		'h51::hyp1 |- ph\n' +
+		'qed:50,51:ax-mp |- ph';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
+	expect(doesDiagnosticsContain(
+		mmpParser.diagnostics, MmpParserErrorCode.duplicatedEHyp)).toBeTruthy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserWarningCode.missingComment) {
+			const expectedMessage = `This eHyp label is duplicated`;
+			expect(diagnostic.message).toEqual(expectedMessage);
+			expect(diagnostic.range.start.line).toBe(1);
+			expect(diagnostic.range.start.character).toBe(5);
+			expect(diagnostic.range.end.line).toBe(1);
+			expect(diagnostic.range.end.character).toBe(9);
 		}
 	});
 });

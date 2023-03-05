@@ -82,12 +82,12 @@ export class TheoremCoherenceChecker {
 			const message = `The label is missing. The expected label is ${theoryStatementLabel}`;
 			//TODO check case neither label, nor formula is present and compute a good range for that case
 			// you will get en exception, otherwise
-			MmpValidator.addDiagnosticError(message, mmtStatement.formula![0].range, MmpParserErrorCode.eHypLabelNotCoherent,
+			MmpValidator.addDiagnosticError(message, mmtStatement.formula![0].range, MmpParserErrorCode.eHypLabelNotCoherentForAlreadyExistingTheorem,
 				this.diagnostics);
 			this.isTheoremCoherent = false;
 		} else if (mmtStatement.label.value != theoryStatementLabel) {
 			const message = `The label does not match the label in the theory. The expected label is ${theoryStatementLabel}`;
-			MmpValidator.addDiagnosticError(message, mmtStatement.label.range, MmpParserErrorCode.eHypLabelNotCoherent,
+			MmpValidator.addDiagnosticError(message, mmtStatement.label.range, MmpParserErrorCode.eHypLabelNotCoherentForAlreadyExistingTheorem,
 				this.diagnostics);
 			this.isTheoremCoherent = false;
 		}
@@ -133,7 +133,7 @@ export class TheoremCoherenceChecker {
 				`This theorem is already in the theory, but the label ${theoryStatement.Label}` +
 				`is either missing or on the wrong hypothesis`;
 			const range: Range = this.defaultRangeForDiagnostics;
-			MmpValidator.addDiagnosticError(message, range, MmpParserErrorCode.eHypLabelNotCoherent,
+			MmpValidator.addDiagnosticError(message, range, MmpParserErrorCode.eHypLabelNotCoherentForAlreadyExistingTheorem,
 				this.diagnostics);
 			this.isTheoremCoherent = false;
 		} else {
