@@ -145,6 +145,14 @@ export function concatWithSpaces(stringArray: string[]): string {
     return result;
 }
 
+/** builds a formula where each symbol is surrounded exactly by one space,
+ * on both side
+ */
+export function normalizedFormula(stringArray: string[]): string {
+    const result: string = " " + concatWithSpaces(stringArray) + " ";
+    return result;
+}
+
 /**
  * Concats strings adding a space between each of them, but skips the first skip items
  * @param skip numbero of elements to skip

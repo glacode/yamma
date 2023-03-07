@@ -3,8 +3,9 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { SearchStatementCompletionProvider } from '../search/SearchStatementCompletionProvider';
-import { kindToPrefixMap, mp2MmParser, mp2Statistics, vexStatistics, vexTheoryMmParser } from './GlobalForTest.test';
+import { kindToPrefixMap, mp2MmParser, mp2Statistics, opelcnMmParser, opelcnStatistics, vexStatistics, vexTheoryMmParser } from './GlobalForTest.test';
 
+//TODO1 mar 7
 test("SearchStatementCompletionProvider 1", () => {
 	const mmpSource: string =
 		'h50::hyp1 |- ph\n' +
@@ -92,5 +93,23 @@ test("SearchStatementCompletionProvider with symbol in EHyp", () => {
 	expect(completionItems.length).toBe(2);
 	const completionItem: CompletionItem = completionItems[0];
 	expect(completionItem.label).toBe('abeq2d');
-	expect(completionItems[1].label).toBe('abeq2i');	
+	expect(completionItems[1].label).toBe('abeq2i');
+});
+
+test("SearchStatementCompletionProvider for exact string", () => {
+	const mmpSource: string =
+		"h50::hyp1 |- ph\n" +
+		"51::      |- ps\n" +
+		"SearchSymbols: ' ( A X. B ) ' SearchComment: \n" +
+		"qed:: |- ph";
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	// const outermostBlock: BlockStatement = new BlockStatement(null);
+	mmpParser.parse();
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.mmpProof!.mmpStatements[2];
+	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
+		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, opelcnStatistics);
+	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
+	expect(completionItems.length).toBe(1);
+	const completionItem: CompletionItem = completionItems[0];
+	expect(completionItem.label).toBe('df-xp');
 });

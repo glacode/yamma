@@ -62,6 +62,9 @@ eqeq1iMmParser.createParseNodesForAssertionsSync();
 export const opelcnMmParser: MmParser = createMmParser('opelcn.mm');
 opelcnMmParser.createParseNodesForAssertionsSync();
 
+export const opelcnStatistics: MmStatistics = new MmStatistics(opelcnMmParser);
+opelcnStatistics.buildStatistics();
+
 export const elexdMmParser: MmParser = createMmParser('elexd.mm');
 elexdMmParser.createParseNodesForAssertionsSync();
 

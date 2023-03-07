@@ -18,17 +18,25 @@ export class SearchStatementCompletionProvider {
 	}
 
 	//#region completionItems
-	assertionsSets(): Set<Set<AssertionStatement>> {
+
+	//#region assertionsSets
+	addAssertionSet(symbol: string, result: Set<Set<AssertionStatement>>) {
+		let assertionsContainingThisSymbol: Set<AssertionStatement> | undefined =
+			this.mmStatistics.symbolToAssertionsMap?.get(symbol);
+		if (assertionsContainingThisSymbol == undefined)
+			assertionsContainingThisSymbol = new Set<AssertionStatement>();
+		result.add(assertionsContainingThisSymbol);
+	}
+	private assertionsSets(): Set<Set<AssertionStatement>> {
 		const result: Set<Set<AssertionStatement>> = new Set<Set<AssertionStatement>>();
 		this.mmpSearchStatement.symbolsToSearch.forEach((symbol: string) => {
-			let assertionsContainingThisSymbol: Set<AssertionStatement> | undefined =
-				this.mmStatistics.symbolToAssertionsMap?.get(symbol);
-			if (assertionsContainingThisSymbol == undefined)
-				assertionsContainingThisSymbol = new Set<AssertionStatement>();
-			result.add(assertionsContainingThisSymbol);
+			if (symbol != "'")
+				// current symbol does not represent the boundary of a search string
+				this.addAssertionSet(symbol, result);
 		});
 		return result;
 	}
+	//#endregion assertionsSets
 
 	//#region completionItemsForAssertionsInTheIntersections
 
@@ -129,10 +137,41 @@ export class SearchStatementCompletionProvider {
 		completionItems.push(completionItem);
 	}
 
+	//#region selectAssertionsContainingNormalizedSubstrings
+	private assertionContainsAllSubstrings(assertion: AssertionStatement, normalizedSubstringsToSearch: string[]): boolean {
+		let containsAllSubstrings = true;
+		let i = 0;
+		while (containsAllSubstrings && i < normalizedSubstringsToSearch.length) {
+			// all substrings are contained, so far; and i points to an existing substring to check
+			containsAllSubstrings = assertion.normalizedFormula.indexOf(normalizedSubstringsToSearch[i]) != -1;
+			i++;
+		}
+		return containsAllSubstrings;
+	}
+	private selectAssertionsContainingNormalizedSubstrings(assertions: Set<AssertionStatement> | undefined,
+		normalizedSubstringsToSearch: string[]): Set<AssertionStatement> | undefined {
+		let assertionsContainingNormalizedSubstrings: Set<AssertionStatement> | undefined = assertions;
+		if (normalizedSubstringsToSearch.length > 0 && assertions != undefined) {
+			// at least one normalized substring is used to filter out assertions
+			assertionsContainingNormalizedSubstrings = new Set<AssertionStatement>();
+			assertions.forEach((assertion: AssertionStatement) => {
+				if (this.assertionContainsAllSubstrings(assertion, normalizedSubstringsToSearch))
+					assertionsContainingNormalizedSubstrings!.add(assertion);
+			});
+		}
+		return assertionsContainingNormalizedSubstrings;
+	}
+	//#endregion selectAssertionsContainingNormalizedSubstrings
+
 	completionItems(): CompletionItem[] {
 		const assertionsSets: Set<Set<AssertionStatement>> = this.assertionsSets();
 		const assertionsInTheIntersection: Set<AssertionStatement> | undefined = intersection<AssertionStatement>(assertionsSets);
-		const result: CompletionItem[] = this.completionItemsForAssertionsInTheIntersections(assertionsInTheIntersection);
+		const assertionsInTheIntersectionContainingNormalizedSubstrings: Set<AssertionStatement> | undefined =
+			this.selectAssertionsContainingNormalizedSubstrings(assertionsInTheIntersection,
+				this.mmpSearchStatement.normalizedSubstringsToSearch);
+		// const result: CompletionItem[] = this.completionItemsForAssertionsInTheIntersections(assertionsInTheIntersection);
+		const result: CompletionItem[] =
+			this.completionItemsForAssertionsInTheIntersections(assertionsInTheIntersectionContainingNormalizedSubstrings);
 		if (result.length == 0)
 			// the search yelds no result
 			this.addItemNotFound(result);
