@@ -173,7 +173,7 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 });
 
 async function unifyAndValidate(textDocumentUri: string) {
-	//TODO1 feb 25 see if an await here solves the response back before the unify is complete
+	//TODO1 see if an await here solves the response back before the unify is complete
 	OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
 		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
 		false);
@@ -192,7 +192,6 @@ async function unifyRenumberAndValidate(textDocumentUri: string) {
 		true);
 }
 
-//TODO1 feb 25
 connection.onRequest('yamma/unifyAndRenumber', unifyRenumberAndValidate);
 
 

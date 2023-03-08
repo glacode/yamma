@@ -304,7 +304,6 @@ export class MmpProofTransformer {
 	protected transformUStep(uStepIndex: number): number {
 		let nextUStepIndexToBeTransformed = uStepIndex + 1;
 		const uProofStep: MmpProofStep = <MmpProofStep>this.uProof.mmpStatements[uStepIndex];
-		//TODO1
 		if (uProofStep.parseNode != undefined && uProofStep.assertion == undefined)
 			this.deriveLabelAndHypotesis(uStepIndex, uProofStep);
 		this.tryToDeriveEhypsIfIncomplete(uStepIndex, uProofStep, uProofStep.assertion);
@@ -314,9 +313,6 @@ export class MmpProofTransformer {
 			// const nextUStepIndexIfNoProofStepIsAdded = nextUStepIndexToBeTransformed;
 			nextUStepIndexToBeTransformed = this.tranformProofStepWithValidAssertionLabel(
 				uStepIndex, uProofStep, uProofStep.assertion);
-			// const proofStepsAddedByThisStepTransformation = nextUStepIndexToBeTransformed -
-			// 	nextUStepIndexIfNoProofStepIsAdded;
-			// this.uProof.stepsInsertedAtASpecificIndexSoFar += proofStepsAddedByThisStepTransformation;
 		}
 		return nextUStepIndexToBeTransformed;
 	}

@@ -581,7 +581,6 @@ test("Format equvinv uncompressed proof", () => {
 
 });
 
-//TODO1 mar 4
 // this test needs the class cab that has x and ph exchanged w.r.t.
 // the rpn order; thus it tests that yamma's proof generation
 // handles properly syntax axioms with variables that don't appear

@@ -138,16 +138,30 @@ export class SearchStatementCompletionProvider {
 	}
 
 	//#region selectAssertionsContainingNormalizedSubstrings
+	//#region assertionContainsAllSubstrings
+	private assertionOrEHypsContainSubstring(assertion: AssertionStatement, normalizedSUbstring: string): boolean {
+		let containsSubstring: boolean = assertion.normalizedFormula.indexOf(normalizedSUbstring) != -1;
+		let i = 0;
+		while (!containsSubstring && i < assertion.frame!.eHyps.length) {
+			// all substrings are contained, so far; and i points to an existing substring to check
+			// containsAllSubstrings = assertion.normalizedFormula.indexOf(normalizedSubstringsToSearch[i]) != -1;
+			containsSubstring = assertion.frame!.eHyps[i].normalizedFormula.indexOf(normalizedSUbstring) != -1;
+			i++;
+		}
+		return containsSubstring;
+	}
 	private assertionContainsAllSubstrings(assertion: AssertionStatement, normalizedSubstringsToSearch: string[]): boolean {
 		let containsAllSubstrings = true;
 		let i = 0;
 		while (containsAllSubstrings && i < normalizedSubstringsToSearch.length) {
 			// all substrings are contained, so far; and i points to an existing substring to check
-			containsAllSubstrings = assertion.normalizedFormula.indexOf(normalizedSubstringsToSearch[i]) != -1;
+			// containsAllSubstrings = assertion.normalizedFormula.indexOf(normalizedSubstringsToSearch[i]) != -1;
+			containsAllSubstrings = this.assertionOrEHypsContainSubstring(assertion, normalizedSubstringsToSearch[i]);
 			i++;
 		}
 		return containsAllSubstrings;
 	}
+	//#endregion assertionContainsAllSubstrings
 	private selectAssertionsContainingNormalizedSubstrings(assertions: Set<AssertionStatement> | undefined,
 		normalizedSubstringsToSearch: string[]): Set<AssertionStatement> | undefined {
 		let assertionsContainingNormalizedSubstrings: Set<AssertionStatement> | undefined = assertions;

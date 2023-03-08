@@ -32,7 +32,6 @@ test('Remove 3rd and 4th proof steps', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1 feb 24
 test('Remove 3 after working var unification', () => {
 	const mmpSource =
 		'\n* test comment\n\n' +

@@ -151,7 +151,6 @@ test('Unify double ax-mp', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1
 test('Expect new ref to be d7', () => {
 	const mmpSource =
 		'\n* test comment\n' +

@@ -5,7 +5,6 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { SearchStatementCompletionProvider } from '../search/SearchStatementCompletionProvider';
 import { kindToPrefixMap, mp2MmParser, mp2Statistics, opelcnMmParser, opelcnStatistics, vexStatistics, vexTheoryMmParser } from './GlobalForTest.test';
 
-//TODO1 mar 7
 test("SearchStatementCompletionProvider 1", () => {
 	const mmpSource: string =
 		'h50::hyp1 |- ph\n' +
@@ -103,7 +102,6 @@ test("SearchStatementCompletionProvider for exact string", () => {
 		"SearchSymbols: ' ( A X. B ) ' SearchComment: \n" +
 		"qed:: |- ph";
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
-	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.mmpProof!.mmpStatements[2];
 	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
@@ -112,4 +110,22 @@ test("SearchStatementCompletionProvider for exact string", () => {
 	expect(completionItems.length).toBe(1);
 	const completionItem: CompletionItem = completionItems[0];
 	expect(completionItem.label).toBe('df-xp');
+});
+
+test("SearchStatementCompletionProvider with exact match 2 using eHyps also", () => {
+	const mmpSource =
+		'50::       |- ps\n' +
+		'51:        |- ch\n' +
+		'SearchSymbols: \n' +
+		"  '  { x | ph } '   ' A e. V -> '   SearchComment: \n" +
+		'qed::      |- ph\n';
+		const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+		mmpParser.parse();
+		const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.mmpProof!.mmpStatements[2];
+		const searchStatementCompletionProvider: SearchStatementCompletionProvider =
+			new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, opelcnStatistics);
+		const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
+		expect(completionItems.length).toBe(2);
+		expect(completionItems[0].label).toBe('elabg');
+		expect(completionItems[1].label).toBe('elab2g');
 });

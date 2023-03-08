@@ -890,7 +890,6 @@ test('expect comment edit warning', () => {
 	});
 });
 
-//TODO1 mar 5
 test('expect comment edit warning', () => {
 	const mmpSource: string =
 		'h50::hyp1 |- ps\n' +
