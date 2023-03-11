@@ -15,6 +15,8 @@ import { AssertionStatement } from './AssertionStatement';
 
 export class ProvableStatement extends AssertionStatement {
 
+    private _compressedProofString: string | undefined;
+
     constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
         super(label, content, parentBlock, comment);
     }
@@ -35,13 +37,16 @@ export class ProvableStatement extends AssertionStatement {
     }
 
     get compressedProofString(): string {
-        const proof = this.Proof;
-        const ep = proof.lastIndexOf(')');
-        let compressedString = "";
-        for (let index = ep + 1; index < proof.length; index++) {
-            compressedString += proof[index];
+        if (this._compressedProofString == undefined) {
+            const proof = this.Proof;
+            const closeParenthesisIndex = proof.lastIndexOf(')');
+            this._compressedProofString = "";
+            if (closeParenthesisIndex != -1)
+                for (let index = closeParenthesisIndex + 1; index < proof.length; index++) {
+                    this._compressedProofString += proof[index];
+                }
         }
-        return compressedString;
+        return this._compressedProofString;
     }
 
     get CompressedProofLabels(): string[] {

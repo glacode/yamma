@@ -17,8 +17,8 @@ class TestMmtLoader extends MmtLoader {
 	canTheoremBeAdded(fileContent: string): boolean {
 		return super.canTheoremBeAdded(fileContent);
 	}
-	addTheoremToTheory(fileContent: string) {
-		return super.addTheoremToTheory(fileContent);
+	tryToAddTheoremToTheory(fileContent: string) {
+		return super.tryToAddTheoremToTheory("test.mmt", fileContent);
 	}
 }
 
@@ -115,7 +115,7 @@ test("expect ParseNode created, for new loaded theorems ", () => {
 	const impbii2BeforeAssertion: AssertionStatement | undefined =
 		impbiiMmParserLocal.labelToNonSyntaxAssertionMap.get('impbii2');
 	expect(impbii2BeforeAssertion).toBeUndefined();
-	testMmtLoader.addTheoremToTheory(mmtFileForImpbii2);
+	testMmtLoader.tryToAddTheoremToTheory(mmtFileForImpbii2);
 	const impbii2After: LabeledStatement | undefined =
 		impbiiMmParserLocal.labelToStatementMap.get('impbii2');
 	expect(impbii2After).toBeDefined();

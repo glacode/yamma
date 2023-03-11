@@ -1,5 +1,6 @@
 import { MmParserEvents, MmParser, AssertionParsedArgs } from '../mm/MmParser';
 import { TopologicalSort } from './TopologicalSort';
+import url = require('url');
 import * as path from "path";
 import * as fs from 'fs';
 import { ITheoremSignature, MmtParser } from './MmtParser';
@@ -20,6 +21,9 @@ export class MmtLoader {
 	mmParser: MmParser;
 
 	diagnostics: Diagnostic[];
+
+	/** maps every .mmt uri to its diagnostics */
+	diagnosticsMap: Map<string, Diagnostic[]> = new Map<string, Diagnostic[]>();
 	loadFailed: boolean;
 
 	/** used to allow testing */
@@ -143,7 +147,21 @@ export class MmtLoader {
 	//#endregion theoremLabelsInLoadOrder
 
 	//#region loadFiles
-	protected addTheoremToTheory(fileContent: string) {
+	addDiagnosticsForUri(fileUri: string, diagnostics: Diagnostic[]) {
+		let diagnosticsForSingleFile: Diagnostic[] | undefined = this.diagnosticsMap.get(fileUri);
+		if (diagnosticsForSingleFile == undefined) {
+			// this is the first diagnostic, for this .mmt file
+			diagnosticsForSingleFile = [];
+			this.diagnosticsMap.set(fileUri, diagnosticsForSingleFile);
+		}
+		diagnosticsForSingleFile.push(...diagnostics);
+	}
+	private addDiagnostics(fileName: string, diagnostics: Diagnostic[]) {
+		const filePath: string = path.join(this._dirname, fileName);
+		const fileUri: string = url.pathToFileURL(filePath).href;
+		this.addDiagnosticsForUri(fileUri, diagnostics);
+	}
+	protected tryToAddTheoremToTheory(fileName: string, fileContent: string) {
 		// const mmtParser: MmtParser = new MmtParser(this.mmParser);
 		// mmtParser.addTheorem(fileContent);
 		this.mmParser.diagnostics = [];
@@ -152,6 +170,7 @@ export class MmtLoader {
 			// mmParser found errors, parsing fileContent
 			this.loadFailed = true;
 			this.diagnostics.push(...this.mmParser.diagnostics);
+			this.addDiagnostics(fileName, this.mmParser.diagnostics);
 		}
 	}
 
@@ -168,6 +187,7 @@ export class MmtLoader {
 			theorem, labeledStatement, defaultRangeForDiagnostics, this.diagnostics);
 		theoremCoherenceChecker.checkCoherence();
 		const isCoherent: boolean = <boolean>theoremCoherenceChecker.isTheoremCoherent;
+		//TODO1 mar 11 add diagnostics theoremCoherenceChecker.diagnostics
 		return isCoherent;
 	}
 	canTheoremBeAdded(fileContent: string): boolean {
@@ -197,7 +217,7 @@ export class MmtLoader {
 		const fileContent: string = this.readMmtFile(fileName);
 		const canBeAdded: boolean = this.canTheoremBeAdded(fileContent);
 		if (canBeAdded)
-			this.addTheoremToTheory(fileContent);
+			this.tryToAddTheoremToTheory(fileName, fileContent);
 	}
 	private loadFiles(theoremLabelsInLoadOrder: string[]) {
 		theoremLabelsInLoadOrder.forEach((theoremLabel: string) => {
@@ -246,6 +266,7 @@ export class MmtLoader {
 			this.loadFailed;
 			const message = 'There is a cycle in the .mmt theorems, thus the theory can not be updated';
 			const range: Range = dummyRange;
+			//TODO1 mar 11 add this to the diagnosticsMap, also
 			this.addDiagnosticError(message, range, MmtLoaderErrorCode.ciclycMmtTheorems, this.diagnostics);
 		}
 		// if (this.loadFailed && this.diagnostics.length > 0)

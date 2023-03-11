@@ -22,12 +22,14 @@ import { creaParseNodesInANewThread } from '../parseNodesCreatorThread/ParseNode
 import { EventEmitter } from 'stream';
 import { IExtensionSettings } from './ConfigurationManager';
 
+
 export enum MmParserErrorCode {
     varNotInActiveFStatement = "varNotInActiveFStatement",
     stackHasMoreThanOneItemAtEndOfProof = "stackHasMoreThanOneItemAtEndOfProof",
     assertionProvenDoesntMatch = "assertionProvenDoesntMatch",
     eHypDoesntMatchTheStackEntry = "eHypDoesntMatchTheStackEntry",
-    missingDjVarsStatement = "missingDjVarsStatement"
+    missingDjVarsStatement = "missingDjVarsStatement",
+    missingCloseParenthesis = "missingCloseParenthesis"
 }
 
 export enum MmParserEvents {

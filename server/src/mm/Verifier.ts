@@ -12,6 +12,7 @@ import { AssertionStatement } from "./AssertionStatement";
 import { AreArrayTheSame, concatWithSpaces, oneCharacterRange } from "./Utils";
 import { FHyp } from './FHyp';
 import { EHyp } from './EHyp';
+import { MmToken } from '../grammar/MmLexer';
 
 export class Verifier {
     diagnostics: Diagnostic[];
@@ -30,6 +31,7 @@ export class Verifier {
             code: code
         };
         this.diagnostics.push(diagnostic);
+        this.verificationFailed = true;
     }
 
     //#region verifyDecompressedProof
@@ -65,7 +67,6 @@ export class Verifier {
                 const range: Range = oneCharacterRange({ line: 0, character: 0 });
                 const code = MmParserErrorCode.eHypDoesntMatchTheStackEntry;
                 this.addDiagnosticError(message, range, code);
-                this.verificationFailed = true;
                 // throw new Error("Stack entry doesn't match mandatory var hyp");
             } else
                 // fHypsStack[i].shift()
@@ -139,7 +140,6 @@ export class Verifier {
                     const range: Range = oneCharacterRange({ line: 0, character: 0 });
                     const code = MmParserErrorCode.missingDjVarsStatement;
                     this.addDiagnosticError(message, range, code);
-                    this.verificationFailed = true;
                     // throw new Error(message);
                 }
             }
@@ -196,7 +196,6 @@ export class Verifier {
             const range: Range = oneCharacterRange({ line: 0, character: 0 });
             const code = MmParserErrorCode.eHypDoesntMatchTheStackEntry;
             this.addDiagnosticError(message, range, code);
-            this.verificationFailed = true;
             //    throw new Error("$e hypothesis doesn't match stack.");
         }
         return areTheSame;
@@ -276,7 +275,6 @@ export class Verifier {
             const range: Range = oneCharacterRange({ line: 0, character: 0 });
             const code = MmParserErrorCode.stackHasMoreThanOneItemAtEndOfProof;
             this.addDiagnosticError(message, range, code);
-            this.verificationFailed = true;
             // throw new Error("Stack has more than one item at end of proof.");
         }
         const stackOnlyElement: string[] = <string[]>stack.pop();
@@ -291,7 +289,6 @@ export class Verifier {
             const range: Range = oneCharacterRange({ line: 0, character: 0 });
             const code = MmParserErrorCode.assertionProvenDoesntMatch;
             this.addDiagnosticError(message, range, code);
-            this.verificationFailed = true;
             // throw new Error("Assertion proved doesn't match.");
             //TODO check what you wanted to do, below with AssertionProvenDoesntMatch
             // const parseError: AssertionProvenDoesntMatch = {
@@ -330,31 +327,62 @@ export class Verifier {
     }
     //#endregion GetProofStatements
 
+    //#region getDecompressedProof
+    addDiagnosticForMissingCompressedProofString(provableStatement: ProvableStatement, proofStrings: string[]) {
+        const lastToken: MmToken = provableStatement.Content[provableStatement.Content.length - 1];
+        const range: Range = lastToken.range;
+        if (proofStrings.indexOf(')') == -1) {
+            const message = `The $p statement of ${provableStatement.Label} does not contain a '(' character`;
+            const code: MmParserErrorCode = MmParserErrorCode.missingCloseParenthesis;
+            this.addDiagnosticError(message, range, code);
+        } else {
+            // between ')' and '$.' there is not a sequence of characters
+            const message = `The proof of ${provableStatement.Label} , cannot be uncompressed`;
+            const range: Range = oneCharacterRange({ line: 0, character: 0 });
+            const code = MmParserErrorCode.assertionProvenDoesntMatch;
+            this.addDiagnosticError(message, range, code);
+        }
+    }
+    decompressExistingProofString(provableStatement: ProvableStatement, labelToStatementMap: Map<string, LabeledStatement>): Statement[] | undefined {
+        const proofCompressor: ProofCompressor = new ProofCompressor();
+        const proof: Statement[] | undefined = proofCompressor.DecompressProof(provableStatement, labelToStatementMap);
+        if (proofCompressor.failed) {
+            const message = `The proof of ${provableStatement.Label} , cannot be uncompressed`;
+            const range: Range = oneCharacterRange({ line: 0, character: 0 });
+            const code = MmParserErrorCode.assertionProvenDoesntMatch;
+            this.addDiagnosticError(message, range, code);
+        }
+        return proof;
+    }
+    getDecompressedProof(provableStatement: ProvableStatement, proofStrings: string[],
+        labelToStatementMap: Map<string, LabeledStatement>): Statement[] | undefined {
+        let proof: Statement[] | undefined;
+        if (provableStatement.compressedProofString == "")
+            // either ')' is missing, or '$.' immediately follows ')'
+            this.addDiagnosticForMissingCompressedProofString(provableStatement, proofStrings);
+        else
+            proof = this.decompressExistingProofString(provableStatement, labelToStatementMap);
+
+        return proof;
+    }
+    //#endregion getDecompressedProof
+
     verify(provableStatement: ProvableStatement, proofStrings: string[],
         labelToStatementMap: Map<string, LabeledStatement>) {
         if (labelToStatementMap.size % 1000 === 0) {
             console.log("verifying : " + labelToStatementMap.size + " : " + provableStatement.Label);
         }
 
-        let proof: Statement[];
-        if ((proofStrings[0] === '(')) {
+        let proof: Statement[] | undefined;
+        if ((proofStrings[0] === '('))
             // the proof is compressed
-            const proofCompressor: ProofCompressor = new ProofCompressor();
-            proof = proofCompressor.DecompressProof(provableStatement, labelToStatementMap);
-            if (proofCompressor.failed) {
-                this.verificationFailed = true;
-                const message = `The proof of ${provableStatement.Label} , cannot be uncompressed`;
-                const range: Range = oneCharacterRange({ line: 0, character: 0 });
-                const code = MmParserErrorCode.assertionProvenDoesntMatch;
-                this.addDiagnosticError(message, range, code);
-            }
-        } else {
+            proof = this.getDecompressedProof(provableStatement, proofStrings, labelToStatementMap);
+        else
             // the proof is not compressed
             proof = Verifier.GetProofStatements(proofStrings, labelToStatementMap,
                 <BlockStatement>provableStatement.ParentBlock);
-        }
         if (!this.verificationFailed)
             // either the proof was not compressed or the decompression was successful
-            this.verifyDecompressedProof(provableStatement, proof);
+            this.verifyDecompressedProof(provableStatement, proof!);
     }
 }

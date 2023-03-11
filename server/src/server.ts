@@ -24,6 +24,8 @@ import {
 	_Connection,
 	Connection,
 	CompletionList,
+	PublishDiagnosticsParams,
+	Diagnostic,
 } from 'vscode-languageserver/node';
 
 import {
@@ -146,6 +148,17 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 	}
 });
 
+//#region loadmmt
+function sendDiagnosticsFromLoadMmt(diagnosticsMap: Map<string, Diagnostic[]>) {
+	diagnosticsMap.forEach((diagnostics: Diagnostic[], uri: string) => {
+		const publishDiagnosticsParams: PublishDiagnosticsParams = {
+			diagnostics: diagnostics,
+			uri: uri
+		};
+		connection.sendDiagnostics(publishDiagnosticsParams);
+	});
+}
+
 connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
 	if (globalState.mmParser != undefined) {
 		const mmtLoader: MmtLoader = new MmtLoader(pathAndUri.fsPath, globalState.mmParser,
@@ -154,6 +167,8 @@ connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
 		if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
 			const errorMessage: string = mmtLoader.diagnostics[0].message;
 			notifyError(errorMessage, connection);
+			sendDiagnosticsFromLoadMmt(mmtLoader.diagnosticsMap);
+
 		} else if (!mmtLoader.loadFailed) {
 			notifyInformation('All .mmt files have been successfully loaded and ' +
 				'added to the theory', connection);
@@ -164,6 +179,8 @@ connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
 		// console.log('Method loadmmt() has been invoked');
 	}
 });
+//#endregion loadmmt
+
 
 connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandParameters) => {
 	console.log('Search command has been invoked');
