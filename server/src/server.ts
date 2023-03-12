@@ -265,6 +265,10 @@ export async function validateTextDocument(textDocument: TextDocument) {
 documents.onDidChangeContent(async change => {
 	// await parseMainMMfile(change.document.uri);
 	console.log('onDidChangeContent: GlobalState.mmParser = ' + globalState.mmParser);
+	//consoleLogWithTimestamp('validateTextDocument mar 12 before setTimeout');
+	//uncomment the following line, for debugging (otherwise the theory is loaded before the debugger is attached)
+	// await new Promise((resolve) => { setTimeout(resolve, 2000); });
+	// consoleLogWithTimestamp('validateTextDocument mar 12 afer setTimeout');
 	if (globalState.mmParser == undefined)
 		await configurationManager.updateTheoryIfTheCase();
 	await validateTextDocument(change.document);

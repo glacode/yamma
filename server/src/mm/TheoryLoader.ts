@@ -1,6 +1,6 @@
 import path = require('path');
 import url = require('url');
-import { Connection, WorkDoneProgress, WorkDoneProgressCreateRequest, WorkspaceFolder } from 'vscode-languageserver';
+import { Connection, Diagnostic, PublishDiagnosticsParams, WorkDoneProgress, WorkDoneProgressCreateRequest, WorkspaceFolder } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { MmParser, MmParserEvents, ParsingProgressArgs } from './MmParser';
 import { notifyError, notifyInformation } from './Utils';
@@ -48,6 +48,17 @@ export class TheoryLoader {
 		this.globalState.mmFilePath = undefined;
 		this.globalState.mmParser = undefined;
 	}
+	//#region loadTheoryFromMmFile
+	sendDiagnostics(mmFilePath: string, diagnostics: Diagnostic[]) {
+		if (diagnostics.length > 0) {
+			const fileUri: string = url.pathToFileURL(mmFilePath).href;
+			const publishDiagnosticsParams: PublishDiagnosticsParams = {
+				diagnostics: diagnostics,
+				uri: fileUri
+			};
+			this.connection.sendDiagnostics(publishDiagnosticsParams);
+		}
+	}
 	async loadTheoryFromMmFile(mmFilePath: string) {
 		this.mmParser = new MmParser(this.globalState);
 		this.mmParser.on(MmParserEvents.parsingProgress, this.notifyProgress);
@@ -59,8 +70,10 @@ export class TheoryLoader {
 		this.mmParser.ParseFileSync(mmFilePath);
 		let message: string;
 		if (this.mmParser.parseFailed) {
-			message = `The theory file ${mmFilePath} has NOT been successfully parsed`;
+			message = `The theory file ${mmFilePath} has NOT been successfully parsed. See the ` +
+			`PROBLEMS tab for a list of diagnostics`;
 			notifyError(message, this.connection);
+			this.sendDiagnostics(mmFilePath, this.mmParser.diagnostics);
 		}
 		else {
 			this.globalState.mmFilePath = mmFilePath;
@@ -70,6 +83,7 @@ export class TheoryLoader {
 		}
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
 	}
+	//#endregion loadTheoryFromMmFile
 	private async loadNewTheorySync() {
 		this.removeTheCurrentTheoryFromTheGlobalState();
 		const currentDocumentDir: string | undefined = await this.getCurrentDocumentDir();
