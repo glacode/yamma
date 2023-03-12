@@ -332,13 +332,13 @@ export class Verifier {
         const lastToken: MmToken = provableStatement.Content[provableStatement.Content.length - 1];
         const range: Range = lastToken.range;
         if (proofStrings.indexOf(')') == -1) {
-            const message = `The $p statement of ${provableStatement.Label} does not contain a '(' character`;
-            const code: MmParserErrorCode = MmParserErrorCode.missingCloseParenthesis;
+            const message = `The $p statement ${provableStatement.Label} does not contain a '(' character`;
+            const code: MmParserErrorCode = MmParserErrorCode.missingCloseParenthesisInPStatement;
             this.addDiagnosticError(message, range, code);
         } else {
             // between ')' and '$.' there is not a sequence of characters
-            const message = `The proof of ${provableStatement.Label} , cannot be uncompressed`;
-            const range: Range = oneCharacterRange({ line: 0, character: 0 });
+            const message = `The $p statement ${provableStatement.Label} does not contain a ` +
+                `compressed proof string between ')' and '$.'`;
             const code = MmParserErrorCode.assertionProvenDoesntMatch;
             this.addDiagnosticError(message, range, code);
         }
@@ -374,7 +374,7 @@ export class Verifier {
         }
 
         let proof: Statement[] | undefined;
-        if ((proofStrings[0] === '('))
+        if (proofStrings[0] === '(')
             // the proof is compressed
             proof = this.getDecompressedProof(provableStatement, proofStrings, labelToStatementMap);
         else

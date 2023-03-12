@@ -25,6 +25,8 @@ export class ProofCompressor {
         this.failed = false;
     }
 
+    //#region DecompressProof
+
     //#region getDecompressedInts
     public static getDecompressedIntsFromString(compressedString: string): number[] {
         const decompressedInts: number[] = [];
@@ -97,7 +99,7 @@ export class ProofCompressor {
                             if (i < zCount) {
                                 statement = new ZRStatement(i);
                             } else {
-                                //TODO consider adding Diagnostic. For example, see metamath error message
+                                //TODO1 mar 12 consider adding Diagnostic. For example, see metamath error message
                                 // for nnawordex if at the beginning of the proof you replace BEFZCEF with BEFCCEF
                                 this.failed = true;
                                 // throw new Error("Couldn't uncompress proof.");
@@ -114,8 +116,6 @@ export class ProofCompressor {
     }
     //#endregion getDecompressedProof
 
-
-    //#endregion getDecompressedInts
     /** it tries to decompress the proof of a ProvableStatement; it will set the value of the failed property;
      * it will return diagnostics if error are encountered
     */

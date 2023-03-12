@@ -26,8 +26,11 @@ export abstract class LabeledStatement extends NonBlockStatement {
             parser.feed(formula);
             parseNode = parser.results[0];
         } catch (error: any) {
+            // this error could also happen when a 'weird' $e statement is present
+            // even though the .mm file is valid; thus we don't throw an exception
+            // (the caller should check for parseNode being undefined)
             console.log("Unexpected error! - parseStrArray : " + formula);
-            throw new Error("Unexpected error! - parseStrArray : " + formula);
+            // throw new Error("Unexpected error! - parseStrArray : " + formula);
         }
         return parseNode;
     }

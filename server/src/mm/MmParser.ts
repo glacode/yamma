@@ -29,7 +29,7 @@ export enum MmParserErrorCode {
     assertionProvenDoesntMatch = "assertionProvenDoesntMatch",
     eHypDoesntMatchTheStackEntry = "eHypDoesntMatchTheStackEntry",
     missingDjVarsStatement = "missingDjVarsStatement",
-    missingCloseParenthesis = "missingCloseParenthesis"
+    missingCloseParenthesisInPStatement = "missingCloseParenthesisInPStatement"
 }
 
 export enum MmParserEvents {
@@ -434,9 +434,9 @@ export class MmParser extends EventEmitter {
 
     //#region createParseNodesForAssertions
 
-
     public createParseNodesForAssertionsAsync() {
-        creaParseNodesInANewThread(this);
+        if (this.isParsingComplete && !this.parseFailed)
+            creaParseNodesInANewThread(this);
     }
 
     /** true iff the formula is a provable statement (typically, it starts with '|-' ) */

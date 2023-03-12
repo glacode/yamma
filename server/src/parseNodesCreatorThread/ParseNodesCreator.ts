@@ -16,7 +16,7 @@ if (!isMainThread) {
 	const { labelToFormulaMap, mmpRulesForThread }: { labelToFormulaMap: Map<string, string>, mmpRulesForThread: IMmpRuleForThread[] } = workerData;
 
 	console.log('I am the worker thread!!!!!!!!!');
-	console.log('Worker thread!!!!: labelToFormulaMap.size = ' + labelToFormulaMap);
+	console.log('Worker thread!!!!: labelToFormulaMap.size = ' + labelToFormulaMap.size);
 	const labelToParseNodeForThreadMap: Map<string, ParseNodeForThread> =
 		createLabelToParseNodeForThreadMap(labelToFormulaMap, mmpRulesForThread);
 	parentPort!.postMessage(labelToParseNodeForThreadMap);
@@ -50,7 +50,7 @@ export function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string
 	// const grammar: Grammar = createGrammar()
 	let i = 0;
 	labelToFormulaMap.forEach((formula: string, label: string) => {
-		notifyProgress(i++, labelToFormulaMap.size, "createLabelToParseNodeForThreadMap" );
+		notifyProgress(i++, labelToFormulaMap.size, "createLabelToParseNodeForThreadMap");
 		const parseNodeForThread: ParseNodeForThread | undefined = createParseNodeForThread(formula, grammar, workingVars);
 		if (parseNodeForThread != undefined)
 			labelToParseNodeForThreadMap.set(label, parseNodeForThread);
@@ -90,7 +90,7 @@ export function addParseNodes(labelToParseNodeForThreadMap: Map<string, ParseNod
 
 export function creaParseNodesInANewThread(mmParser: MmParser): void {
 	// This code is executed in the main thread and not in the worker.
-	const labelToFormulaMap: Map<string, string> = createLabelToFormulaMap( mmParser );
+	const labelToFormulaMap: Map<string, string> = createLabelToFormulaMap(mmParser);
 	const mmpRulesForThread: IMmpRuleForThread[] =
 		GrammarManagerForThread.convertMmpRules(<MmpRule[]>mmParser.grammar.rules);
 

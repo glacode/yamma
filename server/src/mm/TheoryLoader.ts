@@ -123,6 +123,8 @@ export class TheoryLoader {
 				MmStatistics.updateStatistics(this.globalState.mmParser, this.globalState);
 				console.log('after updateStatistics');
 				console.log('before createParseNodesForAssertions');
+				console.log('this.globalState.mmParser.isParsingComplete=' + this.globalState.mmParser.isParsingComplete);
+				console.log('this.globalState.mmParser.parseFailed=' + this.globalState.mmParser.parseFailed);
 				this.globalState.mmParser.createParseNodesForAssertionsAsync();
 				console.log('after createParseNodesForAssertions');
 
