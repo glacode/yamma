@@ -21,23 +21,14 @@ test("Expect created .mmt text ", () => {
 		"$d x y\n";
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(theoryToTestDjVarViolation);
-	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
-
-	//  ${
-	//    $d A y $. $d x y $. 
-	//    $( This is just a test comment $)
-	//    temp22 $p |- ( x e. A -> A. y x e. A ) $=
-	//     ( cv wcel ax-5 ) ADCEBF $.
-
-	//  $}
-
 	const textExpected =
 		"  ${\n" +
 		"    $d x y $. $d A y $.\n" +
 		"    $( This is just a test comment $)\n" +
-		"    test $p |- ( x e. A -> A. y x e. A )\n" +
-		"      $= ( cv wcel ax-5 ) ADCEBF $.\n" +
+		"    test $p |- ( x e. A -> A. y x e. A ) $=\n" +
+		"      ( cv wcel ax-5 ) ADCEBF $.\n" +
 		"  $}\n";
 
 	expect(textProduced).toEqual(textExpected);
@@ -55,18 +46,8 @@ test("Expect mmp2 created .mmt text ", () => {
 		"qed:51,53:ax-mp |- ch";
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(mp2Theory);
-	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
-
-	//  ${
-	//    mp2.1 $e |- ph $.
-	//    mp2.2 $e |- ps $.
-	//    mp2.3 $e |- ( ph -> ( ps -> ch ) ) $.
-	//    $( A double modus ponens inference. (Contributed by NM, 5-Apr-1994.) $)
-	//    mp2 $p |- ch $=
-	//      ( wi ax-mp ) BCEABCGDFHH $.
-
-	//  $}
 
 	const textExpected =
 		"  ${\n" +
@@ -74,8 +55,33 @@ test("Expect mmp2 created .mmt text ", () => {
 		"    mp2.2 $e |- ps $.\n" +
 		"    mp2.3 $e |- ( ph -> ( ps -> ch ) ) $.\n" +
 		"    $( This is just a test comment $)\n" +
-		"    test $p |- ch\n" +
-		"      $= ( wi ax-mp ) BCEABCGDFHH $.\n" +
+		"    test $p |- ch $=\n" +
+		"      ( wi ax-mp ) BCEABCGDFHH $.\n" +
+		"  $}\n";
+
+	expect(textProduced).toEqual(textExpected);
+
+});
+
+//TODO1 mar 17
+test("Expect proof right parenthesis to be on a new line, followed by a space", () => {
+	const mmpSource =
+		"$theorem test\n" +
+		"* This is just a test comment\n" +
+		"qed:ax-5 |- ( x e. A -> A. y x e. A )\n" +
+		"$d A y\n" +
+		"$d x y\n";
+	const mmParser: MmParser = new MmParser();
+	mmParser.ParseText(theoryToTestDjVarViolation);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 20);
+	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
+	const textExpected =
+		"  ${\n" +
+		"    $d x y $. $d A y $.\n" +
+		"    $( This is just a test comment $)\n" +
+		"    test $p |- ( x e. A -> A. y x e. A ) $=\n" +
+		"      ( cv wcel ax-5\n" +
+		"      ) ADCEBF $.\n" +
 		"  $}\n";
 
 	expect(textProduced).toEqual(textExpected);

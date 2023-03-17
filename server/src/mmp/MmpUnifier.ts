@@ -47,7 +47,9 @@ export class MmpUnifier {
 	//#region constructor
 	constructor(mmpParser: MmpParser, proofMode: ProofMode,
 		maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		private renumber?: boolean, private expectedTheoremLabel?: string) {
+		private renumber?: boolean, private expectedTheoremLabel?: string,
+		private leftMarginForCompressedProof?: number,
+		private rightMarginForCompressedProof?: number) {
 		// this.textDocument = textDocument
 		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.mmpProof;
@@ -100,7 +102,8 @@ export class MmpUnifier {
 				uProof.insertProofStatement(proofStatement);
 			} else {
 				// this.proofMode == ProofMode.compressed
-				const proofStatement: UCompressedProofStatement = new UCompressedProofStatement(uProof);
+				const proofStatement: UCompressedProofStatement = new UCompressedProofStatement(uProof,
+					this.leftMarginForCompressedProof,this.rightMarginForCompressedProof);
 				uProof.insertProofStatement(proofStatement);
 			}
 		}

@@ -32,7 +32,8 @@ export class MmtSaver {
 	private documentContentInTheEditor: string;
 	private mmParser: MmParser;
 	// constructor(textDocumentUri: string, mmParser: MmParser) {
-	constructor(textDocumentPath: string, documentContentInTheEditor: string, mmParser: MmParser) {
+	constructor(textDocumentPath: string, documentContentInTheEditor: string, mmParser: MmParser,
+		private leftMargin: number, private rightMargin: number) {
 		this.textDocumentPath = textDocumentPath;
 		this.documentContentInTheEditor = documentContentInTheEditor;
 		this.mmParser = mmParser;
@@ -47,7 +48,8 @@ export class MmtSaver {
 		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser, this.mmParser.workingVars);
 		mmpParser.parse();
 		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
-			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation);
+			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, false, undefined,
+			this.leftMargin, this.rightMargin);
 		// const mmpUnifier: MmpUnifier =
 		// 	new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
 		// 		this.mmParser.grammar, this.mmParser.workingVars, ProofMode.compressed);
@@ -137,10 +139,9 @@ export class MmtSaver {
 		if (qedStatement == undefined)
 			throw new Error("The MmtSaver should never be used if the qed statement is not present");
 		const pFormula: string = GrammarManager.buildStringFormula(qedStatement!.parseNode!);
-		const text = `    ${theoremLabel} $p ${pFormula}\n`;
+		const text = `    ${theoremLabel} $p ${pFormula} $=\n`;
 		return text;
 	}
-
 
 	protected createTextToBeStored(uProof: MmpProof): string | undefined {
 		let text = "  ${\n";
@@ -154,7 +155,12 @@ export class MmtSaver {
 		}
 		const textForPStatement: string = this.textForPStatement(uProof);
 		text += textForPStatement;
-		text += "      " + uProof.proofStatement!.toText();
+		// below we remove '$= ' because in .mmt and .mm file it is usually displayed after
+		// (and on the same line of) the $p formula, (while in .mmp files is displayed at
+		// the beginning of the proof statement, on a new line)
+		// text += ' '.repeat(this.leftMargin) + "  " + uProof.proofStatement!.toText().replace('$= ', '');
+		// text += uProof.proofStatement!.toText().replace('$= ', '');
+		text += uProof.proofStatement!.toText();
 		text += "\n  $}\n";
 		return text;
 	}

@@ -142,7 +142,9 @@ connection.onInitialize((params: InitializeParams) => {
 connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 	if (globalState.mmParser != undefined) {
 		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
-		const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser);
+		const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser,
+			Parameters.defaultLeftMarginForMmtFilesCompressedProof,
+			Parameters.defaultRightMarginForCompressedProofs);
 		mmtSaver.saveMmt();
 		console.log('Method saveMmt() has been invoked 2');
 	}

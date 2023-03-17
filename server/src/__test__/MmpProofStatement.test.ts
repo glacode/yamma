@@ -435,21 +435,23 @@ test("Format equvinv compressed proof", () => {
 		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
 		'\n' +
 		'$= ( cv wceq wa wex ax6ev equtrr ancld eximdv mpi ax7 imp exlimiv impbii ) ADZB\n' +
-		'  DZEZCDZQEZTREZFZCGZSUACGUDCAHSUAUCCSUAUBABCIJKLUCSCUAUBSCABMNOP $.\n' +
+		'   DZEZCDZQEZTREZFZCGZSUACGUDCAHSUAUCCSUAUBABCIJKLUCSCUAUBSCABMNOP $.\n' +
 		'\n' +
 		'$d x z\n' +
 		'$d y z\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 
-	const defaultRightMargin: number = Parameters.defaultRightMarginForCompressedProofs;
-	Parameters.defaultRightMarginForCompressedProofs = 30;
+	//TODO1 mar 16 (remove this one, let it be a parameter)
+	// const defaultRightMargin: number = Parameters.defaultRightMarginForCompressedProofs;
+	// Parameters.defaultRightMarginForCompressedProofs = 30;
 
 
 	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 
-	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.compressed, 0);
+	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.compressed, 0, false, undefined,
+		undefined, 31);
 	mmpUnifier2.unify();
 
 	const newTextExpected2 =
@@ -466,17 +468,17 @@ test("Format equvinv compressed proof", () => {
 		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
 		'\n' +
 		'$= ( cv wceq wa wex ax6ev\n' +
-		'  equtrr ancld eximdv mpi ax7\n' +
-		'  imp exlimiv impbii ) ADZBDZ\n' +
-		'  EZCDZQEZTREZFZCGZSUACGUDCAH\n' +
-		'  SUAUCCSUAUBABCIJKLUCSCUAUBS\n' +
-		'  CABMNOP $.\n' +
+		'   equtrr ancld eximdv mpi ax7\n' +
+		'   imp exlimiv impbii ) ADZBDZ\n' +
+		'   EZCDZQEZTREZFZCGZSUACGUDCAH\n' +
+		'   SUAUCCSUAUBABCIJKLUCSCUAUBS\n' +
+		'   CABMNOP $.\n' +
 		'\n' +
 		'$d x z\n' +
 		'$d y z\n';
 	expect(mmpUnifier2.textEditArray[0].newText).toEqual(newTextExpected2);
 
-	Parameters.defaultRightMarginForCompressedProofs = defaultRightMargin;
+	// Parameters.defaultRightMarginForCompressedProofs = defaultRightMargin;
 
 });
 

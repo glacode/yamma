@@ -336,6 +336,14 @@ export class UCompressedProofStatement implements IMmpStatement {
 		return result;
 	}
 
+	// in .mmp file we have to add left padding, from the second row on, to signal
+	// it is a single statement; in .mmt files, instead, all rows in the proof
+	// have the same left alignment
+	computeLeftPaddingForTheSecondRow(): number {
+		const leftPadding: number = this._leftMargin == 0 ? 3 : this._leftMargin;
+		return leftPadding;
+	}
+
 	private addLabels(currentRow: string, text: string[]): string {
 		// let currentRow: string = text[0];
 		this.labelSequence.forEach((_value: number, label: string) => {
@@ -345,7 +353,8 @@ export class UCompressedProofStatement implements IMmpStatement {
 			else {
 				// the current label must be moved to a new row
 				text[0] += currentRow + '\n';
-				currentRow = ' '.repeat(this._leftMargin + 2) + label;
+				const leftPadding: number = this.computeLeftPaddingForTheSecondRow();
+				currentRow = ' '.repeat(leftPadding) + label;
 			}
 		});
 		if (currentRow.length < this._rightMargin - 3) {
@@ -359,7 +368,8 @@ export class UCompressedProofStatement implements IMmpStatement {
 			// currentRow.length > this._rightMargin - 3
 			// the close parenthesis must be moved to a new row
 			text[0] += currentRow + '\n';
-			currentRow = ' '.repeat(this._leftMargin + 2) + ')';
+			const leftPadding: number = this.computeLeftPaddingForTheSecondRow();
+			currentRow = ' '.repeat(leftPadding) + ') ';
 		}
 		return currentRow;
 	}
@@ -371,7 +381,8 @@ export class UCompressedProofStatement implements IMmpStatement {
 			else {
 				// upperCaseLetter mus be moved to a new line
 				text[0] += currentRow + '\n';
-				currentRow = ' '.repeat(this._leftMargin + 2) + upperCaseLetter;
+				const leftPadding: number = this.computeLeftPaddingForTheSecondRow();
+				currentRow = ' '.repeat(leftPadding) + upperCaseLetter;
 			}
 		});
 		text[0] += currentRow;
@@ -383,6 +394,9 @@ export class UCompressedProofStatement implements IMmpStatement {
 		// input/output parameter
 		const text: string[] = [''];  // we want an empty line, before the proof
 		let lastRow: string = ' '.repeat(this._leftMargin) + '$= (';
+		if (this._leftMargin > 0)
+			// we should be in a .mmt file and the $= is on the $p formula line
+			lastRow = ' '.repeat(this._leftMargin) + '(';
 		lastRow = this.addLabels(lastRow, text);
 		lastRow = this.addUpperCaseLetterSequenceAnd(lastRow, text);
 		if (lastRow.length > this._rightMargin - 3)

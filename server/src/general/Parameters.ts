@@ -8,6 +8,7 @@ export abstract class Parameters {
 	static defaultLeftMarginForCompressedProofs = 0;
 	static defaultRightMarginForCompressedProofs = 80
 	static defaultRightMarginForNormalProofs = 80
+	static defaultLeftMarginForMmtFilesCompressedProof = 6;
 	/** the minimum number of characters, for a partial label, that triggers
 	 * the 'last resort' step suggestion
 	 */
