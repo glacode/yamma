@@ -29,7 +29,8 @@ export enum MmParserErrorCode {
     assertionProvenDoesntMatch = "assertionProvenDoesntMatch",
     eHypDoesntMatchTheStackEntry = "eHypDoesntMatchTheStackEntry",
     missingDjVarsStatement = "missingDjVarsStatement",
-    missingCloseParenthesisInPStatement = "missingCloseParenthesisInPStatement"
+    missingCloseParenthesisInPStatement = "missingCloseParenthesisInPStatement",
+    notALabelOfAssertionOrOptionalHyp = "notALabelOfAssertionOrOptionalHyp"
 }
 
 export enum MmParserEvents {
@@ -125,6 +126,16 @@ export class MmParser extends EventEmitter {
         };
         this.diagnostics.push(diagnostic);
         this.parseFailed = true;
+    }
+
+    public static addDiagnosticError(message: string, range: Range, code: MmParserErrorCode,
+        diagnostics: Diagnostic[]) {
+            const diagnostic: Diagnostic = {
+                message: message,
+                range: range,
+                code: code
+            };
+            diagnostics.push(diagnostic);
     }
 
     //#region buildLabelToStatementMap

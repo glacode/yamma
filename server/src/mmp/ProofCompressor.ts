@@ -5,6 +5,9 @@ import { LabeledStatement } from "../mm/LabeledStatement";
 import { BlockStatement } from "../mm/BlockStatement";
 import { Frame } from "../mm/Frame";
 import { Verifier } from '../mm/Verifier';
+import { Diagnostic } from 'vscode-languageserver';
+import { MmParser, MmParserErrorCode } from '../mm/MmParser';
+import { MmToken } from '../grammar/MmLexer';
 
 export class ProofCompressor {
     //#region DecompressProof
@@ -21,7 +24,7 @@ export class ProofCompressor {
 
     failed: boolean;
 
-    constructor() {
+    constructor(private diagnostics: Diagnostic[]) {
         this.failed = false;
     }
 
@@ -62,6 +65,13 @@ export class ProofCompressor {
     //#endregion getDecompressedInts
 
     //#region getDecompressedProof
+    private addDiagnosticForNotALabelForAssertion(provableStatement: ProvableStatement, labelIndex: number) {
+        const labelToken: MmToken = provableStatement.compressedProofLabelsTokens[labelIndex];
+        const message = `'${labelToken.value}' is not the label of an assertion or optional hypothesis`;
+        MmParser.addDiagnosticError(message, labelToken.range,
+            MmParserErrorCode.notALabelOfAssertionOrOptionalHyp, this.diagnostics);
+        this.failed = true;
+    }
     // adds the labels of the mandatory hyps ad the beginning of the proof labels
     getDecompressedProof(provableStatement: ProvableStatement,
         decompressed_ints: number[], labelToStatementMap: Map<string, LabeledStatement>): Statement[] {
@@ -74,8 +84,11 @@ export class ProofCompressor {
         //     (previousValue, currentValue) => previousValue += (currentValue === 0 ? 1 : 0) )
         const zCount = decompressed_ints.filter(i => i === 0).length;
         const decompressedProof: Statement[] = [];
-        let statement: Statement;
-        decompressed_ints.forEach(j => {
+        let statement: Statement | undefined;
+        let h = 0;
+        while (!this.failed && h < decompressed_ints.length) {
+            // decompressed_ints.forEach(j => {
+            const j = decompressed_ints[h];
             let i = j;
             if (i === 0) {
                 statement = new ZIStatement();
@@ -92,8 +105,10 @@ export class ProofCompressor {
                             //  statement = (<BlockStatement>provableStatement.ParentBlock).LookUpStatement()
                             const currentLabel = proofLabels[i];
                             // statement = <Statement>labelToStatementMap.get(currentLabel);
-                            statement = <Statement>Verifier.getProofStatement(currentLabel,
-                                labelToStatementMap,<BlockStatement>provableStatement.ParentBlock);
+                            statement = Verifier.getProofStatement(currentLabel,
+                                labelToStatementMap, <BlockStatement>provableStatement.ParentBlock);
+                            if (statement == undefined)
+                                this.addDiagnosticForNotALabelForAssertion(provableStatement, i);
                         } else {
                             i -= labelCount;
                             if (i < zCount) {
@@ -110,8 +125,10 @@ export class ProofCompressor {
 
                 }
             }
-            decompressedProof.push(statement);
-        });
+            if (statement instanceof Statement)
+                decompressedProof.push(statement);
+            h++;
+        }
         return decompressedProof;
     }
     //#endregion getDecompressedProof
@@ -121,7 +138,7 @@ export class ProofCompressor {
     */
     DecompressProof(provableStatement: ProvableStatement,
         labelToStatementMap: Map<string, LabeledStatement>): Statement[] {
-            this.failed = false;
+        this.failed = false;
         const decompressed_ints: number[] =
             this.getDecompressedInts(provableStatement);
         const decompressedProof: Statement[] =

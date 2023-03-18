@@ -16,11 +16,43 @@ import { AssertionStatement } from './AssertionStatement';
 export class ProvableStatement extends AssertionStatement {
 
     private _compressedProofString: string | undefined;
+    private _proofTokens: MmToken[] | undefined;
+    private _compressedProofLabelsTokens: MmToken[] | undefined;
 
     constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
         super(label, content, parentBlock, comment);
     }
 
+    get proofTokens(): MmToken[] {
+        if (this._proofTokens == undefined) {
+            this._proofTokens = [];
+            let hasProofBegun = false;
+            this.Content.forEach(token => {
+                if (hasProofBegun)
+                    this._proofTokens!.push(token);
+                if (token.value == '$=')
+                    hasProofBegun = true;
+            });
+        }
+        return this._proofTokens;
+    }
+
+    get compressedProofLabelsTokens(): MmToken[] {
+        if (this.proofTokens[0].value != "(") {
+            this._compressedProofLabelsTokens = [];
+            throw new Error("This method should be called for compressed proofs only!");
+        } else if (this._compressedProofLabelsTokens == undefined) {
+            this._compressedProofLabelsTokens = [];
+            let i = 1;
+            while (this.proofTokens[i].value != ')' && i < this.proofTokens.length) {
+                this._compressedProofLabelsTokens!.push(this.proofTokens[i]);
+                i++;
+            }
+        }
+        return this._compressedProofLabelsTokens;
+    }
+
+    //TODO1 use a private var and then proofTokens
     get Proof(): string[] {
         const proof: string[] = [];
         let hasProofBegun = false;
@@ -30,9 +62,6 @@ export class ProvableStatement extends AssertionStatement {
             if (token.value == '$=')
                 hasProofBegun = true;
         });
-        // const indexOfLastTokenBeforeProof = this.Content.indexOf('$=');
-        // const proofTokens = this.Content.slice(indexOfLastTokenBeforeProof + 1);
-        // const proof = MmToken.joinValues(proofTokens)
         return proof;
     }
 

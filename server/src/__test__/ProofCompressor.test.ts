@@ -145,7 +145,7 @@ test("mocking to test mp2 in set.mm", () => {
     const provableStatement: ProvableStatement = testStatements.mp2;
     const labelToStatementMap = testMp2LabelToStatementMap(testStatements);
     const expectedDecompressedProof = testMp2ExpectedDecompressedProof(testStatements);
-    const proofCompressor: ProofCompressor = new ProofCompressor();
+    const proofCompressor: ProofCompressor = new ProofCompressor([]);
     const decompressedProof: Statement[] =
     proofCompressor.getDecompressedProof(provableStatement,
             [2, 3, 5, 1, 2, 3, 7, 4, 6, 8, 8], labelToStatementMap);

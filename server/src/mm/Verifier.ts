@@ -311,13 +311,14 @@ export class Verifier {
     }
 
     static GetProofStatements(proofStrings: string[], labelToStatementMap: Map<string, LabeledStatement>,
-        currentBlock: BlockStatement): Statement[] {
+        currentBlock: BlockStatement, _verifier: Verifier): Statement[] {
         const proofStatements: Statement[] = [];
         proofStrings.forEach(label => {
-            // const labeledStatement: LabeledStatement | undefined = labelToStatementMap.get(label);
             const labeledStatement: LabeledStatement | undefined = this.getProofStatement(
                 label, labelToStatementMap, currentBlock);
             if (labeledStatement === undefined) {
+                //TODO1 mar 18
+                // verifier.addDiagnosticError(`${label} is not the label of an assertion or optional hypothesis`,);
                 throw new Error("no previous statement has label " + label);
             } else {
                 proofStatements.push(<LabeledStatement>labeledStatement);
@@ -344,7 +345,7 @@ export class Verifier {
         }
     }
     decompressExistingProofString(provableStatement: ProvableStatement, labelToStatementMap: Map<string, LabeledStatement>): Statement[] | undefined {
-        const proofCompressor: ProofCompressor = new ProofCompressor();
+        const proofCompressor: ProofCompressor = new ProofCompressor(this.diagnostics);
         const proof: Statement[] | undefined = proofCompressor.DecompressProof(provableStatement, labelToStatementMap);
         if (proofCompressor.failed) {
             const message = `The proof of ${provableStatement.Label} , cannot be uncompressed`;
@@ -380,7 +381,7 @@ export class Verifier {
         else
             // the proof is not compressed
             proof = Verifier.GetProofStatements(proofStrings, labelToStatementMap,
-                <BlockStatement>provableStatement.ParentBlock);
+                <BlockStatement>provableStatement.ParentBlock, this);
         if (!this.verificationFailed)
             // either the proof was not compressed or the decompression was successful
             this.verifyDecompressedProof(provableStatement, proof!);

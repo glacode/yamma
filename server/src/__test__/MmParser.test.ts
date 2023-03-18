@@ -227,3 +227,25 @@ test("expect missing close parenthesis in $p statement", () => {
     expect(diagnostic.range.end.line).toBe(7);
     expect(diagnostic.range.end.character).toBe(23);
 });
+
+test("expect not a label of an assertion or optional hypothesis", () => {
+    const theory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $.\n' +
+        '$v ps $. $v ch $. wph $f wff ph $. wps $f wff ps $. wch $f wff ch $.\n' +
+        '$( If ` ph ` and ` ps ` are wff\'s, so is ` ( ph -> ps ) ` $)\n' +
+        'wi $a wff ( ph -> ps ) $.\n' +
+        '${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}\n' +
+        '${ mp2.1 $e |- ph $. mp2.2 $e |- ps $. mp2.3 $e |- ( ph -> ( ps -> ch ) ) $.\n' +
+        'mp2 $p |- ch $=\n' +
+        '( wixxx ax-mp ) BCEABCGDFHH $.\n' +
+        '$}\n';
+    const parser: MmParser = new MmParser();
+    parser.ParseText(theory);
+    expect(parser.diagnostics.length).toBeGreaterThanOrEqual(1);
+    const diagnostic: Diagnostic = parser.diagnostics[0];
+    expect(diagnostic.code).toBe(MmParserErrorCode.notALabelOfAssertionOrOptionalHyp);
+    expect(diagnostic.message).toBe("'wixxx' is not the label of an assertion or optional hypothesis");
+    expect(diagnostic.range.start.line).toBe(7);
+    expect(diagnostic.range.start.character).toBe(2);
+    expect(diagnostic.range.end.line).toBe(7);
+    expect(diagnostic.range.end.character).toBe(7);
+});

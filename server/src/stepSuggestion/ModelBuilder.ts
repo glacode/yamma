@@ -213,7 +213,7 @@ export class ModelBuilder {
 
 
 	private addSingleProofToModel(provableStatement: ProvableStatement) {
-		const proofCompressor: ProofCompressor = new ProofCompressor();
+		const proofCompressor: ProofCompressor = new ProofCompressor([]);
 		const proof: Statement[] = proofCompressor.DecompressProof(provableStatement, this._mmParser!.labelToStatementMap);
 		this.addDecompressedProofToModel(proof);
 	}

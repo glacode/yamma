@@ -97,7 +97,7 @@ class TestUCompressedProofStatement extends UCompressedProofStatement {
 			proofStepFirstTokenInfo, true, true, refToken, []);
 		jest.spyOn(MmpProofStep.prototype, 'proofArray').mockImplementation(() => []);
 		dummyUProof.lastMmpProofStep = dummyMmpProofStep;
-		super(dummyUProof);
+		super(dummyUProof,0,80);
 	}
 
 	public upperCaseLettersFromNumber(givenNumber: number) {
