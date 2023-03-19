@@ -25,6 +25,7 @@ import { editor } from './test/helper';
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext) {
+	workspace.getConfiguration().update('editor.wordSeparators', "`~!@#$%^*()-=+[{]}\\|;:'\",.<>/?", true);
 	// The server is implemented in node
 	const serverModule = context.asAbsolutePath(
 		path.join('server', 'out', 'server.js')
