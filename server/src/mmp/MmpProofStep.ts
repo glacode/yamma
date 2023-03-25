@@ -97,10 +97,11 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 			this._hasWorkingVars = true;
 		else {
 			let i = 0;
-			while (!this._hasWorkingVars && i++ < parseNode.parseNodes.length) {
+			while (!this._hasWorkingVars && i < parseNode.parseNodes.length) {
 				const childNode: ParseNode = parseNode.parseNodes[i];
 				if (childNode instanceof InternalNode)
 					this.setHasWorkingVarsRecursive(childNode);
+				i++;
 			}
 		}
 	}
