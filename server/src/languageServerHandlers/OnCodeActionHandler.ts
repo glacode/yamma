@@ -94,15 +94,13 @@ export class CodeActionForDiagnostic {
 	//#region codeActionForAddAllMissingDjVarsConstraint
 	editTextForAddAllMissingDjVarsConstraints(carriageReturnIfNeeded: string): string {
 		let editText: string = carriageReturnIfNeeded;
-
 		this.params.context.diagnostics.forEach((diagnostic: Diagnostic) => {
-			const dataFieldForMissingDjVarConstraintsDiagnostic: DataFieldForMissingDjVarConstraintsDiagnostic =
-				<DataFieldForMissingDjVarConstraintsDiagnostic>diagnostic.data;
-			// const missingDjVarConstraints = dataFieldForMissingDjVarConstraintsDiagnostic.missingDjVarConstraints;
-			// const var1 = missingDjVarConstraints.var1;
-			// const var2 = missingDjVarConstraints.var2;
-			editText += DisjVarUStatement.textForTwoVars(dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar1,
-				dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar2) + "\n";
+			if (diagnostic.code == MmpParserWarningCode.missingDjVarsStatement) {
+				const dataFieldForMissingDjVarConstraintsDiagnostic: DataFieldForMissingDjVarConstraintsDiagnostic =
+					<DataFieldForMissingDjVarConstraintsDiagnostic>diagnostic.data;
+				editText += DisjVarUStatement.textForTwoVars(dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar1,
+					dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar2) + "\n";
+			}
 		});
 		return editText;
 	}
