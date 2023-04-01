@@ -7,7 +7,6 @@ import { UCompressedProofStatement } from '../mmp/UCompressedProofStatement';
 import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
-import { Parameters } from '../general/Parameters';
 import { kindToPrefixMap, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
@@ -97,7 +96,7 @@ class TestUCompressedProofStatement extends UCompressedProofStatement {
 			proofStepFirstTokenInfo, true, true, refToken, []);
 		jest.spyOn(MmpProofStep.prototype, 'proofArray').mockImplementation(() => []);
 		dummyUProof.lastMmpProofStep = dummyMmpProofStep;
-		super(dummyUProof,0,80);
+		super(dummyUProof, 0, 80);
 	}
 
 	public upperCaseLettersFromNumber(givenNumber: number) {
@@ -451,7 +450,7 @@ test("Format equvinv compressed proof", () => {
 	mmpParser2.parse();
 
 	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.compressed, 0, false, undefined,
-		undefined, 31);
+		undefined, 30);
 	mmpUnifier2.unify();
 
 	const newTextExpected2 =
@@ -516,7 +515,7 @@ test("Format equvinv uncompressed proof", () => {
 		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
 		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
 		'\n' +
-		//cut at 89
+		//character per line = 79
 		'$=    vx cv vy cv wceq vz cv vx cv wceq vz cv vy cv wceq wa vz wex vx cv vy cv\n' +
 		'      wceq vz cv vx cv wceq vz wex vz cv vx cv wceq vz cv vy cv wceq wa vz wex\n' +
 		'      vz vx ax6ev vx cv vy cv wceq vz cv vx cv wceq vz cv vx cv wceq vz cv vy\n' +
@@ -530,14 +529,14 @@ test("Format equvinv uncompressed proof", () => {
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 
-	const defaultRightMargin: number = Parameters.defaultRightMarginForNormalProofs;
-	Parameters.defaultRightMarginForNormalProofs = 30;
+	// const defaultRightMargin: number = Parameters.defaultRightMarginForNormalProofs;
+	// Parameters.defaultRightMarginForNormalProofs = 30;
 
 
 	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 
-	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.normal, 0);
+	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.normal, 0, undefined, undefined, undefined, 29);
 	mmpUnifier2.unify();
 
 	const newTextExpected2 =
@@ -579,7 +578,7 @@ test("Format equvinv uncompressed proof", () => {
 		'$d y z\n';
 	expect(mmpUnifier2.textEditArray[0].newText).toEqual(newTextExpected2);
 
-	Parameters.defaultRightMarginForNormalProofs = defaultRightMargin;
+	// Parameters.defaultRightMarginForNormalProofs = defaultRightMargin;
 
 });
 

@@ -6,8 +6,8 @@ export abstract class Parameters {
 	/** the leftmost position of a formula in a mmp proof displayed in indented mode */
 	static startCharForIndentedMmpFormula = 20;
 	static defaultLeftMarginForCompressedProofs = 0;
-	static defaultRightMarginForCompressedProofs = 80
-	static defaultRightMarginForNormalProofs = 80
+	static charactersPerLine = 79
+	// static defaultRightMarginForNormalProofs = 80
 	static defaultLeftMarginForMmtFilesCompressedProof = 6;
 	/** the minimum number of characters, for a partial label, that triggers
 	 * the 'last resort' step suggestion

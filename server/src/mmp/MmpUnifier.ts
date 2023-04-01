@@ -9,6 +9,7 @@ import { UProofStatementStep } from './MmpStatement';
 import { UProofStatement } from "./UProofStatement";
 import { ProofMode } from '../mm/ConfigurationManager';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
+import { Parameters } from '../general/Parameters';
 
 // export interface UnifyResult {
 // 	diagnostics: Diagnostic[]
@@ -43,6 +44,8 @@ export class MmpUnifier {
 	/** true iff the last unify() threw an exceptio*/
 	thrownError: boolean;
 
+	private _charactersPerLine: number;
+
 
 	//#region constructor
 	constructor(mmpParser: MmpParser, proofMode: ProofMode,
@@ -58,6 +61,7 @@ export class MmpUnifier {
 		this.workingVars = mmpParser.workingVars;
 		this.proofMode = proofMode;
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
+		this._charactersPerLine = rightMarginForCompressedProof == undefined ? Parameters.charactersPerLine : rightMarginForCompressedProof;
 
 		//TODO use the range of the last actual statement (now I can't, because not all statements implement
 		//the range property (see interface IMmpStatementWithRange and interface interface IUStatement)
@@ -98,12 +102,12 @@ export class MmpUnifier {
 		if (uProof.lastMmpProofStep?.stepRef == 'qed' && uProof.lastMmpProofStep.isProven) {
 			if (this.proofMode == ProofMode.normal) {
 				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastMmpProofStep.proofArray(this.outermostBlock);
-				const proofStatement: UProofStatement = new UProofStatement(proofArray);
+				const proofStatement: UProofStatement = new UProofStatement(proofArray, this._charactersPerLine);
 				uProof.insertProofStatement(proofStatement);
 			} else {
 				// this.proofMode == ProofMode.compressed
 				const proofStatement: UCompressedProofStatement = new UCompressedProofStatement(uProof,
-					this.leftMarginForCompressedProof,this.rightMarginForCompressedProof);
+					this.leftMarginForCompressedProof, this.rightMarginForCompressedProof);
 				uProof.insertProofStatement(proofStatement);
 			}
 		}

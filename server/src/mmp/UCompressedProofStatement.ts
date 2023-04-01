@@ -10,7 +10,7 @@ export class UCompressedProofStatement implements IMmpStatement {
 	uProof: MmpProof;
 
 	private _leftMargin: number;
-	private _rightMargin: number;
+	private _charactersPerLine: number;
 
 	/**
 	 * step labels
@@ -51,18 +51,18 @@ export class UCompressedProofStatement implements IMmpStatement {
 	 * a statement that represents a compressed proof
 	 * @param uProof 
 	 * @param leftMargin the number of spaces to the left of the proof
-	 * @param rightMargin the max text column for the proof
+	 * @param charactersPerLine the max text column for the proof
 	 */
-	constructor(uProof: MmpProof, leftMargin?: number, rightMargin?: number) {
+	constructor(uProof: MmpProof, leftMargin?: number, charactersPerLine?: number) {
 		this.uProof = uProof;
 		if (leftMargin != undefined)
 			this._leftMargin = leftMargin;
 		else
 			this._leftMargin = Parameters.defaultLeftMarginForCompressedProofs;
-		if (rightMargin != undefined)
-			this._rightMargin = rightMargin;
+		if (charactersPerLine != undefined)
+			this._charactersPerLine = charactersPerLine;
 		else
-			this._rightMargin = Parameters.defaultRightMarginForCompressedProofs;
+			this._charactersPerLine = Parameters.charactersPerLine;
 
 		this.labelSequence = new Map<string, number>();
 		this.upperCaseLetterSequence = [];
@@ -347,7 +347,7 @@ export class UCompressedProofStatement implements IMmpStatement {
 	private addLabels(currentRow: string, text: string[]): string {
 		// let currentRow: string = text[0];
 		this.labelSequence.forEach((_value: number, label: string) => {
-			if (currentRow.length + label.length + 1 <= this._rightMargin)
+			if (currentRow.length + label.length + 1 <= this._charactersPerLine)
 				// the current label can be added to the current row
 				currentRow += ' ' + label;
 			else {
@@ -357,11 +357,11 @@ export class UCompressedProofStatement implements IMmpStatement {
 				currentRow = ' '.repeat(leftPadding) + label;
 			}
 		});
-		if (currentRow.length < this._rightMargin - 3) {
+		if (currentRow.length < this._charactersPerLine - 3) {
 			// the close parenthesis can be added to the current row
 			currentRow += ' ) ';
 			// text[0]+= currentRow;
-		} else if (currentRow.length == this._rightMargin - 3)
+		} else if (currentRow.length == this._charactersPerLine - 3)
 			// the close parenthesis is exactly at the end of the line
 			currentRow += ' )\n';
 		else {
@@ -376,7 +376,7 @@ export class UCompressedProofStatement implements IMmpStatement {
 
 	addUpperCaseLetterSequenceAnd(currentRow: string, text: string[]): string {
 		this.upperCaseLetterSequence.forEach((upperCaseLetter: string) => {
-			if (currentRow.length < this._rightMargin - 1)
+			if (currentRow.length < this._charactersPerLine)
 				currentRow += upperCaseLetter;
 			else {
 				// upperCaseLetter mus be moved to a new line
@@ -399,7 +399,7 @@ export class UCompressedProofStatement implements IMmpStatement {
 			lastRow = ' '.repeat(this._leftMargin) + '(';
 		lastRow = this.addLabels(lastRow, text);
 		lastRow = this.addUpperCaseLetterSequenceAnd(lastRow, text);
-		if (lastRow.length > this._rightMargin - 3)
+		if (lastRow.length > this._charactersPerLine - 3)
 			text[0] += '\n$.';
 		else
 			text[0] += ' $.';

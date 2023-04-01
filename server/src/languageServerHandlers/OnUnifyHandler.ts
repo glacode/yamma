@@ -90,8 +90,10 @@ export class OnUnifyHandler {
 		documents: TextDocuments<TextDocument>, hasConfigurationCapability: boolean,
 		hasDiagnosticRelatedInformationCapability: boolean, globalState: GlobalState) {
 		const textDocument: TextDocument = documents.get(textDocumentUri)!;
-		await OnDidChangeContentHandler.validateTextDocument(textDocument,
-			connection, hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalState);
+		if (textDocument != undefined)
+			// this happens if unification is (mistakenly) required from a .mmt file
+			await OnDidChangeContentHandler.validateTextDocument(textDocument,
+				connection, hasConfigurationCapability, hasDiagnosticRelatedInformationCapability, globalState);
 	}
 	private static async applyTextEditsAndValidate(textEdits: TextEdit[], textDocumentUri: string,
 		connection: Connection, documents: TextDocuments<TextDocument>,
