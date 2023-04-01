@@ -9,6 +9,8 @@ import { IMmpStatement } from '../mmp/MmpStatement';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpParser } from '../mmp/MmpParser';
 import { Parameters } from '../general/Parameters';
+import { splitToTokensDefault } from '../mm/Utils';
+import { MmToken } from '../grammar/MmLexer';
 
 
 //TODO I had to pass both uri and fsPath, because I've not been able to find a parser that switches
@@ -33,7 +35,7 @@ export class MmtSaver {
 	private mmParser: MmParser;
 	// constructor(textDocumentUri: string, mmParser: MmParser) {
 	constructor(textDocumentPath: string, documentContentInTheEditor: string, mmParser: MmParser,
-		private leftMargin: number, private rightMargin: number) {
+		private leftMargin: number, private charactersPerLine: number) {
 		this.textDocumentPath = textDocumentPath;
 		this.documentContentInTheEditor = documentContentInTheEditor;
 		this.mmParser = mmParser;
@@ -49,7 +51,7 @@ export class MmtSaver {
 		mmpParser.parse();
 		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
 			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, false, undefined,
-			this.leftMargin, this.rightMargin);
+			this.leftMargin, this.charactersPerLine);
 		// const mmpUnifier: MmpUnifier =
 		// 	new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
 		// 		this.mmParser.grammar, this.mmParser.workingVars, ProofMode.compressed);
@@ -94,18 +96,30 @@ export class MmtSaver {
 	/** returns the text for the $d statements in the .mmt file; the statements are produced in lexicographic order */
 	private textForDjConstraints(uProof: MmpProof): string {
 		let text = '';
-		const orderedSisjVarUStatements: DisjVarUStatement[] = this.orderDisjVarUStatements(uProof.disjVarUStatements);
-		if (orderedSisjVarUStatements.length > 0)
-			text += "    ";
-		orderedSisjVarUStatements.forEach((disjVarUStatement: DisjVarUStatement) => {
-			// text += `$d ${disjVarUStatement.var1} ${disjVarUStatement.var2} $. `;
-			text += disjVarUStatement.toText();
-			text += ' $. ';
-		});
-		if (text != '') {
-			// there is at least a disj var constraint
-			text = text.slice(0, -1); // removes the last space
-			text += "\n";
+		if (uProof.disjVarUStatements.length > 0) {
+			const orderedSisjVarUStatements: DisjVarUStatement[] = this.orderDisjVarUStatements(uProof.disjVarUStatements);
+			// if (orderedSisjVarUStatements.length > 0)
+			// 	text += "    ";
+			let textForNewLine = "   ";  // one space less, because one space is added before the first constraint
+			orderedSisjVarUStatements.forEach((disjVarUStatement: DisjVarUStatement) => {
+				const textForNextDisjVarStatement: string = disjVarUStatement.toText() + ' $.';
+				if (textForNewLine.length + 1 + textForNextDisjVarStatement.length <= this.charactersPerLine)
+					// in the current line of text, there is room for the current disjVarUStatement 
+					textForNewLine += ' ' + textForNextDisjVarStatement;
+				else {
+					// the current disjVarUStatement must go on a new line
+					text += textForNewLine + '\n';
+					textForNewLine = "    " + textForNextDisjVarStatement;
+				}
+				// text += disjVarUStatement.toText();
+				// text += ' $. ';
+			});
+			// if (text != '') {
+			// 	// there is at least a disj var constraint
+			// 	text = text.slice(0, -1); // removes the last space
+			// 	text += "\n";
+			// }
+			text += textForNewLine + '\n';
 		}
 		return text;
 	}
@@ -143,16 +157,55 @@ export class MmtSaver {
 		return text;
 	}
 
+	//#region reformat
+	private fromTokensToFormattedString(tokens: MmToken[], leftMarginForFirstLine: number,
+		leftMarginForOtherLines: number): string {
+		let formattedString = '';
+		if (tokens.length > 0) {
+			let currentLine: string = ' '.repeat(leftMarginForFirstLine - 1);
+			tokens.forEach((mmToken: MmToken) => {
+				const tokenValue: string = mmToken.value;
+				if (currentLine.length + 1 + tokenValue.length <= this.charactersPerLine)
+					// current token value can be added to the current line
+					currentLine += ' ' + tokenValue;
+				else {
+					// current token must be moved to a new line
+					formattedString += currentLine + '\n';
+					currentLine = ' '.repeat(leftMarginForOtherLines) + tokenValue;
+				}
+			});
+			formattedString += currentLine + '\n';
+		}
+		return formattedString;
+	}
+	/** reformats the given text, using single spacing */
+	protected reformat(text: string, leftMarginForFirstLine: number,
+		leftMarginForOtherLines: number): string {
+		const tokens: MmToken[] = splitToTokensDefault(text);
+		const formattedString: string = this.fromTokensToFormattedString(tokens, leftMarginForFirstLine,
+			leftMarginForOtherLines);
+		return formattedString;
+	}
+	//#endregion reformat
+
+	textForComment(uProof: MmpProof): string {
+		let text = '';
+		if (uProof.mainComment != undefined) {
+			const commentContent: string = uProof.mainComment.toText().substring(1).trimStart();
+			const commentForMmt = `$( ${commentContent} $)`;
+			text = this.reformat(commentForMmt, 4, 7);
+		}
+		return text;
+	}
+
 	protected createTextToBeStored(uProof: MmpProof): string | undefined {
 		let text = "  ${\n";
 		const textForDjConstraints: string = this.textForDjConstraints(uProof);
 		text += textForDjConstraints;
 		const textForEStatements: string = this.textForEStatements(uProof);
 		text += textForEStatements;
-		if (uProof.mainComment != undefined) {
-			const commentForMmt: string = uProof.mainComment.toText().substring(1).trimStart();
-			text += `    $( ${commentForMmt} $)\n`;
-		}
+		const textForComment: string = this.textForComment(uProof);
+		text += textForComment;
 		const textForPStatement: string = this.textForPStatement(uProof);
 		text += textForPStatement;
 		// below we remove '$= ' because in .mmt and .mm file it is usually displayed after

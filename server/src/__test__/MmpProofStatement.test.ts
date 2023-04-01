@@ -441,11 +441,6 @@ test("Format equvinv compressed proof", () => {
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 
-	//TODO1 mar 16 (remove this one, let it be a parameter)
-	// const defaultRightMargin: number = Parameters.defaultRightMarginForCompressedProofs;
-	// Parameters.defaultRightMarginForCompressedProofs = 30;
-
-
 	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 
