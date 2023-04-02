@@ -137,7 +137,9 @@ export class MmtSaver {
 		uProof.mmpStatements.forEach((ustatement: IMmpStatement) => {
 			if (ustatement instanceof MmpProofStep && ustatement.isEHyp) {
 				const textForCurrentEHyp: string = this.textForCurrentEHyp(ustatement);
-				text += `    ${textForCurrentEHyp}\n`;
+				const formattedTextForCurrentEHyp = this.reformat(textForCurrentEHyp, 4, 7);
+				// text += `    ${textForCurrentEHyp}\n`;
+				text += formattedTextForCurrentEHyp;
 			}
 		});
 		return text;

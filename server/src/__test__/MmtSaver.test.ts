@@ -67,7 +67,6 @@ test("Expect mmp2 created .mmt text ", () => {
 
 });
 
-//TODO1 apr 2
 test("Expect proof right parenthesis to be on a new line, followed by a space", () => {
 	const mmpSource =
 		"$theorem test\n" +
@@ -97,6 +96,7 @@ test("Expect proof right parenthesis to be on a new line, followed by a space", 
 
 });
 
+//TODO1 apr 2
 test("reformat comment", () => {
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mp2MmParser, 0, 20);
 	const text = '$( This is just a test comment $)';
@@ -106,4 +106,33 @@ test("reformat comment", () => {
 		"       a test\n" +
 		"       comment $)\n";
 	expect(textProduced).toEqual(textExpected);
+});
+
+test("reformat EHyps ", () => {
+	const mmpSource =
+		"$theorem test\n" +
+		"* This is just a test comment\n" +
+		"h50::mp2.1 |- ph\n" +
+		"h51::mp2.2 |- ps\n" +
+		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
+		"53:50,52:ax-mp |- ( ps -> ch )\n" +
+		"qed:51,53:ax-mp |- ch";
+	const mmParser: MmParser = new MmParser();
+	mmParser.ParseText(mp2Theory);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 37);
+	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
+
+	const textExpected =
+		"  ${\n" +
+		"    mp2.1 $e |- ph $.\n" +
+		"    mp2.2 $e |- ps $.\n" +
+		"    mp2.3 $e |- ( ph -> ( ps -> ch )\n" +
+		"       ) $.\n" +
+		"    $( This is just a test comment $)\n" +
+		"    test $p |- ch $=\n" +
+		"      ( wi ax-mp ) BCEABCGDFHH $.\n" +
+		"  $}\n";
+
+	expect(textProduced).toEqual(textExpected);
+
 });
