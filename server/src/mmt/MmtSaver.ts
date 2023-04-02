@@ -153,8 +153,10 @@ export class MmtSaver {
 		if (qedStatement == undefined)
 			throw new Error("The MmtSaver should never be used if the qed statement is not present");
 		const pFormula: string = GrammarManager.buildStringFormula(qedStatement!.parseNode!);
-		const text = `    ${theoremLabel} $p ${pFormula} $=\n`;
-		return text;
+		// const text = `    ${theoremLabel} $p ${pFormula} $=\n`;
+		const text = `${theoremLabel} $p ${pFormula} $=\n`;
+		const formattedText = this.reformat(text, 4, 7);
+		return formattedText;
 	}
 
 	//#region reformat

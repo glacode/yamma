@@ -67,7 +67,7 @@ test("Expect mmp2 created .mmt text ", () => {
 
 });
 
-//TODO1 apr 1
+//TODO1 apr 2
 test("Expect proof right parenthesis to be on a new line, followed by a space", () => {
 	const mmpSource =
 		"$theorem test\n" +
@@ -86,7 +86,9 @@ test("Expect proof right parenthesis to be on a new line, followed by a space", 
 		"    $( This is just\n" +
 		"       a test\n" +
 		"       comment $)\n" +
-		"    test $p |- ( x e. A -> A. y x e. A ) $=\n" +
+		"    test $p |- ( x\n" +
+		"       e. A -> A. y\n" +
+		"       x e. A ) $=\n" +
 		"      ( cv wcel ax-5\n" +
 		"      ) ADCEBF $.\n" +
 		"  $}\n";
