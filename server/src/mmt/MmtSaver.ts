@@ -45,21 +45,13 @@ export class MmtSaver {
 
 	//#region tryToCreateTextToBeStored
 	buildUProof(mmpContent: string): MmpProof {
-		// const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser.labelToStatementMap,
-		// 	this.mmParser.outermostBlock, this.mmParser.grammar, this.mmParser.workingVars);
 		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser, this.mmParser.workingVars);
 		mmpParser.parse();
 		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
 			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, false, undefined,
 			this.leftMargin, this.charactersPerLine);
-		// const mmpUnifier: MmpUnifier =
-		// 	new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
-		// 		this.mmParser.grammar, this.mmParser.workingVars, ProofMode.compressed);
-		// if (this.mmParser.grammar != undefined) {
-		// mmpUnifier.unify(mmpContent);
 		mmpUnifier.unify();
 		return mmpUnifier.uProof!;
-		// }
 	}
 
 	//#region createTextToBeStored
@@ -225,15 +217,11 @@ export class MmtSaver {
 	//#endregion tryToCreateTextToBeStored
 
 	saveToFile(text: string) {
-		// const directory: string = path.dirname(this.textDocumentUri);
-		// const fileNameBeforeSuffix = path.basename(this.textDocumentUri);
 		const newFileUri: string = this.textDocumentPath.replace('.mmp', '.mmt');
 
 		FileSystem.writeFileSync(newFileUri, text);
 	}
 	saveMmt() {
-		// const mmpContent: string = FileSystem.readFileSync(this.textDocumentUri, 'utf-8');
-		// const textToBeStored: string | undefined = this.tryToCreateTextToBeStored(mmpContent);
 		const textToBeStored: string | undefined = this.tryToCreateTextToBeStored(this.documentContentInTheEditor);
 		if (textToBeStored != undefined)
 			// the proof was succesfully built
