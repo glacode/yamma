@@ -348,6 +348,27 @@ export function intersection<T>(set: Set<Set<T>>): Set<T> | undefined {
 }
 //#endregion intersection
 
+export function intersection2<T>(a: Set<T>, b: Set<T>): Set<T> {
+    const set: Set<Set<T>> = new Set<Set<T>>().add(a).add(b);
+    const result: Set<T> = intersection(set)!;
+    return result;
+}
+
+export function subset<T>(a: Set<T>, b: Set<T>): boolean {
+    const isSubset: boolean = Array.from(a).every(val => b.has(val));
+    return isSubset;
+}
+
+export function union2<T>(a: Set<T>, b: Set<T>): Set<T> {
+    const union = new Set([...a, ...b]);
+    return union;
+}
+
+export function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
+    const difference = new Set(
+        [...a].filter(x => !b.has(x)));
+    return difference;
+}
 
 export function notifyProgress(current: number, total: number, message?: string) {
     const previousPercentageOfWorkDone: number = Math.trunc(((current - 1) * 100) / total);

@@ -1,5 +1,5 @@
 import { MmToken } from '../grammar/MmLexer';
-import { AreArrayTheSame, splitToTokens, splitToTokensAllowingForEmptyValues, splitWithPosition } from "../mm/Utils";
+import { AreArrayTheSame, intersection2, splitToTokens, splitToTokensAllowingForEmptyValues, splitWithPosition, subset, union2 } from "../mm/Utils";
 
 test("arrays should be equal",
     () => {
@@ -88,10 +88,10 @@ test("splitToTokensAllowingForEmptyValues", () => {
 );
 
 test("Expect map to preserve order", () => {
-    const map: Map<string,number> = new Map<string,number>();
-    map.set("b",2);
-    map.set("c",3);
-    map.set("a",1);
+    const map: Map<string, number> = new Map<string, number>();
+    map.set("b", 2);
+    map.set("c", 3);
+    map.set("a", 1);
     const numbers: number[] = [];
     for (const key of map.keys()) {
         numbers.push(<number>map.get(key));
@@ -99,5 +99,36 @@ test("Expect map to preserve order", () => {
     expect(numbers[0]).toBe(2);
     expect(numbers[1]).toBe(3);
     expect(numbers[2]).toBe(1);
+}
+);
+
+test("subset true - subset false", () => {
+    const a: Set<number> = new Set<number>([1]);
+    const b: Set<number> = new Set<number>([0, 1]);
+    expect(subset(a, b)).toBeTruthy();
+    expect(subset(b, a)).toBeFalsy();
+    expect(subset(new Set<number>(), a)).toBeTruthy();
+    expect(subset(a, new Set<number>())).toBeFalsy();
+}
+);
+
+test("expect intersection2 to return a singleton", () => {
+    const a: Set<number> = new Set<number>([1, 2]);
+    const b: Set<number> = new Set<number>([0, 1]);
+    const intersection: Set<number> = intersection2(a, b);
+    expect(intersection.size).toBe(1);
+    expect(intersection.has(1)).toBeTruthy();
+    expect(intersection.has(2)).toBeFalsy();
+}
+);
+
+test("expect union2 to return all elements", () => {
+    const a: Set<number> = new Set<number>([1, 2]);
+    const b: Set<number> = new Set<number>([0, 1]);
+    const union: Set<number> = union2(a, b);
+    expect(union.size).toBe(3);
+    expect(union.has(0)).toBeTruthy();
+    expect(union.has(1)).toBeTruthy();
+    expect(union.has(2)).toBeTruthy();
 }
 );
