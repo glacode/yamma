@@ -2,7 +2,7 @@ import { CodeActionParams, CodeAction, Diagnostic, TextEdit, CodeActionKind, Ran
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DataFieldForMissingDjVarConstraintsDiagnostic } from '../mm/DisjointVarsManager';
 import { MmpParserWarningCode } from '../mmp/MmpParser';
-import { DisjVarUStatement } from '../mm/Statements';
+import { DisjVarMmpStatement } from "../mm/DisjVarMmpStatement";
 
 
 export class CodeActionForDiagnostic {
@@ -65,7 +65,7 @@ export class CodeActionForDiagnostic {
 		const var2 = dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar2;
 
 		// const statementText = `$. ${var1} ${var2}`;
-		const statementText = DisjVarUStatement.textForTwoVars(var1, var2);
+		const statementText = DisjVarMmpStatement.textForTwoVars(var1, var2);
 
 
 		//TODO add test for this text
@@ -98,7 +98,7 @@ export class CodeActionForDiagnostic {
 			if (diagnostic.code == MmpParserWarningCode.missingDjVarsStatement) {
 				const dataFieldForMissingDjVarConstraintsDiagnostic: DataFieldForMissingDjVarConstraintsDiagnostic =
 					<DataFieldForMissingDjVarConstraintsDiagnostic>diagnostic.data;
-				editText += DisjVarUStatement.textForTwoVars(dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar1,
+				editText += DisjVarMmpStatement.textForTwoVars(dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar1,
 					dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar2) + "\n";
 			}
 		});

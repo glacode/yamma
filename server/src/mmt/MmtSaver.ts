@@ -3,7 +3,7 @@ import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { MmpProof } from '../mmp/MmpProof';
 import * as FileSystem from 'fs';
-import { DisjVarUStatement } from '../mm/Statements';
+import { DisjVarMmpStatement } from "../mm/DisjVarMmpStatement";
 import { GrammarManager } from '../grammar/GrammarManager';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { MmpProofStep } from "../mmp/MmpProofStep";
@@ -69,7 +69,7 @@ export class MmtSaver {
 	//TODO the compare() below assumes that the $d statements have exactly 2 vars. If you will
 	// allow more than 2 vars, you will have to change this implementation (the signature is fine)
 	/** compares two $d statements in lexical order */
-	disjVarCompare(disjVarA: DisjVarUStatement, disjVarB: DisjVarUStatement): number {
+	disjVarCompare(disjVarA: DisjVarMmpStatement, disjVarB: DisjVarMmpStatement): number {
 		let result: number;
 		const disjVarA1: string = disjVarA.disjointVars[0].value;
 		const disjVarA2: string = disjVarA.disjointVars[1].value;
@@ -88,20 +88,18 @@ export class MmtSaver {
 			result = -1;
 		return result;
 	}
-	orderDisjVarUStatements(disjVarUStatements: DisjVarUStatement[]): DisjVarUStatement[] {
-		const orderedDisjVarUStatements: DisjVarUStatement[] = Array.from(disjVarUStatements);
+	orderDisjVarUStatements(disjVarUStatements: DisjVarMmpStatement[]): DisjVarMmpStatement[] {
+		const orderedDisjVarUStatements: DisjVarMmpStatement[] = Array.from(disjVarUStatements);
 		orderedDisjVarUStatements.sort(this.disjVarCompare);
 		return orderedDisjVarUStatements;
 	}
 	/** returns the text for the $d statements in the .mmt file; the statements are produced in lexicographic order */
 	private textForDjConstraints(uProof: MmpProof): string {
 		let text = '';
-		if (uProof.disjVarUStatements.length > 0) {
-			const orderedSisjVarUStatements: DisjVarUStatement[] = this.orderDisjVarUStatements(uProof.disjVarUStatements);
-			// if (orderedSisjVarUStatements.length > 0)
-			// 	text += "    ";
+		if (uProof.disjVarMmpStatements.length > 0) {
+			const orderedSisjVarUStatements: DisjVarMmpStatement[] = this.orderDisjVarUStatements(uProof.disjVarMmpStatements);
 			let textForNewLine = "   ";  // one space less, because one space is added before the first constraint
-			orderedSisjVarUStatements.forEach((disjVarUStatement: DisjVarUStatement) => {
+			orderedSisjVarUStatements.forEach((disjVarUStatement: DisjVarMmpStatement) => {
 				const textForNextDisjVarStatement: string = disjVarUStatement.toText() + ' $.';
 				if (textForNewLine.length + 1 + textForNextDisjVarStatement.length <= this.charactersPerLine)
 					// in the current line of text, there is room for the current disjVarUStatement 
@@ -111,14 +109,7 @@ export class MmtSaver {
 					text += textForNewLine + '\n';
 					textForNewLine = "    " + textForNextDisjVarStatement;
 				}
-				// text += disjVarUStatement.toText();
-				// text += ' $. ';
 			});
-			// if (text != '') {
-			// 	// there is at least a disj var constraint
-			// 	text = text.slice(0, -1); // removes the last space
-			// 	text += "\n";
-			// }
 			text += textForNewLine + '\n';
 		}
 		return text;
