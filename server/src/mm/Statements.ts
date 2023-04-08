@@ -1,6 +1,5 @@
 import { BlockStatement } from "./BlockStatement";
 import { MmToken } from '../grammar/MmLexer';
-import { DisjVarMmpStatement } from './DisjVarMmpStatement';
 
 export abstract class Statement {
     ParentBlock?: BlockStatement;
@@ -35,11 +34,3 @@ export class ZRStatement extends Statement {
         this.referencedZ = referencedZ;
     }
 }
-
-
-// export type DisjVar = {
-//     var1: string,
-//     var2: string
-// }
-
-export type DisjVars = Set<DisjVarMmpStatement>
