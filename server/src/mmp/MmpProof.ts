@@ -4,7 +4,7 @@ import { DisjointVarMap } from '../mm/DisjointVarMap';
 import { MmToken } from '../grammar/MmLexer';
 import { ProofStepFirstTokenInfo } from './MmpStatements';
 import { MmpProofStep } from "./MmpProofStep";
-import { DisjVarMmpStatement } from "../mm/DisjVarMmpStatement";
+import { MmpDisjVarStatement } from "./MmpDisjVarStatement";
 import { UCompressedProofStatement } from './UCompressedProofStatement';
 import { IMmpStatement, MmpComment, TextForProofStatement } from './MmpStatement';
 import { MmpTheoremLabel } from "./MmpTheoremLabel";
@@ -66,7 +66,7 @@ export class MmpProof implements ITheoremSignature {
 	eHyps: MmpProofStep[];
 
 	/** the array of defined disjoint var constraints */
-	disjVarMmpStatements: DisjVarMmpStatement[]
+	disjVarMmpStatements: MmpDisjVarStatement[]
 
 	// needed to implement ITheoremSignature
 	get pStatement(): MmpProofStep | undefined {
@@ -262,7 +262,7 @@ export class MmpProof implements ITheoremSignature {
 		// const orderedVar2 = (var1 < var2 ? var2 : var1);
 		// const disjVar: DisjVarUStatement = new DisjVarUStatement(orderedVar1, orderedVar2);
 		const statementContent: MmToken[] = statement.slice(1);
-		const disjVarUStatement: DisjVarMmpStatement = new DisjVarMmpStatement(statementContent);
+		const disjVarUStatement: MmpDisjVarStatement = new MmpDisjVarStatement(statementContent);
 		this.mmpStatements.push(disjVarUStatement);
 		this.disjVarMmpStatements.push(disjVarUStatement);
 		this.disjVars.add(statementContent[0].value, statementContent[1].value);

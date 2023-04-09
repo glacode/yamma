@@ -2,7 +2,7 @@ import { Range, SemanticTokenModifiers, SemanticTokens, SemanticTokensParams, Se
 import { MmToken } from '../grammar/MmLexer';
 import { IConfigurationManager, IVariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
-import { DisjVarMmpStatement } from "../mm/DisjVarMmpStatement";
+import { MmpDisjVarStatement } from "../mmp/MmpDisjVarStatement";
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { IMmpStatement, MmpComment, TextForProofStatement } from '../mmp/MmpStatement';
@@ -195,7 +195,7 @@ export class OnSemanticTokensHandler {
 			// else if (uStatement instanceof UProofStep)
 			else if (uStatement instanceof MmpProofStep)
 				this.addSemanticTokensForArrayOfSymbols(uStatement.formula, mmParser, variableKindsConfiguration);
-			else if (uStatement instanceof DisjVarMmpStatement)
+			else if (uStatement instanceof MmpDisjVarStatement)
 				this.addSemanticTokensForArrayOfSymbols(uStatement.disjointVars, mmParser, variableKindsConfiguration);
 			else if (uStatement instanceof MmpSearchStatement)
 				this.addSemanticTokensForSearchStatement(uStatement.searchStatementTokens);

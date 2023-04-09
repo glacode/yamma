@@ -1,9 +1,9 @@
 import { difference, intersection2, subset, union2 } from '../mm/Utils';
 
-/** v1 is assumed to be less than v2 */
+/** this is an edge of the undirected graph. v1 is assumed to be less than v2 */
 export interface Edge {
-	v1: number,
-	v2: number
+	vertex1: number,
+	vertex2: number
 }
 
 /** implements the Kellerman's algorithm for the minimum edge clique cover, see Pag. 3 of
@@ -18,12 +18,27 @@ export class EdgeCliqueCoverFinder {
 
 	/**
 	 * 
-	 * @param edges 
+	 * @param undirectedGraph 
 	 */
-	constructor(private edges: Edge[]) {
-		this.numberOfVertices = this.computeNumberOfVerticesAndCheckData(edges);
+	constructor(private undirectedGraph: Edge[]) {
+		this.numberOfVertices = this.computeNumberOfVerticesAndCheckData(undirectedGraph);
 	}
 
+	/** builds an edge with vertices in the right order */
+	static buildEdge(vertex1: number, vertex2: number): Edge | undefined {
+		let edge: Edge | undefined;
+		if (vertex1 < 0 || vertex2 < 0 || vertex1 == vertex2)
+			throw new Error("vertex1 and vertex2 must be distinct nonnegative integers");
+		else {
+			const v1: number = Math.min(vertex1, vertex2);
+			const v2: number = Math.max(vertex1, vertex2);
+			edge = {
+				vertex1: v1,
+				vertex2: v2
+			};
+		}
+		return edge;
+	}
 
 	//#region computeNumberOfVerticesAndCheckData
 	// private oneIfVertexIsNew(vertex: number, vertices: Set<number>): number {
@@ -38,11 +53,11 @@ export class EdgeCliqueCoverFinder {
 		// let numberOfVertices = 0;
 		const vertices: Set<number> = new Set<number>();
 		edges.forEach((edge: Edge) => {
-			if (edge.v1 >= edge.v2)
+			if (edge.vertex1 >= edge.vertex2)
 				throw new Error("it must be edge.v1 < edge.v2");
 			else {
-				vertices.add(edge.v1);
-				vertices.add(edge.v2);
+				vertices.add(edge.vertex1);
+				vertices.add(edge.vertex2);
 			}
 			// numberOfVertices += this.oneIfVertexIsNew(edge.v1, vertices);
 			// numberOfVertices += this.oneIfVertexIsNew(edge.v2, vertices);
@@ -91,8 +106,8 @@ export class EdgeCliqueCoverFinder {
 	//#endregion tryToAddThisVertexToEachOfTheExistingCliques
 
 	private handleVertex(i: number) {
-		const w: number[] = this.edges.filter((edge: Edge) => edge.v2 == i)
-			.map((edge: Edge) => edge.v1);
+		const w: number[] = this.undirectedGraph.filter((edge: Edge) => edge.vertex2 == i)
+			.map((edge: Edge) => edge.vertex1);
 		if (w.length == 0)
 			// there is no vertex with index lower than i, connected to i
 			// notice that when i == 0 , this will always be true

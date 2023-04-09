@@ -1,6 +1,6 @@
 import { Diagnostic, Range } from 'vscode-languageserver';
 import { DisjointVarMap } from '../mm/DisjointVarMap';
-import { DisjVarMmpStatement } from "../mm/DisjVarMmpStatement";
+import { MmpDisjVarStatement } from "../mmp/MmpDisjVarStatement";
 import { ProvableStatement } from "../mm/ProvableStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { AreArrayTheSame, arrayRange, concatWithSpaces, fromTokensToStrings } from '../mm/Utils';
@@ -37,7 +37,7 @@ export class TheoremCoherenceChecker {
 	addDiagnosticForInvalidConstraint(var1: string, var2: string) {
 		// search the DisjVarUStatement(s) where the two vars are present, in order to get
 		// the tokens to compute the range for the Diagnostic.
-		this.theorem.disjVarMmpStatements.forEach((disjVarUStatement: DisjVarMmpStatement) => {
+		this.theorem.disjVarMmpStatements.forEach((disjVarUStatement: MmpDisjVarStatement) => {
 			const vars: string[] = fromTokensToStrings(disjVarUStatement.disjointVars);
 			const indexOfVar1: number = vars.indexOf(var1);
 			if (indexOfVar1 > -1) {

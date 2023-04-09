@@ -3,7 +3,7 @@ import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { MmpProof } from '../mmp/MmpProof';
 import * as FileSystem from 'fs';
-import { DisjVarMmpStatement } from "../mm/DisjVarMmpStatement";
+import { MmpDisjVarStatement } from "../mmp/MmpDisjVarStatement";
 import { GrammarManager } from '../grammar/GrammarManager';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { MmpProofStep } from "../mmp/MmpProofStep";
@@ -61,7 +61,7 @@ export class MmtSaver {
 	//TODO the compare() below assumes that the $d statements have exactly 2 vars. If you will
 	// allow more than 2 vars, you will have to change this implementation (the signature is fine)
 	/** compares two $d statements in lexical order */
-	disjVarCompare(disjVarA: DisjVarMmpStatement, disjVarB: DisjVarMmpStatement): number {
+	disjVarCompare(disjVarA: MmpDisjVarStatement, disjVarB: MmpDisjVarStatement): number {
 		let result: number;
 		const disjVarA1: string = disjVarA.disjointVars[0].value;
 		const disjVarA2: string = disjVarA.disjointVars[1].value;
@@ -80,8 +80,8 @@ export class MmtSaver {
 			result = -1;
 		return result;
 	}
-	orderDisjVarUStatements(disjVarUStatements: DisjVarMmpStatement[]): DisjVarMmpStatement[] {
-		const orderedDisjVarUStatements: DisjVarMmpStatement[] = Array.from(disjVarUStatements);
+	orderDisjVarUStatements(disjVarUStatements: MmpDisjVarStatement[]): MmpDisjVarStatement[] {
+		const orderedDisjVarUStatements: MmpDisjVarStatement[] = Array.from(disjVarUStatements);
 		orderedDisjVarUStatements.sort(this.disjVarCompare);
 		return orderedDisjVarUStatements;
 	}
@@ -89,9 +89,9 @@ export class MmtSaver {
 	private textForDjConstraints(uProof: MmpProof): string {
 		let text = '';
 		if (uProof.disjVarMmpStatements.length > 0) {
-			const orderedSisjVarUStatements: DisjVarMmpStatement[] = this.orderDisjVarUStatements(uProof.disjVarMmpStatements);
+			const orderedSisjVarUStatements: MmpDisjVarStatement[] = this.orderDisjVarUStatements(uProof.disjVarMmpStatements);
 			let textForNewLine = "   ";  // one space less, because one space is added before the first constraint
-			orderedSisjVarUStatements.forEach((disjVarUStatement: DisjVarMmpStatement) => {
+			orderedSisjVarUStatements.forEach((disjVarUStatement: MmpDisjVarStatement) => {
 				const textForNextDisjVarStatement: string = disjVarUStatement.toText() + ' $.';
 				if (textForNewLine.length + 1 + textForNextDisjVarStatement.length <= this.charactersPerLine)
 					// in the current line of text, there is room for the current disjVarUStatement 

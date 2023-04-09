@@ -2,7 +2,7 @@ import { DisjointVarMap } from '../mm/DisjointVarMap';
 import { MmLexer, MmToken } from '../grammar/MmLexer';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { Range } from 'vscode-languageserver';
-import { DisjVarMmpStatement } from "../mm/DisjVarMmpStatement";
+import { MmpDisjVarStatement } from "../mmp/MmpDisjVarStatement";
 
 export interface ILabeledStatementSignature {
 	label: MmToken | undefined
@@ -17,7 +17,7 @@ export interface ILabeledStatementSignature {
  * same theorem in the theory)
 */
 export interface ITheoremSignature {
-	disjVarMmpStatements: DisjVarMmpStatement[]  // used to produce located Diagnostics (because it contains MmToken's)
+	disjVarMmpStatements: MmpDisjVarStatement[]  // used to produce located Diagnostics (because it contains MmToken's)
 	disjVars: DisjointVarMap
 	eHyps: ILabeledStatementSignature[]
 	pStatement: ILabeledStatementSignature | undefined
@@ -49,7 +49,7 @@ export class MmtParser {
 
 	private mmLexer: MmLexer;
 
-	private _disjVarUStatementTokens: DisjVarMmpStatement[]
+	private _disjVarUStatementTokens: MmpDisjVarStatement[]
 	private _disjVars: DisjointVarMap;
 	private _eHyps: ILabeledStatementSignature[];
 	private _pStatement: ILabeledStatementSignature | undefined;
@@ -94,7 +94,7 @@ export class MmtParser {
 				this._disjVars.add(statement[i].value, statement[j].value);
 			}
 		}
-		const disjVarUStatement: DisjVarMmpStatement = new DisjVarMmpStatement(statement);
+		const disjVarUStatement: MmpDisjVarStatement = new MmpDisjVarStatement(statement);
 		this._disjVarUStatementTokens.push(disjVarUStatement);
 	}
 	private addEStatement() {

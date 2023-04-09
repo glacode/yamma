@@ -3,10 +3,10 @@ import { EdgeCliqueCoverFinder, Edge } from '../general/EdgeCliqueCoverFinder';
 test("edge clique cover 1",
 	() => {
 		const edges: Edge[] = [
-			{ v1: 0, v2: 1 },
-			{ v1: 0, v2: 2 },
-			{ v1: 1, v2: 2 },
-			{ v1: 2, v2: 3 }
+			{ vertex1: 0, vertex2: 1 },
+			{ vertex1: 0, vertex2: 2 },
+			{ vertex1: 1, vertex2: 2 },
+			{ vertex1: 2, vertex2: 3 }
 		];
 		const cliqueCoverFinder: EdgeCliqueCoverFinder = new EdgeCliqueCoverFinder(edges);
 		const cliqueCover: Set<Set<number>> = cliqueCoverFinder.findEdgeCliqueCover();
@@ -18,10 +18,10 @@ test("edge clique cover 1",
 test("edge clique cover 2",
 	() => {
 		const edges: Edge[] = [
-			{ v1: 1, v2: 3 },
-			{ v1: 0, v2: 3 },
-			{ v1: 0, v2: 1 },
-			{ v1: 1, v2: 2 }
+			{ vertex1: 1, vertex2: 3 },
+			{ vertex1: 0, vertex2: 3 },
+			{ vertex1: 0, vertex2: 1 },
+			{ vertex1: 1, vertex2: 2 }
 		];
 		const cliqueCoverFinder: EdgeCliqueCoverFinder = new EdgeCliqueCoverFinder(edges);
 		const cliqueCover: Set<Set<number>> = cliqueCoverFinder.findEdgeCliqueCover();
@@ -33,16 +33,16 @@ test("edge clique cover 2",
 test("edge clique cover 3",
 	() => {
 		const edges: Edge[] = [
-			{ v1: 0, v2: 2 },
-			{ v1: 0, v2: 4 },
-			{ v1: 1, v2: 2 },
-			{ v1: 1, v2: 3 },
-			{ v1: 2, v2: 3 },
-			{ v1: 2, v2: 4 },
-			{ v1: 2, v2: 5 },
-			{ v1: 3, v2: 4 },
-			{ v1: 3, v2: 5 },
-			{ v1: 4, v2: 5 },
+			{ vertex1: 0, vertex2: 2 },
+			{ vertex1: 0, vertex2: 4 },
+			{ vertex1: 1, vertex2: 2 },
+			{ vertex1: 1, vertex2: 3 },
+			{ vertex1: 2, vertex2: 3 },
+			{ vertex1: 2, vertex2: 4 },
+			{ vertex1: 2, vertex2: 5 },
+			{ vertex1: 3, vertex2: 4 },
+			{ vertex1: 3, vertex2: 5 },
+			{ vertex1: 4, vertex2: 5 },
 		];
 		const cliqueCoverFinder: EdgeCliqueCoverFinder = new EdgeCliqueCoverFinder(edges);
 		const cliqueCover: Set<Set<number>> = cliqueCoverFinder.findEdgeCliqueCover();
@@ -59,16 +59,16 @@ test("edge clique cover 3",
 test("edge clique cover 3",
 	() => {
 		const edges: Edge[] = [
-			{ v1: 0, v2: 2 },
-			{ v1: 0, v2: 4 },
-			{ v1: 1, v2: 2 },
-			{ v1: 1, v2: 3 },
-			{ v1: 2, v2: 3 },
-			{ v1: 2, v2: 4 },
-			{ v1: 2, v2: 5 },
-			{ v1: 3, v2: 4 },
-			{ v1: 3, v2: 5 },
-			{ v1: 4, v2: 5 },
+			{ vertex1: 0, vertex2: 2 },
+			{ vertex1: 0, vertex2: 4 },
+			{ vertex1: 1, vertex2: 2 },
+			{ vertex1: 1, vertex2: 3 },
+			{ vertex1: 2, vertex2: 3 },
+			{ vertex1: 2, vertex2: 4 },
+			{ vertex1: 2, vertex2: 5 },
+			{ vertex1: 3, vertex2: 4 },
+			{ vertex1: 3, vertex2: 5 },
+			{ vertex1: 4, vertex2: 5 },
 		];
 		const cliqueCoverFinder: EdgeCliqueCoverFinder = new EdgeCliqueCoverFinder(edges);
 		const cliqueCover: Set<Set<number>> = cliqueCoverFinder.findEdgeCliqueCover();
@@ -85,15 +85,15 @@ test("edge clique cover 3",
 test("edge clique cover 4",
 	() => {
 		const edges: Edge[] = [
-			{ v1: 0, v2: 1 },
-			{ v1: 0, v2: 2 },
-			{ v1: 1, v2: 2 },
-			{ v1: 3, v2: 4 },
-			{ v1: 3, v2: 5 },
-			{ v1: 3, v2: 6 },
-			{ v1: 4, v2: 5 },
-			{ v1: 4, v2: 6 },
-			{ v1: 5, v2: 6 }
+			{ vertex1: 0, vertex2: 1 },
+			{ vertex1: 0, vertex2: 2 },
+			{ vertex1: 1, vertex2: 2 },
+			{ vertex1: 3, vertex2: 4 },
+			{ vertex1: 3, vertex2: 5 },
+			{ vertex1: 3, vertex2: 6 },
+			{ vertex1: 4, vertex2: 5 },
+			{ vertex1: 4, vertex2: 6 },
+			{ vertex1: 5, vertex2: 6 }
 		];
 		const cliqueCoverFinder: EdgeCliqueCoverFinder = new EdgeCliqueCoverFinder(edges);
 		const cliqueCover: Set<Set<number>> = cliqueCoverFinder.findEdgeCliqueCover();
@@ -108,16 +108,16 @@ test("edge clique cover 4",
 test("edge clique cover 5",
 	() => {
 		const edges: Edge[] = [
-			{ v1: 0, v2: 1 },
-			{ v1: 0, v2: 2 },
-			{ v1: 1, v2: 2 },
-			{ v1: 3, v2: 4 },
-			{ v1: 3, v2: 5 },
-			{ v1: 3, v2: 6 },
-			{ v1: 4, v2: 5 },
-			{ v1: 4, v2: 6 },
-			{ v1: 5, v2: 6 },
-			{ v1: 1, v2: 4 }
+			{ vertex1: 0, vertex2: 1 },
+			{ vertex1: 0, vertex2: 2 },
+			{ vertex1: 1, vertex2: 2 },
+			{ vertex1: 3, vertex2: 4 },
+			{ vertex1: 3, vertex2: 5 },
+			{ vertex1: 3, vertex2: 6 },
+			{ vertex1: 4, vertex2: 5 },
+			{ vertex1: 4, vertex2: 6 },
+			{ vertex1: 5, vertex2: 6 },
+			{ vertex1: 1, vertex2: 4 }
 		];
 		const cliqueCoverFinder: EdgeCliqueCoverFinder = new EdgeCliqueCoverFinder(edges);
 		const cliqueCover: Set<Set<number>> = cliqueCoverFinder.findEdgeCliqueCover();
