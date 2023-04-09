@@ -49,3 +49,47 @@ test('Disj Vars edge clique cover 2', () => {
 	expect(disjointVars1[0].value).toBe('v');
 	expect(disjointVars1[1].value).toBe('z');
 });
+
+test('Disj Vars edge clique cover 3', () => {
+	// $d ph x $. $d k x $. $d k ph $. $d j x $. $d j k $.
+	// $d F x $. $d F k $. $d A x $. $d A k $. $d A j $.
+
+	// whereas mmj2 produces
+
+	// $d A j k x $. $d F k x $. $d k ph x $.
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'qed:: |- ch\n' +
+		'$d ph x\n' +
+		'$d k x\n' +
+		'$d k ph\n' +
+		'$d j x\n' +
+		'$d j k\n' +
+		'$d F x\n' +
+		'$d F k\n' +
+		'$d A x\n' +
+		'$d A k\n' +
+		'$d A j\n';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpDisjVarStatements: MmpDisjVarStatement[] =
+		MmpDisjVarStatement.buildEdgeCliqueCover(mmpParser.mmpProof!.disjVarMmpStatements);
+	expect(mmpDisjVarStatements.length).toBe(3);
+	const disjointVars0: MmToken[] = mmpDisjVarStatements[0].disjointVars;
+	expect(disjointVars0.length).toBe(3);
+	expect(disjointVars0[0].value).toBe('k');
+	expect(disjointVars0[1].value).toBe('ph');
+	expect(disjointVars0[2].value).toBe('x');
+	const disjointVars1: MmToken[] = mmpDisjVarStatements[1].disjointVars;
+	expect(disjointVars1.length).toBe(4);
+	expect(disjointVars1[0].value).toBe('A');
+	expect(disjointVars1[1].value).toBe('j');
+	expect(disjointVars1[2].value).toBe('k');
+	expect(disjointVars1[3].value).toBe('x');
+	const disjointVars2: MmToken[] = mmpDisjVarStatements[2].disjointVars;
+	expect(disjointVars2.length).toBe(3);
+	expect(disjointVars2[0].value).toBe('F');
+	expect(disjointVars2[1].value).toBe('k');
+	expect(disjointVars2[2].value).toBe('x');
+});
+
