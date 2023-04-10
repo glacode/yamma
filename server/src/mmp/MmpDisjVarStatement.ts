@@ -7,6 +7,9 @@ import { Range } from 'vscode-languageserver';
 
 /** represents a Disjoint Var constraint statement in the current proof */
 export class MmpDisjVarStatement implements IMmpStatementWithRange {
+
+    private _toText: string | undefined;
+
     /** tokens of the disjoint vars */
     disjointVars: MmToken[];
 
@@ -21,10 +24,11 @@ export class MmpDisjVarStatement implements IMmpStatementWithRange {
     }
 
     toText() {
-        // const text: string = DisjVarMmpStatement.textForTwoVars(this.disjointVars[0].value, this.disjointVars[1].value);
-        const statementContent: string = concatTokenValuesWithSpaces(this.disjointVars);
-        const text = `$d ${statementContent}`;
-        return text;
+        if (this._toText == undefined) {
+            const statementContent: string = concatTokenValuesWithSpaces(this.disjointVars);
+            this._toText = `$d ${statementContent}`;
+        }
+        return this._toText;
     }
 
     /** returns the text for a $d statement for two vars*/
@@ -74,7 +78,7 @@ export class MmpDisjVarStatement implements IMmpStatementWithRange {
         return mmpDisjVarStatement;
     }
     //#endregion produceDisjVarMmpStatement
-    private static produceDisjVarMmpStatements(edgeCliqueCoverSet: Set<Set<number>>,
+    private static produceUnsortedDisjVarMmpStatements(edgeCliqueCoverSet: Set<Set<number>>,
         numberToVarMap: string[]): MmpDisjVarStatement[] {
         const mmpDisjVarStatements: MmpDisjVarStatement[] = [];
         edgeCliqueCoverSet.forEach((clique: Set<number>) => {
@@ -84,11 +88,23 @@ export class MmpDisjVarStatement implements IMmpStatementWithRange {
         });
         return mmpDisjVarStatements;
     }
+    private static compare(mmpDisjVarStatement1: MmpDisjVarStatement, mmpDisjVarStatement2: MmpDisjVarStatement) {
+        const output: number = (mmpDisjVarStatement1.toText() <= mmpDisjVarStatement2.toText() ? -1 : 1);
+        return output;
+    }
+    private static produceDisjVarMmpStatements(edgeCliqueCoverSet: Set<Set<number>>,
+        numberToVarMap: string[]): MmpDisjVarStatement[] {
+        const mmpDisjVarStatements: MmpDisjVarStatement[] =
+            MmpDisjVarStatement.produceUnsortedDisjVarMmpStatements(edgeCliqueCoverSet, numberToVarMap);
+        MmpDisjVarStatement.produceUnsortedDisjVarMmpStatements(edgeCliqueCoverSet, numberToVarMap);
+        mmpDisjVarStatements.sort(MmpDisjVarStatement.compare);
+        return mmpDisjVarStatements;
+    }
     //#endregion produceDisjVarMmpStatements
     private static buildEdgeCliqueCoverFromNumbers(undirectedGraph: Edge[], numberToVarMap: string[]): MmpDisjVarStatement[] {
         const edgeCliqueCoverSet: Set<Set<number>> = MmpDisjVarStatement.buildEdgeCliqueCoverSet(undirectedGraph);
         const edgeCliqueCover: MmpDisjVarStatement[] =
-        MmpDisjVarStatement.produceDisjVarMmpStatements(edgeCliqueCoverSet, numberToVarMap);
+            MmpDisjVarStatement.produceDisjVarMmpStatements(edgeCliqueCoverSet, numberToVarMap);
         return edgeCliqueCover;
     }
     //#endregion buildEdgeCliqueCoverFromNumbers

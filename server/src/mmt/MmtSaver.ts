@@ -89,9 +89,11 @@ export class MmtSaver {
 	private textForDjConstraints(uProof: MmpProof): string {
 		let text = '';
 		if (uProof.disjVarMmpStatements.length > 0) {
-			const orderedSisjVarUStatements: MmpDisjVarStatement[] = this.orderDisjVarUStatements(uProof.disjVarMmpStatements);
+			// const orderedDisjVarUStatements: MmpDisjVarStatement[] = this.orderDisjVarUStatements(uProof.disjVarMmpStatements);
+			const orderedDisjVarUStatements: MmpDisjVarStatement[] =
+				MmpDisjVarStatement.buildEdgeCliqueCover(uProof.disjVarMmpStatements);
 			let textForNewLine = "   ";  // one space less, because one space is added before the first constraint
-			orderedSisjVarUStatements.forEach((disjVarUStatement: MmpDisjVarStatement) => {
+			orderedDisjVarUStatements.forEach((disjVarUStatement: MmpDisjVarStatement) => {
 				const textForNextDisjVarStatement: string = disjVarUStatement.toText() + ' $.';
 				if (textForNewLine.length + 1 + textForNextDisjVarStatement.length <= this.charactersPerLine)
 					// in the current line of text, there is room for the current disjVarUStatement 
