@@ -11,3 +11,4 @@ client/src/test/runTest.ts
 scripts/e2e.sh
 server/coverage
 syntaxes/*
+*.vsix

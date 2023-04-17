@@ -3,12 +3,13 @@
 	"description": "A language server example",
 	"author": "Microsoft Corporation",
 	"license": "MIT",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/glacode/yamma.git"
 	},
-	"publisher": "Glauco Siliprandi",
+	"publisher": "glacode",
+	"icon": "images/metamathlogo.png",
 	"categories": [],
 	"keywords": [
 		"multi-root ready"
@@ -182,6 +183,9 @@
 			]
 		}
 	},
+	"activationEvents": [
+		"onLanguage"
+	],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -b",
