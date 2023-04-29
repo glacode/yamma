@@ -21,7 +21,7 @@
 	"contributes": {
 		"languages": [
 			{
-				"id": "Yamma",
+				"id": "yamma",
 				"aliases": [
 					"Yamma",
 					"Metamath"
