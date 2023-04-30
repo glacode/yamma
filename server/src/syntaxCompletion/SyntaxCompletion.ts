@@ -34,7 +34,7 @@ export class SyntaxCompletion {
 
 	//#region getSymbols
 
-	protected static getSymbolsFromErrorMessage(errorMessage: string): string[] {
+	public static getSymbolsFromErrorMessage(errorMessage: string): string[] {
 		const regExpMatchArray: RegExpMatchArray | null = errorMessage.match(/(?<=A ).*(?= based on:)/g);
 		let symbols: string[] = [];
 		if (regExpMatchArray != null)

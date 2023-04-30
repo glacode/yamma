@@ -27,6 +27,7 @@ import { EHyp } from '../mm/EHyp';
 import { MmParser } from '../mm/MmParser';
 import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
 import { Parameters } from '../general/Parameters';
+import { IDiagnosticMessageForSyntaxError, ShortDiagnosticMessageForSyntaxError } from './DiagnosticMessageForSyntaxError';
 
 
 
@@ -76,6 +77,7 @@ export class MmpParser {
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
 	workingVars: WorkingVars;
+	private diagnosticMessageForSyntaxError: IDiagnosticMessageForSyntaxError;
 	/** when Parse() is invoked, it will contain the raw tokens produced by the MmLexer */
 	mmTokens: MmToken[] | undefined;
 
@@ -101,7 +103,8 @@ export class MmpParser {
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
 	constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars,
-		public formulaToParseNodeCache?: FormulaToParseNodeCache) {
+		public formulaToParseNodeCache?: FormulaToParseNodeCache,
+		diagnosticMessageForSyntaxError?: IDiagnosticMessageForSyntaxError) {
 		// this.textDocument = textDocument;
 		this.textToParse = textToParse;
 		this.mmParser = mmParser;
@@ -115,6 +118,10 @@ export class MmpParser {
 		// const textToParse: string = textDocument.getText();
 		//this.createMmpStatements(textToParse);
 		this._orderedPairsOfNodesForMGUalgorithm = [];
+
+		this.diagnosticMessageForSyntaxError = (diagnosticMessageForSyntaxError != undefined) ?
+			diagnosticMessageForSyntaxError : new ShortDiagnosticMessageForSyntaxError(
+				this.outermostBlock.c, this.outermostBlock.v, 30);
 	}
 
 	private addDiagnosticError(message: string, range: Range, code: MmpParserErrorCode) {
@@ -336,7 +343,8 @@ export class MmpParser {
 
 	//#region getParseNode
 	private static tryToParse(stepFormulaString: string, stepFormula: MmToken[], grammar: Grammar,
-		workingVars: WorkingVars, diagnostics: Diagnostic[]): InternalNode | undefined {
+		workingVars: WorkingVars, diagnostics: Diagnostic[],
+		diagnosticMessageForSyntaxError: IDiagnosticMessageForSyntaxError): InternalNode | undefined {
 		let parseNode: InternalNode | undefined;
 		// grammar.lexer = new MmLexer(workingVars);
 		grammar.lexer = new MmLexerFromTokens(stepFormula);
@@ -366,8 +374,9 @@ export class MmpParser {
 				range = stepFormula[parser.current].range;
 				errorCode = MmpParserErrorCode.formulaSyntaxError;
 			}
-			// MmpValidator.addDiagnosticError(error.message, stepFormula[parser.current].range, "formulaError", diagnostics);
-			MmpValidator.addDiagnosticError(error.message, range, errorCode, diagnostics);
+			//TODO1 30 APR 2023
+			const diagnosticMessage: string = diagnosticMessageForSyntaxError.diagnosticMessage(<string>error.message);
+			MmpValidator.addDiagnosticError(diagnosticMessage, range, errorCode, diagnostics);
 		}
 		return parseNode;
 	}
@@ -377,7 +386,7 @@ export class MmpParser {
 			this.formulaToParseNodeCache?.formulaToInternalNodeMap.get(stepFormulaString);
 		if (parseNode == undefined) {
 			parseNode = MmpParser.tryToParse(stepFormulaString, stepFormula, this.grammar,
-				this.workingVars, this.diagnostics);
+				this.workingVars, this.diagnostics, this.diagnosticMessageForSyntaxError);
 			if (parseNode != undefined && this.formulaToParseNodeCache != undefined)
 				this.formulaToParseNodeCache.add(stepFormulaString, parseNode);
 		}

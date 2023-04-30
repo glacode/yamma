@@ -12,6 +12,7 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { doesDiagnosticsContain } from '../mm/Utils';
 import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { IMmpStatement } from '../mmp/MmpStatement';
+import { VerboseDiagnosticMessageForSyntaxError } from '../mmp/DiagnosticMessageForSyntaxError';
 
 const emptyLabelStatement = new AxiomStatement('x', [], new BlockStatement());
 
@@ -216,6 +217,37 @@ test('formula error', () => {
 			expect(diagnostic.range.start.line).toBe(0);
 			expect(diagnostic.range.start.character).toBe(26);
 			expect(diagnostic.range.end.character).toBe(27);
+			expect(diagnostic.message).toBe(
+				'Unexpected "A". Instead, I was expecting to see one of the following: ph ps ch (');
+		}
+	});
+});
+
+//TODO1 30 APR 2023
+
+test('verbose formula error', () => {
+	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
+	labelToStatementMap.set('ax-mp', emptyLabelStatement);
+	// const mmpParser: TestMmpParser = new TestMmpParser('55:50,51:ax-mp |- ( ph -> A )', labelToStatementMap,
+	// 	new BlockStatement(), wiGrammar(), new WorkingVars(kindToPrefixMap));
+	const mmpParser: TestMmpParser = new TestMmpParser('55:50,51:axxmp |- ( ph -> A )', mp2MmParser,
+		new WorkingVars(kindToPrefixMap), undefined, new VerboseDiagnosticMessageForSyntaxError());
+	mmpParser.createMmpStatements();
+	// axxmp does not exist
+	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(4);
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.unknownStepRef)).toBeTruthy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.formulaSyntaxError)).toBeTruthy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserErrorCode.formulaSyntaxError) {
+			expect(diagnostic.code).toEqual(MmpParserErrorCode.formulaSyntaxError);
+			expect(diagnostic.range.start.line).toBe(0);
+			expect(diagnostic.range.start.character).toBe(26);
+			expect(diagnostic.range.end.character).toBe(27);
+			//TODO1 30 APR 2023
+			expect(diagnostic.message.startsWith(
+				'\nUnexpected "A". Instead, I was expecting to see one of the following:\n' +
+				'\n' +
+				'A "ph" based on:')).toBeTruthy();
 		}
 	});
 });
