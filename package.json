@@ -1,5 +1,6 @@
 {
 	"name": "yamma",
+	"displayName": "Yamma",
 	"description": "Proof Assistant for Metamath",
 	"author": "Microsoft Corporation",
 	"license": "MIT",
