@@ -99,6 +99,16 @@
 					"default": "normal",
 					"description": "Determines the format of the proof generated"
 				},
+				"yamma.diagnosticMessageForSyntaxError": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"short",
+						"verbose"
+					],
+					"default": "short",
+					"description": "Verbose slows down typing, but gives more error details"
+				},
 				"yamma.maxNumberOfProblems": {
 					"scope": "resource",
 					"type": "number",

@@ -1,6 +1,6 @@
 import { Connection, Diagnostic, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { ConfigurationManager } from '../mm/ConfigurationManager';
+import DiagnosticMessageForSyntaxError, { ConfigurationManager } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { MmpParser, MmpParserWarningCode } from '../mmp/MmpParser';
@@ -139,7 +139,10 @@ export class OnDidChangeContentHandler {
 		maxNumOfProblems = maxNumOfProblems + 1 - 1;
 
 		//Glauco
-		const mmpValidator: MmpValidator = new MmpValidator(this.mmParser!, this.globalState);
+		const diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError =
+			await this.configurationManager.diagnosticMessageForSyntaxError(textDocument.uri);
+		const mmpValidator: MmpValidator = new MmpValidator(this.mmParser!, this.globalState,
+			diagnosticMessageForSyntaxError);
 		mmpValidator.validateFullDocument(textDocument);
 		const diagnostics: Diagnostic[] = mmpValidator.diagnostics;
 

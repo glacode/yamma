@@ -1,7 +1,7 @@
 import { Connection } from 'vscode-languageserver';
 import { TextEdit } from 'vscode-languageserver-textdocument';
 import { GlobalState } from '../general/GlobalState';
-import { ConfigurationManager, IExtensionSettings, ProofMode, IVariableKindConfiguration } from '../mm/ConfigurationManager';
+import DiagnosticMessageForSyntaxError, { ConfigurationManager, IExtensionSettings, ProofMode, IVariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
@@ -13,6 +13,7 @@ import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, mp2Theory
 const exampleSettings: IExtensionSettings = {
 	maxNumberOfProblems: 100,
 	proofMode: ProofMode.normal,
+	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError.short,
 	mmFileFullPath: '',
 	variableKindsConfiguration: new Map<string, IVariableKindConfiguration>()
 };

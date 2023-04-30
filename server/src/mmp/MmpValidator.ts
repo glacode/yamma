@@ -8,6 +8,8 @@ import { GlobalState } from '../general/GlobalState';
 import { MmpStatistics } from './MmpStatistics';
 import { consoleLogWithTimestamp } from '../mm/Utils';
 import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
+import { IDiagnosticMessageForSyntaxError, ShortDiagnosticMessageForSyntaxError, VerboseDiagnosticMessageForSyntaxError } from './DiagnosticMessageForSyntaxError';
+import DiagnosticMessageForSyntaxError from '../mm/ConfigurationManager';
 
 /** validates a .mmp files and returns diagnostics
  * for the language server event handlers
@@ -18,7 +20,8 @@ export class MmpValidator {
 	diagnostics: Diagnostic[] = [];
 	mmpParser: MmpParser | undefined;
 
-	constructor(mmParser: MmParser, private globalState: GlobalState) {
+	constructor(mmParser: MmParser, private globalState: GlobalState,
+		private diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError) {
 		this.mmParser = mmParser;
 		this.formulaToParseNodeCache = globalState.formulaToParseNodeCache;
 	}
@@ -48,8 +51,12 @@ export class MmpValidator {
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
 	validateFullDocumentText(textToValidate: string, mmParser: MmParser, workingVars: WorkingVars) {
 		// const mmpParser: MmpParser = new MmpParser(textToValidate, mmParser, workingVars,
+		const diagnosticMessageForSyntaxError: IDiagnosticMessageForSyntaxError =
+			(this.diagnosticMessageForSyntaxError == DiagnosticMessageForSyntaxError.verbose) ?
+				new VerboseDiagnosticMessageForSyntaxError() : new ShortDiagnosticMessageForSyntaxError(
+					mmParser.outermostBlock.c, mmParser.outermostBlock.v, 30);
 		this.mmpParser = new MmpParser(textToValidate, mmParser, workingVars,
-			this.formulaToParseNodeCache);
+			this.formulaToParseNodeCache, diagnosticMessageForSyntaxError);
 		console.log('before mmpParser.parse()');
 		this.mmpParser.parse();
 		console.log('after mmpParser.parse()');

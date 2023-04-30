@@ -7,6 +7,12 @@ export enum ProofMode {
 	compressed = "compressed"
 }
 
+export enum DiagnosticMessageForSyntaxError {
+	short = "short",
+	verbose = "verbose"
+}
+export default DiagnosticMessageForSyntaxError;
+
 export interface IVariableKindConfiguration {
 	workingVarPrefix: string,
 	lspSemantictokenType: string
@@ -27,6 +33,7 @@ interface IExtensionConfiguration {
 	mmFileFullPath: string;
 	maxNumberOfProblems: number;
 	proofMode: ProofMode;
+	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError;
 	kindConfigurations: IKindConfiguration[]
 }
 
@@ -39,6 +46,7 @@ export interface IExtensionSettings {
 	mmFileFullPath: string;
 	maxNumberOfProblems: number;
 	proofMode: ProofMode;
+	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError;
 	variableKindsConfiguration: Map<string, IVariableKindConfiguration>
 }
 
@@ -49,6 +57,7 @@ export const defaultSettings: IExtensionSettings = {
 	maxNumberOfProblems: 1000,
 	proofMode: ProofMode.normal,
 	mmFileFullPath: "",
+	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError.short,
 	variableKindsConfiguration: new Map<string, IVariableKindConfiguration>()
 };
 
@@ -141,6 +150,7 @@ export class ConfigurationManager implements IConfigurationManager {
 			maxNumberOfProblems: currentConfiguration.maxNumberOfProblems,
 			mmFileFullPath: currentConfiguration.mmFileFullPath,
 			proofMode: currentConfiguration.proofMode,
+			diagnosticMessageForSyntaxError: currentConfiguration.diagnosticMessageForSyntaxError,
 			variableKindsConfiguration: this.buildMap(currentConfiguration.kindConfigurations)
 		};
 		return extensionSettings;
@@ -198,5 +208,10 @@ export class ConfigurationManager implements IConfigurationManager {
 	async variableKindsConfiguration(textDocumentUri: string): Promise<Map<string, IVariableKindConfiguration>> {
 		const settings: IExtensionSettings = await this.getScopeUriSettings(textDocumentUri);
 		return settings.variableKindsConfiguration;
+	}
+
+	async diagnosticMessageForSyntaxError(textDocumentUri: string): Promise<DiagnosticMessageForSyntaxError> {
+		const settings: IExtensionSettings = await this.getScopeUriSettings(textDocumentUri);
+		return settings.diagnosticMessageForSyntaxError;
 	}
 }
