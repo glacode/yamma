@@ -63,9 +63,10 @@ export class MmpUnifier {
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 		this._charactersPerLine = rightMarginForCompressedProof == undefined ? Parameters.charactersPerLine : rightMarginForCompressedProof;
 
-		//TODO use the range of the last actual statement (now I can't, because not all statements implement
+		//TODO1 21 MAY use the range of the last actual statement (now I can't, because not all statements implement
 		//the range property (see interface IMmpStatementWithRange and interface interface IUStatement)
-		this.textLastLine = this.uProof!.lastMmpProofStep!.range.end.line + 3000;
+		this.textLastLine = this.uProof!.lastMmpProofStep != undefined ?
+			this.uProof!.lastMmpProofStep!.range.end.line + 3000 : 3000;
 		this.thrownError = false;
 	}
 
