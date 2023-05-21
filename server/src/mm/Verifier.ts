@@ -311,7 +311,7 @@ export class Verifier {
     }
 
     static GetProofStatements(proofStrings: string[], labelToStatementMap: Map<string, LabeledStatement>,
-        currentBlock: BlockStatement, _verifier: Verifier): Statement[] {
+        currentBlock: BlockStatement): Statement[] {
         const proofStatements: Statement[] = [];
         proofStrings.forEach(label => {
             const labeledStatement: LabeledStatement | undefined = this.getProofStatement(
@@ -381,7 +381,7 @@ export class Verifier {
         else
             // the proof is not compressed
             proof = Verifier.GetProofStatements(proofStrings, labelToStatementMap,
-                <BlockStatement>provableStatement.ParentBlock, this);
+                <BlockStatement>provableStatement.ParentBlock);
         if (!this.verificationFailed)
             // either the proof was not compressed or the decompression was successful
             this.verifyDecompressedProof(provableStatement, proof!);

@@ -23,6 +23,8 @@ import { BuildNewLabelArgs, EHypLabelManager } from './EHypLabelManager';
 import { ProofStepDuplicateRemover } from './ProofStepDuplicateRemover';
 import { RefNumberManager } from './RefNumberManager';
 import { MmpHeaderManager } from './MmpHeaderManager';
+import { MmpGetProofStatement } from './MmpGetProofStatement';
+import { MmToMmpConverter } from './MmToMmpConverter';
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -318,6 +320,28 @@ export class MmpProofTransformer {
 	}
 	//#endregion transformUStep
 
+	//#region getProof
+	buildProof(mmpGetProofStatement: MmpGetProofStatement): MmpProof | undefined {
+		let mmpProof: MmpProof | undefined;
+		if (mmpGetProofStatement.theoremLabel != undefined) {
+			const mmToMmpConverter: MmToMmpConverter = new MmToMmpConverter(mmpGetProofStatement.theoremLabel.value,
+				this.outermostBlock, this.mmpParser.labelToStatementMap);
+			mmpProof = mmToMmpConverter.buildProof();
+		}
+		return mmpProof;
+	}
+	getProof(i: number, mmpGetProofStatement: MmpGetProofStatement): number {
+		let nextUStepIndexToBeTransformed: number = i + 1;
+		const mmpProof: MmpProof | undefined = this.buildProof(mmpGetProofStatement);
+		if (mmpProof instanceof MmpProof) {
+			// the getProof statement actually refers to a proovable statement, in the theory
+			this.uProof.mmpStatements.splice(i, 1, ...mmpProof.mmpStatements);
+			nextUStepIndexToBeTransformed = i + mmpProof.mmpStatements.length - 1;
+		}
+		return nextUStepIndexToBeTransformed;
+	}
+	//#endregion getProof
+
 	protected transformUSteps() {
 		let i = 0;
 		let currentIndexInEHypLabel = 1;
@@ -329,6 +353,9 @@ export class MmpProofTransformer {
 			} else if (currentMmpStatement instanceof MmpProofStep) {
 				// !currentMmpStatement.isEHyp
 				i = this.transformUStep(i);
+			} else if (currentMmpStatement instanceof MmpGetProofStatement) {
+				// currentMmpStatement requires a mmp proof to be inserted
+				i = this.getProof(i, currentMmpStatement);
 			} else {
 				if (currentMmpStatement instanceof TextForProofStatement ||
 					currentMmpStatement instanceof MmpSearchStatement)

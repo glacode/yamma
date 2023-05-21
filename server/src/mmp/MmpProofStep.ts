@@ -309,6 +309,13 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 	}
 	//#endregion textForFirstTokenInfo
 
+	get textForFormula() {
+		let formula: string | undefined;
+		if (this.stepFormula != undefined)
+			formula = concatTokenValuesWithSpaces(this.stepFormula);
+		return formula;
+	}
+
 	/**
 	 * Returns the full text of the UProofStep
 	 * @returns

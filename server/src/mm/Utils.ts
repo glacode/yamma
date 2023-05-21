@@ -287,6 +287,12 @@ export function fromTokensToStrings(tokens: MmToken[]): string[] {
     return MmToken.fromTokensToStrings(tokens);
 }
 
+export function fromStringsToTokens(stringArray: string[]): MmToken[] {
+    const str: string = concatWithSpaces(stringArray);
+    const tokens: MmToken[] = splitToTokensDefault(str);
+    return tokens;
+}
+
 /** returns the range of the whole array of tokens; it cannot be invoked with empty arrays */
 export function arrayRange(tokens: MmToken[]): Range {
     if (tokens.length == 0)

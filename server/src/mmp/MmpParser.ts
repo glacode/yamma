@@ -28,6 +28,7 @@ import { MmParser } from '../mm/MmParser';
 import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
 import { Parameters } from '../general/Parameters';
 import { IDiagnosticMessageForSyntaxError, ShortDiagnosticMessageForSyntaxError } from './DiagnosticMessageForSyntaxError';
+import { MmpGetProofStatement } from './MmpGetProofStatement';
 
 
 
@@ -233,6 +234,21 @@ export class MmpParser {
 			// the second token is the theorem label
 			uTheoremLabel = new MmpTheoremLabel(nextProofStepTokens[0], nextProofStepTokens[1]);
 		this.mmpProof?.addMmpStatement(uTheoremLabel);
+	}
+
+	addGetProofStatement(nextProofStepTokens: MmToken[]) {
+		let mmpGetProofStatement: MmpGetProofStatement | undefined;
+		if (nextProofStepTokens.length == 1) {
+			// the theorem label is missing
+			const message = `The theorem label is missing`;
+			const range: Range = oneCharacterRange(nextProofStepTokens[0].range.end);
+			MmpValidator.addDiagnosticWarning(message, range,
+				MmpParserWarningCode.missingTheoremLabel, this.diagnostics);
+			mmpGetProofStatement = new MmpGetProofStatement(nextProofStepTokens[0]);
+		} else
+			// the second token is the theorem label
+			mmpGetProofStatement = new MmpGetProofStatement(nextProofStepTokens[0], nextProofStepTokens[1]);
+		this.mmpProof?.addMmpStatement(mmpGetProofStatement);
 	}
 
 	//#region  addComment
@@ -502,6 +518,8 @@ export class MmpParser {
 		const nextTokenValue = nextProofStepTokens[0].value;
 		if (nextTokenValue == "$theorem")
 			this.addTheoremLabel(nextProofStepTokens);
+		else if (nextTokenValue == "$getproof")
+			this.addGetProofStatement(nextProofStepTokens);
 		else if (nextTokenValue.startsWith('*'))
 			// currente statement is a comment
 			this.addComment(nextProofStepTokens);
