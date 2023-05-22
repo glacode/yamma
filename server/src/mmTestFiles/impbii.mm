@@ -94,6 +94,8 @@
       ( wi a1i mpd ) ABCDBCFAEGH $.
   $}
   
+  $( Principle of
+     identity. $)
   id $p |- ( ph -> ph ) $=
     ( wi ax-1 mpd ) AAABZAAACAECD $.
   

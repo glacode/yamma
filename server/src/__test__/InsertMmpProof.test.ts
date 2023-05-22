@@ -22,7 +22,8 @@ test('Expect mmp proof for id theorem, to be inserted', () => {
 	const newTextExpected =
 		'\n* comment before\n\n' +
 		'$theorem id\n' +
-		'\n* Principle of identity.\n\n' +
+		'\n* Principle of\n' +
+		'     identity.\n\n' +
 		'1::ax-1             |- ( ph -> ( ph -> ph ) )\n' +
 		'2::ax-1             |- ( ph -> ( ( ph -> ph ) -> ph ) )\n' +
 		'qed:1,2:mpd        |- ( ph -> ph )\n' +

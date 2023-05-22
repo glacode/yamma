@@ -8,10 +8,11 @@ import { Frame } from '../mm/Frame';
 import { LabeledStatement } from '../mm/LabeledStatement';
 import { ProvableStatement } from '../mm/ProvableStatement';
 import { Statement, ZIStatement, ZRStatement } from '../mm/Statements';
-import { concatWithSpaces, fromStringsToTokens } from '../mm/Utils';
+import { concatWithSpaces, fromStringsToTokens, rebuildOriginalStringFromTokens, splitToTokensDefault } from '../mm/Utils';
 import { Verifier } from '../mm/Verifier';
 import { MmpProof } from './MmpProof';
 import { MmpProofStep } from './MmpProofStep';
+import { MmpComment } from './MmpStatement';
 import { ProofStepFirstTokenInfo } from './MmpStatements';
 import { MmpTheoremLabel } from './MmpTheoremLabel';
 import { ProofCompressor } from './ProofCompressor';
@@ -32,11 +33,22 @@ export class MmToMmpConverter {
 	//#region buildProof
 
 	//#region buildProofForProvableStatement
-	//TODO1 18 MAY 2023
-	private addHeaderStatements(provableStatement: ProvableStatement) {
+	addTheoremLabel(label: string) {
 		const mmpTheoremLabel: MmpTheoremLabel = new MmpTheoremLabel(
-			new MmToken("$theorem", 0, 0), new MmToken(provableStatement.Label, 0, 0));
+			new MmToken("$theorem", 0, 0), new MmToken(label, 0, 0));
 		this.mmpProof.addMmpStatement(mmpTheoremLabel);
+	}
+	addComment(comment: MmToken[]) {
+		const commentContent: string = rebuildOriginalStringFromTokens(comment);
+		const newComment: string = '* ' + commentContent;
+		const newTokens: MmToken[] = splitToTokensDefault(newComment);
+		const mmpComment: MmpComment = new MmpComment(newTokens, newComment);
+		this.mmpProof.addMmpStatement(mmpComment);
+	}
+	private addHeaderStatements(provableStatement: ProvableStatement) {
+		this.addTheoremLabel(provableStatement.Label);
+		if (provableStatement.comment != undefined)
+			this.addComment(provableStatement.comment);
 		//TODO1 18 MAY 2023 add comment
 	}
 	//#region addMmpStatements
