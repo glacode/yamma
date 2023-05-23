@@ -27,7 +27,8 @@ export class MmToMmpConverter {
 
 	constructor(private theoremLabel: string, private outermostBlock: BlockStatement,
 		private labelToStatementMap: Map<string, LabeledStatement>) {
-		this.mmpProof = new MmpProof(this.outermostBlock, new WorkingVars(new Map<string, string>()));
+		//TODO you may use a parameter, instead of the hardcoded '1' below
+		this.mmpProof = new MmpProof(this.outermostBlock, new WorkingVars(new Map<string, string>()), 1);
 	}
 
 	//#region buildProof
@@ -88,7 +89,9 @@ export class MmToMmpConverter {
 
 	//#region buildFirstTokenInfo
 	getStepRef(isLastStatementInMmProof: boolean): string {
-		let stepRef = this.mmpProof.mmpStatements.length.toString();
+		// let stepRef = this.mmpProof.mmpStatements.length.toString();
+		// removes the leading 'd' character
+		let stepRef = this.mmpProof.getNewRef().substring(1);
 		if (isLastStatementInMmProof)
 			stepRef = 'qed';
 		return stepRef;
@@ -174,12 +177,28 @@ export class MmToMmpConverter {
 		this.stack.push(assertionStatementWithSubstitution);
 	}
 	//#endregion addSingleStepToMmpProof
+
+	addEHypMmpProofStep(eHyp: EHyp) {
+		const stepRef: string = this.getStepRef(false);
+		const stepRefToken: MmToken = new MmToken(stepRef, 0, 0);
+		const firstToken: MmToken = this.buildFirstToken(stepRef, [], eHyp.Label);
+		const labelToken: MmToken = new MmToken(eHyp.Label, 0, 0);
+		const firstTokenInfo: ProofStepFirstTokenInfo = new ProofStepFirstTokenInfo(
+			firstToken, true, stepRefToken, [], labelToken);
+		const formula: MmToken[] = fromStringsToTokens(eHyp.formula);
+		const mmpProofStep: MmpProofStep = new MmpProofStep(this.mmpProof, firstTokenInfo, true, true,
+			firstTokenInfo.stepRef, firstTokenInfo.eHypRefs, [], firstTokenInfo.stepLabel, formula);
+		this.mmpProof.addMmpStep(mmpProofStep);
+		this.formulaStringToMmpProofStepMap.set(mmpProofStep.textForFormula!, mmpProofStep);
+	}
+
 	private addMmpStatementsFromDecompressedProof(mmProof: Statement[]) {
 		mmProof.forEach((statement: Statement, i: number) => {
 			if (statement instanceof FHyp) {
 				this.stack.push(statement.formula);
 			} else if (statement instanceof EHyp) {
 				//TODO1 20 MAY add eHyp MmpProofStep
+				this.addEHypMmpProofStep(statement);
 				this.stack.push(statement.formula);
 			} else if (statement instanceof ZIStatement) {
 				this.stored.push(this.stack[this.stack.length - 1]);
