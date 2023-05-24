@@ -44,17 +44,17 @@ test('getproof elabgf', () => {
 	const textEdit: TextEdit = textEditArray[0];
 	const newTextExpected =
 		'$theorem elabgf\n' +
-		'h1::elabgf.1       |- F/_ x A\n' +
-		'h2::elabgf.2        |- F/ x ps\n' +
-		'h3::elabgf.3        |- ( x = A -> ( ph <-> ps ) )\n' +
-		'4::nfab1             |- F/_ x { x | ph }\n' +
-		'5:1,4:nfel        |- F/ x A e. { x | ph }\n' +
-		'6:5,2:nfbi       |- F/ x ( A e. { x | ph } <-> ps )\n' +
-		'7::eleq1            |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )\n' +
-		'8:7,1:bibi12d    |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )\n' +
-		'9::abid            |- ( x e. { x | ph } <-> ph )\n' +
+		'h1::elabgf.1          |- F/_ x A\n' +
+		'h2::elabgf.2         |- F/ x ps\n' +
+		'h3::elabgf.3         |- ( x = A -> ( ph <-> ps ) )\n' +
+		'4::nfab1              |- F/_ x { x | ph }\n' +
+		'5:1,4:nfel           |- F/ x A e. { x | ph }\n' +
+		'6:5,2:nfbi          |- F/ x ( A e. { x | ph } <-> ps )\n' +
+		'7::eleq1             |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )\n' +
+		'8:7,3:bibi12d       |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )\n' +
+		'9::abid             |- ( x e. { x | ph } <-> ph )\n' +
 		'qed:1,6,8,9:vtoclgf\n' +
-		'                   |- ( A e. B -> ( A e. { x | ph } <-> ps ) )';
+		'                   |- ( A e. B -> ( A e. { x | ph } <-> ps ) )\n';
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 

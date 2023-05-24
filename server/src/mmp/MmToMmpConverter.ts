@@ -48,11 +48,50 @@ export class MmToMmpConverter {
 	}
 	private addHeaderStatements(provableStatement: ProvableStatement) {
 		this.addTheoremLabel(provableStatement.Label);
-		if (provableStatement.comment != undefined)
+		if (provableStatement.comment != undefined && provableStatement.comment.length > 0)
 			this.addComment(provableStatement.comment);
-		//TODO1 18 MAY 2023 add comment
 	}
 	//#region addMmpStatements
+
+	private isFormulaAlreadyInTheProof(formula: string[]): boolean {
+		const textForFormula: string = concatWithSpaces(formula);
+		const isAlreadyInThProof: boolean = (this.formulaStringToMmpProofStepMap.get(textForFormula)
+			!= undefined);
+		return isAlreadyInThProof;
+	}
+
+	getStepRef(isLastStatementInMmProof: boolean): string {
+		// let stepRef = this.mmpProof.mmpStatements.length.toString();
+		// removes the leading 'd' character
+		let stepRef = this.mmpProof.getNewRef().substring(1);
+		if (isLastStatementInMmProof)
+			stepRef = 'qed';
+		return stepRef;
+	}
+
+	//#region addEHypMmpProofSteps
+	addEHypMmpProofStep(eHyp: EHyp) {
+		const stepRef: string = this.getStepRef(false);
+		const stepRefToken: MmToken = new MmToken(stepRef, 0, 0);
+		const firstToken: MmToken = this.buildFirstToken(stepRef, [], eHyp.Label);
+		const labelToken: MmToken = new MmToken(eHyp.Label, 0, 0);
+		const firstTokenInfo: ProofStepFirstTokenInfo = new ProofStepFirstTokenInfo(
+			firstToken, true, stepRefToken, [], labelToken);
+		const formula: MmToken[] = fromStringsToTokens(eHyp.formula);
+		const mmpProofStep: MmpProofStep = new MmpProofStep(this.mmpProof, firstTokenInfo, true, true,
+			firstTokenInfo.stepRef, firstTokenInfo.eHypRefs, [], firstTokenInfo.stepLabel, formula);
+		this.mmpProof.addMmpStep(mmpProofStep);
+		this.formulaStringToMmpProofStepMap.set(mmpProofStep.textForFormula!, mmpProofStep);
+	}
+	addEHypMmpProofSteps(mmProof: Statement[]) {
+		mmProof.forEach((statement: Statement) => {
+			if (statement instanceof EHyp && !this.isFormulaAlreadyInTheProof(statement.formula))
+				this.addEHypMmpProofStep(statement);
+		});
+	}
+	//#endregion addEHypMmpProofSteps
+
+
 
 	//#region addSingleStepToMmpProof
 
@@ -88,14 +127,6 @@ export class MmToMmpConverter {
 	//#endregion getEHypMmpSteps
 
 	//#region buildFirstTokenInfo
-	getStepRef(isLastStatementInMmProof: boolean): string {
-		// let stepRef = this.mmpProof.mmpStatements.length.toString();
-		// removes the leading 'd' character
-		let stepRef = this.mmpProof.getNewRef().substring(1);
-		if (isLastStatementInMmProof)
-			stepRef = 'qed';
-		return stepRef;
-	}
 	//#region buildFirstToken
 	getStepRefs(eHypMmpSteps: MmpProofStep[]): string {
 		let stepRefs: string = eHypMmpSteps.length == 0 ? '' : eHypMmpSteps[0].stepRef;
@@ -178,33 +209,20 @@ export class MmToMmpConverter {
 	}
 	//#endregion addSingleStepToMmpProof
 
-	addEHypMmpProofStep(eHyp: EHyp) {
-		const stepRef: string = this.getStepRef(false);
-		const stepRefToken: MmToken = new MmToken(stepRef, 0, 0);
-		const firstToken: MmToken = this.buildFirstToken(stepRef, [], eHyp.Label);
-		const labelToken: MmToken = new MmToken(eHyp.Label, 0, 0);
-		const firstTokenInfo: ProofStepFirstTokenInfo = new ProofStepFirstTokenInfo(
-			firstToken, true, stepRefToken, [], labelToken);
-		const formula: MmToken[] = fromStringsToTokens(eHyp.formula);
-		const mmpProofStep: MmpProofStep = new MmpProofStep(this.mmpProof, firstTokenInfo, true, true,
-			firstTokenInfo.stepRef, firstTokenInfo.eHypRefs, [], firstTokenInfo.stepLabel, formula);
-		this.mmpProof.addMmpStep(mmpProofStep);
-		this.formulaStringToMmpProofStepMap.set(mmpProofStep.textForFormula!, mmpProofStep);
-	}
-
 	private addMmpStatementsFromDecompressedProof(mmProof: Statement[]) {
+		this.addEHypMmpProofSteps(mmProof);
 		mmProof.forEach((statement: Statement, i: number) => {
 			if (statement instanceof FHyp) {
 				this.stack.push(statement.formula);
 			} else if (statement instanceof EHyp) {
 				//TODO1 20 MAY add eHyp MmpProofStep
-				this.addEHypMmpProofStep(statement);
+				// this.addEHypMmpProofStep(statement);
 				this.stack.push(statement.formula);
 			} else if (statement instanceof ZIStatement) {
 				this.stored.push(this.stack[this.stack.length - 1]);
 			} else if (statement instanceof ZRStatement) {
 				this.stack.push(this.stored[(<ZRStatement>statement).referencedZ]);
-			} else if (statement instanceof AssertionStatement)
+			} else if (statement instanceof AssertionStatement && !this.isFormulaAlreadyInTheProof(statement.formula))
 				this.addSingleStepToMmpProof(<AssertionStatement>statement,
 					i == mmProof.length - 1);
 		});

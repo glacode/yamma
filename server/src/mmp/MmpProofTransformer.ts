@@ -336,7 +336,7 @@ export class MmpProofTransformer {
 		if (mmpProof instanceof MmpProof) {
 			// the getProof statement actually refers to a proovable statement, in the theory
 			this.uProof.mmpStatements.splice(i, 1, ...mmpProof.mmpStatements);
-			nextUStepIndexToBeTransformed = i + mmpProof.mmpStatements.length - 1;
+			nextUStepIndexToBeTransformed = i + mmpProof.mmpStatements.length;
 		}
 		return nextUStepIndexToBeTransformed;
 	}
