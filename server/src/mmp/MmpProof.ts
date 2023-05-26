@@ -20,6 +20,7 @@ export class MmpProof implements ITheoremSignature {
 	maxRefAlreadyAssigned = 0;
 
 	mmpStatements: IMmpStatement[];
+	mmpTheoremLabels: MmpTheoremLabel[] = [];
 
 	/** the theorem label is expected to be the first statement */
 	public get theoremLabel(): MmToken | undefined {
@@ -238,12 +239,13 @@ export class MmpProof implements ITheoremSignature {
 		// this.refToUStatementMap.set(uProofStep.stepRef!, uProofStep);
 	}
 
-	addMmpStatement(uStatement: IMmpStatement) {
-		this.mmpStatements.push(uStatement);
-		if (uStatement instanceof MmpProofStep) {
-			this.updateMaxRefIfItsTheCase(uStatement.stepRef);
+	addMmpStatement(mmpStatement: IMmpStatement) {
+		this.mmpStatements.push(mmpStatement);
+		if (mmpStatement instanceof MmpProofStep) {
+			this.updateMaxRefIfItsTheCase(mmpStatement.stepRef);
 			// this.refToUStatementMap.set(uStatement.stepRef!, uStatement);
-		}
+		} else if (mmpStatement instanceof MmpTheoremLabel)
+			this.mmpTheoremLabels.push(mmpStatement);
 	}
 
 	containsDjVarStatement(var1: string, var2: string): boolean {

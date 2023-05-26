@@ -73,6 +73,7 @@ export enum MmpParserWarningCode {
 export class MmpParser {
 
 	textToParse: string;
+	mmLexer: MmLexer;
 	mmParser: MmParser;
 	labelToStatementMap: Map<string, LabeledStatement>;
 	outermostBlock: BlockStatement;
@@ -113,6 +114,8 @@ export class MmpParser {
 		this.outermostBlock = mmParser.outermostBlock;
 		this.grammar = mmParser.grammar;
 		this.workingVars = workingVars;
+
+		this.mmLexer = new MmLexer(workingVars);
 
 		// this.mmParser = mmParser;
 		this.refToProofStepMap = new Map<string, MmpProofStep>();
@@ -532,7 +535,7 @@ export class MmpParser {
 		else if (nextTokenValue == '$=')
 			// current statement is a proof
 			this.addTextProofStatement(nextProofStepTokens);
-		else
+		else if (!nextTokenValue.startsWith('$'))
 			// current statement is a proof step
 			this.createMmpProofStep(nextProofStepTokens);
 	}
@@ -712,7 +715,8 @@ export class MmpParser {
 	 * @param grammar 
 	 */
 	protected createMmpStatements() {
-		const mmLexer: MmLexer = new MmLexer(this.workingVars);
+		// const mmLexer: MmLexer = new MmLexer(this.workingVars);
+		const mmLexer: MmLexer = this.mmLexer;
 		mmLexer.reset(this.textToParse);
 		this.mmTokens = mmLexer.tokens;
 		let token: MmToken | undefined = mmLexer.next();

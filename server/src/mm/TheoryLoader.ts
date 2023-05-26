@@ -78,7 +78,7 @@ export class TheoryLoader {
 		else {
 			this.globalState.mmFilePath = mmFilePath;
 			this.globalState.mmParser = this.mmParser!;
-			message = `The theory file ${mmFilePath} has been successfully parsed`;
+			message = `The theory file ${mmFilePath} has been successfully parsed and verified`;
 			notifyInformation(message, this.connection);
 		}
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });

@@ -93,7 +93,7 @@ connection.onInitialize((params: InitializeParams) => {
 			// Tell the client that this server supports code completion.
 			completionProvider: {
 				resolveProvider: true,
-				triggerCharacters: ['.', '-', '/', '\\', ' ']
+				triggerCharacters: ['.', '$', '-', '/', '\\', ' ']
 			},
 
 			//Glauco

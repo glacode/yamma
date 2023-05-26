@@ -9,6 +9,7 @@ import { IMmpStatementWithRange, IMmpStatement } from './MmpStatement';
 /** the cursor position determines which kind of completion is required */
 
 export enum CursorContextForCompletion {
+	firstCharacterOfAnEmptyALine = 'firstCharacterOfAnEmptyALine',
 	stepFormula = 'stepFormula',
 	stepLabel = 'stepLabel',
 	searchStatement = 'searchStatement'
@@ -104,6 +105,8 @@ export class CursorContext {
 		return formulaBeforeCursor;
 	}
 	//#endregion getFormulaBeforeCursorInUProofStep
+
+	//TODO remove, if not used
 	/** returns undefined if the cursor is not on a proof step; returns [] if the cursor is on an empty proof step formula;
 	 * returns the portion of formula that preceeds the cursor (if the cursor is on a nonempty proof step formula)
 	 */
@@ -121,15 +124,49 @@ export class CursorContext {
 					//TODO this needs to be improved, now it's not checking if it's in 'free space'
 					this.contextForCompletion = CursorContextForCompletion.stepFormula;
 				}
-			} else if ( mmpStatement instanceof MmpSearchStatement) {
+			} else if (mmpStatement instanceof MmpSearchStatement) {
 				this.contextForCompletion = CursorContextForCompletion.searchStatement;
 			}
 		}
 		return formula;
 	}
 	//#endregion formulaBeforeCursor
+
+	//#region isfirstCharacterOrAfterDollarSign
+	private isAfterDollarSign(): boolean {
+		const tokenLine = this.mmpParser.mmLexer.tokenLines[this.cursorLine];
+		const result: boolean = tokenLine.length == 1 && tokenLine[0].value.startsWith('$') &&
+			this.cursorCharacter <= tokenLine[0].value.length;
+		return result;
+	}
+	private isfirstCharacterOrAfterDollarSign(): boolean {
+		const result: boolean = this.cursorCharacter == 0 ||
+			this.isAfterDollarSign();
+		return result;
+	}
+	//#endregion isfirstCharacterOrAfterDollarSign
+
+
 	buildContext() {
 		// this.setMmpProofStep();
-		this.formulaBeforeCursor();
+		// this.formulaBeforeCursor();
+		const uProof: MmpProof | undefined = this.mmpParser.mmpProof;
+		if (uProof != undefined) {
+			const mmpStatement: IMmpStatementWithRange | undefined = this.mmpStatement;
+			if (mmpStatement instanceof MmpProofStep) {
+				if (this.isOnStepLabel(mmpStatement))
+					//TODO
+					this.contextForCompletion = CursorContextForCompletion.stepLabel;
+				else {
+					// formula = this.getFormulaBeforeCursorInUProofStep(mmpStatement);
+					//TODO this needs to be improved, now it's not checking if it's in 'free space'
+					this.contextForCompletion = CursorContextForCompletion.stepFormula;
+				}
+			} else if (mmpStatement instanceof MmpSearchStatement) {
+				this.contextForCompletion = CursorContextForCompletion.searchStatement;
+			} else if (mmpStatement == undefined && this.isfirstCharacterOrAfterDollarSign())
+				this.contextForCompletion = CursorContextForCompletion.firstCharacterOfAnEmptyALine;
+
+		}
 	}
 }

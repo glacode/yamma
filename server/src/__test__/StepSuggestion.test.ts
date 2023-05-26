@@ -7,7 +7,8 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { StepSuggestion } from '../stepSuggestion/StepSuggestion';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
-import { impbiiMmParser, kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
+import { impbiiMmParser, kindToPrefixMap, mp2MmParser, opelcnMmParser } from './GlobalForTest.test';
+import { CompletionProviderForEmptyLine } from '../mmp/CompletionProviderForEmptyLine';
 
 test("test 1 SyntaxTreeClassifierFull", () => {
 	// 	50::df-c             |- CC = ( R. X. R. )
@@ -210,4 +211,70 @@ test("step suggestion for empty parse node from partial label", () => {
 	const textEdit: InsertReplaceEdit = <InsertReplaceEdit>completionItems[0].textEdit;
 	expect(textEdit.insert.start.character).toBe(0);
 	expect(textEdit.insert.end.character).toBe(3);
+});
+
+test("MmpStatement suggestion for empty line", () => {
+	const mmParser: MmParser = mp2MmParser;
+	const mmpSource =
+		'\n' +
+		'\n' +
+		'qed: |- ps';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	// const outermostBlock: BlockStatement = new BlockStatement(null);
+	mmpParser.parse();
+	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(1);
+	const cursorContext: CursorContext = new CursorContext(1, 0, mmpParser);
+	cursorContext.buildContext();
+	expect(cursorContext.contextForCompletion).toBe(CursorContextForCompletion.firstCharacterOfAnEmptyALine);
+	const completionProvider: CompletionProviderForEmptyLine =
+		new CompletionProviderForEmptyLine(mmpParser);
+	const completionItems: CompletionItem[] = completionProvider.completionItems();
+	expect(completionItems.length).toBe(2);
+	expect(completionItems[0].label).toEqual('$theorem');
+	// expect(completionItems[0].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[1].label).toEqual('$getproof');
+});
+
+test("No suggestion for $theorem, because it is already present", () => {
+	const mmParser: MmParser = mp2MmParser;
+	const mmpSource =
+		'$theorem test\n' +
+		'\n' +
+		'qed: |- ps';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	// const outermostBlock: BlockStatement = new BlockStatement(null);
+	mmpParser.parse();
+	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(2);
+	const cursorContext: CursorContext = new CursorContext(1, 0, mmpParser);
+	cursorContext.buildContext();
+	expect(cursorContext.contextForCompletion).toBe(CursorContextForCompletion.firstCharacterOfAnEmptyALine);
+	const completionProvider: CompletionProviderForEmptyLine =
+		new CompletionProviderForEmptyLine(mmpParser);
+	const completionItems: CompletionItem[] = completionProvider.completionItems();
+	expect(completionItems.length).toBe(1);
+	expect(completionItems[0].label).toEqual('$getproof');
+});
+
+test("MmpStatement suggestion when $ is inserted", () => {
+
+	const mmParser: MmParser = mp2MmParser;
+
+	const mmpSource =
+		'\n' +
+		'$\n' +
+		'qed: |- ps';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	// const outermostBlock: BlockStatement = new BlockStatement(null);
+	mmpParser.parse();
+	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(1);
+	const cursorContext: CursorContext = new CursorContext(1, 1, mmpParser);
+	cursorContext.buildContext();
+	expect(cursorContext.contextForCompletion).toBe(CursorContextForCompletion.firstCharacterOfAnEmptyALine);
+	const completionProvider: CompletionProviderForEmptyLine =
+		new CompletionProviderForEmptyLine(mmpParser);
+	const completionItems: CompletionItem[] = completionProvider.completionItems();
+	expect(completionItems.length).toBe(2);
+	expect(completionItems[0].label).toEqual('$theorem');
+	// expect(completionItems[0].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[1].label).toEqual('$getproof');
 });

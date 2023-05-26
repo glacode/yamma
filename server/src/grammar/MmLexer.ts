@@ -40,7 +40,7 @@ export class MmToken {
 		this.type = type;
 	}
 
-	containsTokenValue(value: string) : boolean{
+	containsTokenValue(value: string): boolean {
 		return this.value == value;
 	}
 
@@ -79,6 +79,7 @@ export class MmLexer implements Lexer {
 	tokens: MmToken[] = []
 	// tokenRow: number[] = []
 	// tokenColumn: number[] = []
+	tokenLines: MmToken[][] = []
 	textToTokenize = ""
 	nextTokenIndex = 0;
 	workingVars: WorkingVars;
@@ -97,8 +98,9 @@ export class MmLexer implements Lexer {
 			const regExp = /[^\s]+/g;
 			// let splitResult: MmToken[]
 			for (let i = 0; i < textLines.length; i++) {
-				const splitResult = splitToTokens(textLines[i], regExp, i, 0);
-				this.tokens = this.tokens.concat(splitResult);
+				const tokensForCurrentLine = splitToTokens(textLines[i], regExp, i, 0);
+				this.tokenLines.push(tokensForCurrentLine);
+				this.tokens = this.tokens.concat(tokensForCurrentLine);
 			}
 			this.nextTokenIndex = 0;
 		}
