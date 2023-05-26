@@ -1,7 +1,6 @@
 import { Parameters } from '../general/Parameters';
 import { splitToTokensDefault } from '../mm/Utils';
 import { MmpProof } from './MmpProof';
-import { MmpProofStep } from './MmpProofStep';
 import { IMmpStatement, MmpComment } from './MmpStatement';
 import { MmpTheoremLabel } from "./MmpTheoremLabel";
 
@@ -19,19 +18,23 @@ export class MmpHeaderManager {
 	}
 
 	//#region addMissingStatements
-	getIndexOfFirstMmpProofStepIfMissingComment(): number | undefined {
+	/** searches the first index for a MmpStatement that is not
+	 * a MmpTheoremLabel. If this is not a MmpComment, than a comment is inserted
+	 */
+	getIndexToInsertMissingComment(): number | undefined {
 		let index = 0;
 		const mmpStatements = this.mmpProof.mmpStatements;
 		while (index < mmpStatements.length &&
-			!(mmpStatements[index] instanceof MmpComment) &&
-			!(mmpStatements[index] instanceof MmpProofStep))
+			// !(mmpStatements[index] instanceof MmpComment) &&
+			// !(mmpStatements[index] instanceof MmpProofStep))
+			mmpStatements[index] instanceof MmpTheoremLabel)
 			index++;
-		const indexOfFirstMmpStatement: number | undefined = mmpStatements[index] instanceof MmpProofStep ?
-			index : undefined;
+		const indexOfFirstMmpStatement: number | undefined = mmpStatements[index] instanceof MmpComment ?
+			undefined : index;
 		return indexOfFirstMmpStatement;
 	}
 	addCommentIfMissing() {
-		const index: number | undefined = this.getIndexOfFirstMmpProofStepIfMissingComment();
+		const index: number | undefined = this.getIndexToInsertMissingComment();
 		if (index != undefined)
 			// there is at least a MmpProof steps, and index is the index
 			// of the first MmpProof step

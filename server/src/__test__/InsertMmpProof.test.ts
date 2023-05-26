@@ -31,10 +31,11 @@ test('Expect mmp proof for id theorem, to be inserted', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-test('getproof elabgf', () => {
+test('getproof expect eHyps at the top and the duplicated qed with the same formula to be removed', () => {
 	// we've decided not to remove the wrong ref
 	const mmpSource =
-		'$getproof elabgf\n';
+		'$getproof elabgf\n' +
+		'qed: |- ( A e. B -> ( A e. { x | ph } <-> ps ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
@@ -43,6 +44,7 @@ test('getproof elabgf', () => {
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
 	const newTextExpected =
+		'\n* MissingComment\n\n' +
 		'$theorem elabgf\n' +
 		'h1::elabgf.1          |- F/_ x A\n' +
 		'h2::elabgf.2         |- F/ x ps\n' +
