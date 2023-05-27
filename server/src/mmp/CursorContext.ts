@@ -132,6 +132,16 @@ export class CursorContext {
 	}
 	//#endregion formulaBeforeCursor
 
+	/** the first token, if it touches the cursor (the cursor could be just after the token) */
+	public static firstTokenIfItTouchesTheCursor(cursorLine: number, cursorCharacter: number, mmpParser: MmpParser):
+		MmToken | undefined {
+		let token: MmToken | undefined;
+		const tokenLine = mmpParser.mmLexer.tokenLines[cursorLine];
+		if (tokenLine.length >= 1 && cursorCharacter <= tokenLine[0].value.length)
+			token = tokenLine[0];
+		return token;
+	}
+
 	//#region isfirstCharacterOrAfterDollarSign
 	private isAfterDollarSign(): boolean {
 		const tokenLine = this.mmpParser.mmLexer.tokenLines[this.cursorLine];

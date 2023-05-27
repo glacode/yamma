@@ -85,7 +85,8 @@ export class OnCompletionHandler {
 			cursorContext.buildContext();
 			switch (cursorContext.contextForCompletion) {
 				case CursorContextForCompletion.firstCharacterOfAnEmptyALine: {
-					const CompletionProvider = new CompletionProviderForEmptyLine(mmpParser);
+					const CompletionProvider = new CompletionProviderForEmptyLine(
+						cursorContext, mmpParser);
 					completionItems = CompletionProvider.completionItems();
 				}
 					break;
