@@ -21,6 +21,7 @@ import { loadMmtFilesCommandHandler, storeMmtFileCommandHandler } from "./mmt/Mm
 import { searchCommandHandler } from "./commandHandlers/SearchCommandHandler";
 import { completionItemSelectedHandler } from './commandHandlers/CompletionItemSelectedHandler';
 import { editor } from './test/helper';
+import { triggerSuggestionHandler } from './commandHandlers/triggerSuggestionHandler';
 
 let client: LanguageClient;
 
@@ -85,6 +86,8 @@ export function activate(context: ExtensionContext) {
 		disposable = commands.registerCommand('yamma.search', searchCommandHandler, client);
 		disposable = commands.registerCommand('yamma.completionitemselected',
 			completionItemSelectedHandler, client);
+		disposable = commands.registerCommand('yamma.triggersuggestion',
+			triggerSuggestionHandler, client);
 		context.subscriptions.push(disposable);
 
 		client.onNotification('yamma/movecursor', (range: Range) => {

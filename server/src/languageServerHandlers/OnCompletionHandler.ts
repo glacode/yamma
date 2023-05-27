@@ -13,6 +13,7 @@ import { SearchStatementCompletionProvider } from '../search/SearchStatementComp
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { CompletionProviderForEmptyLine } from '../mmp/CompletionProviderForEmptyLine';
+import { CompletionProviderForAfterGetProof } from '../mmp/CompletionProviderForAfterGetProof';
 
 export class OnCompletionHandler {
 	textDocumentPosition: TextDocumentPositionParams
@@ -85,9 +86,15 @@ export class OnCompletionHandler {
 			cursorContext.buildContext();
 			switch (cursorContext.contextForCompletion) {
 				case CursorContextForCompletion.firstCharacterOfAnEmptyALine: {
-					const CompletionProvider = new CompletionProviderForEmptyLine(
+					const completionProvider = new CompletionProviderForEmptyLine(
 						cursorContext, mmpParser);
-					completionItems = CompletionProvider.completionItems();
+					completionItems = completionProvider.completionItems();
+				}
+					break;
+				case CursorContextForCompletion.afterGetProof: {
+					const completionProvider = new CompletionProviderForAfterGetProof(
+						cursorContext, mmpParser);
+					completionItems = completionProvider.completionItems();
 				}
 					break;
 				case CursorContextForCompletion.stepFormula: {

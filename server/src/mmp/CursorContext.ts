@@ -10,9 +10,10 @@ import { IMmpStatementWithRange, IMmpStatement } from './MmpStatement';
 
 export enum CursorContextForCompletion {
 	firstCharacterOfAnEmptyALine = 'firstCharacterOfAnEmptyALine',
-	stepFormula = 'stepFormula',
+	afterGetProof = 'afterGetProof',
+	searchStatement = 'searchStatement',
 	stepLabel = 'stepLabel',
-	searchStatement = 'searchStatement'
+	stepFormula = 'stepFormula'
 }
 
 /** build info about the cursor context, and the proof step where the cursor is */
@@ -132,6 +133,14 @@ export class CursorContext {
 	}
 	//#endregion formulaBeforeCursor
 
+	/**
+	 * tokens in the line where the cursor is
+	 */
+	public get currentLine(): MmToken[] {
+		const tokenLine = this.mmpParser.mmLexer.tokenLines[this.cursorLine];
+		return tokenLine;
+	}
+
 	/** the first token, if it touches the cursor (the cursor could be just after the token) */
 	public static firstTokenIfItTouchesTheCursor(cursorLine: number, cursorCharacter: number, mmpParser: MmpParser):
 		MmToken | undefined {
@@ -156,6 +165,12 @@ export class CursorContext {
 	}
 	//#endregion isfirstCharacterOrAfterDollarSign
 
+	isAfterGetProof(): boolean {
+		const result: boolean = this.currentLine.length > 0 &&
+			this.currentLine[0].value == '$getproof' &&
+			this.currentLine[0].range.end.character < this.cursorCharacter;
+		return result;
+	}
 
 	buildContext() {
 		// this.setMmpProofStep();
@@ -176,6 +191,8 @@ export class CursorContext {
 				this.contextForCompletion = CursorContextForCompletion.searchStatement;
 			} else if (mmpStatement == undefined && this.isfirstCharacterOrAfterDollarSign())
 				this.contextForCompletion = CursorContextForCompletion.firstCharacterOfAnEmptyALine;
+			else if (this.isAfterGetProof())
+				this.contextForCompletion = CursorContextForCompletion.afterGetProof;
 
 		}
 	}

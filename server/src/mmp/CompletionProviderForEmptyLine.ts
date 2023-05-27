@@ -1,10 +1,12 @@
-import { CompletionItem, InsertReplaceEdit, Range } from 'vscode-languageserver';
+import { Command, CompletionItem, InsertReplaceEdit, Range } from 'vscode-languageserver';
 import { CursorContext } from './CursorContext';
 import { MmpParser } from './MmpParser';
 import { MmToken } from '../grammar/MmLexer';
 import { range } from '../mm/Utils';
 
 export class CompletionProviderForEmptyLine {
+	private command: Command = Command.create('Completion item selected', 'yamma.triggersuggestion');
+
 	constructor(private cursorContext: CursorContext, private mmpParser: MmpParser) {
 
 	}
@@ -28,12 +30,15 @@ export class CompletionProviderForEmptyLine {
 		}
 		return insertReplaceEdit;
 	}
-	addCompletionItem(suggestedLable: string, completionItems: CompletionItem[]) {
+	addCompletionItem(suggestedLable: string, sortText: string, completionItems: CompletionItem[],
+		command?: Command) {
 		const insertReplaceEdit: InsertReplaceEdit | undefined =
 			this.insertReplaceEdit(suggestedLable);
 		const completionItem: CompletionItem = {
 			label: suggestedLable,
-			textEdit: insertReplaceEdit
+			sortText: sortText,
+			textEdit: insertReplaceEdit,
+			command: command
 		};
 		completionItems.push(completionItem);
 	}
@@ -44,10 +49,10 @@ export class CompletionProviderForEmptyLine {
 		if (this.mmpParser.mmpProof != undefined &&
 			this.mmpParser.mmpProof?.mmpTheoremLabels.length == 0)
 			// there is not a MmpTheoremStatement, in the proof
-			this.addCompletionItem('$theorem ', completionItems);
+			this.addCompletionItem('$theorem ', '1', completionItems);
 	}
 	addCompletionItemForGetProof(completionItems: CompletionItem[]) {
-		this.addCompletionItem('$getproof ', completionItems);
+		this.addCompletionItem('$getproof ', '2', completionItems, this.command);
 	}
 	completionItems(): CompletionItem[] {
 		const completionItems: CompletionItem[] = [];
