@@ -335,7 +335,9 @@ export class MmpProofTransformer {
 		const mmpProof: MmpProof | undefined = this.buildProof(mmpGetProofStatement);
 		if (mmpProof instanceof MmpProof) {
 			// the getProof statement actually refers to a proovable statement, in the theory
-			this.uProof.mmpStatements.splice(i, 1, ...mmpProof.mmpStatements);
+			// this.uProof.mmpStatements.splice(i, 1, ...mmpProof.mmpStatements);
+			this.uProof.mmpStatements.splice(i, 1);
+			this.uProof.insertMmpStatements(mmpProof.mmpStatements, i);
 			nextUStepIndexToBeTransformed = i + mmpProof.mmpStatements.length;
 		}
 		return nextUStepIndexToBeTransformed;

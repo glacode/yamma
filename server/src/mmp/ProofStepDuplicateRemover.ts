@@ -59,12 +59,12 @@ export abstract class ProofStepDuplicateRemover {
 				// mmpStatement is not a MmpProofStep
 				i++;
 		}
-		mmpProof.mmpStatements.forEach((mmpStatement: IMmpStatement, index: integer) => {
-			if (mmpStatement instanceof MmpProofStep) {
-				ProofStepDuplicateRemover.removeMmpProofStepIfTheCase(mmpStatement, index, mmpProof, oldRefToNewRefMap);
-				ProofStepDuplicateRemover.updateEHypsIfNeeded(mmpStatement, oldRefToNewRefMap);
-			}
-		});
+		// mmpProof.mmpStatements.forEach((mmpStatement: IMmpStatement, index: integer) => {
+		// 	if (mmpStatement instanceof MmpProofStep) {
+		// 		ProofStepDuplicateRemover.removeMmpProofStepIfTheCase(mmpStatement, index, mmpProof, oldRefToNewRefMap);
+		// 		ProofStepDuplicateRemover.updateEHypsIfNeeded(mmpStatement, oldRefToNewRefMap);
+		// 	}
+		// });
 	}
 	//#endregion removeDuplicates
 }

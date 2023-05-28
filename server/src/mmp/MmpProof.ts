@@ -85,7 +85,7 @@ export class MmpProof implements ITheoremSignature {
 	/** the number of steps added by the unification; this is added to
 	 * this.formulaToProofStepMap to find the real step index
 	 */
-	private stepsInsertedAtASpecificIndexSoFar = 0;
+	private statementsInsertedAtASpecificIndexSoFar = 0;
 
 	constructor(outermostBlock: BlockStatement, workingVars: WorkingVars, startIndexForNewRefs?: number) {
 		this.outermostBlock = outermostBlock;
@@ -235,7 +235,7 @@ export class MmpProof implements ITheoremSignature {
 		if (this.lastMmpProofStep != undefined && this.mmpStatements.indexOf(this.lastMmpProofStep) < index)
 			this.lastMmpProofStep = uProofStep;
 		this.updateMaxRefIfItsTheCase(uProofStep.stepRef);
-		this.stepsInsertedAtASpecificIndexSoFar++;
+		this.statementsInsertedAtASpecificIndexSoFar++;
 		// this.refToUStatementMap.set(uProofStep.stepRef!, uProofStep);
 	}
 
@@ -247,6 +247,15 @@ export class MmpProof implements ITheoremSignature {
 		} else if (mmpStatement instanceof MmpTheoremLabel)
 			this.mmpTheoremLabels.push(mmpStatement);
 	}
+
+	//#region insertMmpStatements
+	/** insert statements at the given index */
+	insertMmpStatements(mmpStatements: IMmpStatement[], i: number) {
+		this.mmpStatements.splice(i, 0, ...mmpStatements);
+		this.statementsInsertedAtASpecificIndexSoFar += mmpStatements.length;
+	}
+	//#endregion insertMmpStatements
+
 
 	containsDjVarStatement(var1: string, var2: string): boolean {
 		// const orderedVar1 = (var1 < var2 ? var1 : var2);
@@ -363,7 +372,7 @@ export class MmpProof implements ITheoremSignature {
 		const originalIndex: number | undefined =
 			this.formulaToProofStepMap.get(formula);
 		const adjustedIndex: number | undefined = originalIndex != undefined ?
-			originalIndex + this.stepsInsertedAtASpecificIndexSoFar : undefined;
+			originalIndex + this.statementsInsertedAtASpecificIndexSoFar : undefined;
 		return adjustedIndex;
 	}
 }
