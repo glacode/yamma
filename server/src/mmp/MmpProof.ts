@@ -87,7 +87,8 @@ export class MmpProof implements ITheoremSignature {
 	 */
 	private statementsInsertedAtASpecificIndexSoFar = 0;
 
-	constructor(outermostBlock: BlockStatement, workingVars: WorkingVars, startIndexForNewRefs?: number) {
+	constructor(outermostBlock: BlockStatement, workingVars: WorkingVars,
+		private startIndexForNewRefs?: number) {
 		this.outermostBlock = outermostBlock;
 		this.workingVars = workingVars;
 		if (startIndexForNewRefs != undefined)
@@ -101,6 +102,18 @@ export class MmpProof implements ITheoremSignature {
 		this.formulaToProofStepMap = new Map<string, number>();
 	}
 
+	private reset() {
+		this.maxRefAlreadyAssigned = 0;
+		if (this.startIndexForNewRefs != undefined)
+			this.maxRefAlreadyAssigned = this.startIndexForNewRefs - 1;
+		this.mmpStatements = [];
+
+		// this._disjVars = new Map<string, Set<string>>();
+		this.disjVars = new DisjointVarMap();
+		this.eHyps = [];
+		this.disjVarMmpStatements = [];
+		this.formulaToProofStepMap = new Map<string, number>();
+	}
 
 
 	/** the set of the mandatory vars for this UProof */
@@ -184,6 +197,20 @@ export class MmpProof implements ITheoremSignature {
 		});
 	}
 
+	updateFormulaToProofStepMap(normalizedFormula: string) {
+		if (normalizedFormula != undefined) {
+			// const normalizedFormula: string = concatTokenValuesWithSpaces(proofStep.formula!);
+			const indexForFormulaIfAlreadyPresent: number | undefined =
+				this.formulaToProofStepMap.get(normalizedFormula);
+			if (indexForFormulaIfAlreadyPresent == undefined) {
+				// the current formula has not been encountered, yet
+				const proofStatementIndex: number = this.mmpStatements.length - 1;
+				this.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
+			}
+		}
+	}
+
+
 	/** if the current proof step is an eHyp, it is added to the array of eHyps  */
 	private updateEHyps(mmpProofStep: MmpProofStep) {
 		if (mmpProofStep.isEHyp)
@@ -201,10 +228,12 @@ export class MmpProof implements ITheoremSignature {
 		this.lastMmpProofStep = mmpProofStep;
 		// this.refToUStatementMap.set(mmpProofStep.stepRef, mmpProofStep);
 		this.updateMaxRefIfItsTheCase(mmpProofStep.stepRef);
-		if (mmpProofStep.stepFormula != undefined)
+		if (mmpProofStep.stepFormula != undefined) {
 			// we use the step formula instead of the step parse node, because we've decided
 			// to consider a WorkingVar to be already existent, even when it is in a non parsable formula
 			this.updateWorkingVarsIfTheCase(mmpProofStep.stepFormula);
+			this.updateFormulaToProofStepMap(mmpProofStep.normalizedFormula!);
+		}
 		this.updateEHyps(mmpProofStep);
 		// this.updateDisjVarUStatements(mmpProofStep);
 	}
@@ -240,19 +269,28 @@ export class MmpProof implements ITheoremSignature {
 	}
 
 	addMmpStatement(mmpStatement: IMmpStatement) {
-		this.mmpStatements.push(mmpStatement);
 		if (mmpStatement instanceof MmpProofStep) {
-			this.updateMaxRefIfItsTheCase(mmpStatement.stepRef);
-			// this.refToUStatementMap.set(uStatement.stepRef!, uStatement);
-		} else if (mmpStatement instanceof MmpTheoremLabel)
-			this.mmpTheoremLabels.push(mmpStatement);
+			this.addMmpStep(mmpStatement);
+		} else {
+			this.mmpStatements.push(mmpStatement);
+			if (mmpStatement instanceof MmpTheoremLabel)
+				this.mmpTheoremLabels.push(mmpStatement);
+		}
 	}
 
 	//#region insertMmpStatements
 	/** insert statements at the given index */
 	insertMmpStatements(mmpStatements: IMmpStatement[], i: number) {
-		this.mmpStatements.splice(i, 0, ...mmpStatements);
-		this.statementsInsertedAtASpecificIndexSoFar += mmpStatements.length;
+		const currentMmpStatements = this.mmpStatements;
+		this.reset();
+		for (let j = 0; j < i; j++)
+			this.addMmpStatement(currentMmpStatements[j]);
+		for (let j = 0; j < mmpStatements.length; j++)
+			this.addMmpStatement(mmpStatements[j]);
+		for (let j = i; j < currentMmpStatements.length; j++)
+			this.addMmpStatement(currentMmpStatements[j]);
+		// this.mmpStatements.splice(i, 0, ...mmpStatements);
+		// this.statementsInsertedAtASpecificIndexSoFar += mmpStatements.length;
 	}
 	//#endregion insertMmpStatements
 

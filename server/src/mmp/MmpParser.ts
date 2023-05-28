@@ -285,16 +285,16 @@ export class MmpParser {
 		}
 		// TODO handle case for proofStep.stepRef == undefined
 		//TODO1 feb 24 refactor: extract method
-		if (proofStep.formula != undefined) {
-			const normalizedFormula: string = concatTokenValuesWithSpaces(proofStep.formula!);
-			const indexForFormulaIfAlreadyPresent: number | undefined =
-				this.mmpProof?.formulaToProofStepMap.get(normalizedFormula);
-			if (indexForFormulaIfAlreadyPresent == undefined) {
-				// the current formula has not been encountered, yet
-				const proofStatementIndex: number = this.mmpProof!.mmpStatements.length - 1;
-				this.mmpProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
-			}
-		}
+		// if (proofStep.formula != undefined) {
+		// 	const normalizedFormula: string = concatTokenValuesWithSpaces(proofStep.formula!);
+		// 	const indexForFormulaIfAlreadyPresent: number | undefined =
+		// 		this.mmpProof?.formulaToProofStepMap.get(normalizedFormula);
+		// 	if (indexForFormulaIfAlreadyPresent == undefined) {
+		// 		// the current formula has not been encountered, yet
+		// 		const proofStatementIndex: number = this.mmpProof!.mmpStatements.length - 1;
+		// 		this.mmpProof?.formulaToProofStepMap.set(normalizedFormula, proofStatementIndex);
+		// 	}
+		// }
 	}
 
 	//#region addDiagnosticForLabelAndEHypRefs

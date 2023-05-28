@@ -31,7 +31,7 @@ test('Expect mmp proof for id theorem, to be inserted', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-test('getproof expect eHyps at the top', () => {
+test('getproof expect eHyps at the top and the duplicated qed with the same formula to be removed', () => {
 	const mmpSource =
 		'$getproof elabgf\n' +
 		'qed: |- ( A e. B -> ( A e. { x | ph } <-> ps ) )';
@@ -55,8 +55,7 @@ test('getproof expect eHyps at the top', () => {
 		'8:7,3:bibi12d       |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )\n' +
 		'9::abid             |- ( x e. { x | ph } <-> ph )\n' +
 		'qed:1,6,8,9:vtoclgf\n' +
-		'                   |- ( A e. B -> ( A e. { x | ph } <-> ps ) )\n' +
-		'qed::              |- ( A e. B -> ( A e. { x | ph } <-> ps ) )\n';
+		'                   |- ( A e. B -> ( A e. { x | ph } <-> ps ) )\n';
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 

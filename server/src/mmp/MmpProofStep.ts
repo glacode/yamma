@@ -61,6 +61,14 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 		return isProven;
 	}
 
+	private _normalizedFormula?: string;
+
+	public get normalizedFormula(): string | undefined {
+		if (this.formula != undefined)
+			this._normalizedFormula = concatTokenValuesWithSpaces(this.formula);
+		return this._normalizedFormula;
+	}
+
 	public get isQed(): boolean {
 		const result = this.stepRef == 'qed';
 		return result;
