@@ -414,7 +414,7 @@ test('Ehyps derivation 3 with a candidate without a parse node', () => {
 	const textEdit: TextEdit = textEditArray[0];
 	const expectedText =
 		'\n* test comment\n\n' +
-		'::a                \n' +
+		'::a\n' +
 		'qed::              |- ( ph -> ps )\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });
@@ -445,5 +445,27 @@ test('a1ii should not be used to derive itself', () => {
 		'd1::                |- ch\n' +
 		'1:d1:a1i           |- ( ph -> ch )\n' +
 		'qed::              |- ps\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
+test('Step derivation at step 3 must not be tried because there is no formula', () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'1::                 |- ps\n' +
+		'2::                |- ch\n' +
+		'3:1,2:ax-mp\n' +
+		'qed::b             |- ch\n';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'\n* test comment\n\n' +
+		'1::                 |- ps\n' +
+		'2::                 |- ch\n' +
+		'3:1,2:ax-mp\n' +
+		'qed::b             |- ch\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });

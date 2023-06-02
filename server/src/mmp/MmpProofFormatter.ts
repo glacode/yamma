@@ -67,7 +67,8 @@ export class MmpProofFormatter {
 			// the text of the first token info is short, the formula will be displayed on the same line
 			spacePadding = formulaStartingColumn - 1 - textForFirstTokenInfo.length;
 		const textFormula: string = this.getTextForFormula(uProofStep);
-		text += ' '.repeat(spacePadding) + textFormula;
+		if (textFormula.length > 0)
+			text += ' '.repeat(spacePadding) + textFormula;
 
 
 		// const textForFirstTokenInfo = this.textForFirstTokenInfo();

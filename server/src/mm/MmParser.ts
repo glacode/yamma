@@ -445,7 +445,7 @@ export class MmParser extends EventEmitter {
 
     //#region createParseNodesForAssertions
 
-    public createParseNodesForAssertionsAsync() {
+    public async createParseNodesForAssertionsAsync() {
         if (this.isParsingComplete && !this.parseFailed)
             creaParseNodesInANewThread(this);
     }

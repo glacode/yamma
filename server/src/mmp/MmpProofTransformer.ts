@@ -235,10 +235,11 @@ export class MmpProofTransformer {
 			mmpProofStep.stepLabel = stepLabel;
 	}
 	private deriveLabelAndHypotesis(uStepIndex: number, mmpProofStep: MmpProofStep) {
-		if (mmpProofStep.hasWorkingVars && mmpProofStep.stepLabel != undefined)
-			this.tryToDeriveEHypsOnly(uStepIndex, mmpProofStep);
-		else
-			this.deriveLabelAndHypotesisWithoutWorkingVars(uStepIndex, mmpProofStep);
+		if (mmpProofStep.parseNode != undefined)
+			if (mmpProofStep.hasWorkingVars && mmpProofStep.stepLabel != undefined)
+				this.tryToDeriveEHypsOnly(uStepIndex, mmpProofStep);
+			else
+				this.deriveLabelAndHypotesisWithoutWorkingVars(uStepIndex, mmpProofStep);
 	}
 
 	//#region tryToDeriveEhypsIfIncomplete
