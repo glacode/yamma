@@ -25,6 +25,7 @@ import { RefNumberManager } from './RefNumberManager';
 import { MmpHeaderManager } from './MmpHeaderManager';
 import { MmpGetProofStatement } from './MmpGetProofStatement';
 import { MmToMmpConverter } from './MmToMmpConverter';
+import { LabeledStatement } from '../mm/LabeledStatement';
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -80,6 +81,15 @@ export class MmpProofTransformer {
 
 	//#region transformUSteps
 
+	private areEHypLabelsToBeTransformed(): boolean {
+		let areToBeTransformed = true;
+		if (this.uProof.theoremLabel != undefined) {
+			const labeledStatement: LabeledStatement | undefined =
+				this.mmpParser.labelToStatementMap.get(this.uProof.theoremLabel.value);
+			areToBeTransformed = labeledStatement == undefined;
+		}
+		return areToBeTransformed;
+	}
 
 	//#region addStartingPairsForMGUFinder
 
@@ -346,11 +356,13 @@ export class MmpProofTransformer {
 	//#endregion getProof
 
 	protected transformUSteps() {
+		const areEHypLabelsToBeTransformed: boolean = this.areEHypLabelsToBeTransformed();
 		let i = 0;
 		let currentIndexInEHypLabel = 1;
 		while (i < this.uProof.mmpStatements.length) {
 			const currentMmpStatement: IMmpStatement = this.uProof.mmpStatements[i];
-			if (currentMmpStatement instanceof MmpProofStep && currentMmpStatement.isEHyp) {
+			if (currentMmpStatement instanceof MmpProofStep && currentMmpStatement.isEHyp &&
+				areEHypLabelsToBeTransformed) {
 				currentIndexInEHypLabel = this.transformEHyp(currentMmpStatement, currentIndexInEHypLabel);
 				i++;
 			} else if (currentMmpStatement instanceof MmpProofStep) {
