@@ -62,7 +62,7 @@ export class EdgeCliqueCoverFinder {
 			// numberOfVertices += this.oneIfVertexIsNew(edge.v1, vertices);
 			// numberOfVertices += this.oneIfVertexIsNew(edge.v2, vertices);
 		});
-		const vertexArray: number[] = Array.from(vertices).sort();
+		const vertexArray: number[] = Array.from(vertices).sort((a, b) => a - b);
 		if (vertexArray[0] != 0)
 			throw new Error("Vertexes must be numbered with nonnegative integers");
 		else if (vertexArray[vertexArray.length - 1] != vertexArray.length - 1)

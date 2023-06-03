@@ -129,3 +129,26 @@ test("edge clique cover 5",
 		expect(Array.from(cliqueArrays[2])).toEqual([1, 4]);
 	}
 );
+
+test("edge clique cover 6 with more than 10 vertices",
+	() => {
+		// here I'm just checking that it does not throw an exception
+		const edges: Edge[] = [
+			{ vertex1: 0, vertex2: 1 },
+			{ vertex1: 0, vertex2: 2 },
+			{ vertex1: 0, vertex2: 3 },
+			{ vertex1: 0, vertex2: 4 },
+			{ vertex1: 0, vertex2: 5 },
+			{ vertex1: 0, vertex2: 6 },
+			{ vertex1: 0, vertex2: 7 },
+			{ vertex1: 1, vertex2: 8 },
+			{ vertex1: 1, vertex2: 9 },
+			{ vertex1: 1, vertex2: 10 },
+			{ vertex1: 1, vertex2: 11 }
+		];
+		const cliqueCoverFinder: EdgeCliqueCoverFinder = new EdgeCliqueCoverFinder(edges);
+		const cliqueCover: Set<Set<number>> = cliqueCoverFinder.findEdgeCliqueCover();
+		// this is a minimal edge clique cover
+		expect(cliqueCover.size).toBeGreaterThanOrEqual(1);
+	}
+);
