@@ -59,14 +59,30 @@ test('getproof expect eHyps at the top and the duplicated qed with the same form
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-// h50::elabgf.1       |- F/_ x A
-// h51::elabgf.2        |- F/ x ps
-// h52::elabgf.3        |- ( x = A -> ( ph <-> ps ) )
-// 53::nfab1             |- F/_ x { x | ph }
-// 54:50,53:nfel        |- F/ x A e. { x | ph }
-// 55:54,51:nfbi       |- F/ x ( A e. { x | ph } <-> ps )
-// 56::eleq1            |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )
-// 57:56,52:bibi12d    |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )
-// 58::abid            |- ( x e. { x | ph } <-> ph )
-// qed:50,55,57,58:vtoclgf 
-//                    |- ( A e. B -> ( A e. { x | ph } <-> ps ) )
+test('getproof expect right order for eHyps at the top', () => {
+	const mmpSource =
+		'\n* comment before\n\n' +
+		'$getproof mp2';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const textEdit: TextEdit = textEditArray[0];
+	const newTextExpected =
+		'\n* comment before\n\n' +
+		'$theorem mp2\n' +
+		'h1::mp2.1            |- ph\n' +
+		'h2::mp2.2           |- ps\n' +
+		'h3::mp2.3            |- ( ph -> ( ps -> ch ) )\n' +
+		'4:1,3:ax-mp         |- ( ps -> ch )\n' +
+		'qed:2,4:ax-mp      |- ch\n';
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+// $theorem mp2
+// *       A double modus ponens inference.  (Contributed by NM, 5-Apr-1994.)
+// h1::mp2.2          |- ps
+// h2::mp2.1          |- ph
+// h3::mp2.3          |- ( ph -> ( ps -> ch ) )

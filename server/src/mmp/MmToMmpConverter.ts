@@ -1,4 +1,5 @@
 
+import { GrammarManager } from '../grammar/GrammarManager';
 import { MmToken } from '../grammar/MmLexer';
 import { AssertionStatement } from '../mm/AssertionStatement';
 import { BlockStatement } from '../mm/BlockStatement';
@@ -83,8 +84,8 @@ export class MmToMmpConverter {
 		this.mmpProof.addMmpStep(mmpProofStep);
 		this.formulaStringToMmpProofStepMap.set(mmpProofStep.textForFormula!, mmpProofStep);
 	}
-	addEHypMmpProofSteps(mmProof: Statement[]) {
-		mmProof.forEach((statement: Statement) => {
+	addEHypMmpProofSteps(provableStatement: ProvableStatement) {
+		provableStatement.frame?.eHyps.forEach((statement: Statement) => {
 			if (statement instanceof EHyp && !this.isFormulaAlreadyInTheProof(statement.formula))
 				this.addEHypMmpProofStep(statement);
 		});
@@ -202,15 +203,17 @@ export class MmToMmpConverter {
 			this.stack.pop();
 		const assertionStatementWithSubstitution: string[] =
 			this.verifier.applySubstitution(assertionStatementProofStep.formula, substitution);
-		if (assertionStatementProofStep.formula[0] == '|-')
+		if (!GrammarManager.isSyntaxAxiom2(assertionStatementProofStep) &&
+			!this.isFormulaAlreadyInTheProof(assertionStatementWithSubstitution))
 			this.addAssertionStatementWithSubstitution(assertionStatementProofStep,
 				assertionStatementWithSubstitution, substitution, isLastStatementInMmProof);
 		this.stack.push(assertionStatementWithSubstitution);
 	}
 	//#endregion addSingleStepToMmpProof
 
-	private addMmpStatementsFromDecompressedProof(mmProof: Statement[]) {
-		this.addEHypMmpProofSteps(mmProof);
+	private addMmpStatementsFromDecompressedProof(provableStatement: ProvableStatement,
+		mmProof: Statement[]) {
+		this.addEHypMmpProofSteps(provableStatement);
 		mmProof.forEach((statement: Statement, i: number) => {
 			if (statement instanceof FHyp) {
 				this.stack.push(statement.formula);
@@ -222,7 +225,7 @@ export class MmToMmpConverter {
 				this.stored.push(this.stack[this.stack.length - 1]);
 			} else if (statement instanceof ZRStatement) {
 				this.stack.push(this.stored[(<ZRStatement>statement).referencedZ]);
-			} else if (statement instanceof AssertionStatement && !this.isFormulaAlreadyInTheProof(statement.formula))
+			} else if (statement instanceof AssertionStatement)
 				this.addSingleStepToMmpProof(<AssertionStatement>statement,
 					i == mmProof.length - 1);
 		});
@@ -231,7 +234,7 @@ export class MmToMmpConverter {
 		const proofCompressor: ProofCompressor = new ProofCompressor([]);
 		const mmProof: Statement[] = proofCompressor.DecompressProof(provableStatement,
 			this.labelToStatementMap);
-		this.addMmpStatementsFromDecompressedProof(mmProof);
+		this.addMmpStatementsFromDecompressedProof(provableStatement, mmProof);
 	}
 	//#endregion addMmpStatements
 	buildProofForProvableStatement(provableStatement: ProvableStatement): MmpProof {
