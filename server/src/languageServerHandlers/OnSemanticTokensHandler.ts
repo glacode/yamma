@@ -149,7 +149,7 @@ export class OnSemanticTokensHandler {
 
 	getKindForVariable(symbol: string, mmParser: MmParser): string | undefined {
 		let kind: string | undefined = mmParser.outermostBlock.kindOf(symbol);
-		if (kind == undefined)
+		if (kind == undefined && this.workingVars.isAWorkingVarSymbol(symbol))
 			// the given symbol is not a variable in the theory
 			kind = this.workingVars.kindOf(symbol);
 		return kind;

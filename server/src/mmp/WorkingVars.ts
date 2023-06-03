@@ -122,13 +122,15 @@ export class WorkingVars {
 	 * if workingVar is a working var, returns the max index already given for that kind
 	 * of working var
 	 * @param workingVar 
-	 * @returns 
+	 * @returns s
 	 */
 	maxIndex(workingVar: string): number | undefined {
 		let maxIndex: number | undefined;
-		const kind: string | undefined = this.kindOf(workingVar);
-		if (kind != undefined)
-			maxIndex = this._maxIndex.get(kind);
+		if (this.isAWorkingVarSymbol(workingVar)) {
+			const kind: string | undefined = this.kindOf(workingVar);
+			if (kind != undefined)
+				maxIndex = this._maxIndex.get(kind);
+		}
 		return maxIndex;
 	}
 
