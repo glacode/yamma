@@ -6,18 +6,18 @@ A language server for .mmp files (metamath proof files).
 
 ## Features
 
-- ** Completions **: syntax suggestions, step suggestions, search results
-- ** Diagnostics **
-- ** Code Actions **
-- ** Quick Fixes **: missing disjoint vars statements
-- ** Semantic Tokenization **
-- ** On Hover Documentation **
-- ** Unification **: standard reformatting, renumbering, step completion, step derivation
-- ** Search ** in the theory
-- ** Step Suggestions ** (Model Based)
-- ** Model Generation **
-- ** Proof Generation **
-- ** Load/Save additional ** theorems in .mm compatible format
+- __ Completions __: syntax suggestions, step suggestions, search results
+- __ Diagnostics __
+- __ Code Actions __
+- __ Quick Fixes __: missing disjoint vars statements
+- __ Semantic Tokenization __
+- __ On Hover Documentation __
+- __ Unification __: standard reformatting, renumbering, step completion, step derivation
+- __ Search __ in the theory
+- __ Step Suggestions __ (Model Based)
+- __ Model Generation __
+- __ Proof Generation __
+- __ Load/Save additional __ theorems in .mm compatible format
 
 ## Prerequisites
 
