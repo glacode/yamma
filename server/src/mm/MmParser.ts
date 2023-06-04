@@ -46,7 +46,8 @@ export type AssertionParsedArgs = {
 
 export type ParsingProgressArgs = {
     percentageOfWorkDone: number,
-    connection: Connection
+    connection: Connection,
+    progressToken?: string
 }
 
 // Parser for .mm files
@@ -100,7 +101,7 @@ export class MmParser extends EventEmitter {
         return this._workingVars;
     }
 
-    constructor(private globalState?: GlobalState) {
+    constructor(private globalState?: GlobalState, private progressToken?: string) {
         super();
         this.outermostBlock = new BlockStatement();
         this.labelToStatementMap = new Map<string, LabeledStatement>();
@@ -150,7 +151,8 @@ export class MmParser extends EventEmitter {
             if (this.globalState?.connection != undefined) {
                 const parsingProgressArgs: ParsingProgressArgs = {
                     percentageOfWorkDone: percentageOfWorkDone,
-                    connection: this.globalState.connection
+                    connection: this.globalState.connection,
+                    progressToken: this.progressToken
                 };
                 this.emit(MmParserEvents.parsingProgress, parsingProgressArgs);
             }

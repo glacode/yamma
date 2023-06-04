@@ -26,9 +26,11 @@ export class TheoryLoader {
 
 	//#region loadNewTheoryIfNeededAndThenTheStepSuggestionModel
 	notifyProgress(parsingProgressArgs: ParsingProgressArgs): void {
-		const strMessage: string = parsingProgressArgs.percentageOfWorkDone + '%';
-		parsingProgressArgs.connection.sendProgress(WorkDoneProgress.type, 'TEST-PROGRESS-TOKEN',
-			{ kind: 'report', message: strMessage });
+		if (parsingProgressArgs.progressToken != undefined) {
+			const strMessage: string = parsingProgressArgs.percentageOfWorkDone + '%';
+			parsingProgressArgs.connection.sendProgress(WorkDoneProgress.type, parsingProgressArgs.progressToken,
+				{ kind: 'report', message: strMessage });
+		}
 	}
 
 	//#region loadNewTheorySync
@@ -60,9 +62,10 @@ export class TheoryLoader {
 		}
 	}
 	async loadTheoryFromMmFile(mmFilePath: string) {
-		this.mmParser = new MmParser(this.globalState);
+		const random: number = Math.floor(Math.random() * 1000000);
+		const progressToken: string = 'TEST-PROGRESS-TOKEN' + random.toString();
+		this.mmParser = new MmParser(this.globalState, progressToken);
 		this.mmParser.on(MmParserEvents.parsingProgress, this.notifyProgress);
-		const progressToken = 'TEST-PROGRESS-TOKEN';
 		await this.connection.sendRequest(WorkDoneProgressCreateRequest.type, { token: progressToken });
 		console.log('loadNewTheoryIfNeeded_1');
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'begin', title: 'Loading the theory...' });
@@ -71,7 +74,7 @@ export class TheoryLoader {
 		let message: string;
 		if (this.mmParser.parseFailed) {
 			message = `The theory file ${mmFilePath} has NOT been successfully parsed. See the ` +
-			`PROBLEMS tab for a list of diagnostics`;
+				`PROBLEMS tab for a list of diagnostics`;
 			notifyError(message, this.connection);
 			this.sendDiagnostics(mmFilePath, this.mmParser.diagnostics);
 		}
@@ -82,6 +85,8 @@ export class TheoryLoader {
 			notifyInformation(message, this.connection);
 		}
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
+		// void this.connection.sendProgress<WorkDoneProgressEnd>(new ProgressType<WorkDoneProgressEnd>(),
+		// 	progressToken, { kind: 'end', message: message });
 	}
 	//#endregion loadTheoryFromMmFile
 	private async loadNewTheorySync() {
