@@ -4,22 +4,41 @@
 
 A language server for .mmp files (metamath proof files).
 
-## Functionality
+## Features
 
-This Language Server works for .mmp files.  It has the following language features:
-- Completions
-- Diagnostics
-- Code Actions
-- Quick Fixes
-- Semantic Tokenization
-- On Hover Documentation
-- Unification (and Standard Reformatting)
-- Search (in the theory)
-- Step Suggestions (Model Based)
-- Model Generation
-- Load/Save additional theorems in .mm compatible format
+- ** Completions **: syntax suggestions, step suggestions, search results
+- ** Diagnostics **
+- ** Code Actions **
+- ** Quick Fixes **: missing disjoint vars statements
+- ** Semantic Tokenization **
+- ** On Hover Documentation **
+- ** Unification **: standard reformatting, renumbering, step completion, step derivation
+- ** Search ** in the theory
+- ** Step Suggestions ** (Model Based)
+- ** Model Generation **
+- ** Proof Generation **
+- ** Load/Save additional ** theorems in .mm compatible format
 
-## Getting started
+## Prerequisites
+
+To use this extension, you need to have Node.js installed on your machine. If Node.js is not yet installed, follow the official installation guide: [Node.js Installation Guide](https://nodejs.org).
+
+## Installation
+
+1. Launch Visual Studio Code.
+2. Go to the Extensions view by clicking on the square icon on the left sidebar or pressing `Ctrl+Shift+X`.
+3. Search for "Yamma" in the search bar.
+4. Click on the "Install" button next to the "Yamma" extension.
+5. After the installation, click on the "Reload" button to activate the extension.
+
+## Usage
+
+1. Open a .mmp file Visual Studio Code.
+2. The extension will automatically detect the .mm file to be used as the underlying theory and it wull load it, parse it and verify it.
+3. Use the command palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS) to access the available commands and features provided by the extension.
+4. Utilize the Intellisense capabilities to get suggestions while writing your proofs.
+
+## Contribute
 
 First please ensure you have git, nodejs, and Visual Studio Code installed.  Then:
 
