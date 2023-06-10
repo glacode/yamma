@@ -162,9 +162,10 @@ export class MmtLoader {
 		this.addDiagnosticsForUri(fileUri, diagnostics);
 	}
 	protected tryToAddTheoremToTheory(fileName: string, fileContent: string) {
-		// const mmtParser: MmtParser = new MmtParser(this.mmParser);
-		// mmtParser.addTheorem(fileContent);
 		this.mmParser.diagnostics = [];
+		// the following line is used for cases when the MmParser was partially successful
+		const isParseFailed = this.mmParser.parseFailed;
+		this.mmParser.parseFailed = false;
 		this.mmParser.ParseText(fileContent);
 		if (this.mmParser.parseFailed) {
 			// mmParser found errors, parsing fileContent
@@ -172,6 +173,7 @@ export class MmtLoader {
 			this.diagnostics.push(...this.mmParser.diagnostics);
 			this.addDiagnostics(fileName, this.mmParser.diagnostics);
 		}
+		this.mmParser.parseFailed = isParseFailed;
 	}
 
 	//#region canTheoremBeAdded

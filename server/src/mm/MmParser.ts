@@ -131,12 +131,12 @@ export class MmParser extends EventEmitter {
 
     public static addDiagnosticError(message: string, range: Range, code: MmParserErrorCode,
         diagnostics: Diagnostic[]) {
-            const diagnostic: Diagnostic = {
-                message: message,
-                range: range,
-                code: code
-            };
-            diagnostics.push(diagnostic);
+        const diagnostic: Diagnostic = {
+            message: message,
+            range: range,
+            code: code
+        };
+        diagnostics.push(diagnostic);
     }
 
     //#region buildLabelToStatementMap
@@ -270,19 +270,21 @@ export class MmParser extends EventEmitter {
                 verifier.verify(statement, proof, this.labelToStatementMap);
                 this.parseFailed ||= verifier.verificationFailed;
 
-                this.labelToStatementMap.set(label.value, statement);
-                if (!GrammarManager.isSyntaxAxiom2(statement))
-                    this.labelToNonSyntaxAssertionMap.set(label.value, statement);
-                label = undefined;
-                const newAssertionParams: AssertionParsedArgs = {
-                    labeledStatement: statement,
-                    mmParser: this
-                };
-                this.emit(MmParserEvents.newProvableStatement, newAssertionParams);
+                if (!verifier.verificationFailed) {
+                    this.labelToStatementMap.set(label.value, statement);
+                    if (!GrammarManager.isSyntaxAxiom2(statement))
+                        this.labelToNonSyntaxAssertionMap.set(label.value, statement);
+                    label = undefined;
+                    const newAssertionParams: AssertionParsedArgs = {
+                        labeledStatement: statement,
+                        mmParser: this
+                    };
+                    this.emit(MmParserEvents.newProvableStatement, newAssertionParams);
+                }
             }
         }
     }
-    buildLabelToStatementMap(toks: TokenReader, currentBlock?: BlockStatement) {
+    private buildLabelToStatementMap(toks: TokenReader, currentBlock?: BlockStatement) {
         //TODO prova a valutare di evitare d'usare BlockStack
         //const currentBlock = new BlockStatement(this.outermostBlock.last())
         //this.outermostBlock.push(currentBlock)
@@ -290,7 +292,8 @@ export class MmParser extends EventEmitter {
         let tok = toks.Readc();
         if (currentBlock === undefined)
             currentBlock = this.outermostBlock;
-        while (tok !== undefined && tok.value !== '$}' && !this.parseFailed) {
+        // while (tok !== undefined && tok.value !== '$}' && !this.parseFailed) {
+        while (tok !== undefined && tok.value !== '$}') {
             this.notifyProgressIfTheCase(toks);
             // tok is not an end of block
             switch (tok.value) {
@@ -448,7 +451,8 @@ export class MmParser extends EventEmitter {
     //#region createParseNodesForAssertions
 
     public async createParseNodesForAssertionsAsync() {
-        if (this.isParsingComplete && !this.parseFailed)
+        // if (this.isParsingComplete && !this.parseFailed)
+        if (this.isParsingComplete)
             creaParseNodesInANewThread(this);
     }
 

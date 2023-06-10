@@ -191,11 +191,26 @@ connection.onRequest('yamma/search', (searchCommandParameters: ISearchCommandPar
 	searchCommandHandler.insertSearchStatement();
 });
 
+//#region showCatchError
+function showCatchError(error: any) {
+	let errorStringForNotifyError: string = error.toString();
+	if (error instanceof Error)
+		errorStringForNotifyError = `${error.name}\n${error.message}\n${error.stack}\n`;
+	console.log('Unexpected error:\n', error);
+	notifyError('Unexpected error:\n' + errorStringForNotifyError, connection);
+}
+//#endregion showCatchError
+
+
 async function unifyAndValidate(textDocumentUri: string) {
-	//TODO1 see if an await here solves the response back before the unify is complete
-	OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
-		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
-		false);
+	try {
+		//TODO1 see if an await here solves the response back before the unify is complete
+		await OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
+			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
+			false);
+	} catch (error: any) {
+		showCatchError(error);
+	}
 }
 
 connection.onRequest('yamma/completionitemselected', unifyAndValidate);

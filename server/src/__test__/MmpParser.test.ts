@@ -10,9 +10,10 @@ import { AxiomStatement } from "../mm/AxiomStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { WorkingVars } from '../mmp/WorkingVars';
 import { doesDiagnosticsContain } from '../mm/Utils';
-import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
+import { createMmParser, eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { VerboseDiagnosticMessageForSyntaxError } from '../mmp/DiagnosticMessageForSyntaxError';
+import { MmParser } from '../mm/MmParser';
 
 const emptyLabelStatement = new AxiomStatement('x', [], new BlockStatement());
 
@@ -940,6 +941,26 @@ test('expect comment edit warning', () => {
 			expect(diagnostic.range.start.character).toBe(5);
 			expect(diagnostic.range.end.line).toBe(1);
 			expect(diagnostic.range.end.character).toBe(9);
+		}
+	});
+});
+
+test('expect mmp parsing from mm parser partially succesfull', () => {
+	const parser: MmParser = createMmParser('impbii-bad.mm');
+	const mmpSource: string =
+		'impi $p |- ( -. ( ph -> -. ps ) -> ch )\n' +
+		'qed:pm3.2im |- ( ph -> ( ps -> -. ( ph -> -. ps ) ) )';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
+	expect(doesDiagnosticsContain(
+		mmpParser.diagnostics, MmpParserErrorCode.unknownLabel)).toBeTruthy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserErrorCode.unknownLabel) {
+			expect(diagnostic.range.start.line).toBe(0);
+			expect(diagnostic.range.start.character).toBe(0);
+			expect(diagnostic.range.end.line).toBe(0);
+			expect(diagnostic.range.end.character).toBe(4);
 		}
 	});
 });

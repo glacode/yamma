@@ -79,11 +79,13 @@ export class TheoryLoader {
 			this.sendDiagnostics(mmFilePath, this.mmParser.diagnostics);
 		}
 		else {
-			this.globalState.mmFilePath = mmFilePath;
-			this.globalState.mmParser = this.mmParser!;
+			// this.globalState.mmFilePath = mmFilePath;
+			// this.globalState.mmParser = this.mmParser!;
 			message = `The theory file ${mmFilePath} has been successfully parsed and verified`;
 			notifyInformation(message, this.connection);
 		}
+		this.globalState.mmFilePath = mmFilePath;
+		this.globalState.mmParser = this.mmParser!;
 		void this.connection.sendProgress(WorkDoneProgress.type, progressToken, { kind: 'end', message: message });
 		// void this.connection.sendProgress<WorkDoneProgressEnd>(new ProgressType<WorkDoneProgressEnd>(),
 		// 	progressToken, { kind: 'end', message: message });

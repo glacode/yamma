@@ -17,6 +17,7 @@
 	},
 	"scripts": {
 		"test": "jest",
+		"test2": "jest --detectOpenHandles",
 		"testcov": "jest -- --coverage --collectCoverageFrom=[\"./src/**\"]"
 	},
 	"devDependencies": {
