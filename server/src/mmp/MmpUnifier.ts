@@ -10,6 +10,7 @@ import { UProofStatement } from "./UProofStatement";
 import { ProofMode } from '../mm/ConfigurationManager';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
 import { Parameters } from '../general/Parameters';
+import { consoleLogWithTimestamp } from '../mm/Utils';
 
 // export interface UnifyResult {
 // 	diagnostics: Diagnostic[]
@@ -101,6 +102,7 @@ export class MmpUnifier {
 
 	buildProofStatementIfProofIsComplete(uProof: MmpProof) {
 		if (uProof.lastMmpProofStep?.stepRef == 'qed' && uProof.lastMmpProofStep.isProven) {
+			consoleLogWithTimestamp('buildProofStatementIfProofIsComplete begin');
 			if (this.proofMode == ProofMode.normal) {
 				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastMmpProofStep.proofArray(this.outermostBlock);
 				const proofStatement: UProofStatement = new UProofStatement(proofArray, this._charactersPerLine);
@@ -111,6 +113,7 @@ export class MmpUnifier {
 					this.leftMarginForCompressedProof, this.rightMarginForCompressedProof);
 				uProof.insertProofStatement(proofStatement);
 			}
+			consoleLogWithTimestamp('buildProofStatementIfProofIsComplete end');
 		}
 	}
 

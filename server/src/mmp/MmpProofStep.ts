@@ -371,6 +371,7 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 	}
 	//#endregion proofArrayForFStatements
 
+	//TODO1 1 lug 2023 see if using double arrays and a single concat at the end, you can get better performance
 	/**
 	 * returns a proof for the current step (undefined if there is no proof, yet).
 	 * It assumes that every UProofStep has already been checked for unification
@@ -379,6 +380,7 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 	 * 
 	 */
 	proofArray(outermostBlock: BlockStatement): UProofStatementStep[] | undefined {
+		// console.log(`mmpProofStep.stepRef=${this.stepRef}  enter`);
 		let proof: UProofStatementStep[] | undefined;
 		const currentUProofStatementStep: UProofStatementStep =
 			{ label: this.stepLabel!, parseNode: this.parseNode! };
@@ -387,24 +389,24 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 		else if (this.isProven) {
 			// the proof of this step is complete
 			// proof = [];
-			// proof = this.proofArrayForFStatements(outermostBlock);
-			// this.eHypUSteps.forEach((eHypUStep: UProofStep | undefined) => {
-			// 	const proofForEHypUStep: UProofStatementStep[] =
-			// 		<UProofStatementStep[]>eHypUStep?.proofArray(outermostBlock);
-			// 	proof?.push(...proofForEHypUStep);
-			// });
-			// proof?.push(currentUProofStatementStep);
-			proof = [];
-			proof.unshift(currentUProofStatementStep);
+			// proof.unshift(currentUProofStatementStep);
+			proof = [currentUProofStatementStep];
 			for (let i = this.eHypUSteps.length - 1; 0 <= i; i--) {
 				const eHypUStep: MmpProofStep = <MmpProofStep>this.eHypUSteps[i];
 				const proofForEHypUStep: UProofStatementStep[] =
 					<UProofStatementStep[]>eHypUStep?.proofArray(outermostBlock);
-				proof?.unshift(...proofForEHypUStep);
+				// console.log(`mmpProofStep.stepRef=${this.stepRef}`);
+				// console.log(`eHypUStep.stepRef=${eHypUStep.stepRef}`);
+				// console.log(`proof.length=${proof.length}`);
+				// proof?.unshift(...proofForEHypUStep);
+				proof = proofForEHypUStep.concat(proof);
 			}
 			const proofArrayForFStatements = this.proofArrayForFStatements(outermostBlock);
-			proof.unshift(...proofArrayForFStatements);
+			// proof.unshift(...proofArrayForFStatements);
+			// proof.unshift(...proofArrayForFStatements);
+			proof = proofArrayForFStatements.concat(proof);
 		}
+		// console.log(`mmpProofStep.stepRef=${this.stepRef}  exit`);
 		return proof;
 	}
 	//#endregion proofArray
