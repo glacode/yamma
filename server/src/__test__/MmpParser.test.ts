@@ -953,8 +953,8 @@ test('expect mmp parsing from mm parser partially succesfull', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
-	expect(doesDiagnosticsContain(
-		mmpParser.diagnostics, MmpParserErrorCode.unknownLabel)).toBeTruthy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics,
+		MmpParserErrorCode.provableStatementWithFailedVerification)).toBeTruthy();
 	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
 		if (diagnostic.code == MmpParserErrorCode.unknownLabel) {
 			expect(diagnostic.range.start.line).toBe(0);

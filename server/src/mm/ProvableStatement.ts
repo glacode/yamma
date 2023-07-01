@@ -19,6 +19,9 @@ export class ProvableStatement extends AssertionStatement {
     private _proofTokens: MmToken[] | undefined;
     private _compressedProofLabelsTokens: MmToken[] | undefined;
 
+    isProofVerified = false;
+    isProofVerificationFailed = false;
+
     constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
         super(label, content, parentBlock, comment);
     }

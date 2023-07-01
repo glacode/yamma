@@ -32,12 +32,16 @@ import { MmpGetProofStatement } from './MmpGetProofStatement';
 
 
 
+
+
+
 export enum MmpParserErrorCode {
 	unexpectedEndOfFormula = "unexpectedEndOfFormula",
 	formulaSyntaxError = "formulaSyntaxError",
 	firstTokenWithMoreThanTwoColumns = "firstTokenWithMoreThanTwoColumns",
 	stepRefCannotContainAComma = "stepRefCannotContainAComma",
 	unknownLabel = "unknownLabel",
+	provableStatementWithFailedVerification = "provableStatementWithFailedVerification",
 	unificationError = "unificationError",
 	workingVarUnificationError = "workingVarUnificationError",
 	refStatementUnificationError = "refStatementUnificationError",
@@ -350,6 +354,12 @@ export class MmpParser {
 				const message = `This is is not a label for an Assertion in the logical system`;
 				MmpValidator.addDiagnosticError(message, proofStepFirstTokenInfo.stepLabel.range,
 					MmpParserErrorCode.notAnAssertion, this.diagnostics);
+			} else if (labeledStatement instanceof ProvableStatement &&
+				labeledStatement.isProofVerificationFailed) {
+				const message = `The verification of this statement failed. You can ` +
+					`use $getproof to try to load its proof and fix it`;
+				MmpValidator.addDiagnosticError(message, proofStepFirstTokenInfo.stepLabel.range,
+					MmpParserErrorCode.provableStatementWithFailedVerification, this.diagnostics);
 			} else {
 				// labeledStatement instanceof AssertionStatement
 				this.addDiagnisticsForEHypRefs(proofStepFirstTokenInfo,

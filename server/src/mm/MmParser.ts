@@ -238,7 +238,7 @@ export class MmParser extends EventEmitter {
 
             const statementContent = toks.readstat();
             this.checkEveryVarIsInActiveFStatement(statementContent, currentBlock);
-            const statement: EHyp = new EHyp(label.value, statementContent, currentBlock, toks.lastComment);
+            const statement: EHyp = new EHyp(label.value, statementContent, currentBlock);
             currentBlock.eHyps.push(statement);
             currentBlock.labelToStatementMap.set(label.value, statement);
             // if (currentBlock.ParentBlock == null)
@@ -270,17 +270,17 @@ export class MmParser extends EventEmitter {
                 verifier.verify(statement, proof, this.labelToStatementMap);
                 this.parseFailed ||= verifier.verificationFailed;
 
-                if (!verifier.verificationFailed) {
-                    this.labelToStatementMap.set(label.value, statement);
-                    if (!GrammarManager.isSyntaxAxiom2(statement))
-                        this.labelToNonSyntaxAssertionMap.set(label.value, statement);
-                    label = undefined;
-                    const newAssertionParams: AssertionParsedArgs = {
-                        labeledStatement: statement,
-                        mmParser: this
-                    };
-                    this.emit(MmParserEvents.newProvableStatement, newAssertionParams);
-                }
+                // if (!verifier.verificationFailed) {
+                this.labelToStatementMap.set(label.value, statement);
+                if (!GrammarManager.isSyntaxAxiom2(statement))
+                    this.labelToNonSyntaxAssertionMap.set(label.value, statement);
+                label = undefined;
+                const newAssertionParams: AssertionParsedArgs = {
+                    labeledStatement: statement,
+                    mmParser: this
+                };
+                this.emit(MmParserEvents.newProvableStatement, newAssertionParams);
+                // }
             }
         }
     }

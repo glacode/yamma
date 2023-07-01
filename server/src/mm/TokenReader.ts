@@ -8,7 +8,15 @@ export class TokenReader {
     tokens: MmToken[]
     indexForNextToken = 0
     imported_files: Set<any>
-    lastComment: MmToken[];
+    private _lastComment: MmToken[];
+    
+    /** retrieves and resets the value of the last comment */
+    public get lastComment(): MmToken[] {
+        const output: MmToken[] = this._lastComment;
+        this._lastComment = [];
+        return output;
+    }
+    
 
     constructor(readLines: string[]) {
         this.lines_buf = readLines;
@@ -18,7 +26,7 @@ export class TokenReader {
         // const dateTime = new Date();
         // console.log("inizio prova" + dateTime);
         this.tokens = this.provaSplit();
-        this.lastComment = [];
+        this._lastComment = [];
 
         // console.log("fine prova");
     }
@@ -93,11 +101,11 @@ export class TokenReader {
     Readc() {
         let tok: MmToken | undefined = this.Readf();
         while (tok?.value == '$(') {
-            this.lastComment = [];
+            this._lastComment = [];
             while (tok != undefined && tok?.value != '$)') {
                 tok = this.Read();
                 if (tok != undefined && tok?.value != '$)')
-                    this.lastComment.push(tok);
+                    this._lastComment.push(tok);
             }
 
             if (tok == undefined)

@@ -251,21 +251,6 @@ test("expect not a label of an assertion or optional hypothesis", () => {
 });
 
 test('Test impbii-bad , expect error, but pm3.2im, that comes later, should be added to the theory', () => {
-    // metamath.exe's error follows:
-    //   The hypotheses of statement "syl5" at proof step 13 cannot be unified.
-    //   Hypothesis 1:  wff ph
-    //   Step 6:  wff -. -. ps
-    //   Hypothesis 2:  wff ps
-    //   Step 7:  wff ch
-    //   Hypothesis 3:  wff ch
-    //   Step 8:  wff ph
-    //   Hypothesis 4:  wff th
-    //   Step 9:  wff ch
-    //   Hypothesis 5:  |- ( ph -> ps )
-    //   Step 11:  |- ( -. -. ps -> ps )
-    //   Hypothesis 6:  |- ( ch -> ( ps -> th ) )
-    //   Step 12:  |- ( ph -> ( ps -> ch ) )
-
     const parser: MmParser = createMmParser('impbii-bad.mm');
     // expect(parser.diagnostics.length).toBe(0);
     expect(parser.parseFailed).toBeTruthy();
@@ -273,10 +258,18 @@ test('Test impbii-bad , expect error, but pm3.2im, that comes later, should be a
     expect(labelToStatementMap.size).toBeGreaterThan(0);
     const con1i: LabeledStatement | undefined = labelToStatementMap.get('con1i');
     expect(con1i).toBeDefined();
+    expect((<ProvableStatement>con1i).isProofVerified).toBeTruthy();
+    expect((<ProvableStatement>con1i).isProofVerificationFailed).toBeFalsy();
     const con3d: LabeledStatement | undefined = labelToStatementMap.get('con3d');
-    expect(con3d).toBeUndefined();
+    expect(con3d).toBeDefined();
+    expect((<ProvableStatement>con3d).isProofVerified).toBeFalsy();
+    expect((<ProvableStatement>con3d).isProofVerificationFailed).toBeTruthy();
     const pm32im: LabeledStatement | undefined = labelToStatementMap.get('pm3.2im');
     expect(pm32im).toBeDefined();
-    const impbi: LabeledStatement | undefined = labelToStatementMap.get('impbi');
-    expect(impbi).toBeUndefined();
+    expect((<ProvableStatement>pm32im).isProofVerified).toBeTruthy();
+    expect((<ProvableStatement>pm32im).isProofVerificationFailed).toBeFalsy();
+     const impbi: LabeledStatement | undefined = labelToStatementMap.get('impbi');
+    expect(impbi).toBeDefined();
+    expect((<ProvableStatement>impbi).isProofVerified).toBeFalsy();
+    expect((<ProvableStatement>impbi).isProofVerificationFailed).toBeTruthy();
 });

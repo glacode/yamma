@@ -3,7 +3,8 @@ import { ProofMode } from '../mm/ConfigurationManager';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { impbiiMmParser, kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
+import { createMmParser, impbiiMmParser, kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
+import { MmParser } from '../mm/MmParser';
 
 //TODO1 18 MAY
 test('Expect mmp proof for id theorem, to be inserted', () => {
@@ -81,8 +82,33 @@ test('getproof expect right order for eHyps at the top', () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-// $theorem mp2
-// *       A double modus ponens inference.  (Contributed by NM, 5-Apr-1994.)
-// h1::mp2.2          |- ps
-// h2::mp2.1          |- ph
-// h3::mp2.3          |- ( ph -> ( ps -> ch ) )
+test('expect to work for unverified theorem', () => {
+	const mmParser: MmParser = createMmParser('impbii-bad.mm');
+	const mmpSource =
+		'\n* comment before\n\n' +
+		'$getproof simprim';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const textEdit: TextEdit = textEditArray[0];
+	const newTextExpected =
+		'\n* comment before\n\n' +
+		'$theorem simprim\n' +
+		'1::idd              |- ( ph -> ( ps -> ps ) )\n' +
+		'qed:1:impi         |- ( -. ( ph -> -. ps ) -> ps )\n';
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+// $theorem test
+
+// * MissingComment
+
+// $theorem simprim
+// * Simplification.  Similar to Theorem *3.27 (Simp) of [WhiteheadRussell]
+//      p. 112.  (Contributed by NM, 3-Jan-1993.)  (Proof shortened by Wolf
+//      Lammen, 13-Nov-2012.)
+// 1::idd              |- ( ph -> ( ps -> ps ) )
+// qed:1:impi         |- ( -. ( ph -> -. ps ) -> ps )

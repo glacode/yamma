@@ -211,10 +211,8 @@ export class Verifier {
     }
     //#endregion
 
-    //TODO ParseError is not used anymore, remove it; now Diagnostic(s) are used
-    verifyAssertionStatement(provableStatement: AssertionStatement,
-        assertionStatementProofStep: AssertionStatement,
-        stack: string[][]): ParseError[] {
+    verifyAssertionStatementActually(assertionStatement: AssertionStatement, assertionStatementProofStep: AssertionStatement,
+        stack: string[][]) {
         const parseErrors: ParseError[] = [];
         const frameProofStep: Frame = <Frame>assertionStatementProofStep.frame;
         const popCount: number = frameProofStep.fHyps.length + frameProofStep.eHyps.length;
@@ -231,7 +229,7 @@ export class Verifier {
 
         const substitution: Map<string, string[]> =
             this.buildSubstitution(frameProofStep.fHyps, fHypsStack);
-        this.checkDisjointViolation(provableStatement, frameProofStep, substitution);
+        this.checkDisjointViolation(assertionStatement, frameProofStep, substitution);
         this.checkSubstitutionForStakEHyps(eHypsStack, frameProofStep.eHyps, substitution);
 
         for (let i = 0; i < popCount; i++)
@@ -243,7 +241,18 @@ export class Verifier {
             this.applySubstitution(assertionStatementProofStep.formula,
                 substitution);
         stack.push(assertionStatementWithSubstitution);
-        return parseErrors;
+    }
+
+    //TODO ParseError is not used anymore, remove it; now Diagnostic(s) are used
+    verifyAssertionStatement(assertionStatement: AssertionStatement,
+        assertionStatementProofStep: AssertionStatement,
+        stack: string[][]) {
+        if (assertionStatementProofStep instanceof ProvableStatement &&
+            assertionStatementProofStep.isProofVerificationFailed)
+            this.verificationFailed = true;
+        else
+            this.verifyAssertionStatementActually(assertionStatement,
+                assertionStatementProofStep, stack);
     }
     //#endregion verifyAxiomStatement
 
@@ -368,6 +377,11 @@ export class Verifier {
     }
     //#endregion getDecompressedProof
 
+    private setVerificationStatus(provableStatement: ProvableStatement) {
+        provableStatement.isProofVerified = !this.verificationFailed;
+        provableStatement.isProofVerificationFailed = this.verificationFailed;
+    }
+
     verify(provableStatement: ProvableStatement, proofStrings: string[],
         labelToStatementMap: Map<string, LabeledStatement>) {
         if (labelToStatementMap.size % 1000 === 0) {
@@ -385,5 +399,6 @@ export class Verifier {
         if (!this.verificationFailed)
             // either the proof was not compressed or the decompression was successful
             this.verifyDecompressedProof(provableStatement, proof!);
+        this.setVerificationStatus(provableStatement);
     }
 }
