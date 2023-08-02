@@ -95,6 +95,7 @@
 					"type": "string",
 					"enum": [
 						"normal",
+						"packed",
 						"compressed"
 					],
 					"default": "normal",

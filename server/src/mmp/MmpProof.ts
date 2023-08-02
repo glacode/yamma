@@ -12,6 +12,7 @@ import { UProofStatement } from "./UProofStatement";
 import { WorkingVars } from './WorkingVars';
 import { MmpProofFormatter } from './MmpProofFormatter';
 import { ITheoremSignature } from '../mmt/MmtParser';
+import { MmpPackedProofStatement } from './MmpPackedProofStatement';
 
 export class MmpProof implements ITheoremSignature {
 
@@ -50,7 +51,7 @@ export class MmpProof implements ITheoremSignature {
 
 
 	/** if the qed step is proven, proofStatement will contain the proof statement */
-	proofStatement: UProofStatement | UCompressedProofStatement | undefined;
+	proofStatement: UProofStatement | MmpPackedProofStatement | UCompressedProofStatement | undefined;
 
 	// lastMmpProofStep is introduced for better performance, only
 	/**the last MmpProofStep in the array of uStatements*/
@@ -375,7 +376,7 @@ export class MmpProof implements ITheoremSignature {
 	}
 
 	/**inserts a proofStatement just after the qed step */
-	insertProofStatement(proofStatement: UProofStatement | UCompressedProofStatement) {
+	insertProofStatement(proofStatement: UProofStatement | MmpPackedProofStatement | UCompressedProofStatement) {
 		//this method should only be invoked when the QED step is the last one
 		if (this.lastMmpProofStep?.stepRef == "qed") {
 			const indexOfQEDstep = this.mmpStatements.indexOf(this.lastMmpProofStep);

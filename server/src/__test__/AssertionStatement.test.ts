@@ -4,7 +4,7 @@ import { mp2MmParser } from './GlobalForTest.test';
 test('AssertionStatement.eHypsOrderForStepDerivation', () => {
 	const axmp: AssertionStatement = mp2MmParser.labelToNonSyntaxAssertionMap.get('ax-mp')!;
 	const eHypOrderForStepDerivation: IEHypOrderForStepDerivation[] | undefined =
-		axmp.eHypsOrderForStepDerivation;
+			axmp.eHypsOrderForStepDerivation;
 	expect(eHypOrderForStepDerivation).toBeDefined();
 	const eHypForStepDerivation0: IEHypOrderForStepDerivation = eHypOrderForStepDerivation![0];
 	expect(eHypForStepDerivation0.eHypIndex).toBe(1);

@@ -139,17 +139,6 @@ export class InternalNode {
 	// 	return proof;
 	// }
 
-	proofArrayWithSubstitution(outermostBlock: BlockStatement, grammar: Grammar,
-		substitutionInRpnOrder: Map<string, InternalNode>): UProofStatementStep[] {
-		const proof: UProofStatementStep[] = [];
-		substitutionInRpnOrder.forEach((substitution: InternalNode) => {
-			// const subProof: UProofStatementStep[] = substitution.proofArrayWithoutAnySubstitution;
-			const subProof: UProofStatementStep[] = substitution.proofArray(outermostBlock, grammar);
-			proof.push(...subProof);
-		});
-		proof.push({ label: this.label, parseNode: this });
-		return proof;
-	}
 	//#region buildSubstitutionInRpnOrder
 
 	//#region buildSubstitution
@@ -207,6 +196,18 @@ export class InternalNode {
 		return substitutionInRpnOrder;
 	}
 	//#endregion buildSubstitutionInRpnOrder
+
+	proofArrayWithSubstitution(outermostBlock: BlockStatement, grammar: Grammar,
+		substitutionInRpnOrder: Map<string, InternalNode>): UProofStatementStep[] {
+		const proof: UProofStatementStep[] = [];
+		substitutionInRpnOrder.forEach((substitution: InternalNode) => {
+			// const subProof: UProofStatementStep[] = substitution.proofArrayWithoutAnySubstitution;
+			const subProof: UProofStatementStep[] = substitution.proofArray(outermostBlock, grammar);
+			proof.push(...subProof);
+		});
+		proof.push({ label: this.label, parseNode: this });
+		return proof;
+	}
 
 	/**
 	 * returns the syntactic proof corresponding to the internal node

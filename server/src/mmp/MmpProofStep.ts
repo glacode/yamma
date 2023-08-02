@@ -14,7 +14,6 @@ import { ILabeledStatementSignature } from '../mmt/MmtParser';
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
 
-
 export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSignature {
 	uProof: MmpProof;
 
@@ -177,6 +176,7 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 		// this.stepFormula = stepFormula;
 		// this.parseNode = formulaParseNode;
 	}
+
 	get label(): MmToken | undefined {
 		// let result: MmToken | undefined;
 		// if (this instanceof MmpProofStep)

@@ -4,6 +4,7 @@ import { TheoryLoader } from './TheoryLoader';
 
 export enum ProofMode {
 	normal = "normal",
+	packed = "packed",
 	compressed = "compressed"
 }
 

@@ -119,6 +119,7 @@ export class UCompressedProofStatement implements IMmpStatement {
 	//#region createNumberSequence
 	getZStatementIndex(uProofStatementStep: UProofStatementStep): number | undefined {
 		let zStatementIndex: number | undefined;
+		//TODO1 10 JUL 2023 the statement below does NOT work, because two UProofStatementStep that represent the same statement, will not match!!!
 		const zStatement: UProofStatementStep | undefined = this._zStatementsMap.get(uProofStatementStep);
 		if (zStatement != undefined)
 			// uProofStatementStep is equal to a previous step that has already been proven

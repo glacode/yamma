@@ -7,7 +7,7 @@ import { UCompressedProofStatement } from '../mmp/UCompressedProofStatement';
 import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
-import { kindToPrefixMap, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
+import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmToken } from '../grammar/MmLexer';
@@ -608,6 +608,118 @@ test("Build proof for abid", () => {
 		'\n' +
 		'$=    vx cv wph vx cab wcel wph vx vx wsb wph wph vx vx df-clab wph vx sbid\n' +
 		'      bitri $.\n\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test("Packed proof for eqeq1", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'1::id              |- ( A = B -> A = B )\n' +
+		'qed:1:eqeq1d      |- ( A = B -> ( A = C <-> B = C ) )';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'1::id               |- ( A = B -> A = B )\n' +
+		'qed:1:eqeq1d       |- ( A = B -> ( A = C <-> B = C ) )\n' +
+		'\n' +
+		'$=  cA cB 1:wceq cA cB cC 1 id eqeq1d $.\n\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test("Packed proof for id", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'50::ax-1            |- ( ph -> ( ph -> ph ) )\n' +
+		'51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )\n' +
+		'qed:50,51:mpd      |- ( ph -> ph )';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'50::ax-1            |- ( ph -> ( ph -> ph ) )\n' +
+		'51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )\n' +
+		'qed:50,51:mpd      |- ( ph -> ph )\n' +
+		'\n' +
+		'$=  wph wph wph 1:wi wph wph wph ax-1 wph 1 ax-1 mpd $.\n\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+//TODO1 28 JUL 2023
+test("Packet proof for elabgf", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'h50::elabgf.1         |- F/_ x A\n' +
+		'h51::elabgf.2        |- F/ x ps\n' +
+		'h52::elabgf.3        |- ( x = A -> ( ph <-> ps ) )\n' +
+		'53::nfab1             |- F/_ x { x | ph }\n' +
+		'54:50,53:nfel        |- F/ x A e. { x | ph }\n' +
+		'55:54,51:nfbi       |- F/ x ( A e. { x | ph } <-> ps )\n' +
+		'56::eleq1            |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )\n' +
+		'57:56,52:bibi12d    |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )\n' +
+		'58::abid            |- ( x e. { x | ph } <-> ph )\n' +
+		'qed:50,55,57,58:vtoclgf\n' +
+		'				    |- ( A e. B -> ( A e. { x | ph } <-> ps ) )';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'h50::elabgf.1         |- F/_ x A\n' +
+		'h51::elabgf.2        |- F/ x ps\n' +
+		'h52::elabgf.3        |- ( x = A -> ( ph <-> ps ) )\n' +
+		'53::nfab1             |- F/_ x { x | ph }\n' +
+		'54:50,53:nfel        |- F/ x A e. { x | ph }\n' +
+		'55:54,51:nfbi       |- F/ x ( A e. { x | ph } <-> ps )\n' +
+		'56::eleq1            |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )\n' +
+		'57:56,52:bibi12d    |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )\n' +
+		'58::abid            |- ( x e. { x | ph } <-> ph )\n' +
+		'qed:50,55,57,58:vtoclgf\n' +
+		'                   |- ( A e. B -> ( A e. { x | ph } <-> ps ) )\n' +
+		'\n' +
+		'$=  vx 1:cv wph vx 2:cab 3:wcel wph wb cA 2 4:wcel wps wb vx cA cB elabgf.1 4\n' +
+		'    wps vx vx cA 2 elabgf.1 wph vx nfab1 nfel elabgf.2 nfbi 1 cA wceq 3 4 wph\n' +
+		'    wps 1 cA 2 eleq1 elabgf.3 bibi12d wph vx abid vtoclgf $.\n\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test("Packed proof for opelcn", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'1::df-c             |- CC = ( R. X. R. )\n' +
+		'2:1:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
+		'3::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
+		'qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'1::df-c              |- CC = ( R. X. R. )\n' +
+		'2:1:eleq2i          |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
+		'3::opelxp           |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
+		'qed:2,3:bitri      |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )\n' +
+		'\n' +
+		'$=  cA cB 1:cop cc wcel 1 cnr cnr 2:cxp wcel cA cnr wcel cB cnr wcel wa cc 2 1\n' +
+		'    df-c eleq2i cA cB cnr cnr opelxp bitri $.\n\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

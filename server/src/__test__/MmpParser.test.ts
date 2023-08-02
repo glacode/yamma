@@ -224,8 +224,6 @@ test('formula error', () => {
 	});
 });
 
-//TODO1 30 APR 2023
-
 test('verbose formula error', () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	labelToStatementMap.set('ax-mp', emptyLabelStatement);
@@ -244,7 +242,6 @@ test('verbose formula error', () => {
 			expect(diagnostic.range.start.line).toBe(0);
 			expect(diagnostic.range.start.character).toBe(26);
 			expect(diagnostic.range.end.character).toBe(27);
-			//TODO1 30 APR 2023
 			expect(diagnostic.message.startsWith(
 				'\nUnexpected "A". Instead, I was expecting to see one of the following:\n' +
 				'\n' +

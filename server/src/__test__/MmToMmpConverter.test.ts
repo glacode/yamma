@@ -6,7 +6,6 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { createMmParser, impbiiMmParser, kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
 import { MmParser } from '../mm/MmParser';
 
-//TODO1 18 MAY
 test('Expect mmp proof for id theorem, to be inserted', () => {
 	// we've decided not to remove the wrong ref
 	const mmpSource =

@@ -11,6 +11,7 @@ import { ProofMode } from '../mm/ConfigurationManager';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
 import { Parameters } from '../general/Parameters';
 import { consoleLogWithTimestamp } from '../mm/Utils';
+import { MmpPackedProofStatement } from './MmpPackedProofStatement';
 
 // export interface UnifyResult {
 // 	diagnostics: Diagnostic[]
@@ -106,6 +107,10 @@ export class MmpUnifier {
 			if (this.proofMode == ProofMode.normal) {
 				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastMmpProofStep.proofArray(this.outermostBlock);
 				const proofStatement: UProofStatement = new UProofStatement(proofArray, this._charactersPerLine);
+				uProof.insertProofStatement(proofStatement);
+			} else if (this.proofMode == ProofMode.packed) {
+				//TODO1 28 LUG 2023 use parameters in place of 3, 80
+				const proofStatement: MmpPackedProofStatement = new MmpPackedProofStatement(uProof, 80);
 				uProof.insertProofStatement(proofStatement);
 			} else {
 				// this.proofMode == ProofMode.compressed

@@ -98,7 +98,6 @@ test('Expect proof right parenthesis to be on a new line, followed by a space', 
 
 });
 
-//TODO1 apr 2
 test('reformat comment', () => {
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', mp2MmParser, 0, 20);
 	const text = '$( This is just a test comment $)';
