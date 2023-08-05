@@ -3,16 +3,8 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { MmpProofStep } from './MmpProofStep';
 import { GrammarManager } from '../grammar/GrammarManager';
 
-//TODO1 31 JUL 2023 see if you can remove this, it is probably useless
-export enum ProofNodeType {
-	substitution = 'substitution',
-	eHyp = 'eHyp',
-	assertion = 'assertion'
-}
-
 export class ProofNode {
 	constructor(
-		public proofNodeType: ProofNodeType,
 		public internalNode: InternalNode,
 		public children: ProofNode[],
 		public mmpProofStep?: MmpProofStep) {
@@ -49,7 +41,7 @@ export class ProofNode {
 		// 	label: parseNode.label,
 		// 	parseNode: parseNode
 		// };
-		const proofNode: ProofNode = new ProofNode(ProofNodeType.substitution, parseNode, children);
+		const proofNode: ProofNode = new ProofNode(parseNode, children);
 		return proofNode;
 	}
 	//#endregion proofNodeForParseNode
@@ -95,10 +87,7 @@ export class ProofNode {
 
 	public static proofNodeForMmpProofStep(mmpProofStep: MmpProofStep): ProofNode {
 		const children: ProofNode[] = ProofNode.proofNodeChildren(mmpProofStep);
-		const proofNodeType: ProofNodeType =
-			(mmpProofStep.isEHyp ? ProofNodeType.eHyp : ProofNodeType.assertion);
-		const output: ProofNode = new ProofNode(proofNodeType, mmpProofStep.parseNode!,
-			children, mmpProofStep);
+		const output: ProofNode = new ProofNode(mmpProofStep.parseNode!, children, mmpProofStep);
 		return output;
 	}
 	//#endregion proofNode
