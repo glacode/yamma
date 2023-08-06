@@ -47,6 +47,33 @@ export class RpnStep {
 	constructor(public proofNode: ProofNode, public backRef?: RpnStep) {
 	}
 
+	//#region labelForCompressedProof
+	public get labelForCompressedProof(): string {
+		let output: string;
+		if (this.backRef != undefined)
+			output = this.backRef.labelForCompressedProof;
+		else {
+			// this is NOT a backref
+			if (this.proofNode.mmpProofStep != undefined)
+				output = this.proofNode.mmpProofStep.stepLabel!;
+			else
+				// this is a RPNstep for a syntax proof
+				output = this.proofNode.internalNode.label;
+		}
+
+		// if (this.proofNode.mmpProofStep?.isEHyp)
+		// 	output = this.proofNode.mmpProofStep.stepLabel!;
+		// else {
+		// 	// the current RPNStep is NOT a eHyp
+		// 	output = this.proofNode.internalNode.label;
+		// 	if (this.backRef != undefined)
+		// 		// this is a backref step
+		// 		output = this.backRef.proofNode.internalNode.label;
+		// }
+		return output;
+	}
+	//#endregion labelForCompressedProof
+
 	//#region packetProof
 	/** this is similar to the ParseNode.convertToRPN() method in mmj2	 */
 

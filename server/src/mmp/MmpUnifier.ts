@@ -5,13 +5,13 @@ import { MmpParser } from './MmpParser';
 import { MmpProof } from './MmpProof';
 import { WorkingVars } from './WorkingVars';
 import { MmpProofTransformer } from './MmpProofTransformer';
-import { UProofStatementStep } from './MmpStatement';
+import { IMmpStatement, UProofStatementStep } from './MmpStatement';
 import { UProofStatement } from "./UProofStatement";
 import { ProofMode } from '../mm/ConfigurationManager';
-import { UCompressedProofStatement } from './UCompressedProofStatement';
 import { Parameters } from '../general/Parameters';
 import { consoleLogWithTimestamp } from '../mm/Utils';
 import { MmpPackedProofStatement } from './MmpPackedProofStatement';
+import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromUncompressedProof } from './MmpCompressedProofCreator';
 
 // export interface UnifyResult {
 // 	diagnostics: Diagnostic[]
@@ -47,6 +47,7 @@ export class MmpUnifier {
 	thrownError: boolean;
 
 	private _charactersPerLine: number;
+	private _mmpCompressedProofCreator: IMmpCompressedProofCreator;
 
 
 	//#region constructor
@@ -54,7 +55,9 @@ export class MmpUnifier {
 		maxNumberOfHypothesisDispositionsForStepDerivation: number,
 		private renumber?: boolean, private expectedTheoremLabel?: string,
 		private leftMarginForCompressedProof?: number,
-		private rightMarginForCompressedProof?: number) {
+		private characterPerLine?: number,
+		mmpCompressedProofCreator?: IMmpCompressedProofCreator) {
+		// private labelSequenceCreator?: ILabelMapCreatorForCompressedProof) {
 		// this.textDocument = textDocument
 		this.mmpParser = mmpParser;
 		this.uProof = mmpParser.mmpProof;
@@ -63,7 +66,10 @@ export class MmpUnifier {
 		this.workingVars = mmpParser.workingVars;
 		this.proofMode = proofMode;
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
-		this._charactersPerLine = rightMarginForCompressedProof == undefined ? Parameters.charactersPerLine : rightMarginForCompressedProof;
+		this._charactersPerLine = characterPerLine == undefined ? Parameters.charactersPerLine : characterPerLine;
+		this._mmpCompressedProofCreator = mmpCompressedProofCreator != undefined ? mmpCompressedProofCreator :
+			new MmpCompressedProofCreatorFromUncompressedProof();
+
 
 		//TODO1 21 MAY use the range of the last actual statement (now I can't, because not all statements implement
 		//the range property (see interface IMmpStatementWithRange and interface interface IUStatement)
@@ -114,8 +120,9 @@ export class MmpUnifier {
 				uProof.insertProofStatement(proofStatement);
 			} else {
 				// this.proofMode == ProofMode.compressed
-				const proofStatement: UCompressedProofStatement = new UCompressedProofStatement(uProof,
-					this.leftMarginForCompressedProof, this.rightMarginForCompressedProof);
+				const proofStatement: IMmpStatement = this._mmpCompressedProofCreator.createMmpCompressedProof(
+					uProof, this.leftMarginForCompressedProof, this.characterPerLine);
+				// this.labelSequenceCreator);
 				uProof.insertProofStatement(proofStatement);
 			}
 			consoleLogWithTimestamp('buildProofStatementIfProofIsComplete end');

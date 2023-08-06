@@ -15,6 +15,8 @@ import { MmpParser } from '../mmp/MmpParser';
 import { InternalNode } from '../grammar/ParseNode';
 import { UProofStatementStep } from '../mmp/MmpStatement';
 import { UProofStatement } from '../mmp/UProofStatement';
+import { MmpHardcodedLabelSequenceCreator } from '../mmp/MmpHardcodedLabelMapCreator';
+import { ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/MmpCompressedProofCreator';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -720,6 +722,114 @@ test("Packed proof for opelcn", () => {
 		'\n' +
 		'$=  cA cB 1:cop cc wcel 1 cnr cnr 2:cxp wcel cA cnr wcel cB cnr wcel wa cc 2 1\n' +
 		'    df-c eleq2i cA cB cnr cnr opelxp bitri $.\n\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test("Compressed proof for opth", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'h1::opth.1                    |- A e. _V\n' +
+		'h2::opth.2                    |- B e. _V\n' +
+		'3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )\n' +
+		'4:1,2:opi1                   |- { A } e. <. A , B >.\n' +
+		'5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )\n' +
+		'6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )\n' +
+		'7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
+		'8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
+		'9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )\n' +
+		'10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )\n' +
+		'11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )\n' +
+		'12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )\n' +
+		'13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )\n' +
+		'14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )\n' +
+		'15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )\n' +
+		'16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )\n' +
+		'17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )\n' +
+		'18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )\n' +
+		'19::prex                |- { C , B } e. _V\n' +
+		'20::prex                |- { C , D } e. _V\n' +
+		'21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )\n' +
+		'22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )\n' +  // ok
+		'23::preq2                |- ( x = D -> { C , x } = { C , D } )\n' +
+		'24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )\n' +
+		'25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )\n' +
+		'26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )\n' +   // ok
+		'27::vex                 |- x e. _V\n' +
+		'28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )\n' +   // ok
+		'29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )\n' +  // KO!!!!
+		'30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )\n' +
+		'31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )\n' +   // KO!!!!
+		'32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )\n' +
+		'qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )\n' +
+		'$d B x\n' +
+		'$d C x\n' +
+		'$d D x';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const labels: string[] = [
+		'vx', 'cop', 'wceq', 'wa', 'cvv', 'wcel', 'cpr', 'csn', 'syl', 'eqtr3d',
+		'dfopg', 'prex', 'preqr2', 'wi', 'id', 'simprd', 'opth1', 'opi1', 'syl5eleq',
+		'oprcl', 'opeq1d', 'simpld', 'sylancl', 'cv', 'preq2', 'eqeq2d', 'imbi12d',
+		'vex', 'eqeq2', 'vtoclg', 'sylc', 'jca', 'opeq12', 'impbii'
+	];
+	const labelMapCreator: ILabelMapCreatorForCompressedProof =
+		new MmpHardcodedLabelSequenceCreator(labels);
+	// const compressedProofCreator: IMmpCompressedProofCreator =
+	// 	new MmpCompressedProofCreatorFromUncompressedProof(labelSequenceCreator);
+	const compressedProofCreator: IMmpCompressedProofCreator =
+		new MmpCompressedProofCreatorFromPackedProof(labelMapCreator);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
+		undefined, undefined, undefined, undefined, compressedProofCreator);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'h1::opth.1                    |- A e. _V\n' +
+		'h2::opth.2                    |- B e. _V\n' +
+		'3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )\n' +
+		'4:1,2:opi1                   |- { A } e. <. A , B >.\n' +
+		'5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )\n' +
+		'6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )\n' +
+		'7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
+		'8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
+		'9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )\n' +
+		'10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )\n' +
+		'11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )\n' +
+		'12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )\n' +
+		'13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )\n' +
+		'14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )\n' +
+		'15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )\n' +
+		'16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )\n' +
+		'17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )\n' +
+		'18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )\n' +
+		'19::prex                |- { C , B } e. _V\n' +
+		'20::prex                |- { C , D } e. _V\n' +
+		'21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )\n' +
+		'22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )\n' +
+		'23::preq2                |- ( x = D -> { C , x } = { C , D } )\n' +
+		'24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )\n' +
+		'25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )\n' +
+		'26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )\n' +
+		'27::vex                 |- x e. _V\n' +
+		'28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )\n' +
+		'29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )\n' +
+		'30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )\n' +
+		'31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )\n' +
+		'32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )\n' +
+		'qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )\n' +
+		'\n' +
+		'$= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi id simprd\n' +
+		'   opth1 opi1 syl5eleq oprcl opeq1d simpld sylancl cv preq2 eqeq2d imbi12d vex\n' +
+		'   eqeq2 vtoclg sylc jca opeq12 impbii ) ABHZCDHZIZACIZBDIZJVCVDVEABCDEFUCZVCDK\n' +
+		'   LZCBMZCDMZIZVEVCCKLZVGVCANZVBLVKVGJZVCVLVAVBABEFUDVCUAZUECDVLUFOZUBVCCNZVHMZ\n' +
+		'   VPVIMZIVJVCVBVQVRVCCBHZVBVQVCVAVSVBVCACBVFUGVNPVCVKBKLVSVQIVCVKVGVOUHFCBKKQU\n' +
+		'   IPVCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWA\n' +
+		'   VIVHVTDCUKULVTDBUOUMBVTCFGUNSUPUQURABCDUSUT $.\n\n' +
+		'$d B x\n' +
+		'$d C x\n' +
+		'$d D x\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

@@ -9,14 +9,11 @@ export class MmpPackedProofStatement implements IMmpStatement {
 		this.packedProof = this.createPackedProof();
 	}
 
-	//#region createPackedProof
 	createPackedProof(): RpnStep[] {
 		const proofNode: ProofNode = ProofNode.proofNodeForMmpProofStep(this.mmpProof.lastMmpProofStep!);
 		this.packedProof = RpnStep.packedProof(proofNode,this.mmpProof.outermostBlock);
 		return this.packedProof;
 	}
-	//#endregion createPackedProof
-
 
 	//#region toText
 	rpnPackedStepLabels(): string[] {

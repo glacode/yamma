@@ -7,6 +7,7 @@ import { MmpProofStep } from './MmpProofStep';
 import { MmpProof } from './MmpProof';
 import { IMmpStatement } from './MmpStatement';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
+import { MmpCompressedProofStatementFromPackedProof } from './MmpCompressedProofStatementFromPackedProof';
 
 export class MmpProofFormatter {
 	uProof: MmpProof;
@@ -95,7 +96,8 @@ export class MmpProofFormatter {
 			else {
 				uStatementText = uStatement.toText();
 				if (uStatement == this.uProof.mainComment ||
-					uStatement instanceof UCompressedProofStatement)
+					uStatement instanceof UCompressedProofStatement ||
+					uStatement instanceof MmpCompressedProofStatementFromPackedProof)
 					uStatementText = `\n${uStatementText}\n`;
 			}
 			text = text + uStatementText + "\n";
