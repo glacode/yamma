@@ -1,5 +1,3 @@
-import { Grammar } from 'nearley';
-import { GrammarManager } from '../grammar/GrammarManager';
 import { MmpProof } from './MmpProof';
 import { IMmpStatement, UProofStatementStep } from './MmpStatement';
 import { concatWithSpaces } from '../mm/Utils';
@@ -33,28 +31,10 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 
 	private _proofInNormalMode: UProofStatementStep[]
 
-	/**
-	 * numbers representing the compressed proof string; every number will be translated
-	 * to a sequence of upper case letters (the base 5 base 20 representation of the number);
-	 * -1 will represent a 'Z' (to be inserted into the upper case string representation)
-	 */
-	// private _numberSequence: number[];
-
 
 	/** maps each label (form mandatory hyps and for step labels) to the corresponding 
 	 * number in the compressed proof */
 	private _mandatoryHypsLabels: Map<string, number>;
-
-	/**
-	 * used to build this._zStatements and this._zStatementsMap, it
-	 * contains only the labels in the compact proof sequence (in other
-	 * words, it doesn't contain labels for mandatory hyps)
-	 */
-	private _compactProofLabelToStatementMap: Map<string, UProofStatementStep[]>;
-
-	private _zStatements: Set<UProofStatementStep>;
-	private _zStatementsMap: Map<UProofStatementStep, UProofStatementStep>;
-	private _zStatementIndex: Map<UProofStatementStep, number>;
 
 	// constructor(uProof: UProof, outermostBlock: BlockStatement) {
 	/**
@@ -81,13 +61,8 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 
 		// this._numberSequence = [];
 		this._mandatoryHypsLabels = new Map<string, number>();
-		this._compactProofLabelToStatementMap = new Map<string, UProofStatementStep[]>();
 
 		this._proofInNormalMode = <UProofStatementStep[]>this.uProof.lastMmpProofStep!.proofArray(uProof.outermostBlock);
-
-		this._zStatements = new Set<UProofStatementStep>();
-		this._zStatementsMap = new Map<UProofStatementStep, UProofStatementStep>();
-		this._zStatementIndex = new Map<UProofStatementStep, number>();
 
 		this._mmpPackedProofStatement = new MmpPackedProofStatement(this.uProof, 80);
 
@@ -127,106 +102,9 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 	//#endregion createMandatoryHypsLabels
 
 	private createLabelSequence() {
-
-		// this._proofInNormalMode.forEach((uProofStatementStep: UProofStatementStep) => {
-		// 	const label = uProofStatementStep.label;
-		// 	if (this._mandatoryHypsLabels.get(label) == undefined && this.labelSequence.get(label) == undefined) {
-		// 		// the current label in the normal proof is not a label for a mandatory hypothesis and it
-		// 		// has not been added to the label sequence, yet
-		// 		const i = this._mandatoryHypsLabels.size + this.labelSequence.size + 1;
-		// 		this.labelSequence.set(label, i);
-		// 	}
-		// });
 		this.labelMap = this._labelSequenceCreator.createLabelMap(
 			this._mandatoryHypsLabels, this._proofInNormalMode);
 	}
-
-	//#region createNumberSequence
-	getZStatementIndex(uProofStatementStep: UProofStatementStep): number | undefined {
-		let zStatementIndex: number | undefined;
-		//TODO1 10 JUL 2023 the statement below does NOT work, because two UProofStatementStep that represent the same statement, will not match!!!
-		const zStatement: UProofStatementStep | undefined = this._zStatementsMap.get(uProofStatementStep);
-		if (zStatement != undefined)
-			// uProofStatementStep is equal to a previous step that has already been proven
-			zStatementIndex = <number>this._zStatementIndex.get(zStatement);
-		return zStatementIndex;
-	}
-	// computes the number of steps to be removed, accounting for Z references that shorten
-	// the actual number of steps to be removed
-	// private numberOfStepsToBeRemoved(fullNumberOfSteps: number): number {
-	// 	let result = 0;
-	// 	let currentIndexToCheck: number = this._numberSequence.length - 1;
-	// 	while (this._numberSequence.length - 1 - fullNumberOfSteps < currentIndexToCheck) {
-	// 		if (this._numberSequence[currentIndexToCheck] > this._mandatoryHypsLabels.size + this._proofInNormalMode.length) {
-	// 			// the current index is for a Z reference
-	// 			result += 1;
-	// 		}
-	// 		else {
-	// 			// the current index is not for a Z reference (the full sub proof has to be removed)
-
-	// 		}
-	// 	}
-	// }
-	// private createNumberSequence() {
-	// 	let currentLabelInReverseOrder: number = this._proofInNormalMode.length - 1;
-	// 	while (0 <= currentLabelInReverseOrder) {
-	// 		const uProofStatementStep: UProofStatementStep = this._proofInNormalMode[currentLabelInReverseOrder];
-	// 		const zStatementIndex = this.getZStatementIndex(uProofStatementStep);
-	// 		if (zStatementIndex != undefined) {
-	// 			// uProofStatementStep is equal to a previous step that has already been proven
-	// 			const numberForTheZReference = this._mandatoryHypsLabels.size + this.labelSequence.size +
-	// 				zStatementIndex;
-	// 			// const stepsToBeRemoved = uProofStatementStep.parseNode.proofArray().length - 1;
-	// 			// removeItemsFromEndOfArray(this._numberSequence, stepsToBeRemoved);
-	// 			this._numberSequence.unshift(numberForTheZReference);
-	// 			//TODO the statement below works for syntactic proofs, but you sould probably have
-	// 			// to user UProofStep.proofArray() for the general case
-	// 			currentLabelInReverseOrder -= uProofStatementStep.parseNode.proofArray(
-	// 				this.uProof.outermostBlock, <Grammar>this.uProof.outermostBlock.grammar).length;
-	// 		}
-	// 		else {
-	// 			// uProofStatementStep is different from all previous steps
-	// 			if (this._zStatements.has(uProofStatementStep))
-	// 				// uProofStatementStep is a ZStatement
-	// 				this._numberSequence.unshift(-1);
-	// 			let nextNumberInTheSequence: number | undefined =
-	// 				this._mandatoryHypsLabels.get(uProofStatementStep.label);
-	// 			if (nextNumberInTheSequence == undefined) {
-	// 				// the current label in the proof (in normal mode) is not the label for a mandatory hyp. Then it
-	// 				// must be a label in this.labelSequence
-	// 				nextNumberInTheSequence = this.labelSequence.get(uProofStatementStep.label);
-	// 			}
-	// 			this._numberSequence.unshift(<number>nextNumberInTheSequence);
-	// 			currentLabelInReverseOrder -= 1;
-	// 		}
-	// 	}
-	// 	// this._proofInNormalMode.forEach((uProofStatementStep: UProofStatementStep) => {
-	// 	// 	const zStatementIndex = this.getZStatementIndex(uProofStatementStep);
-	// 	// 	if (zStatementIndex != undefined) {
-	// 	// 		// uProofStatementStep is equal to a previous step that has already been proven
-	// 	// 		const numberForTheZReference = this._mandatoryHypsLabels.size + this.labelSequence.size +
-	// 	// 			zStatementIndex;
-	// 	// 		const stepsToBeRemoved = uProofStatementStep.parseNode.proofArray().length - 1;
-	// 	// 		removeItemsFromEndOfArray(this._numberSequence, stepsToBeRemoved);
-	// 	// 		this._numberSequence.push(numberForTheZReference);
-	// 	// 	}
-	// 	// 	else {
-	// 	// 		// uProofStatementStep is different from all previous steps
-	// 	// 		let nextNumberInTheSequence: number | undefined =
-	// 	// 			this._mandatoryHypsLabels.get(uProofStatementStep.label);
-	// 	// 		if (nextNumberInTheSequence == undefined)
-	// 	// 			// the current label in the proof (in normal mode) is not the label for a mandatory hyp. Then it
-	// 	// 			// must be a label in this.labelSequence
-	// 	// 			nextNumberInTheSequence = this.labelSequence.get(uProofStatementStep.label);
-	// 	// 		this._numberSequence.push(<number>nextNumberInTheSequence);
-	// 	// 		if (this._zStatements.has(uProofStatementStep))
-	// 	// 			// uProofStatementStep is a ZStatement
-	// 	// 			this._numberSequence.push(-1);
-	// 	// 	}
-
-	// 	// });
-	// }
-	//#endregion createNumberSequence
 
 	//#region createUpperCaseLetterSequence
 
@@ -293,13 +171,6 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 	//#endregion getUpperCaseLettersForThisStep
 
 	private createUpperCaseLetterSequence() {
-		// this._numberSequence.forEach((currentNumber: number) => {
-		// 	let currentUpperCaseLetter = ["Z"];
-		// 	if (currentNumber != -1)
-		// 		// the current number does not represent a Z statement
-		// 		currentUpperCaseLetter = this.upperCaseLettersFromNumber(currentNumber);
-		// 	this.upperCaseLetterSequence.push(...currentUpperCaseLetter);
-		// });
 		this._mmpPackedProofStatement.packedProof.forEach((rpnStep: RpnStep) => {
 			const upperCaseLettersForThisStep: string[] = this.getUpperCaseLettersForThisStep(rpnStep);
 			this.upperCaseLetterSequence.push(...upperCaseLettersForThisStep);
@@ -307,81 +178,10 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 	}
 	//#endregion createUpperCaseLetterSequence
 
-	createLabelToStatementMap() {
-		this._proofInNormalMode.forEach((uProofStatementStep: UProofStatementStep) => {
-			const stepsWithTheSameLabel: UProofStatementStep[] | undefined =
-				this._compactProofLabelToStatementMap.get(uProofStatementStep.label);
-			if (stepsWithTheSameLabel == undefined) {
-				// this is the first UProofStatementStep with this label
-				// const newStepsSet: Set<UProofStatementStep> = new Set<UProofStatementStep>();
-				// newStepsSet.add(uProofStatementStep);
-				this._compactProofLabelToStatementMap.set(uProofStatementStep.label, [uProofStatementStep]);
-			} else
-				// there were previous UProofStatementStep(s) with this label
-				stepsWithTheSameLabel.push(uProofStatementStep);
-		});
-	}
-
-	//#region createZStatemens
-
-
-	// it looks like metamath.exe and mmj2 don't use Z for 1 step proofs (it makes sense,
-	// the spec in the metamath book doesn't make such distinction)
-	private isAZStatementCandidate(uProofStatementStep: UProofStatementStep): boolean {
-		const result = uProofStatementStep.parseNode.proofArray(
-			this.uProof.outermostBlock, <Grammar>this.uProof.outermostBlock.grammar).length > 1;
-		return result;
-	}
-	createZStatemens() {
-		this._proofInNormalMode.forEach((uProofStatementStep: UProofStatementStep) => {
-			if (this.isAZStatementCandidate(uProofStatementStep)) {
-				const previousStatemenstWithTheSameLabel: UProofStatementStep[] | undefined =
-					this._compactProofLabelToStatementMap.get(uProofStatementStep.label);
-				if (previousStatemenstWithTheSameLabel != undefined) {
-					// there are previous statements with the same label
-					let i = 0;
-					let foundPreviousZStatementWithEqualParseNode = false;
-					while (i < previousStatemenstWithTheSameLabel.length &&
-						!foundPreviousZStatementWithEqualParseNode) {
-						const previousStatementStep = previousStatemenstWithTheSameLabel[i];
-						if (GrammarManager.areParseNodesEqual(uProofStatementStep.parseNode, previousStatementStep.parseNode)) {
-							this._zStatements.add(previousStatementStep);
-							this._zStatementsMap.set(uProofStatementStep, previousStatementStep);
-							foundPreviousZStatementWithEqualParseNode = true;
-						}
-						i++;
-					}
-					if (!foundPreviousZStatementWithEqualParseNode)
-						// no previous statement have the same parse node
-						previousStatemenstWithTheSameLabel.push(uProofStatementStep);
-				} else if (this.labelMap.has(uProofStatementStep.label)) {
-					// no previous compact proof label step had the same label				
-					this._compactProofLabelToStatementMap.set(uProofStatementStep.label, [uProofStatementStep]);
-				}
-			}
-		});
-	}
-	//#endregion createZStatemens
-
-	// private assignZStatementsIndex() {
-	// 	this._proofInNormalMode.forEach((uProofStatementStep: UProofStatementStep) => {
-	// 		if (this._zStatements.has(uProofStatementStep) &&
-	// 			this._zStatementIndex.get(uProofStatementStep) == undefined) {
-	// 			// uProofStatementStep is a step repeated later in the proof
-	// 			// and this is the first occurence of this step
-	// 			const index = this._zStatementIndex.size + 1;
-	// 			this._zStatementIndex.set(uProofStatementStep, index);
-	// 		}
-	// 	});
-	// }
-	//#endregion createZStatements
 
 	createCompressedProof() {
 		this.createMandatoryHypsLabels();
 		this.createLabelSequence();
-		// this.createLabelToStatementMap();
-		// this.createZStatemens();
-		// this.assignZStatementsIndex();
 		// this.createNumberSequence();
 		this.createUpperCaseLetterSequence();
 	}
@@ -462,12 +262,6 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 		else
 			text[0] += ' $.';
 		return text[0];
-	}
-
-	/** plain vanilla version, with no format at all */
-	toTextOld(): string {
-		const text = `$= ( ${this.stringForLabelSequence} ) ${this.upperCaseLetterSequence.join('')} $.`;
-		return text;
 	}
 	//#endregion toText
 }
