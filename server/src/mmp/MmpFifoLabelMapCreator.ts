@@ -10,7 +10,7 @@ export class MmpFifoLabelMapCreator implements ILabelMapCreatorForCompressedProo
 			if (mandatoryHypsLabels.get(label) == undefined && labelSequence.get(label) == undefined) {
 				// the current label in the normal proof is not a label for a mandatory hypothesis and it
 				// has not been added to the label sequence, yet
-				const i = mandatoryHypsLabels.size + labelSequence.size + 1;
+				const i = labelSequence.size + 1;
 				labelSequence.set(label, i);
 			}
 		});

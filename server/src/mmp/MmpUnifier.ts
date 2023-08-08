@@ -11,7 +11,7 @@ import { ProofMode } from '../mm/ConfigurationManager';
 import { Parameters } from '../general/Parameters';
 import { consoleLogWithTimestamp } from '../mm/Utils';
 import { MmpPackedProofStatement } from './MmpPackedProofStatement';
-import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromUncompressedProof } from './MmpCompressedProofCreator';
+import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from './MmpCompressedProofCreator';
 
 // export interface UnifyResult {
 // 	diagnostics: Diagnostic[]
@@ -68,7 +68,8 @@ export class MmpUnifier {
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
 		this._charactersPerLine = characterPerLine == undefined ? Parameters.charactersPerLine : characterPerLine;
 		this._mmpCompressedProofCreator = mmpCompressedProofCreator != undefined ? mmpCompressedProofCreator :
-			new MmpCompressedProofCreatorFromUncompressedProof();
+			// new MmpCompressedProofCreatorFromUncompressedProof();
+			new MmpCompressedProofCreatorFromPackedProof();
 
 
 		//TODO1 21 MAY use the range of the last actual statement (now I can't, because not all statements implement

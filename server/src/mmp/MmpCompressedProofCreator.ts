@@ -1,4 +1,5 @@
 import { MmpCompressedProofStatementFromPackedProof } from './MmpCompressedProofStatementFromPackedProof';
+import { MmpFifoLabelMapCreator } from './MmpFifoLabelMapCreator';
 import { MmpProof } from './MmpProof';
 import { IMmpStatement, UProofStatementStep } from './MmpStatement';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
@@ -27,12 +28,18 @@ export class MmpCompressedProofCreatorFromUncompressedProof implements IMmpCompr
 }
 
 export class MmpCompressedProofCreatorFromPackedProof implements IMmpCompressedProofCreator {
-	constructor(private labelMapCreator?: ILabelMapCreatorForCompressedProof) {
+
+	private _labelMapCreator: ILabelMapCreatorForCompressedProof
+	constructor(labelMapCreator?: ILabelMapCreatorForCompressedProof) {
+		if (labelMapCreator != undefined)
+			this._labelMapCreator = labelMapCreator;
+		else
+			this._labelMapCreator = new MmpFifoLabelMapCreator();
 	}
 	createMmpCompressedProof(mmpProof: MmpProof, leftMargin: number,
 		charactersPerLine: number): IMmpStatement {
 		const proofStatement = new MmpCompressedProofStatementFromPackedProof(
-			mmpProof, leftMargin, charactersPerLine, this.labelMapCreator);
+			mmpProof, leftMargin, charactersPerLine, this._labelMapCreator);
 		return proofStatement;
 	}
 }
