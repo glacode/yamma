@@ -267,7 +267,7 @@ export class BlockStatement extends Statement {
         this.addDisjointVarsForSingleBlock(disjVars);
         if (this.ParentBlock != undefined)
             // this.addDisjointVarsForSingleBlock(mand_vars, this.ParentBlock, disjVars);
-            this.addDisjointVarsForSingleBlock(disjVars);
+            this.ParentBlock.addDisjointVarsForSingleBlock(disjVars);
         return disjVars;
     }
     //#endregion getDisjointVars

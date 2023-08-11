@@ -273,3 +273,22 @@ test('Test impbii-bad , expect error, but pm3.2im, that comes later, should be a
     expect((<ProvableStatement>impbi).isProofVerified).toBeFalsy();
     expect((<ProvableStatement>impbi).isProofVerificationFailed).toBeTruthy();
 });
+
+//TODO1 11 AGO 2023
+test("Test nested-frames ; expect success", () => {
+    const parser: MmParser = createMmParser('nested-scopes.mm');
+    expect(parser.parseFailed).toBeFalsy();
+    expect(parser.labelToStatementMap.size).toBe(8);
+    const labeledStatement: AssertionStatement = <AssertionStatement>parser.labelToStatementMap.get('good');
+    // const disjVars: DisjVars = labeledStatement.frame!.disjVars;
+    const disjVars: DisjointVarMap = labeledStatement.frame!.disjVars;
+    expect(disjVars.map.size).toBe(3);
+    expect(disjVars.containsDjContraint('x', 'y')).toBeTruthy();
+    expect(disjVars.containsDjContraint('x', 'z')).toBeTruthy();
+    expect(disjVars.containsDjContraint('x', 'w')).toBeTruthy();
+    expect(disjVars.containsDjContraint('y', 'z')).toBeTruthy();  // this is the important one, for nested scopes
+    expect(disjVars.containsDjContraint('y', 'w')).toBeTruthy();
+    expect(disjVars.containsDjContraint('w', 'x')).toBeTruthy();
+    expect(disjVars.containsDjContraint('z', 'z')).toBeFalsy();
+    expect(disjVars.containsDjContraint('x', 'a')).toBeFalsy();
+});
