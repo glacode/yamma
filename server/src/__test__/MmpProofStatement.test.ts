@@ -658,7 +658,6 @@ test("Packed proof for id", () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-//TODO1 28 JUL 2023
 test("Packet proof for elabgf", () => {
 	const mmpSource =
 		'\n* test comment\n\n' +

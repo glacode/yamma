@@ -1,7 +1,6 @@
 import { InternalNode } from '../grammar/ParseNode';
 import { BlockStatement } from '../mm/BlockStatement';
 import { MmpProofStep } from './MmpProofStep';
-import { GrammarManager } from '../grammar/GrammarManager';
 
 export class ProofNode {
 	constructor(
@@ -19,6 +18,11 @@ export class ProofNode {
 			// this is a proof node for a substitution
 			text = this.internalNode.label;
 		return text;
+	}
+
+	public get cachedRpnRepresentation(): string {
+		const representation: string = this.internalNode.cachedRpnRepresentation;
+		return representation;
 	}
 
 	//#region proofNodeForParseNode
@@ -93,32 +97,26 @@ export class ProofNode {
 	//#endregion proofNode
 
 	//#region squishProofNode
-	private static squishProofNodeChildren(children: ProofNode[], encountered: ProofNode[]) {
+	private static squishProofNodeChildren(children: ProofNode[], encountered: Map<string, ProofNode>) {
 		for (let i = 0; i < children.length; i++) {
 			children[i] = ProofNode.squishProofNode2(children[i], encountered);
 		}
 	}
 
-	//TODO1 13 AGO 2023 speed up this one with cache
-	private static squishProofNode2(proofNode: ProofNode, encountered: ProofNode[]): ProofNode {
+	private static squishProofNode2(proofNode: ProofNode, encountered: Map<string, ProofNode>): ProofNode {
 		if (proofNode.children != undefined)
 			ProofNode.squishProofNodeChildren(proofNode.children, encountered);
 		let output: ProofNode = proofNode;
-		let alreadyEncountered = false;
-		let i = 0;
-		while (!alreadyEncountered && i < encountered.length) {
-			if (GrammarManager.areInternalParseNodeEqual(proofNode.internalNode, encountered[i].internalNode)) {
-				alreadyEncountered = true;
-				output = encountered[i];
-			}
-			i++;
-		}
-		if (!alreadyEncountered)
-			encountered.push(proofNode);
+		const mayBeEncountered: ProofNode | undefined = encountered.get(proofNode.cachedRpnRepresentation);
+		if (mayBeEncountered != undefined)
+			output = mayBeEncountered;
+		else
+			// this formula has never been seen, before
+			encountered.set(proofNode.cachedRpnRepresentation, proofNode);
 		return output;
 	}
 	public static squishProofNode(proofNode: ProofNode): ProofNode {
-		const output: ProofNode = ProofNode.squishProofNode2(proofNode, []);
+		const output: ProofNode = ProofNode.squishProofNode2(proofNode, new Map<string, ProofNode>());
 		return output;
 	}
 	//#endregion squishProofNode

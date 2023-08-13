@@ -7,6 +7,9 @@ import { LabeledStatement } from "../mm/LabeledStatement";
 import { UProofStatementStep } from '../mmp/MmpStatement';
 
 export class InternalNode {
+	private _cachedStringFormula?: string
+	private _cachedStringRepresentation?: string
+
 	label: string;
 	kind: string;
 	parseNodes: ParseNode[]
@@ -37,10 +40,43 @@ export class InternalNode {
 		return label;
 	}
 
-
 	public get stringFormula(): string {
 		const result: string = GrammarManager.buildStringFormula(this);
 		return result;
+	}
+
+	public get cachedStringFormula(): string {
+		if (this._cachedStringFormula == undefined)
+			this._cachedStringFormula = this.stringFormula;
+		return this._cachedStringFormula;
+	}
+
+	//#region rpnRepresentation
+	private childrenRepresentation(parseNodes: ParseNode[]): string {
+		let output = '';
+		parseNodes.forEach((parseNode: ParseNode) => {
+			if (parseNode instanceof InternalNode)
+				output += parseNode.rpnRepresentation;
+		});
+		return output;
+	}
+
+	public get rpnRepresentation(): string {
+		const childrenRepresentation: string = this.childrenRepresentation(this.parseNodes);
+		let output: string;
+		if (childrenRepresentation.length == 0)
+			output = this.label;
+		else
+			output = childrenRepresentation + ' ' + this.label;
+		return output;
+	}
+	//#endregion rpnRepresentation
+
+	// returns a string RPN representation of the node
+	public get cachedRpnRepresentation(): string {
+		if (this._cachedStringRepresentation == undefined)
+			this._cachedStringRepresentation = this.rpnRepresentation;
+		return this._cachedStringRepresentation;
 	}
 
 	/**
