@@ -274,7 +274,6 @@ test('Test impbii-bad , expect error, but pm3.2im, that comes later, should be a
     expect((<ProvableStatement>impbi).isProofVerificationFailed).toBeTruthy();
 });
 
-//TODO1 11 AGO 2023
 test("Test nested-frames ; expect success", () => {
     const parser: MmParser = createMmParser('nested-scopes.mm');
     expect(parser.parseFailed).toBeFalsy();

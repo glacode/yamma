@@ -99,6 +99,7 @@ export class ProofNode {
 		}
 	}
 
+	//TODO1 13 AGO 2023 speed up this one with cache
 	private static squishProofNode2(proofNode: ProofNode, encountered: ProofNode[]): ProofNode {
 		if (proofNode.children != undefined)
 			ProofNode.squishProofNodeChildren(proofNode.children, encountered);
