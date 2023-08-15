@@ -1,13 +1,11 @@
-
-
 import { Parameters } from '../general/Parameters';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmpProofStep } from './MmpProofStep';
 import { MmpProof } from './MmpProof';
 import { IMmpStatement } from './MmpStatement';
-import { UCompressedProofStatement } from './UCompressedProofStatement';
-import { MmpCompressedProofStatementFromPackedProof } from './MmpCompressedProofStatementFromPackedProof';
+import { UCompressedProofStatement } from './proofCompression/UCompressedProofStatement';
+import { MmpCompressedProofStatementFromPackedProof } from './proofCompression/MmpCompressedProofStatementFromPackedProof';
 
 export class MmpProofFormatter {
 	uProof: MmpProof;

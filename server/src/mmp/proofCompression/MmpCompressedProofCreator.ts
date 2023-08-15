@@ -1,8 +1,8 @@
-import { MmpCompressedProofStatementFromPackedProof } from './MmpCompressedProofStatementFromPackedProof';
 import { MmpFifoLabelMapCreator } from './MmpFifoLabelMapCreator';
-import { MmpProof } from './MmpProof';
-import { IMmpStatement, UProofStatementStep } from './MmpStatement';
+import { MmpProof } from '../MmpProof';
+import { IMmpStatement, UProofStatementStep } from '../MmpStatement';
 import { UCompressedProofStatement } from './UCompressedProofStatement';
+import { MmpCompressedProofStatementFromPackedProof } from './MmpCompressedProofStatementFromPackedProof';
 
 export interface IMmpCompressedProofCreator {
 	createMmpCompressedProof(mmpProof: MmpProof, leftMargin?: number,

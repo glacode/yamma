@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { consoleLogWithTimestamp } from '../mm/Utils';
-import { MmpCompressedProofCreatorFromPackedProof } from '../mmp/MmpCompressedProofCreator';
+import { MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';

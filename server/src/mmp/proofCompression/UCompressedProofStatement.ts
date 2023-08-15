@@ -1,10 +1,10 @@
 import { Grammar } from 'nearley';
-import { GrammarManager } from '../grammar/GrammarManager';
-import { MmpProof } from './MmpProof';
-import { IMmpStatement, UProofStatementStep } from './MmpStatement';
-import { concatWithSpaces } from '../mm/Utils';
-import { Parameters } from '../general/Parameters';
-import { MmpProofStep } from "./MmpProofStep";
+import { GrammarManager } from '../../grammar/GrammarManager';
+import { MmpProof } from '../MmpProof';
+import { IMmpStatement, UProofStatementStep } from '../MmpStatement';
+import { concatWithSpaces } from '../../mm/Utils';
+import { Parameters } from '../../general/Parameters';
+import { MmpProofStep } from "../MmpProofStep";
 import { MmpFifoLabelMapCreator } from './MmpFifoLabelMapCreator';
 import { ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
 

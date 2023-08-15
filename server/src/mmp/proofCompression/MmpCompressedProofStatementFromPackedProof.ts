@@ -1,12 +1,13 @@
-import { MmpProof } from './MmpProof';
-import { IMmpStatement, UProofStatementStep } from './MmpStatement';
-import { concatWithSpaces } from '../mm/Utils';
-import { Parameters } from '../general/Parameters';
+import { Parameters } from '../../general/Parameters';
+import { concatWithSpaces } from '../../mm/Utils';
+import { MmpProof } from '../MmpProof';
+import { MmpProofStep } from '../MmpProofStep';
+import { IMmpStatement, UProofStatementStep } from '../MmpStatement';
+import { RpnStep } from '../RPNstep';
+import { ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
 import { MmpFifoLabelMapCreator } from './MmpFifoLabelMapCreator';
 import { MmpPackedProofStatement } from './MmpPackedProofStatement';
-import { RpnStep } from './RPNstep';
-import { ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
-import { MmpProofStep } from './MmpProofStep';
+
 
 
 export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement {

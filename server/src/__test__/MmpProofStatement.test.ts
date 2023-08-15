@@ -3,7 +3,7 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
-import { UCompressedProofStatement } from '../mmp/UCompressedProofStatement';
+import { UCompressedProofStatement } from '../mmp/proofCompression/UCompressedProofStatement';
 import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
@@ -15,8 +15,8 @@ import { MmpParser } from '../mmp/MmpParser';
 import { InternalNode } from '../grammar/ParseNode';
 import { UProofStatementStep } from '../mmp/MmpStatement';
 import { UProofStatement } from '../mmp/UProofStatement';
-import { MmpHardcodedLabelSequenceCreator } from '../mmp/MmpHardcodedLabelMapCreator';
-import { ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/MmpCompressedProofCreator';
+import { ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
+import { MmpHardcodedLabelSequenceCreator } from '../mmp/proofCompression/MmpHardcodedLabelMapCreator';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");

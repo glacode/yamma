@@ -10,8 +10,8 @@ import { UProofStatement } from "./UProofStatement";
 import { ProofMode } from '../mm/ConfigurationManager';
 import { Parameters } from '../general/Parameters';
 import { consoleLogWithTimestamp } from '../mm/Utils';
-import { MmpPackedProofStatement } from './MmpPackedProofStatement';
-import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from './MmpCompressedProofCreator';
+import { MmpPackedProofStatement } from './proofCompression/MmpPackedProofStatement';
+import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from './proofCompression/MmpCompressedProofCreator';
 
 // export interface UnifyResult {
 // 	diagnostics: Diagnostic[]

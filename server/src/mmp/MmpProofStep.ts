@@ -388,25 +388,16 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 			proof = [currentUProofStatementStep];
 		else if (this.isProven) {
 			// the proof of this step is complete
-			// proof = [];
-			// proof.unshift(currentUProofStatementStep);
 			proof = [currentUProofStatementStep];
 			for (let i = this.eHypUSteps.length - 1; 0 <= i; i--) {
 				const eHypUStep: MmpProofStep = <MmpProofStep>this.eHypUSteps[i];
 				const proofForEHypUStep: UProofStatementStep[] =
 					<UProofStatementStep[]>eHypUStep?.proofArray(outermostBlock);
-				// console.log(`mmpProofStep.stepRef=${this.stepRef}`);
-				// console.log(`eHypUStep.stepRef=${eHypUStep.stepRef}`);
-				// console.log(`proof.length=${proof.length}`);
-				// proof?.unshift(...proofForEHypUStep);
 				proof = proofForEHypUStep.concat(proof);
 			}
 			const proofArrayForFStatements = this.proofArrayForFStatements(outermostBlock);
-			// proof.unshift(...proofArrayForFStatements);
-			// proof.unshift(...proofArrayForFStatements);
 			proof = proofArrayForFStatements.concat(proof);
 		}
-		// console.log(`mmpProofStep.stepRef=${this.stepRef}  exit`);
 		return proof;
 	}
 	//#endregion proofArray

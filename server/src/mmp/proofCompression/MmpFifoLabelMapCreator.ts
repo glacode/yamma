@@ -1,5 +1,5 @@
 import { ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
-import { UProofStatementStep } from './MmpStatement';
+import { UProofStatementStep } from '../MmpStatement';
 
 export class MmpFifoLabelMapCreator implements ILabelMapCreatorForCompressedProof {
 	createLabelMap(mandatoryHypsLabels: Map<string, number>,

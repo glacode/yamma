@@ -1,7 +1,7 @@
-import { MmpProof } from './MmpProof';
-import { IMmpStatement } from './MmpStatement';
-import { ProofNode } from './ProofNode';
-import { RpnStep } from './RPNstep';
+import { MmpProof } from '../MmpProof';
+import { IMmpStatement } from '../MmpStatement';
+import { ProofNode } from '../ProofNode';
+import { RpnStep } from '../RPNstep';
 
 export class MmpPackedProofStatement implements IMmpStatement {
 	public packedProof: RpnStep[];
