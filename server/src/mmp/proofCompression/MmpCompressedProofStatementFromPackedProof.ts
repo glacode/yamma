@@ -4,7 +4,7 @@ import { MmpProof } from '../MmpProof';
 import { MmpProofStep } from '../MmpProofStep';
 import { IMmpStatement, UProofStatementStep } from '../MmpStatement';
 import { RpnStep } from '../RPNstep';
-import { ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
+import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
 import { MmpFifoLabelMapCreator } from './MmpFifoLabelMapCreator';
 import { MmpPackedProofStatement } from './MmpPackedProofStatement';
 
@@ -63,6 +63,8 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 		// this._numberSequence = [];
 		this._mandatoryHypsLabels = new Map<string, number>();
 
+		//TODO1 18 AUG 2023 this step is slow and is probably not needed (it can be replaced by inspection of this._mmpPackedProofStatement)
+		// see if you can remove it
 		this._proofInNormalMode = <UProofStatementStep[]>this.uProof.lastMmpProofStep!.proofArray(uProof.outermostBlock);
 
 		this._mmpPackedProofStatement = new MmpPackedProofStatement(this.uProof, 80);
@@ -103,8 +105,12 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 	//#endregion createMandatoryHypsLabels
 
 	private createLabelSequence() {
-		this.labelMap = this._labelSequenceCreator.createLabelMap(
-			this._mandatoryHypsLabels, this._proofInNormalMode);
+		const createLabelMapArgs: CreateLabelMapArgs = {
+			mandatoryHypsLabels: this._mandatoryHypsLabels,
+			proofInNormalMode: this._proofInNormalMode,
+			mmpPackedProofStatement: this._mmpPackedProofStatement
+		};
+		this.labelMap = this._labelSequenceCreator.createLabelMap(createLabelMapArgs);
 	}
 
 	//#region createUpperCaseLetterSequence

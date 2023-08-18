@@ -6,7 +6,6 @@
 
 import { ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
 
-
 export class MmpHardcodedLabelSequenceCreator implements ILabelMapCreatorForCompressedProof {
 	constructor(private labelSequence: string[]) {
 

@@ -6,7 +6,8 @@ import { concatWithSpaces } from '../../mm/Utils';
 import { Parameters } from '../../general/Parameters';
 import { MmpProofStep } from "../MmpProofStep";
 import { MmpFifoLabelMapCreator } from './MmpFifoLabelMapCreator';
-import { ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
+import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
+import { MmpPackedProofStatement } from './MmpPackedProofStatement';
 
 export class UCompressedProofStatement implements IMmpStatement {
 	uProof: MmpProof;
@@ -120,18 +121,13 @@ export class UCompressedProofStatement implements IMmpStatement {
 	//#endregion createMandatoryHypsLabels
 
 	private createLabelSequence() {
-
-		// this._proofInNormalMode.forEach((uProofStatementStep: UProofStatementStep) => {
-		// 	const label = uProofStatementStep.label;
-		// 	if (this._mandatoryHypsLabels.get(label) == undefined && this.labelSequence.get(label) == undefined) {
-		// 		// the current label in the normal proof is not a label for a mandatory hypothesis and it
-		// 		// has not been added to the label sequence, yet
-		// 		const i = this._mandatoryHypsLabels.size + this.labelSequence.size + 1;
-		// 		this.labelSequence.set(label, i);
-		// 	}
-		// });
-		this.labelSequence = this._labelSequenceCreator.createLabelMap(
-			this._mandatoryHypsLabels, this._proofInNormalMode);
+		const createLabelMapArgs: CreateLabelMapArgs = {
+			mandatoryHypsLabels: this._mandatoryHypsLabels,
+			proofInNormalMode: this._proofInNormalMode,
+			mmpPackedProofStatement: (this.uProof.proofStatement instanceof MmpPackedProofStatement) ?
+				this.uProof.proofStatement : undefined
+		};
+		this.labelSequence = this._labelSequenceCreator.createLabelMap(createLabelMapArgs);
 	}
 
 	//#region createNumberSequence

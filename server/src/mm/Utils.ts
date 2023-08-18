@@ -125,11 +125,11 @@ export function currentDateTimeWithMilliseconds() {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
-  
+
     const dateTimeWithMilliseconds = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
-  
+
     return dateTimeWithMilliseconds;
-  }
+}
 
 export function consoleLogWithTimestamp(message: string) {
     const dateTimeWithMilliseconds = currentDateTimeWithMilliseconds();
@@ -413,4 +413,10 @@ export async function applyTextEdits(textEdits: TextEdit[], textDocumentUri: str
     });
     // textEditChange.insert(insertPosition, searchStatement);
     await connection.workspace.applyEdit(workspaceChange.edit);
+}
+
+export function updateOccurrences<T>(map: Map<T, number>, key: T): Map<T, number> {
+    const currentValue : number = map.get(key) || 0;
+    map.set(key, currentValue + 1);
+    return map;
 }

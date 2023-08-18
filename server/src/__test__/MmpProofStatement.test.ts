@@ -15,8 +15,10 @@ import { MmpParser } from '../mmp/MmpParser';
 import { InternalNode } from '../grammar/ParseNode';
 import { UProofStatementStep } from '../mmp/MmpStatement';
 import { UProofStatement } from '../mmp/UProofStatement';
-import { ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
+import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
 import { MmpHardcodedLabelSequenceCreator } from '../mmp/proofCompression/MmpHardcodedLabelMapCreator';
+import { MmpSortedByReferenceLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceLabelMapCreator';
+import { MmpPackedProofStatement } from '../mmp/proofCompression/MmpPackedProofStatement';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -723,6 +725,74 @@ test("Packed proof for opelcn", () => {
 		'    df-c eleq2i cA cB cnr cnr opelxp bitri $.\n\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test("MmpSortedByReferenceLabelMapCreator", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'1::df-c             |- CC = ( R. X. R. )\n' +
+		'2:1:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
+		'3::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
+		'qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	mmpUnifier.unify();
+	const labelMapCreator: ILabelMapCreatorForCompressedProof =
+		new MmpSortedByReferenceLabelMapCreator();
+	const createLabelMapArgs: CreateLabelMapArgs = {
+		mmpPackedProofStatement: <MmpPackedProofStatement>(mmpUnifier.uProof?.proofStatement)
+	};
+	const labelMap: Map<string, number> = labelMapCreator.createLabelMap(createLabelMapArgs);
+
+	// const newTextExpected =
+	// 	'\n* test comment\n\n' +
+	// 	'1::df-c              |- CC = ( R. X. R. )\n' +
+	// 	'2:1:eleq2i          |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
+	// 	'3::opelxp           |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
+	// 	'qed:2,3:bitri      |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )\n' +
+	// 	'\n' +
+	// 	'$=  cA cB 1:cop cc wcel 1 cnr cnr 2:cxp wcel cA cnr wcel cB cnr wcel wa cc 2 1\n' +
+	// 	'    df-c eleq2i cA cB cnr cnr opelxp bitri $.\n\n';
+
+	// ["cnr", 4],
+	// ["wcel", 4],
+	// ["cA", 3],
+	// ["cB", 3],
+	// ["cop", 3],
+	// ["cc", 2],
+	// ["cxp", 2],
+	// ["wa", 1]
+	// ["df-c", 1],
+	// ["eleq2i", 1],
+	// ["opelxp", 1],
+	// ["bitri", 1],
+
+	const expectedEntries: [string, number][] = [
+		["cnr", 1],
+		["wcel", 2],
+		["cA", 3],
+		["cB", 4],
+		["cop", 5],
+		["cc", 6],
+		["cxp", 7],
+		["wa", 8],
+		["df-c", 9],
+		["eleq2i", 10],
+		["opelxp", 11],
+		["bitri", 12],
+	];
+
+	expect(labelMap.size).toBe(12);
+
+	const entries: Iterable<[string, number]> = labelMap.entries();
+
+	let i = 0;
+	for (const [key, value] of entries) {
+		expect(key).toBe(expectedEntries[i][0]);
+		expect(value).toBe(expectedEntries[i][1]);
+		i++;
+	}
 });
 
 test("Compressed proof for opth", () => {
