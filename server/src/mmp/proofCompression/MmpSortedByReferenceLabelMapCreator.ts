@@ -9,7 +9,10 @@ export class MmpSortedByReferenceLabelMapCreator implements ILabelMapCreatorForC
 	private createLabelToOccourencesMap(createLabelMapArgs: CreateLabelMapArgs): Map<string, number> {
 		const labelToNumberOfOccourencesMap: Map<string, number> = new Map<string, number>();
 		createLabelMapArgs.mmpPackedProofStatement?.packedProof.forEach((rpnStep: RpnStep) => {
-			updateOccurrences(labelToNumberOfOccourencesMap,rpnStep.labelForCompressedProof);
+			const labelCandidate: string = rpnStep.labelForCompressedProof;
+			if (!createLabelMapArgs.mandatoryHypsLabels!.has(labelCandidate))
+				// the current label is not for a mandatory hypothesis
+				updateOccurrences(labelToNumberOfOccourencesMap, rpnStep.labelForCompressedProof);
 		});
 		return labelToNumberOfOccourencesMap;
 	}

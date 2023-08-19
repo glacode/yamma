@@ -12,6 +12,7 @@ import { Parameters } from '../general/Parameters';
 import { consoleLogWithTimestamp } from '../mm/Utils';
 import { MmpPackedProofStatement } from './proofCompression/MmpPackedProofStatement';
 import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from './proofCompression/MmpCompressedProofCreator';
+import { MmpSortedByReferenceLabelMapCreator } from './proofCompression/MmpSortedByReferenceLabelMapCreator';
 
 // export interface UnifyResult {
 // 	diagnostics: Diagnostic[]
@@ -69,7 +70,8 @@ export class MmpUnifier {
 		this._charactersPerLine = characterPerLine == undefined ? Parameters.charactersPerLine : characterPerLine;
 		this._mmpCompressedProofCreator = mmpCompressedProofCreator != undefined ? mmpCompressedProofCreator :
 			// new MmpCompressedProofCreatorFromUncompressedProof();
-			new MmpCompressedProofCreatorFromPackedProof();
+			new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
+			// new MmpCompressedProofCreatorFromPackedProof();
 
 
 		//TODO1 21 MAY use the range of the last actual statement (now I can't, because not all statements implement

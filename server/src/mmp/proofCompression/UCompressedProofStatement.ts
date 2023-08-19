@@ -122,7 +122,7 @@ export class UCompressedProofStatement implements IMmpStatement {
 
 	private createLabelSequence() {
 		const createLabelMapArgs: CreateLabelMapArgs = {
-			mandatoryHypsLabels: this._mandatoryHypsLabels,
+			mandatoryHypsLabels: new Set(this._mandatoryHypsLabels.keys()),
 			proofInNormalMode: this._proofInNormalMode,
 			mmpPackedProofStatement: (this.uProof.proofStatement instanceof MmpPackedProofStatement) ?
 				this.uProof.proofStatement : undefined

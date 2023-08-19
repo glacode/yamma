@@ -12,13 +12,14 @@ import { MmpProofFormatter } from './MmpProofFormatter';
 import { ITheoremSignature } from '../mmt/MmtParser';
 
 export class MmpProof implements ITheoremSignature {
-
 	outermostBlock: BlockStatement;
 	workingVars: WorkingVars;
 	maxRefAlreadyAssigned = 0;
 
 	mmpStatements: IMmpStatement[];
 	mmpTheoremLabels: MmpTheoremLabel[] = [];
+
+	private _mandatoryHypLabels?: Set<string>;
 
 	/** the theorem label is expected to be the first statement */
 	public get theoremLabel(): MmToken | undefined {
@@ -382,7 +383,6 @@ export class MmpProof implements ITheoremSignature {
 		}
 	}
 
-	//#region mandatoryFHypsLabelsInRPNorder
 	/**
 	 * returns the labels of the mandatory $f labels in RPN order. This method can be
 	 * invoked only when the proof is found (and then both the qed statement and the
@@ -398,6 +398,20 @@ export class MmpProof implements ITheoremSignature {
 			result.add(mandatoryFHypLabel);
 		});
 		return result;
+	}
+
+	//#region mandatoryFHypsLabelsInRPNorder
+	setMandatoryHypLabels() {
+		const mandatoryFHypsLabels = this.mandatoryFHypsLabelsInRPNorder;
+		this._mandatoryHypLabels = new Set<string>(mandatoryFHypsLabels);
+		this.eHyps.forEach((eHyp: MmpProofStep) => {
+			this._mandatoryHypLabels?.add(eHyp.stepLabel!);
+		});
+	}
+	get mandatoryHypLabels(): Set<string> {
+		if (this._mandatoryHypLabels == undefined)
+			this.setMandatoryHypLabels();
+		return this._mandatoryHypLabels!;
 	}
 	//#endregion mandatoryFHypsLabelsInRPNorder
 

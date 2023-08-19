@@ -11,7 +11,7 @@ export interface IMmpCompressedProofCreator {
 }
 
 export interface CreateLabelMapArgs {
-	mandatoryHypsLabels?: Map<string, number>,
+	mandatoryHypsLabels: Set<string>,
 	proofInNormalMode?: UProofStatementStep[],
 	mmpPackedProofStatement?: MmpPackedProofStatement
 }

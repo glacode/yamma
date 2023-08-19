@@ -106,7 +106,7 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 
 	private createLabelSequence() {
 		const createLabelMapArgs: CreateLabelMapArgs = {
-			mandatoryHypsLabels: this._mandatoryHypsLabels,
+			mandatoryHypsLabels: new Set(this._mandatoryHypsLabels.keys()),
 			proofInNormalMode: this._proofInNormalMode,
 			mmpPackedProofStatement: this._mmpPackedProofStatement
 		};

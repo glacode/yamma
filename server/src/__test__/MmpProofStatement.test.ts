@@ -15,10 +15,11 @@ import { MmpParser } from '../mmp/MmpParser';
 import { InternalNode } from '../grammar/ParseNode';
 import { UProofStatementStep } from '../mmp/MmpStatement';
 import { UProofStatement } from '../mmp/UProofStatement';
-import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
+import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof, MmpCompressedProofCreatorFromUncompressedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
 import { MmpHardcodedLabelSequenceCreator } from '../mmp/proofCompression/MmpHardcodedLabelMapCreator';
 import { MmpSortedByReferenceLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceLabelMapCreator';
 import { MmpPackedProofStatement } from '../mmp/proofCompression/MmpPackedProofStatement';
+import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -132,6 +133,7 @@ test("upperCaseLettersFromNumber", () => {
 	jest.restoreAllMocks();
 });
 
+//TODO1 AUG 19
 test("Build Compressed proof for mp2", () => {
 	//in mmj2
 	//$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
@@ -157,7 +159,10 @@ test("Build Compressed proof for mp2", () => {
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
+	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromUncompressedProof =
+		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
+		false, undefined, undefined, undefined, mmpCompressedProofCreator);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -173,6 +178,26 @@ test("Build Compressed proof for mp2", () => {
 		'\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
+
+	//below, we expect ( ax-mp wi ) because the default labelMapCreator is a MmpSortedByReferenceLabelMapCreator
+	const mmpParser2: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	mmpParser2.parse();
+	const mmpUnifierWithDefaultLabelMapCreator: MmpUnifier = new MmpUnifier(mmpParser2, ProofMode.compressed, 0);
+	mmpUnifierWithDefaultLabelMapCreator.unify();
+	const textEditArray2: TextEdit[] = mmpUnifierWithDefaultLabelMapCreator.textEditArray;
+	expect(textEditArray2.length).toBe(1);
+	const newTextExpected2 =
+		'\n* test comment\n\n' +
+		"h50::mp2.1           |- ph\n" +
+		"h51::mp2.2          |- ps\n" +
+		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
+		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
+		"qed:51,53:ax-mp    |- ch\n" +
+		'\n' +
+		"$= ( ax-mp wi ) BCEABCHDFGG $.\n" +
+		'\n';
+	const textEdit2: TextEdit = textEditArray2[0];
+	expect(textEdit2.newText).toEqual(newTextExpected2);
 });
 
 const idTheory = "$c ( $. $c ) $. $c -> $. $c wff $. $c |- $.\n" +
@@ -293,7 +318,10 @@ test("vex - Build Compressed proof for vex", () => {
 		"qed:50,52:mpbir |- x e. _V";
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
+	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromUncompressedProof =
+		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
+		undefined, undefined, undefined, undefined, mmpCompressedProofCreator);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -420,7 +448,10 @@ test("Format equvinv compressed proof", () => {
 		'$d y z\n';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
+	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromUncompressedProof =
+		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
+		undefined, undefined, undefined, undefined, mmpCompressedProofCreator);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -449,7 +480,7 @@ test("Format equvinv compressed proof", () => {
 	mmpParser2.parse();
 
 	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.compressed, 0, false, undefined,
-		undefined, 30);
+		undefined, 30, mmpCompressedProofCreator);
 	mmpUnifier2.unify();
 
 	const newTextExpected2 =
@@ -741,7 +772,8 @@ test("MmpSortedByReferenceLabelMapCreator", () => {
 	const labelMapCreator: ILabelMapCreatorForCompressedProof =
 		new MmpSortedByReferenceLabelMapCreator();
 	const createLabelMapArgs: CreateLabelMapArgs = {
-		mmpPackedProofStatement: <MmpPackedProofStatement>(mmpUnifier.uProof?.proofStatement)
+		mandatoryHypsLabels: mmpUnifier.uProof!.mandatoryHypLabels,
+		mmpPackedProofStatement: <MmpPackedProofStatement>(mmpUnifier.uProof?.proofStatement),
 	};
 	const labelMap: Map<string, number> = labelMapCreator.createLabelMap(createLabelMapArgs);
 
@@ -771,19 +803,17 @@ test("MmpSortedByReferenceLabelMapCreator", () => {
 	const expectedEntries: [string, number][] = [
 		["cnr", 1],
 		["wcel", 2],
-		["cA", 3],
-		["cB", 4],
-		["cop", 5],
-		["cc", 6],
-		["cxp", 7],
-		["wa", 8],
-		["df-c", 9],
-		["eleq2i", 10],
-		["opelxp", 11],
-		["bitri", 12],
+		["cop", 3],
+		["cc", 4],
+		["cxp", 5],
+		["wa", 6],
+		["df-c", 7],
+		["eleq2i", 8],
+		["opelxp", 9],
+		["bitri", 10],
 	];
 
-	expect(labelMap.size).toBe(12);
+	expect(labelMap.size).toBe(10);
 
 	const entries: Iterable<[string, number]> = labelMap.entries();
 

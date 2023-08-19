@@ -6,7 +6,7 @@ export class MmpFifoLabelMapCreator implements ILabelMapCreatorForCompressedProo
 		const labelSequence: Map<string, number> = new Map<string, number>();
 		createLabelMapArgs.proofInNormalMode!.forEach((uProofStatementStep: UProofStatementStep) => {
 			const label = uProofStatementStep.label;
-			if (createLabelMapArgs.mandatoryHypsLabels!.get(label) == undefined && labelSequence.get(label) == undefined) {
+			if (!createLabelMapArgs.mandatoryHypsLabels!.has(label) && labelSequence.get(label) == undefined) {
 				// the current label in the normal proof is not a label for a mandatory hypothesis and it
 				// has not been added to the label sequence, yet
 				const i = labelSequence.size + 1;
