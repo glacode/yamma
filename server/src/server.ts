@@ -40,7 +40,7 @@ import { OnUnifyHandler } from './languageServerHandlers/OnUnifyHandler';
 import { OnDidChangeContentHandler } from './languageServerHandlers/OnDidChangeContentHandler';
 import { OnCodeActionHandler } from './languageServerHandlers/OnCodeActionHandler';
 import { ConfigurationManager, defaultSettings, IExtensionSettings } from './mm/ConfigurationManager';
-import { MmtSaver, PathAndUri } from './mmt/MmtSaver';
+import { MmtSaver, MmtSaverArgs, PathAndUri } from './mmt/MmtSaver';
 
 import { MmtLoader } from './mmt/MmtLoader';
 import { OnCompletionHandler } from './languageServerHandlers/OnCompletionHandler';
@@ -142,9 +142,18 @@ connection.onInitialize((params: InitializeParams) => {
 connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 	if (globalState.mmParser != undefined) {
 		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
-		const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser,
-			Parameters.defaultLeftMarginForMmtFilesCompressedProof,
-			Parameters.charactersPerLine);
+		//TODO1 21 AUG 2023 add IMmpLabelMapCreator (based on configuration)
+		const mmtSaverArgs: MmtSaverArgs = {
+			textDocumentPath: pathAndUri.fsPath,
+			documentContentInTheEditor: text,
+			mmParser: globalState.mmParser,
+			leftMargin: Parameters.defaultLeftMarginForMmtFilesCompressedProof,
+			charactersPerLine: Parameters.charactersPerLine
+		};
+		// const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser,
+		// 	Parameters.defaultLeftMarginForMmtFilesCompressedProof,
+		// 	Parameters.charactersPerLine);
+		const mmtSaver: MmtSaver = new MmtSaver(mmtSaverArgs);
 		mmtSaver.saveMmt();
 		console.log('Method saveMmt() has been invoked 2');
 	}

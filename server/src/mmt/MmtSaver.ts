@@ -11,6 +11,7 @@ import { MmpParser } from '../mmp/MmpParser';
 import { Parameters } from '../general/Parameters';
 import { splitToTokensDefault } from '../mm/Utils';
 import { MmToken } from '../grammar/MmLexer';
+import { IMmpCompressedProofCreator } from '../mmp/proofCompression/MmpCompressedProofCreator';
 
 
 //TODO I had to pass both uri and fsPath, because I've not been able to find a parser that switches
@@ -26,6 +27,15 @@ export interface PathAndUri {
 	fsPath: string;
 }
 
+export interface MmtSaverArgs {
+	textDocumentPath: string;
+	documentContentInTheEditor: string;
+	mmParser: MmParser;
+	leftMargin: number;
+	charactersPerLine: number;
+	mmpCompressedProofCreator?: IMmpCompressedProofCreator
+}
+
 export class MmtSaver {
 	// this is used just to compute the name of the new .mmt file name;
 	private textDocumentPath: string;
@@ -33,12 +43,20 @@ export class MmtSaver {
 	// changes have been applied in the editor, but not saved yet)
 	private documentContentInTheEditor: string;
 	private mmParser: MmParser;
+	private leftMargin: number;
+	private charactersPerLine: number;
+	private mmpCompressedProofCreator?: IMmpCompressedProofCreator;
+
 	// constructor(textDocumentUri: string, mmParser: MmParser) {
-	constructor(textDocumentPath: string, documentContentInTheEditor: string, mmParser: MmParser,
-		private leftMargin: number, private charactersPerLine: number) {
-		this.textDocumentPath = textDocumentPath;
-		this.documentContentInTheEditor = documentContentInTheEditor;
-		this.mmParser = mmParser;
+	// constructor(textDocumentPath: string, documentContentInTheEditor: string, mmParser: MmParser,
+	// 	private leftMargin: number, private charactersPerLine: number) {
+	constructor(mmtSaverArgs: MmtSaverArgs) {
+		this.textDocumentPath = mmtSaverArgs.textDocumentPath;
+		this.documentContentInTheEditor = mmtSaverArgs.documentContentInTheEditor;
+		this.mmParser = mmtSaverArgs.mmParser;
+		this.leftMargin = mmtSaverArgs.leftMargin;
+		this.charactersPerLine = mmtSaverArgs.charactersPerLine;
+		this.mmpCompressedProofCreator = mmtSaverArgs.mmpCompressedProofCreator;
 	}
 
 	//#region saveMmt
@@ -49,7 +67,7 @@ export class MmtSaver {
 		mmpParser.parse();
 		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
 			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, false, undefined,
-			this.leftMargin, this.charactersPerLine);
+			this.leftMargin, this.charactersPerLine, this.mmpCompressedProofCreator);
 		mmpUnifier.unify();
 		return mmpUnifier.uProof!;
 	}

@@ -1,9 +1,11 @@
-import { MmtSaver } from '../mmt/MmtSaver';
+import { MmtSaver, MmtSaverArgs } from '../mmt/MmtSaver';
 import { MmParser } from '../mm/MmParser';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { elexdMmParser, kindToPrefixMap, mp2MmParser, mp2Theory } from './GlobalForTest.test';
 import { MmpParser } from '../mmp/MmpParser';
 import { WorkingVars } from '../mmp/WorkingVars';
+import { MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
+import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
 
 /**
  * This class is used to test protected methods
@@ -27,7 +29,15 @@ test("Expect created .mmt text ", () => {
 		"$d x y\n";
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(theoryToTestDjVarViolation);
-	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
+	const mmtSaverArgs: MmtSaverArgs = {
+		textDocumentPath: '',
+		documentContentInTheEditor: '',
+		mmParser: mmParser,
+		leftMargin: 6,
+		charactersPerLine: 80
+	};
+	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 	const textExpected =
 		"  ${\n" +
@@ -41,7 +51,7 @@ test("Expect created .mmt text ", () => {
 
 });
 
-test("Expect mmp2 created .mmt text ", () => {
+test("Expect mmp2 created .mmt text with labels in 'most referenced' order", () => {
 	const mmpSource =
 		"$theorem test\n" +
 		"* This is just a test comment\n" +
@@ -52,7 +62,54 @@ test("Expect mmp2 created .mmt text ", () => {
 		"qed:51,53:ax-mp |- ch";
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(mp2Theory);
-	const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
+	const mmtSaverArgs: MmtSaverArgs = {
+		textDocumentPath: '',
+		documentContentInTheEditor: '',
+		mmParser: mmParser,
+		leftMargin: 6,
+		charactersPerLine: 80
+	};
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
+	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
+	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
+
+	const textExpected =
+		"  ${\n" +
+		"    mp2.1 $e |- ph $.\n" +
+		"    mp2.2 $e |- ps $.\n" +
+		"    mp2.3 $e |- ( ph -> ( ps -> ch ) ) $.\n" +
+		"    $( This is just a test comment $)\n" +
+		"    test $p |- ch $=\n" +
+		"      ( ax-mp wi ) BCEABCHDFGG $.\n" +
+		"  $}\n";
+
+	expect(textProduced).toEqual(textExpected);
+
+});
+
+//TODO1 21 AUG 2023
+test("Expect mmp2 created .mmt text with labels in 'FIFO' order", () => {
+	const mmpSource =
+		"$theorem test\n" +
+		"* This is just a test comment\n" +
+		"h50::mp2.1 |- ph\n" +
+		"h51::mp2.2 |- ps\n" +
+		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
+		"53:50,52:ax-mp |- ( ps -> ch )\n" +
+		"qed:51,53:ax-mp |- ch";
+	const mmParser: MmParser = new MmParser();
+	mmParser.ParseText(mp2Theory);
+	const mmtSaverArgs: MmtSaverArgs = {
+		textDocumentPath: '',
+		documentContentInTheEditor: '',
+		mmParser: mmParser,
+		leftMargin: 6,
+		charactersPerLine: 80,
+		mmpCompressedProofCreator: new MmpCompressedProofCreatorFromPackedProof(
+			new MmpFifoLabelMapCreator())
+	};
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
+	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 
 	const textExpected =
@@ -78,7 +135,15 @@ test('Expect proof right parenthesis to be on a new line, followed by a space', 
 		'$d x y\n';
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(theoryToTestDjVarViolation);
-	const testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', mmParser, 6, 20);
+	const mmtSaverArgs: MmtSaverArgs = {
+		textDocumentPath: '',
+		documentContentInTheEditor: '',
+		mmParser: mmParser,
+		leftMargin: 6,
+		charactersPerLine: 20
+	};
+	// testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', mmParser, 6, 20);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 	const textExpected =
 		'  ${\n' +
@@ -99,7 +164,15 @@ test('Expect proof right parenthesis to be on a new line, followed by a space', 
 });
 
 test('reformat comment', () => {
-	const testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', mp2MmParser, 0, 20);
+	const mmtSaverArgs: MmtSaverArgs = {
+		textDocumentPath: '',
+		documentContentInTheEditor: '',
+		mmParser: mp2MmParser,
+		leftMargin: 0,
+		charactersPerLine: 20
+	};
+	// const testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', mp2MmParser, 0, 20);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const text = '$( This is just a test comment $)';
 	const textProduced: string | undefined = testMmtSaver.reformat(text, 4, 7);
 	const textExpected =
@@ -120,7 +193,17 @@ test('reformat EHyps ', () => {
 		'qed:51,53:ax-mp |- ch';
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(mp2Theory);
-	const testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', mmParser, 6, 37);
+	const mmtSaverArgs: MmtSaverArgs = {
+		textDocumentPath: '',
+		documentContentInTheEditor: '',
+		mmParser: mp2MmParser,
+		leftMargin: 6,
+		charactersPerLine: 37,
+		mmpCompressedProofCreator: new MmpCompressedProofCreatorFromPackedProof(
+			new MmpFifoLabelMapCreator())
+	};
+	// const testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', mmParser, 6, 37);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 
 	const textExpected =
@@ -164,7 +247,15 @@ test('Expect $d constraints with 3 and 4 variables', () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 
-	const testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', elexdMmParser, 6, 33);
+	const mmtSaverArgs: MmtSaverArgs = {
+		textDocumentPath: '',
+		documentContentInTheEditor: '',
+		mmParser: elexdMmParser,
+		leftMargin: 6,
+		charactersPerLine: 33
+	};
+	// const testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', elexdMmParser, 6, 33);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 
 	const textExpected =
