@@ -38,35 +38,9 @@ To use this extension, you need to have Node.js installed on your machine. If No
 3. If no .mm file is automatically found, click on the Gear icon next to the extension's name and select Extension Settings from the dropdown menu. This action opens the settings for Yamma: here you can insert the exact path to the .mm file to be used
 4. Use the command palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS) to access the available commands and features provided by the extension
 5. Utilize the Intellisense capabilities to get suggestions while writing your proofs
+6. Once your proof is complete, you can use the "Unify and store in MMT folder" contextual menu command to generate an MMT file, ready to be copied and pasted into your main MM file.
 
-## Contribute
-
-First, please ensure you have git, Node.js, and Visual Studio Code installed.  Then:
-
-```
-	git clone https://github.com/glacode/yamma.git
-	cd yamma
-	npm install
-	code .
-```
-The final command opens Visual Studio Code, within it, we can:
-
-![Image](screenshots/launchClient.png)
-1. From the sidebar on the far left, choose "Run and Debug".
-2. Open the Run and Debug drop-down.
-3. Choose "Launch Client" from the drop-down.
-4. Press the play icon ("Start Debugging").
-
-This runs a second instance of Visual Studio Code.  This instance is running the Yamma extension.  The first time in here, we will want to open the settings and set a path to a valid .mm file.
-
-![Image](screenshots/settings.png)
-1. From the sidebar on the far left, choose "Manage".
-2. From the menu this brings up, choose "Settings".
-3. From the bottom of the list of settings, expand "Extensions".
-4. From the list of extensions, click on "Yamma"
-5. In the "Mm File Full Path" box, enter the full path to a valid .mm file.
-
-Now when we have a .mmp file open in this instance of Visual Studio Code, Yamma provides the following keyboard commands (on a Mac we may need to use the command key rather than the CTRL key):
+Yamma provides the following keyboard commands (on a Mac we may need to use the command key rather than the CTRL key):
 
 * CTRL+U Unify
 * CTRL+H Search
