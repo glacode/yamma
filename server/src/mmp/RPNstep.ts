@@ -1,5 +1,6 @@
 import { GrammarManager } from '../grammar/GrammarManager';
 import { BlockStatement } from '../mm/BlockStatement';
+import { LabeledStatement } from '../mm/LabeledStatement';
 import { ProofNode } from './ProofNode';
 
 
@@ -25,8 +26,26 @@ export class RpnStep {
 
 	public markedStepNumber?: number;
 
-	//#region isMarkedStepCandidate
+	public labeledStatement: LabeledStatement;
 
+	public get isLogHyp(): boolean {
+		const output: boolean = this.proofNode.mmpProofStep != undefined && this.proofNode.mmpProofStep.isEHyp;
+		return output;
+	}
+
+	public get isVarHyp(): boolean {
+		const output: boolean = this.proofNode.mmpProofStep == undefined;
+		return output;
+	}
+
+	/** true iff it is a logHyp or a varHyp */
+	public get isHyp(): boolean {
+		const output: boolean = this.isLogHyp || this.isVarHyp;
+		return output;
+	}
+
+
+	//#region isMarkedStepCandidate
 	/** true iff the proof for the given proof node is a single label; we don't want
 	 * this kind of RPNStep to be a marked step. This is similar the mmj2 behaviour,
 	 * see the paramater pressLeaf given as true to the mmj2 method
@@ -44,7 +63,10 @@ export class RpnStep {
 	}
 	//#endregion isMarkedStepCandidate
 
-	constructor(public proofNode: ProofNode, public backRef?: RpnStep) {
+	constructor(public proofNode: ProofNode, public outermostBlock: BlockStatement,
+		public backRef?: RpnStep) {
+			const label: string = this.labelForCompressedProof;
+			this.labeledStatement = outermostBlock.mmParser!.labelToStatementMap.get(label)!;
 	}
 
 	//#region labelForCompressedProof
@@ -93,10 +115,10 @@ export class RpnStep {
 		let rpnStep: RpnStep;
 		// const referencedStep: RpnStep | undefined = encountered.get(proofNode);
 		if (RpnStep.isUnmarkedStep(proofNode, outermostBlock))
-			rpnStep = new RpnStep(proofNode, undefined);
+			rpnStep = new RpnStep(proofNode, outermostBlock, undefined);
 		else {
 			// this is possibly a marked step
-			rpnStep = new RpnStep(proofNode, undefined);
+			rpnStep = new RpnStep(proofNode, outermostBlock, undefined);
 			encountered.set(proofNode, rpnStep);
 		}
 		return rpnStep;
@@ -126,7 +148,7 @@ export class RpnStep {
 		if (referencedStep != undefined && referencedStep.isMarkedStepCandidate) {
 			// this is a backReference step
 			referencedStep.isMarkedStep = true;
-			const rpnStep = new RpnStep(proofNode, referencedStep);
+			const rpnStep = new RpnStep(proofNode, outermostBlock, referencedStep);
 			rpnSteps.push(rpnStep);
 		} else
 			// this is NOT a backReference step

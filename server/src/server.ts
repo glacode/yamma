@@ -143,12 +143,72 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 	if (globalState.mmParser != undefined) {
 		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
 		//TODO1 21 AUG 2023 add IMmpLabelMapCreator (based on configuration)
+		//TODO1 21 AUG 2023 remove the hardcoded test below
+		// const hardCodedLabelSequence: string[] = [
+		// 	"cpi", "co", "wceq", "wcel", "a1i", "cc0", "cr", "c4", "cdiv", "cn", "c2", "cmul", "c1", "cmin",
+		// 	"csin", "cfv", "caddc", "cli", "wbr", "cmpt", "wtru", "cvv", "oveq1d", "oveq12d", "adantl",
+		// 	"id", "ovex", "fvmptd", "cc", "recni", "mulcld", "0red", "resubcld", "clt", "oveq1i", "eqtr2i",
+		// 	"cle", "divcld", "cdm", "picn", "wne", "cdvds", "cif", "cmo", "wa", "wf", "eqid", "sylancl",
+		// 	"0re", "pipos", "oveq1", "oveq2d", "adantr", "wb", "simpl", "iftrued", "eqtrd", "cdv", "cioo",
+		// 	"eqtri", "cres", "pire", "eqcomi", "oveq2i", "syl6eq", "syl3anc", "wss", "wn", "cxr", "0xr",
+		// 	"rexri", "elioore", "iooltub", "mp3an12", "eliood", "mp2an", "sseli", "ioossre", "ax-mp",
+		// 	"ioogtlb", "ltled", "lttrd", "syl22anc", "crest", "cin", "syl", "eleqtri", "mptru", "mpbid",
+		// 	"breqtrd", "iffalsed", "pm2.61dan", "mp2b", "cmnf", "mnfxr", "mpbi", "cpnf", "pnfxr", "climc",
+		// 	"constlimc", "ctop", "mp3an", "3eltr4d", "c0", "eqcomd", "ltsub1dd", "eqtr2d", "csu", "vy",
+		// 	"cv", "cseq", "nnuz", "1zzd", "eqidd", "oveq2", "fveq2d", "nnz", "zmulcld", "zsubcld", "zcnd",
+		// 	"sincld", "2re", "cz", "1red", "remulcld", "zred", "0lt1", "2t1e2", "2m1e1", "breqtri", "nnre",
+		// 	"nnge1", "lemul2ad", "lesub1dd", "2z", "0le2", "ltletrd", "gtned", "4cn", "4ne0", "cioc",
+		// 	"cneg", "0cnd", "nncn", "mulcl", "nnne0", "gtneii", "ifcld", "mulne0d", "fmpti", "breq2",
+		// 	"ifbieq2d", "c0ex", "ifex", "2nn", "nndivdvds", "mpbird", "3adant1", "cn0", "1re", "simpr",
+		// 	"renegcli", "ifcli", "breq1d", "ifbid", "cbvmptv", "remulcli", "eqeltri", "mulid2i", "crp",
+		// 	"2pos", "mulgt0ii", "elrpii", "modcyc", "readdcld", "fvmpt2", "mpan2", "eqtr4d", "csn", "cfn",
+		// 	"eldifi", "negpilt0", "cdif", "snfi", "ltleii", "iooss1", "reseq1i", "resmpt", "pirp",
+		// 	"2timesgt", "modid", "eqbrtrd", "mpteq2ia", "3eqtrri", "cpr", "reelprrecn", "ccnfld", "ctopn",
+		// 	"crn", "ctg", "iooretop", "tgioo2", "1cnd", "dvmptconst", "ssid", "ax-resscn", "fss",
+		// 	"dvresioo", "3eqtr3i", "dmeqi", "dmmpti", "eqtr3i", "ssdmres", "mpbir", "elind", "dmres",
+		// 	"adantlr", "ad2antrr", "neqne", "ad2antlr", "lttri5d", "iooss2", "modcld", "2timesi", "negpicn",
+		// 	"syl6eleqr", "addassi", "addcomli", "addid2i", "ltadd1dd", "readdcli", "syl6breq", "recnd",
+		// 	"addcomd", "negidi", "ltaddneg", "jca", "modid2", "eqtr3d", "lensymd", "negcld", "sylan",
+		// 	"eldifn", "condan", "sylibr", "velsn", "ssriv", "ssfi", "ccncf", "inss1", "eqsstri", "ioosscn",
+		// 	"sstri", "dvf", "fresin", "ffdm", "cuni", "cun", "simpli", "sseldi", "elun1", "nltled", "ccnp",
+		// 	"mnfltd", "lptioo2", "incom", "fveq2i", "syl6eleq", "ltpnfd", "clp", "df-ss", "lptioo1",
+		// 	"syl6ss", "resabs1", "eqtr4i", "fssres", "cnt", "0le0", "w3a", "elioc2", "mpbir3an", "mnfle",
+		// 	"cnfldtop", "resttop", "iocopn", "iocssre", "elexi", "restabs", "isopn3i", "ioounsn", "fveq12i",
+		// 	"mnflt0", "limcres", "ltpnf", "wi", "xrltle", "cico", "elico2", "icoopn", "rge0ssre",
+		// 	"snunioo1", "neg1lt0", "0ltpnf", "lttri", "ltneii", "jumpncnp", "inss2", "syl31anc", "eqneltrd",
+		// 	"necon2ai", "leneltd", "elun2", "dvcnp2", "mto", "syl2anc", "unipr", "ineq2", "retop", "resex",
+		// 	"dmex", "pm3.2i", "restopnb", "ssini", "eqssi", "3pm3.2i", "3eltr4i", "syl6eqel", "elprn1",
+		// 	"sylan2", "cncfuni", "reseq2d", "resabs2", "limcresioolb", "constcncfg", "reseq2", "ne0ii",
+		// 	"eqnetrd", "icossre", "icogelb", "icoltub", "eldifd", "resres", "iooin", "iftruei", "oveq12i",
+		// 	"reseq2i", "limcresiooub", "negpitopissre", "iocgtlb", "iocleub", "necon3bi", "mp4an", "3syl",
+		// 	"mnflt", "xrltnle", "iffalsei", "ioossioc", "modcl", "resubcli", "ltsubrpd", "ioossico",
+		// 	"elrpd", "feqresmpt", "ltmod", "mpteq2dva", "lbioc", "sselda", "rexrd", "addcli", "subadd23",
+		// 	"pncan3oi", "3eqtri", "pncan2", "modabs2", "addid1d", "3eqtrd", "npcand", "3eqtrrd", "3brtr4d",
+		// 	"ltsubrp", "syl6req", "modaddabs", "pm4.56", "biimpi", "olc", "modge0", "orcd", "pm2.61dane",
+		// 	"nsyl", "modlt", "elicod", "ubioc1", "wo", "eleqtrd", "syl5req", "gtnelioc", "nnncan2d",
+		// 	"sub31", "posdifd", "ltsub2dd", "eqbrtri", "eqeltrd", "neg1cn", "nncan", "eqbrtrrd",
+		// 	"modsubmodmod", "nncand", "ltaddsublt", "pm2.61i", "subge02", "subidi", "addid1i", "ltadd2dd",
+		// 	"lelttrd", "pncan3i", "pncan3d", "ltaddrpd", "ltnled", "ibir", "fvmpt", "readdcl", "1ex",
+		// 	"sylancr", "addgegt0d", "eqeltrrd", "ccos", "sqwvfoura", "sqwvfourb", "nnnn0", "coscld",
+		// 	"mul02d", "citg", "addid2d", "iftrue", "sylan9eqr", "iffalse", "fourierclim", "0nn0", "div0i",
+		// 	"divcli", "subid1i", "sumnnodd", "sylanbrc", "dvdsmul1", "oddp1even", "mulcomd", "divdiv1d",
+		// 	"div32d", "seqeq3", "3brtr3i", "elnnz", "fourierswlem", "subcld", "syl5eqel", "1lt2",
+		// 	"syl6breqr", "subne0d", "ffvelrnda", "divcan6", "mulid2d", "mulassd", "3eqtr3a", "syl6eqelr",
+		// 	"climrel", "releldmi", "climuni", "mulassi", "mulcomli", "isermulc2", "isumclim2", "3eqtr2i",
+		// ];
+
+		// const hardCodedLabelsLabelMapCreator: MmpHardcodedLabelSequenceCreator =
+		// 	new MmpHardcodedLabelSequenceCreator(hardCodedLabelSequence);
+		// const mmpCompressedProofCreatorFromPackedProof: MmpCompressedProofCreatorFromPackedProof =
+		// 	new MmpCompressedProofCreatorFromPackedProof(hardCodedLabelsLabelMapCreator);
+
 		const mmtSaverArgs: MmtSaverArgs = {
 			textDocumentPath: pathAndUri.fsPath,
 			documentContentInTheEditor: text,
 			mmParser: globalState.mmParser,
 			leftMargin: Parameters.defaultLeftMarginForMmtFilesCompressedProof,
-			charactersPerLine: Parameters.charactersPerLine
+			charactersPerLine: Parameters.charactersPerLine,
+			// mmpCompressedProofCreator: mmpCompressedProofCreatorFromPackedProof
 		};
 		// const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser,
 		// 	Parameters.defaultLeftMarginForMmtFilesCompressedProof,

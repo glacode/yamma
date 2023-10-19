@@ -87,7 +87,6 @@ test("Expect mmp2 created .mmt text with labels in 'most referenced' order", () 
 
 });
 
-//TODO1 21 AUG 2023
 test("Expect mmp2 created .mmt text with labels in 'FIFO' order", () => {
 	const mmpSource =
 		"$theorem test\n" +
