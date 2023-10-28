@@ -20,6 +20,7 @@ import { MmpHardcodedLabelSequenceCreator } from '../mmp/proofCompression/MmpHar
 import { MmpSortedByReferenceLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceLabelMapCreator';
 import { MmpPackedProofStatement } from '../mmp/proofCompression/MmpPackedProofStatement';
 import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
+import { MmpLabelMapCreatorLikeMmj2 } from '../mmp/proofCompression/MmpLabelMapCreatorLikeMmj2';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -935,7 +936,7 @@ test("Compressed proof for opth using MmpHardcodedLabelSequenceCreator", () => {
 
 
 //TODO1 21 AUG 2023 use LabelSequenceCreatorLikeMmj2
-test("Compressed proof for opth without MmpHardcodedLabelSequenceCreator", () => {
+test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 	const mmpSource =
 		'\n* test comment\n\n' +
 		'h1::opth.1                    |- A e. _V\n' +
@@ -984,9 +985,13 @@ test("Compressed proof for opth without MmpHardcodedLabelSequenceCreator", () =>
 	// ];
 	// const labelMapCreator: ILabelMapCreatorForCompressedProof =
 	// 	new MmpHardcodedLabelSequenceCreator(labels);
-	// const compressedProofCreator: IMmpCompressedProofCreator =
-	// 	new MmpCompressedProofCreatorFromPackedProof(labelMapCreator);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
+	const labelMapCreator: ILabelMapCreatorForCompressedProof =
+		new MmpLabelMapCreatorLikeMmj2();
+	const compressedProofCreator: IMmpCompressedProofCreator =
+		new MmpCompressedProofCreatorFromPackedProof(labelMapCreator);
+	// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
+		undefined, undefined, undefined, undefined, compressedProofCreator);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);

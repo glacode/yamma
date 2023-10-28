@@ -3,11 +3,7 @@ import { FHyp } from '../../mm/FHyp';
 import { LabeledStatement } from '../../mm/LabeledStatement';
 import { RpnStep } from '../RPNstep';
 import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
-
-interface MapEntry {
-	index: number;
-	numberOfOccurences: number;
-}
+import { MapEntry } from './MmpLabelMapCreatorLikeMmj2';
 
 export class MmpSortedByReferenceLabelMapCreator implements ILabelMapCreatorForCompressedProof {
 
