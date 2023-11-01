@@ -44,6 +44,10 @@ export class RpnStep {
 		return output;
 	}
 
+	public get isBackRefStep(): boolean {
+		const output: boolean = this.backRef != undefined;
+		return output;
+	}
 
 	//#region isMarkedStepCandidate
 	/** true iff the proof for the given proof node is a single label; we don't want

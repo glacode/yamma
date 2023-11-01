@@ -6,6 +6,7 @@ import { MmpParser } from '../mmp/MmpParser';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
 import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
+import { MmpSortedByReferenceLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceLabelMapCreator';
 
 /**
  * This class is used to test protected methods
@@ -67,7 +68,8 @@ test("Expect mmp2 created .mmt text with labels in 'most referenced' order", () 
 		documentContentInTheEditor: '',
 		mmParser: mmParser,
 		leftMargin: 6,
-		charactersPerLine: 80
+		charactersPerLine: 80,
+		mmpCompressedProofCreator: new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator())
 	};
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);

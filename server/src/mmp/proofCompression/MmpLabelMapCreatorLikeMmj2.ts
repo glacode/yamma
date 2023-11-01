@@ -11,6 +11,10 @@ export interface MapEntry {
 
 export class MmpLabelMapCreatorLikeMmj2 implements ILabelMapCreatorForCompressedProof {
 
+	constructor(private rpnProofLeftColumn: number, private rpnProofRightColumn: number) {
+
+	}
+
 
 	//#region createLabelMap
 
@@ -19,8 +23,9 @@ export class MmpLabelMapCreatorLikeMmj2 implements ILabelMapCreatorForCompressed
 		const labelToNumberOfOccourencesMap: Map<LabeledStatement, MapEntry> = new Map<LabeledStatement, MapEntry>();
 		createLabelMapArgs.mmpPackedProofStatement?.packedProof.forEach((rpnStep: RpnStep) => {
 			const labelCandidate: string = rpnStep.labelForCompressedProof;
-			if (!createLabelMapArgs.mandatoryHypsLabels!.has(labelCandidate)) {
-				// the current label is not for a mandatory hypothesis
+			if (!rpnStep.isBackRefStep &&
+				!createLabelMapArgs.mandatoryHypsLabels!.has(labelCandidate)) {
+				// the current step is NOT a backRef step and the current label is not for a mandatory hypothesis
 				// updateOccurrences(labelToNumberOfOccourencesMap, rpnStep.labeledStatement);
 				const currentNumberOfOccourences: number = labelToNumberOfOccourencesMap.get(rpnStep.labeledStatement)?.numberOfOccurences || 0;
 				const currentIndex: number = labelToNumberOfOccourencesMap.get(rpnStep.labeledStatement)?.index ||
@@ -167,11 +172,11 @@ export class MmpLabelMapCreatorLikeMmj2 implements ILabelMapCreatorForCompressed
 			cutoff *= 5;
 		}
 		let pos: [LabeledStatement, MapEntry] | undefined;
-		let linePos = 0;
+		let linePos = 2;
 		// this is the code for with, in mmj2
 		// final int width = proofWorksheet.proofAsstPreferences.rpnProofRightCol
 		// 	.get() - proofWorksheet.getRPNProofLeftCol() + 1;
-		const width = 80;
+		const width = this.rpnProofRightColumn - this.rpnProofLeftColumn + 1;
 		const lengthBlock: [LabeledStatement, MapEntry][] = [];
 		while ((pos = labelStatementsSortedByNumberOfOccourences.shift()) != null) {
 			if (i++ == cutoff) {

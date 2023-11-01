@@ -134,7 +134,6 @@ test("upperCaseLettersFromNumber", () => {
 	jest.restoreAllMocks();
 });
 
-//TODO1 AUG 19
 test("Build Compressed proof for mp2", () => {
 	//in mmj2
 	//$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
@@ -156,6 +155,8 @@ test("Build Compressed proof for mp2", () => {
 		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
 		"53:50,52:ax-mp |- ( ps -> ch )\n" +
 		"qed:51,53:ax-mp |- ch";
+
+	//below, we expect ( ax-mp wi ) because the default labelMapCreator is a MmpFifoLabelMapCreator
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -183,9 +184,12 @@ test("Build Compressed proof for mp2", () => {
 	//below, we expect ( ax-mp wi ) because the default labelMapCreator is a MmpSortedByReferenceLabelMapCreator
 	const mmpParser2: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
-	const mmpUnifierWithDefaultLabelMapCreator: MmpUnifier = new MmpUnifier(mmpParser2, ProofMode.compressed, 0);
-	mmpUnifierWithDefaultLabelMapCreator.unify();
-	const textEditArray2: TextEdit[] = mmpUnifierWithDefaultLabelMapCreator.textEditArray;
+	const mmpCompressedProofCreatorSortedByReference: MmpCompressedProofCreatorFromUncompressedProof =
+		new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
+	const mmpUnifierWithSortedByReferenceLabelMapCreator: MmpUnifier = new MmpUnifier(mmpParser2, ProofMode.compressed, 0,
+		false, undefined, undefined, undefined, mmpCompressedProofCreatorSortedByReference);
+	mmpUnifierWithSortedByReferenceLabelMapCreator.unify();
+	const textEditArray2: TextEdit[] = mmpUnifierWithSortedByReferenceLabelMapCreator.textEditArray;
 	expect(textEditArray2.length).toBe(1);
 	const newTextExpected2 =
 		'\n* test comment\n\n' +
@@ -199,6 +203,16 @@ test("Build Compressed proof for mp2", () => {
 		'\n';
 	const textEdit2: TextEdit = textEditArray2[0];
 	expect(textEdit2.newText).toEqual(newTextExpected2);
+
+	//below, we expect ( wi ax-mp ) because the default labelMapCreator is a MmpLabelMapCreatorLikeMmj2
+	const mmpParser3: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	mmpParser3.parse();
+	const mmpUnifierWithDefaultLabelMapCreator: MmpUnifier = new MmpUnifier(mmpParser3, ProofMode.compressed, 0);
+	mmpUnifierWithDefaultLabelMapCreator.unify();
+	const textEditArray3: TextEdit[] = mmpUnifierWithDefaultLabelMapCreator.textEditArray;
+	expect(textEditArray3.length).toBe(1);
+	const textEdit3: TextEdit = textEditArray3[0];
+	expect(textEdit3.newText).toEqual(newTextExpected);
 });
 
 const idTheory = "$c ( $. $c ) $. $c -> $. $c wff $. $c |- $.\n" +
@@ -986,7 +1000,7 @@ test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 	// const labelMapCreator: ILabelMapCreatorForCompressedProof =
 	// 	new MmpHardcodedLabelSequenceCreator(labels);
 	const labelMapCreator: ILabelMapCreatorForCompressedProof =
-		new MmpLabelMapCreatorLikeMmj2();
+		new MmpLabelMapCreatorLikeMmj2(4,79);
 	const compressedProofCreator: IMmpCompressedProofCreator =
 		new MmpCompressedProofCreatorFromPackedProof(labelMapCreator);
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
