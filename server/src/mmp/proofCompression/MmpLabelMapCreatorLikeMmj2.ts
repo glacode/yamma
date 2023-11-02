@@ -176,7 +176,8 @@ export class MmpLabelMapCreatorLikeMmj2 implements ILabelMapCreatorForCompressed
 		// this is the code for with, in mmj2
 		// final int width = proofWorksheet.proofAsstPreferences.rpnProofRightCol
 		// 	.get() - proofWorksheet.getRPNProofLeftCol() + 1;
-		const width = this.rpnProofRightColumn - this.rpnProofLeftColumn + 1;
+		// below, mmj2 has + 1 , but it is wrong, because we add a space to every label, thus one more char is needed
+		const width = this.rpnProofRightColumn - this.rpnProofLeftColumn + 2;
 		const lengthBlock: [LabeledStatement, MapEntry][] = [];
 		while ((pos = labelStatementsSortedByNumberOfOccourences.shift()) != null) {
 			if (i++ == cutoff) {

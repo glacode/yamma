@@ -1045,13 +1045,13 @@ test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 		'32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )\n' +
 		'qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )\n' +
 		'\n' +
-		'$= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi id simprd\n' +
-		'   opth1 opi1 syl5eleq oprcl opeq1d simpld sylancl cv preq2 eqeq2d imbi12d vex\n' +
-		'   eqeq2 vtoclg sylc jca opeq12 impbii ) ABHZCDHZIZACIZBDIZJVCVDVEABCDEFUCZVCDK\n' +
-		'   LZCBMZCDMZIZVEVCCKLZVGVCANZVBLVKVGJZVCVLVAVBABEFUDVCUAZUECDVLUFOZUBVCCNZVHMZ\n' +
-		'   VPVIMZIVJVCVBVQVRVCCBHZVBVQVCVAVSVBVCACBVFUGVNPVCVKBKLVSVQIVCVKVGVOUHFCBKKQU\n' +
-		'   IPVCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWA\n' +
-		'   VIVHVTDCUKULVTDBUOUMBVTCFGUNSUPUQURABCDUSUT $.\n\n' +
+		'$= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi opth1 opi1\n' +
+		'   id syl5eleq oprcl simprd opeq1d simpld sylancl cv preq2 eqeq2d eqeq2 imbi12d\n' +
+		'   vex vtoclg sylc jca opeq12 impbii ) ABHZCDHZIZACIZBDIZJVCVDVEABCDEFUAZVCDKLZ\n' +
+		'   CBMZCDMZIZVEVCCKLZVGVCANZVBLVKVGJZVCVLVAVBABEFUBVCUCZUDCDVLUEOZUFVCCNZVHMZVP\n' +
+		'   VIMZIVJVCVBVQVRVCCBHZVBVQVCVAVSVBVCACBVFUGVNPVCVKBKLVSVQIVCVKVGVOUHFCBKKQUIP\n' +
+		'   VCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWAVI\n' +
+		'   VHVTDCUKULVTDBUMUNBVTCFGUOSUPUQURABCDUSUT $.\n\n' +
 		'$d B x\n' +
 		'$d C x\n' +
 		'$d D x\n';

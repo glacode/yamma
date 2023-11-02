@@ -211,7 +211,7 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 			leftMargin: Parameters.defaultLeftMarginForMmtFilesCompressedProof,
 			charactersPerLine: Parameters.charactersPerLine,
 			mmpCompressedProofCreator:
-				new MmpCompressedProofCreatorFromPackedProof(new MmpLabelMapCreatorLikeMmj2(4, 79))
+				new MmpCompressedProofCreatorFromPackedProof(new MmpLabelMapCreatorLikeMmj2(7, 79))
 			// mmpCompressedProofCreator: mmpCompressedProofCreatorFromPackedProof
 		};
 		// const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser,
