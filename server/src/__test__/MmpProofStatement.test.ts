@@ -15,12 +15,13 @@ import { MmpParser } from '../mmp/MmpParser';
 import { InternalNode } from '../grammar/ParseNode';
 import { UProofStatementStep } from '../mmp/MmpStatement';
 import { UProofStatement } from '../mmp/UProofStatement';
-import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof, MmpCompressedProofCreatorFromUncompressedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
+import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
 import { MmpHardcodedLabelSequenceCreator } from '../mmp/proofCompression/MmpHardcodedLabelMapCreator';
 import { MmpSortedByReferenceLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceLabelMapCreator';
 import { MmpPackedProofStatement } from '../mmp/proofCompression/MmpPackedProofStatement';
 import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
 import { MmpLabelMapCreatorLikeMmj2 } from '../mmp/proofCompression/MmpLabelMapCreatorLikeMmj2';
+import { RpnStep } from '../mmp/RPNstep';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -102,6 +103,9 @@ class TestUCompressedProofStatement extends UCompressedProofStatement {
 			proofStepFirstTokenInfo, true, true, refToken, []);
 		jest.spyOn(MmpProofStep.prototype, 'proofArray').mockImplementation(() => []);
 		dummyUProof.lastMmpProofStep = dummyMmpProofStep;
+		jest.spyOn(RpnStep, 'packedProof').mockImplementation(() => []);
+
+		dummyUProof.proofStatement = new MmpPackedProofStatement(dummyUProof, 80);
 		super(dummyUProof, 0, 80);
 	}
 
@@ -114,6 +118,7 @@ class TestUCompressedProofStatement extends UCompressedProofStatement {
 	}
 }
 
+//TODO1 NOV 3 2023
 test("upperCaseLettersFromNumber", () => {
 
 	const uCompressedProofStatement: TestUCompressedProofStatement = new TestUCompressedProofStatement();
@@ -161,7 +166,7 @@ test("Build Compressed proof for mp2", () => {
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromUncompressedProof =
+	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
 		false, undefined, undefined, undefined, mmpCompressedProofCreator);
@@ -184,7 +189,8 @@ test("Build Compressed proof for mp2", () => {
 	//below, we expect ( ax-mp wi ) because the default labelMapCreator is a MmpSortedByReferenceLabelMapCreator
 	const mmpParser2: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
-	const mmpCompressedProofCreatorSortedByReference: MmpCompressedProofCreatorFromUncompressedProof =
+	new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
+	const mmpCompressedProofCreatorSortedByReference: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
 	const mmpUnifierWithSortedByReferenceLabelMapCreator: MmpUnifier = new MmpUnifier(mmpParser2, ProofMode.compressed, 0,
 		false, undefined, undefined, undefined, mmpCompressedProofCreatorSortedByReference);
@@ -333,7 +339,7 @@ test("vex - Build Compressed proof for vex", () => {
 		"qed:50,52:mpbir |- x e. _V";
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromUncompressedProof =
+	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
 		undefined, undefined, undefined, undefined, mmpCompressedProofCreator);
@@ -463,7 +469,7 @@ test("Format equvinv compressed proof", () => {
 		'$d y z\n';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromUncompressedProof =
+	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
 	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
 		undefined, undefined, undefined, undefined, mmpCompressedProofCreator);
@@ -1000,7 +1006,7 @@ test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 	// const labelMapCreator: ILabelMapCreatorForCompressedProof =
 	// 	new MmpHardcodedLabelSequenceCreator(labels);
 	const labelMapCreator: ILabelMapCreatorForCompressedProof =
-		new MmpLabelMapCreatorLikeMmj2(4,79);
+		new MmpLabelMapCreatorLikeMmj2(4, 79);
 	const compressedProofCreator: IMmpCompressedProofCreator =
 		new MmpCompressedProofCreatorFromPackedProof(labelMapCreator);
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
