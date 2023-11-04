@@ -3,7 +3,6 @@ import { BlockStatement } from '../mm/BlockStatement';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
-import { UCompressedProofStatement } from '../mmp/proofCompression/UCompressedProofStatement';
 import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
@@ -22,6 +21,7 @@ import { MmpPackedProofStatement } from '../mmp/proofCompression/MmpPackedProofS
 import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
 import { MmpLabelMapCreatorLikeMmj2 } from '../mmp/proofCompression/MmpLabelMapCreatorLikeMmj2';
 import { RpnStep } from '../mmp/RPNstep';
+import { MmpCompressedProofStatementFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofStatementFromPackedProof';
 
 
 // const mmFilePath = __dirname.concat("/../mmTestFiles/vex.mm");
@@ -90,7 +90,7 @@ test("Remove existing proof and recreate it", () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-class TestUCompressedProofStatement extends UCompressedProofStatement {
+class TestUCompressedProofStatement extends MmpCompressedProofStatementFromPackedProof {
 	constructor() {
 		const dummyUProof = new MmpProof(new BlockStatement(), new WorkingVars(kindToPrefixMap));
 		// const dummyUProofStep: UProofStep = new UProofStep(dummyUProof, true, true, "", []);

@@ -4,7 +4,6 @@ import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmpProofStep } from './MmpProofStep';
 import { MmpProof } from './MmpProof';
 import { IMmpStatement } from './MmpStatement';
-import { UCompressedProofStatement } from './proofCompression/UCompressedProofStatement';
 import { MmpCompressedProofStatementFromPackedProof } from './proofCompression/MmpCompressedProofStatementFromPackedProof';
 
 export class MmpProofFormatter {
@@ -94,7 +93,7 @@ export class MmpProofFormatter {
 			else {
 				uStatementText = uStatement.toText();
 				if (uStatement == this.uProof.mainComment ||
-					uStatement instanceof UCompressedProofStatement ||
+					// uStatement instanceof UCompressedProofStatement ||
 					uStatement instanceof MmpCompressedProofStatementFromPackedProof)
 					uStatementText = `\n${uStatementText}\n`;
 			}
