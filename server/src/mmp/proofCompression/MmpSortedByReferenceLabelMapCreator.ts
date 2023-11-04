@@ -56,7 +56,7 @@ export class MmpSortedByReferenceLabelMapCreator implements ILabelMapCreatorForC
 
 	/** returns a Map whith number of occourences; they are in the order of RpnSteps in the packed proof, but
 	 *  with Hyps at the beginning */
-	private createLabeledStatementToOccourencesMap(createLabelMapArgs: CreateLabelMapArgs): Map<LabeledStatement, MapEntry> {
+	protected createLabeledStatementToOccourencesMap(createLabelMapArgs: CreateLabelMapArgs): Map<LabeledStatement, MapEntry> {
 		const labelToNumberOfOccourencesMap1: Map<LabeledStatement, MapEntry> =
 			this.createLabeledStatementToOccourencesMap1(createLabelMapArgs);
 		const labelToNumberOfOccourencesMapWithHypsFirst =

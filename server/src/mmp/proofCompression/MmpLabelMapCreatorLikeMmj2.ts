@@ -1,78 +1,21 @@
-import { EHyp } from '../../mm/EHyp';
-import { FHyp } from '../../mm/FHyp';
 import { LabeledStatement } from '../../mm/LabeledStatement';
-import { RpnStep } from '../RPNstep';
-import { CreateLabelMapArgs, ILabelMapCreatorForCompressedProof } from './MmpCompressedProofCreator';
+import { CreateLabelMapArgs } from './MmpCompressedProofCreator';
+import { MmpSortedByReferenceLabelMapCreator } from './MmpSortedByReferenceLabelMapCreator';
 
 export interface MapEntry {
 	index: number;
 	numberOfOccurences: number;
 }
 
-export class MmpLabelMapCreatorLikeMmj2 implements ILabelMapCreatorForCompressedProof {
+// export class MmpLabelMapCreatorLikeMmj2 implements ILabelMapCreatorForCompressedProof {
+export class MmpLabelMapCreatorLikeMmj2 extends MmpSortedByReferenceLabelMapCreator {
 
 	constructor(private rpnProofLeftColumn: number, private rpnProofRightColumn: number) {
-
+		super();
 	}
 
 
 	//#region createLabelMap
-
-	//#region createLabeledStatementToOccourencesMap
-	private createLabeledStatementToOccourencesMap1(createLabelMapArgs: CreateLabelMapArgs): Map<LabeledStatement, MapEntry> {
-		const labelToNumberOfOccourencesMap: Map<LabeledStatement, MapEntry> = new Map<LabeledStatement, MapEntry>();
-		createLabelMapArgs.mmpPackedProofStatement?.packedProof.forEach((rpnStep: RpnStep) => {
-			const labelCandidate: string = rpnStep.labelForCompressedProof;
-			if (!rpnStep.isBackRefStep &&
-				!createLabelMapArgs.mandatoryHypsLabels!.has(labelCandidate)) {
-				// the current step is NOT a backRef step and the current label is not for a mandatory hypothesis
-				// updateOccurrences(labelToNumberOfOccourencesMap, rpnStep.labeledStatement);
-				const currentNumberOfOccourences: number = labelToNumberOfOccourencesMap.get(rpnStep.labeledStatement)?.numberOfOccurences || 0;
-				const currentIndex: number = labelToNumberOfOccourencesMap.get(rpnStep.labeledStatement)?.index ||
-					labelToNumberOfOccourencesMap.size + 1;
-				const mapEntry: MapEntry = {
-					index: currentIndex,
-					numberOfOccurences: currentNumberOfOccourences + 1
-				};
-				labelToNumberOfOccourencesMap.set(rpnStep.labeledStatement, mapEntry);
-			}
-		});
-		return labelToNumberOfOccourencesMap;
-	}
-	//#region createLabelToNumberOfOccourencesMapWithHypsFirst
-	/** reorders labelToNumberOfOccourencesMap, putting Hyps first */
-	buildEntry(numberOfOccurences: number, index: number): MapEntry {
-		const mapEntry: MapEntry = {
-			index: index,
-			numberOfOccurences: numberOfOccurences
-		};
-		return mapEntry;
-	}
-	private createLabelToNumberOfOccourencesMapWithHypsFirst(labelToNumberOfOccourencesMap: Map<LabeledStatement, MapEntry>) {
-		const labelToNumberOfOccourencesMapWithHypsFirst: Map<LabeledStatement, MapEntry> = new Map<LabeledStatement, MapEntry>();
-		for (const [labeledStatement, mapEntry] of labelToNumberOfOccourencesMap)
-			if (labeledStatement instanceof EHyp || labeledStatement instanceof FHyp)
-				labelToNumberOfOccourencesMapWithHypsFirst.set(labeledStatement,
-					this.buildEntry(mapEntry.numberOfOccurences, labelToNumberOfOccourencesMapWithHypsFirst.size + 1));
-		for (const [labeledStatement, mapEntry] of labelToNumberOfOccourencesMap)
-			if (!(labeledStatement instanceof EHyp || labeledStatement instanceof FHyp))
-				labelToNumberOfOccourencesMapWithHypsFirst.set(labeledStatement,
-					this.buildEntry(mapEntry.numberOfOccurences, labelToNumberOfOccourencesMapWithHypsFirst.size + 1));
-		return labelToNumberOfOccourencesMapWithHypsFirst;
-	}
-	//#endregion createLabelToNumberOfOccourencesMapWithHypsFirst
-
-	/** returns a Map whith number of occourences; they are in the order of RpnSteps in the packed proof, but
-	 *  with Hyps at the beginning */
-	private createLabeledStatementToOccourencesMap(createLabelMapArgs: CreateLabelMapArgs): Map<LabeledStatement, MapEntry> {
-		const labelToNumberOfOccourencesMap1: Map<LabeledStatement, MapEntry> =
-			this.createLabeledStatementToOccourencesMap1(createLabelMapArgs);
-		const labelToNumberOfOccourencesMapWithHypsFirst =
-			this.createLabelToNumberOfOccourencesMapWithHypsFirst(labelToNumberOfOccourencesMap1);
-		return labelToNumberOfOccourencesMapWithHypsFirst;
-	}
-	//#endregion createLabeledStatementToOccourencesMap
-
 	private labelsToLabelMap(labels: string[]): Map<string, number> {
 		const labelMap: Map<string, number> = new Map<string, number>();
 		// const labelStatements: LabeledStatement[] = [...labeledStatementsMap.entries()].map(([label, _]) => label);
