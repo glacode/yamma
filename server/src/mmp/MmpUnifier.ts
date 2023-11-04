@@ -72,7 +72,7 @@ export class MmpUnifier {
 			// new MmpCompressedProofCreatorFromUncompressedProof();
 			//TODO1 30 OTT 2023
 			// new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
-			new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceWithKnapsackLabelMapCreator(4,79));
+			new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceWithKnapsackLabelMapCreator(4, 79));
 		// new MmpCompressedProofCreatorFromPackedProof();
 
 

@@ -8,6 +8,12 @@ export enum ProofMode {
 	compressed = "compressed"
 }
 
+export enum LabelsOrderInCompressedProof {
+	fifo = 'fifo',
+	mostReferencedFirst = 'mostReferencedFirst',
+	mostReferencedFirstAndNiceFormatting = 'mostReferencedFirstAndNiceFormatting',
+}
+
 export enum DiagnosticMessageForSyntaxError {
 	short = "short",
 	verbose = "verbose"
@@ -34,6 +40,7 @@ interface IExtensionConfiguration {
 	mmFileFullPath: string;
 	maxNumberOfProblems: number;
 	proofMode: ProofMode;
+	labelsOrderInCompressedProof: LabelsOrderInCompressedProof;
 	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError;
 	kindConfigurations: IKindConfiguration[]
 }
@@ -47,6 +54,7 @@ export interface IExtensionSettings {
 	mmFileFullPath: string;
 	maxNumberOfProblems: number;
 	proofMode: ProofMode;
+	labelsOrderInCompressedProof: LabelsOrderInCompressedProof;
 	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError;
 	variableKindsConfiguration: Map<string, IVariableKindConfiguration>
 }
@@ -57,6 +65,7 @@ export interface IExtensionSettings {
 export const defaultSettings: IExtensionSettings = {
 	maxNumberOfProblems: 1000,
 	proofMode: ProofMode.normal,
+	labelsOrderInCompressedProof: LabelsOrderInCompressedProof.mostReferencedFirstAndNiceFormatting,
 	mmFileFullPath: "",
 	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError.short,
 	variableKindsConfiguration: new Map<string, IVariableKindConfiguration>()
@@ -151,6 +160,7 @@ export class ConfigurationManager implements IConfigurationManager {
 			maxNumberOfProblems: currentConfiguration.maxNumberOfProblems,
 			mmFileFullPath: currentConfiguration.mmFileFullPath,
 			proofMode: currentConfiguration.proofMode,
+			labelsOrderInCompressedProof: currentConfiguration.labelsOrderInCompressedProof,
 			diagnosticMessageForSyntaxError: currentConfiguration.diagnosticMessageForSyntaxError,
 			variableKindsConfiguration: this.buildMap(currentConfiguration.kindConfigurations)
 		};
@@ -196,8 +206,13 @@ export class ConfigurationManager implements IConfigurationManager {
 	}
 
 	async proofMode(textDocumentUri: string): Promise<ProofMode> {
-		const settings = await this.getScopeUriSettings(textDocumentUri);
+		const settings: IExtensionSettings = await this.getScopeUriSettings(textDocumentUri);
 		return settings.proofMode;
+	}
+
+	async labelsOrderInCompressedProof(textDocumentUri: string): Promise<LabelsOrderInCompressedProof> {
+		const settings: IExtensionSettings = await this.getScopeUriSettings(textDocumentUri);
+		return settings.labelsOrderInCompressedProof;
 	}
 
 	/** the full path for the .mm file containing the theory for the new proof */

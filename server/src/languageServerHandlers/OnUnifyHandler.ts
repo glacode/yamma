@@ -2,13 +2,17 @@ import path = require('path');
 import { Connection, TextDocuments, TextEdit } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { GlobalState } from '../general/GlobalState';
-import { ConfigurationManager, ProofMode } from '../mm/ConfigurationManager';
+import { ConfigurationManager, LabelsOrderInCompressedProof, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { applyTextEdits } from '../mm/Utils';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { OnDidChangeContentHandler } from './OnDidChangeContentHandler';
+import { ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
+import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
+import { MmpSortedByReferenceLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceLabelMapCreator';
+import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
 
 
 export class OnUnifyHandler {
@@ -32,25 +36,63 @@ export class OnUnifyHandler {
 	//#region unifyIfTheCase
 
 	//#region unify
-	private parseMmpFile(proofMode: ProofMode): TextEdit[] {
+
+	//#region parseMmpFile
+
+	//#region buildMmpCompressedProofCreator
+	private getLabelMapCreatorForCompressedProof(labelsOrderInCompressedProof: LabelsOrderInCompressedProof):
+		ILabelMapCreatorForCompressedProof {
+		let labelMapCreatorForCompressedProof: ILabelMapCreatorForCompressedProof;
+		switch (labelsOrderInCompressedProof) {
+			case LabelsOrderInCompressedProof.fifo:
+				labelMapCreatorForCompressedProof = new MmpFifoLabelMapCreator();
+				break;
+			case LabelsOrderInCompressedProof.mostReferencedFirst:
+				labelMapCreatorForCompressedProof = new MmpSortedByReferenceLabelMapCreator();
+				break;
+			default:
+				labelMapCreatorForCompressedProof =
+					new MmpSortedByReferenceWithKnapsackLabelMapCreator(4, 79);
+				break;
+		}
+		return labelMapCreatorForCompressedProof;
+	}
+	private buildMmpCompressedProofCreator(labelsOrderInCompressedProof: LabelsOrderInCompressedProof):
+		IMmpCompressedProofCreator {
+		const labelMapCreatorForCompressedProof: ILabelMapCreatorForCompressedProof =
+			this.getLabelMapCreatorForCompressedProof(labelsOrderInCompressedProof);
+		const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof
+			= new MmpCompressedProofCreatorFromPackedProof(labelMapCreatorForCompressedProof);
+		return mmpCompressedProofCreator;
+	}
+	//#endregion buildMmpCompressedProofCreator
+
+	private parseMmpFile(proofMode: ProofMode, labelsOrderInCompressedProof: LabelsOrderInCompressedProof):
+		TextEdit[] {
 		// const mmpParser: MmpParser = new MmpParser(textDocument, mmParser)
 		// const mmpUnifier: MmpUnifier =
 		// 	new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
 		// 		this.mmParser.grammar, this.mmParser.workingVars, proofMode, GlobalState.lastMmpParser);
 		//TODO manage case GlobalState.lastMmpParser == undefined (invoke unify only if it is not undefined)
 		const expectedTheoremLabel: string = path.parse(this.textDocumentUri).name;
+		const mmpCompressedProofCreator: IMmpCompressedProofCreator =
+			this.buildMmpCompressedProofCreator(labelsOrderInCompressedProof);
 		const mmpUnifier: MmpUnifier =
 			new MmpUnifier(this.mmpParser, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation,
-				this.renumber, expectedTheoremLabel);
+				this.renumber, expectedTheoremLabel, undefined, undefined, mmpCompressedProofCreator);
 		// const textToParse: string = textDocument.getText();
 		if (this.mmParser.grammar != undefined)
 			mmpUnifier.unify();
 		return mmpUnifier.textEditArray;
 	}
+	//#endregion parseMmpFile
+
 	private async unify(): Promise<TextEdit[]> {
 		// const proofMode: ProofMode = await this.configurationManager.proofMode(this.params.textDocument.uri);
 		const proofMode: ProofMode = await this.configurationManager.proofMode(this.textDocumentUri);
-		const textEditArray: TextEdit[] = this.parseMmpFile(proofMode);
+		const labelsOrderInCompressedProof: LabelsOrderInCompressedProof =
+			await this.configurationManager.labelsOrderInCompressedProof(this.textDocumentUri);
+		const textEditArray: TextEdit[] = this.parseMmpFile(proofMode, labelsOrderInCompressedProof);
 		return Promise.resolve(textEditArray);
 	}
 	//#endregion unify

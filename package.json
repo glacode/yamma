@@ -101,6 +101,17 @@
 					"default": "normal",
 					"description": "Determines the format of the proof generated"
 				},
+				"yamma.labelsOrderInCompressedProof": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"fifo",
+						"mostReferencedFirst",
+						"mostReferencedFirstAndNiceFormatting"
+					],
+					"default": "mostReferencedFirstAndNiceFormatting",
+					"description": "Labels' order in compressed proofs"
+				},
 				"yamma.diagnosticMessageForSyntaxError": {
 					"scope": "resource",
 					"type": "string",

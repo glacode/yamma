@@ -1,4 +1,4 @@
-import DiagnosticMessageForSyntaxError, { IExtensionSettings, IVariableKindConfiguration, ProofMode } from '../mm/ConfigurationManager';
+import DiagnosticMessageForSyntaxError, { IExtensionSettings, IVariableKindConfiguration, LabelsOrderInCompressedProof, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import * as fs from 'fs';
 import { MmStatistics } from '../mm/MmStatistics';
@@ -10,7 +10,9 @@ variableKindsConfiguration.set('wff', { workingVarPrefix: 'W', lspSemantictokenT
 variableKindsConfiguration.set('setvar', { workingVarPrefix: 'S', lspSemantictokenType: 'string' });
 variableKindsConfiguration.set('class', { workingVarPrefix: 'C', lspSemantictokenType: 'keyword' });
 export const lastFetchedSettings: IExtensionSettings = {
-	maxNumberOfProblems: 100, mmFileFullPath: '', proofMode: ProofMode.normal,
+	maxNumberOfProblems: 100, mmFileFullPath: '',
+	proofMode: ProofMode.normal,
+	labelsOrderInCompressedProof: LabelsOrderInCompressedProof.mostReferencedFirstAndNiceFormatting,
 	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError.short,
 	variableKindsConfiguration: variableKindsConfiguration
 };
