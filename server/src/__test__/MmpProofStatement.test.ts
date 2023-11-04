@@ -810,11 +810,9 @@ test("MmpSortedByReferenceLabelMapCreator", () => {
 
 	// ["cnr", 4],
 	// ["wcel", 4],
-	// ["cA", 3],
-	// ["cB", 3],
-	// ["cop", 3],
+	// ["cop", 1],
 	// ["cc", 2],
-	// ["cxp", 2],
+	// ["cxp", 1],
 	// ["wa", 1]
 	// ["df-c", 1],
 	// ["eleq2i", 1],
@@ -824,8 +822,8 @@ test("MmpSortedByReferenceLabelMapCreator", () => {
 	const expectedEntries: [string, number][] = [
 		["cnr", 1],
 		["wcel", 2],
-		["cop", 3],
-		["cc", 4],
+		["cc", 3],
+		["cop", 4],
 		["cxp", 5],
 		["wa", 6],
 		["df-c", 7],

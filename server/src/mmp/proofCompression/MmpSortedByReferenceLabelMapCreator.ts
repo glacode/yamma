@@ -15,8 +15,9 @@ export class MmpSortedByReferenceLabelMapCreator implements ILabelMapCreatorForC
 		const labelToNumberOfOccourencesMap: Map<LabeledStatement, MapEntry> = new Map<LabeledStatement, MapEntry>();
 		createLabelMapArgs.mmpPackedProofStatement?.packedProof.forEach((rpnStep: RpnStep) => {
 			const labelCandidate: string = rpnStep.labelForCompressedProof;
-			if (!createLabelMapArgs.mandatoryHypsLabels!.has(labelCandidate)) {
-				// the current label is not for a mandatory hypothesis
+			if (!rpnStep.isBackRefStep &&
+				!createLabelMapArgs.mandatoryHypsLabels!.has(labelCandidate)) {
+				// the current step is NOT a backRef step and the current label is not for a mandatory hypothesis
 				// updateOccurrences(labelToNumberOfOccourencesMap, rpnStep.labeledStatement);
 				const currentNumberOfOccourences: number = labelToNumberOfOccourencesMap.get(rpnStep.labeledStatement)?.numberOfOccurences || 0;
 				const currentIndex: number = labelToNumberOfOccourencesMap.get(rpnStep.labeledStatement)?.index ||
@@ -53,6 +54,8 @@ export class MmpSortedByReferenceLabelMapCreator implements ILabelMapCreatorForC
 	}
 	//#endregion createLabelToNumberOfOccourencesMapWithHypsFirst
 
+	/** returns a Map whith number of occourences; they are in the order of RpnSteps in the packed proof, but
+	 *  with Hyps at the beginning */
 	private createLabeledStatementToOccourencesMap(createLabelMapArgs: CreateLabelMapArgs): Map<LabeledStatement, MapEntry> {
 		const labelToNumberOfOccourencesMap1: Map<LabeledStatement, MapEntry> =
 			this.createLabeledStatementToOccourencesMap1(createLabelMapArgs);
