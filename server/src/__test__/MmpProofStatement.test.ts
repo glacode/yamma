@@ -19,7 +19,7 @@ import { MmpHardcodedLabelSequenceCreator } from '../mmp/proofCompression/MmpHar
 import { MmpSortedByReferenceLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceLabelMapCreator';
 import { MmpPackedProofStatement } from '../mmp/proofCompression/MmpPackedProofStatement';
 import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
-import { MmpLabelMapCreatorLikeMmj2 } from '../mmp/proofCompression/MmpLabelMapCreatorLikeMmj2';
+import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
 import { RpnStep } from '../mmp/RPNstep';
 import { MmpCompressedProofStatementFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofStatementFromPackedProof';
 
@@ -1004,7 +1004,7 @@ test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 	// const labelMapCreator: ILabelMapCreatorForCompressedProof =
 	// 	new MmpHardcodedLabelSequenceCreator(labels);
 	const labelMapCreator: ILabelMapCreatorForCompressedProof =
-		new MmpLabelMapCreatorLikeMmj2(4, 79);
+		new MmpSortedByReferenceWithKnapsackLabelMapCreator(4, 79);
 	const compressedProofCreator: IMmpCompressedProofCreator =
 		new MmpCompressedProofCreatorFromPackedProof(labelMapCreator);
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);

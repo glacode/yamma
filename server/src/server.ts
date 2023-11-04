@@ -53,7 +53,7 @@ import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
 import { Parameters } from './general/Parameters';
 import { MmpCompressedProofCreatorFromPackedProof } from './mmp/proofCompression/MmpCompressedProofCreator';
-import { MmpLabelMapCreatorLikeMmj2 } from './mmp/proofCompression/MmpLabelMapCreatorLikeMmj2';
+import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from './mmp/proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -211,7 +211,7 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 			leftMargin: Parameters.defaultLeftMarginForMmtFilesCompressedProof,
 			charactersPerLine: Parameters.charactersPerLine,
 			mmpCompressedProofCreator:
-				new MmpCompressedProofCreatorFromPackedProof(new MmpLabelMapCreatorLikeMmj2(7, 79))
+				new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceWithKnapsackLabelMapCreator(7, 79))
 			// mmpCompressedProofCreator: mmpCompressedProofCreatorFromPackedProof
 		};
 		// const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser,

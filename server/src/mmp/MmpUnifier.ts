@@ -12,7 +12,7 @@ import { Parameters } from '../general/Parameters';
 import { consoleLogWithTimestamp } from '../mm/Utils';
 import { MmpPackedProofStatement } from './proofCompression/MmpPackedProofStatement';
 import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from './proofCompression/MmpCompressedProofCreator';
-import { MmpLabelMapCreatorLikeMmj2 } from './proofCompression/MmpLabelMapCreatorLikeMmj2';
+import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from './proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
 
 // export interface UnifyResult {
 // 	diagnostics: Diagnostic[]
@@ -72,7 +72,7 @@ export class MmpUnifier {
 			// new MmpCompressedProofCreatorFromUncompressedProof();
 			//TODO1 30 OTT 2023
 			// new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
-			new MmpCompressedProofCreatorFromPackedProof(new MmpLabelMapCreatorLikeMmj2(4,79));
+			new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceWithKnapsackLabelMapCreator(4,79));
 		// new MmpCompressedProofCreatorFromPackedProof();
 
 
