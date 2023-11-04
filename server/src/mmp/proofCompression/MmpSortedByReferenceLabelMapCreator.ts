@@ -65,18 +65,22 @@ export class MmpSortedByReferenceLabelMapCreator implements ILabelMapCreatorForC
 	}
 	//#endregion createLabeledStatementToOccourencesMap
 
+	protected labelsToLabelMap(labels: string[]): Map<string, number> {
+		const labelMap: Map<string, number> = new Map<string, number>();
+		for (let i = 0; i < labels.length; i++)
+			labelMap.set(labels[i], i + 1);
+		return labelMap;
+	}
+
 	createLabelMap(
 		createLabelMapArgs: CreateLabelMapArgs): Map<string, number> {
-		const labelToNumberOfOccourencesMap: Map<LabeledStatement, MapEntry> =
+		const labelStatementToNumberOfOccourencesMap: Map<LabeledStatement, MapEntry> =
 			this.createLabeledStatementToOccourencesMap(createLabelMapArgs);
-		const sortedLabelStatements: LabeledStatement[] = [...labelToNumberOfOccourencesMap.entries()]
+		const sortedLabels: string[] = [...labelStatementToNumberOfOccourencesMap.entries()]
 			.sort((a, b) => (a[1].numberOfOccurences == b[1].numberOfOccurences) ?
 				a[1].index - b[1].index : b[1].numberOfOccurences - a[1].numberOfOccurences)  //this mimics the mmj2 behaviour
-			.map(([label, _]) => label);
-		const labelSequence: Map<string, number> = new Map<string, number>();
-		for (let i = 0; i < sortedLabelStatements.length; i++) {
-			labelSequence.set(sortedLabelStatements[i].Label, i + 1);
-		}
+			.map(([labeledStatement, _]) => labeledStatement.Label);
+		const labelSequence: Map<string, number> = this.labelsToLabelMap(sortedLabels);
 		return labelSequence;
 	}
 	//#endregion createLabelMap

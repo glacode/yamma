@@ -16,15 +16,6 @@ export class MmpLabelMapCreatorLikeMmj2 extends MmpSortedByReferenceLabelMapCrea
 
 
 	//#region createLabelMap
-	private labelsToLabelMap(labels: string[]): Map<string, number> {
-		const labelMap: Map<string, number> = new Map<string, number>();
-		// const labelStatements: LabeledStatement[] = [...labeledStatementsMap.entries()].map(([label, _]) => label);
-		for (let i = 0; i < labels.length; i++) {
-			// labelMap.set(labelStatements[i].Label, i + 1);
-			labelMap.set(labels[i], i + 1);
-		}
-		return labelMap;
-	}
 
 	//#region applyKnapSackFit
 
