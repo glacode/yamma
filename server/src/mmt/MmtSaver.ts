@@ -47,6 +47,11 @@ export class MmtSaver {
 	private charactersPerLine: number;
 	private mmpCompressedProofCreator?: IMmpCompressedProofCreator;
 
+	/** Will be true if the `saveMmt()` method is successful. */
+	isMmtFileSuccessfullyCreated = false;
+
+	newFileUri: string
+
 	// constructor(textDocumentUri: string, mmParser: MmParser) {
 	// constructor(textDocumentPath: string, documentContentInTheEditor: string, mmParser: MmParser,
 	// 	private leftMargin: number, private charactersPerLine: number) {
@@ -57,6 +62,7 @@ export class MmtSaver {
 		this.leftMargin = mmtSaverArgs.leftMargin;
 		this.charactersPerLine = mmtSaverArgs.charactersPerLine;
 		this.mmpCompressedProofCreator = mmtSaverArgs.mmpCompressedProofCreator;
+		this.newFileUri = this.textDocumentPath.replace('.mmp', '.mmt');
 	}
 
 	//#region saveMmt
@@ -237,16 +243,18 @@ export class MmtSaver {
 	//#endregion tryToCreateTextToBeStored
 
 	saveToFile(text: string) {
-		const newFileUri: string = this.textDocumentPath.replace('.mmp', '.mmt');
+		// const newFileUri: string = this.textDocumentPath.replace('.mmp', '.mmt');
 
-		FileSystem.writeFileSync(newFileUri, text);
+		FileSystem.writeFileSync(this.newFileUri, text);
 	}
 	saveMmt() {
+		this.isMmtFileSuccessfullyCreated = false;
 		const textToBeStored: string | undefined = this.tryToCreateTextToBeStored(this.documentContentInTheEditor);
-		if (textToBeStored != undefined)
+		if (textToBeStored != undefined) {
 			// the proof was succesfully built
-			//TODO nofify success to the languageClient
 			this.saveToFile(textToBeStored);
+			this.isMmtFileSuccessfullyCreated = true;
+		}
 		//TODO else notify fail to the languageClient
 	}
 	//#endregion

@@ -329,6 +329,10 @@ export function notifyInformation(informationMessage: string, connection: Connec
     connection.window.showInformationMessage(informationMessage, ...messageActionItems);
 }
 
+export function notifyShortInformation(informationMessage: string, connection: Connection) {
+    connection.window.showInformationMessage(informationMessage);
+}
+
 export function notifyWarning(warningMessage: string, connection: Connection) {
     const messageActionItem: MessageActionItem = { title: "Ok" };
     const messageActionItems: MessageActionItem[] = [messageActionItem];

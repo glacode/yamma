@@ -224,6 +224,10 @@ connection.onRequest('yamma/storemmt', async (pathAndUri: PathAndUri) => {
 		// 	Parameters.charactersPerLine);
 		const mmtSaver: MmtSaver = new MmtSaver(mmtSaverArgs);
 		mmtSaver.saveMmt();
+		if (mmtSaver.isMmtFileSuccessfullyCreated)
+			notifyInformation(`The file ${mmtSaver.newFileUri} was successfully created`, connection);
+		else
+			notifyError(`Something went wrong, the .mmt file was NOT created`, connection);
 		console.log('Method saveMmt() has been invoked 2');
 	}
 });
