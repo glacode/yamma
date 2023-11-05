@@ -13,7 +13,7 @@ import { MapEntry, MmpSortedByReferenceLabelMapCreator } from './MmpSortedByRefe
  */
 export class MmpSortedByReferenceWithKnapsackLabelMapCreator extends MmpSortedByReferenceLabelMapCreator {
 
-	constructor(private rpnProofLeftColumn: number, private rpnProofRightColumn: number) {
+	constructor(private compressedProofLeftColumn: number, private compressedProofRightColumn: number) {
 		super();
 	}
 
@@ -114,7 +114,7 @@ export class MmpSortedByReferenceWithKnapsackLabelMapCreator extends MmpSortedBy
 		// final int width = proofWorksheet.proofAsstPreferences.rpnProofRightCol
 		// 	.get() - proofWorksheet.getRPNProofLeftCol() + 1;
 		// below, mmj2 has + 1 , but it is wrong, because we add a space to every label, thus one more char is needed
-		const width = this.rpnProofRightColumn - this.rpnProofLeftColumn + 2;
+		const width = this.compressedProofRightColumn - this.compressedProofLeftColumn + 2;
 		const lengthBlock: [LabeledStatement, MapEntry][] = [];
 		while ((pos = labelStatementsSortedByNumberOfOccourences.shift()) != null) {
 			if (i++ == cutoff) {

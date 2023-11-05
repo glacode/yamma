@@ -10,10 +10,6 @@ import { MmpUnifier } from '../mmp/MmpUnifier';
 import { MmpValidator } from '../mmp/MmpValidator';
 import { OnDidChangeContentHandler } from './OnDidChangeContentHandler';
 import { ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
-import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
-import { MmpSortedByReferenceLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceLabelMapCreator';
-import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from '../mmp/proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
-
 
 export class OnUnifyHandler {
 	// params: DocumentFormattingParams;
@@ -40,27 +36,11 @@ export class OnUnifyHandler {
 	//#region parseMmpFile
 
 	//#region buildMmpCompressedProofCreator
-	private getLabelMapCreatorForCompressedProof(labelsOrderInCompressedProof: LabelsOrderInCompressedProof):
-		ILabelMapCreatorForCompressedProof {
-		let labelMapCreatorForCompressedProof: ILabelMapCreatorForCompressedProof;
-		switch (labelsOrderInCompressedProof) {
-			case LabelsOrderInCompressedProof.fifo:
-				labelMapCreatorForCompressedProof = new MmpFifoLabelMapCreator();
-				break;
-			case LabelsOrderInCompressedProof.mostReferencedFirst:
-				labelMapCreatorForCompressedProof = new MmpSortedByReferenceLabelMapCreator();
-				break;
-			default:
-				labelMapCreatorForCompressedProof =
-					new MmpSortedByReferenceWithKnapsackLabelMapCreator(4, 79);
-				break;
-		}
-		return labelMapCreatorForCompressedProof;
-	}
 	private buildMmpCompressedProofCreator(labelsOrderInCompressedProof: LabelsOrderInCompressedProof):
 		IMmpCompressedProofCreator {
 		const labelMapCreatorForCompressedProof: ILabelMapCreatorForCompressedProof =
-			this.getLabelMapCreatorForCompressedProof(labelsOrderInCompressedProof);
+			MmpCompressedProofCreatorFromPackedProof.getLabelMapCreatorForCompressedProof(
+				labelsOrderInCompressedProof, 4, 79);
 		const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof
 			= new MmpCompressedProofCreatorFromPackedProof(labelMapCreatorForCompressedProof);
 		return mmpCompressedProofCreator;

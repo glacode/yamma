@@ -39,7 +39,7 @@ import { OnHoverHandler } from "./languageServerHandlers/OnHoverHandler";
 import { OnUnifyHandler } from './languageServerHandlers/OnUnifyHandler';
 import { OnDidChangeContentHandler } from './languageServerHandlers/OnDidChangeContentHandler';
 import { OnCodeActionHandler } from './languageServerHandlers/OnCodeActionHandler';
-import { ConfigurationManager, defaultSettings, IExtensionSettings } from './mm/ConfigurationManager';
+import { ConfigurationManager, defaultSettings, IExtensionSettings, LabelsOrderInCompressedProof } from './mm/ConfigurationManager';
 import { MmtSaver, MmtSaverArgs, PathAndUri } from './mmt/MmtSaver';
 
 import { MmtLoader } from './mmt/MmtLoader';
@@ -52,8 +52,7 @@ import { MmParser } from './mm/MmParser';
 import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
 import { Parameters } from './general/Parameters';
-import { MmpCompressedProofCreatorFromPackedProof } from './mmp/proofCompression/MmpCompressedProofCreator';
-import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from './mmp/proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
+import { ILabelMapCreatorForCompressedProof, MmpCompressedProofCreatorFromPackedProof } from './mmp/proofCompression/MmpCompressedProofCreator';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -141,7 +140,7 @@ connection.onInitialize((params: InitializeParams) => {
 //#endregion onInitialize
 
 //Glauco
-connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
+connection.onRequest('yamma/storemmt', async (pathAndUri: PathAndUri) => {
 	if (globalState.mmParser != undefined) {
 		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
 		//TODO1 21 AUG 2023 add IMmpLabelMapCreator (based on configuration)
@@ -203,6 +202,12 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 		// 	new MmpHardcodedLabelSequenceCreator(hardCodedLabelSequence);
 		// const mmpCompressedProofCreatorFromPackedProof: MmpCompressedProofCreatorFromPackedProof =
 		// 	new MmpCompressedProofCreatorFromPackedProof(hardCodedLabelsLabelMapCreator);
+		const labelsOrderInCompressedProof: LabelsOrderInCompressedProof =
+			await configurationManager.labelsOrderInCompressedProof(pathAndUri.uri);
+
+		const labelMapCreatorForCompressedProof: ILabelMapCreatorForCompressedProof =
+			MmpCompressedProofCreatorFromPackedProof.getLabelMapCreatorForCompressedProof(
+				labelsOrderInCompressedProof, 7, 79);
 
 		const mmtSaverArgs: MmtSaverArgs = {
 			textDocumentPath: pathAndUri.fsPath,
@@ -211,8 +216,8 @@ connection.onRequest('yamma/storemmt', (pathAndUri: PathAndUri) => {
 			leftMargin: Parameters.defaultLeftMarginForMmtFilesCompressedProof,
 			charactersPerLine: Parameters.charactersPerLine,
 			mmpCompressedProofCreator:
-				new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceWithKnapsackLabelMapCreator(7, 79))
-			// mmpCompressedProofCreator: mmpCompressedProofCreatorFromPackedProof
+				// new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceWithKnapsackLabelMapCreator(7, 79))
+				new MmpCompressedProofCreatorFromPackedProof(labelMapCreatorForCompressedProof)
 		};
 		// const mmtSaver: MmtSaver = new MmtSaver(pathAndUri.fsPath, text, globalState.mmParser,
 		// 	Parameters.defaultLeftMarginForMmtFilesCompressedProof,
