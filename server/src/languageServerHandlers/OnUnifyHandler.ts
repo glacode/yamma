@@ -11,6 +11,11 @@ import { MmpValidator } from '../mmp/MmpValidator';
 import { OnDidChangeContentHandler } from './OnDidChangeContentHandler';
 import { ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
 
+export interface IUnificationResult {
+	textEdits: TextEdit[];
+	mmpParser?: MmpParser
+}
+
 export class OnUnifyHandler {
 	// params: DocumentFormattingParams;
 	// documents: TextDocuments<TextDocument>;
@@ -79,8 +84,10 @@ export class OnUnifyHandler {
 
 	static async unifyIfTheCase(textDocumentUri: string, documents: TextDocuments<TextDocument>,
 		globalState: GlobalState, maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		renumber: boolean): Promise<TextEdit[]> {
-		let result: Promise<TextEdit[]> = Promise.resolve([]);
+		// renumber: boolean): Promise<TextEdit[]> {
+		renumber: boolean): Promise<IUnificationResult> {
+		// let result: Promise<TextEdit[]> = Promise.resolve([]);
+		let result: Promise<IUnificationResult> = Promise.resolve({ textEdits: [] });
 		if (globalState.mmParser != undefined && globalState.lastMmpParser != undefined
 			&& globalState.configurationManager != undefined) {
 			const mmpParser: MmpParser | undefined = MmpValidator.buildMmpParserFromUri(
@@ -91,7 +98,11 @@ export class OnUnifyHandler {
 						globalState.configurationManager, maxNumberOfHypothesisDispositionsForStepDerivation,
 						renumber);
 				const textEditArray: TextEdit[] = await onDocumentFormattingHandler.unify();
-				result = Promise.resolve(textEditArray);
+				const unificationResult: IUnificationResult = {
+					mmpParser: mmpParser,
+					textEdits: textEditArray
+				};
+				result = Promise.resolve(unificationResult);
 				globalState.requireCursorPositionUpdate();
 			}
 		}
@@ -131,11 +142,12 @@ export class OnUnifyHandler {
 	//#endregion applyTextEditsAndValidate
 	static async unifyAndValidate(textDocumentUri: string, connection: Connection, documents: TextDocuments<TextDocument>,
 		hasConfigurationCapability: boolean, maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		globalState: GlobalState, renumber: boolean) {
-		const result: TextEdit[] = await OnUnifyHandler.unifyIfTheCase(textDocumentUri, documents,
+		globalState: GlobalState, renumber: boolean): Promise<IUnificationResult> {
+		const result: IUnificationResult = await OnUnifyHandler.unifyIfTheCase(textDocumentUri, documents,
 			globalState, maxNumberOfHypothesisDispositionsForStepDerivation, renumber);
-		await OnUnifyHandler.applyTextEditsAndValidate(result, textDocumentUri, connection, documents,
+		await OnUnifyHandler.applyTextEditsAndValidate(result.textEdits, textDocumentUri, connection, documents,
 			hasConfigurationCapability, globalState);
+		return result;
 	}
 	//#endregion unifyAndValidate
 

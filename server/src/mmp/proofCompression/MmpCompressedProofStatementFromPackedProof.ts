@@ -132,7 +132,6 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 		return result.reverse();
 	}
 
-	//TODO1 6 AUG 2023 this method is duplicated, build a single one
 	protected upperCaseLettersFromNumber(givenNumber: number): string[] {
 		const upperCaseLetters: string[] = [];
 

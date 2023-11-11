@@ -118,7 +118,6 @@ class TestUCompressedProofStatement extends MmpCompressedProofStatementFromPacke
 	}
 }
 
-//TODO1 NOV 3 2023
 test("upperCaseLettersFromNumber", () => {
 
 	const uCompressedProofStatement: TestUCompressedProofStatement = new TestUCompressedProofStatement();

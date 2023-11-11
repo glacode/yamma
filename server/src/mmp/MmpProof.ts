@@ -51,6 +51,13 @@ export class MmpProof implements ITheoremSignature {
 	/** if the qed step is proven, proofStatement will contain the proof statement */
 	proofStatement: IMmpStatement | undefined;
 
+	//TODO1 NOV 10 2023 add a test fot this getter
+	/** true iff the proof is complete (a proof statement has been generated) */
+	public get isProofComplete(): boolean {
+		const result: boolean = this.proofStatement != undefined;
+		return result;
+	}
+
 	// lastMmpProofStep is introduced for better performance, only
 	/**the last MmpProofStep in the array of uStatements*/
 	lastMmpProofStep: MmpProofStep | undefined;

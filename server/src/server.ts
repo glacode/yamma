@@ -36,7 +36,7 @@ import {
 
 
 import { OnHoverHandler } from "./languageServerHandlers/OnHoverHandler";
-import { OnUnifyHandler } from './languageServerHandlers/OnUnifyHandler';
+import { IUnificationResult, OnUnifyHandler } from './languageServerHandlers/OnUnifyHandler';
 import { OnDidChangeContentHandler } from './languageServerHandlers/OnDidChangeContentHandler';
 import { OnCodeActionHandler } from './languageServerHandlers/OnCodeActionHandler';
 import { ConfigurationManager, defaultSettings, IExtensionSettings, LabelsOrderInCompressedProof } from './mm/ConfigurationManager';
@@ -287,9 +287,13 @@ function showCatchError(error: any) {
 async function unifyAndValidate(textDocumentUri: string) {
 	try {
 		//TODO1 see if an await here solves the response back before the unify is complete
-		await OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
-			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
-			false);
+		const unificationResult: IUnificationResult =
+			await OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
+				Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
+				false);
+		if (unificationResult.mmpParser?.mmpProof != undefined &&
+			unificationResult.mmpParser.mmpProof.isProofComplete)
+			notifyInformation('The proof is complete!', connection);
 	} catch (error: any) {
 		showCatchError(error);
 	}
