@@ -22,8 +22,8 @@ export class ProvableStatement extends AssertionStatement {
     isProofVerified = false;
     isProofVerificationFailed = false;
 
-    constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
-        super(label, content, parentBlock, comment);
+    constructor(labelToken: MmToken, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
+        super(labelToken, content, parentBlock, comment);
     }
 
     get proofTokens(): MmToken[] {

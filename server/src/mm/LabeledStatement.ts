@@ -105,13 +105,13 @@ export abstract class LabeledStatement extends NonBlockStatement {
         return this._parseNode;
     }
     //#endregion parseNodeForSyntaxAxiom
-    constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
+    constructor(public labelToken: MmToken, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
         super(content, parentBlock, comment);
         //public FileInfo File;
         //public int Line;
         //public int Column;
         //public int ByteOffset;
-        this.Label = label;
+        this.Label = labelToken.value;
         this.statementNumber = parentBlock.nextLabeledStatementNumber;
     }
 }

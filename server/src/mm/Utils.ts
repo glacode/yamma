@@ -261,6 +261,11 @@ export function oneCharacterRange(position: Position): Range {
 
 export const dummyRange: Range = oneCharacterRange({ line: 0, character: 0 });
 
+export function dummyToken(value: string): MmToken {
+    return new MmToken(value, 0, 0);
+}
+
+
 export function removeItemsFromEndOfArray(array: any[], numberOfElementsToBeRemoved: number) {
     const startIndexFroSplice: number = array.length - numberOfElementsToBeRemoved;
     array.splice(startIndexFroSplice, numberOfElementsToBeRemoved);
@@ -420,7 +425,7 @@ export async function applyTextEdits(textEdits: TextEdit[], textDocumentUri: str
 }
 
 export function updateOccurrences<T>(map: Map<T, number>, key: T): Map<T, number> {
-    const currentValue : number = map.get(key) || 0;
+    const currentValue: number = map.get(key) || 0;
     map.set(key, currentValue + 1);
     return map;
 }

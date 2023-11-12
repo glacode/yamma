@@ -6,7 +6,7 @@ import { AxiomStatement } from "../mm/AxiomStatement";
 import { ProvableStatement } from "../mm/ProvableStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { splitToTokensDefault } from '../mm/Utils';
+import { dummyToken, splitToTokensDefault } from '../mm/Utils';
 import { FHyp } from '../mm/FHyp';
 import { EHyp } from '../mm/EHyp';
 
@@ -51,7 +51,7 @@ interface IStatementsForMp2Testing {
 
 function mp2Statement(outerBlock: BlockStatement) {
     // const mp2Statement: ProvableStatement = new ProvableStatement("mp2", ["|-", "ch"], outerBlock);
-    const mp2Statement: ProvableStatement = new ProvableStatement("mp2",
+    const mp2Statement: ProvableStatement = new ProvableStatement(dummyToken("mp2"),
         splitToTokensDefault("|- ch"), outerBlock);
     return mp2Statement;
 }
@@ -75,14 +75,14 @@ function testMp2Statements() {
         // wph: new FHyp("wph", ["wff", "ph"], outerBlock),
         // wps: new FHyp("wps", ["wff", "ps"], outerBlock),
         // wch: new FHyp("wch", ["wff", "ch"], outerBlock),
-        wph: new FHyp("wph", splitToTokensDefault("wff ph"), outerBlock),
-        wps: new FHyp("wps", splitToTokensDefault("wff ps"), outerBlock),
-        wch: new FHyp("wch", splitToTokensDefault("wff ch"), outerBlock),
-        mp2_1: new EHyp("mp2.1", [], outerBlock),
-        mp2_2: new EHyp("mp2.2", [], outerBlock),
-        mp2_3: new EHyp("mp2.3", [], outerBlock),
-        wi: new AxiomStatement("wi", [], outerBlock),
-        ax_mp: new AxiomStatement("ax-mp", [], outerBlock),
+        wph: new FHyp(dummyToken("wph"), splitToTokensDefault("wff ph"), outerBlock),
+        wps: new FHyp(dummyToken("wps"), splitToTokensDefault("wff ps"), outerBlock),
+        wch: new FHyp(dummyToken("wch"), splitToTokensDefault("wff ch"), outerBlock),
+        mp2_1: new EHyp(dummyToken("mp2.1"), [], outerBlock),
+        mp2_2: new EHyp(dummyToken("mp2.2"), [], outerBlock),
+        mp2_3: new EHyp(dummyToken("mp2.3"), [], outerBlock),
+        wi: new AxiomStatement(dummyToken("wi"), [], outerBlock),
+        ax_mp: new AxiomStatement(dummyToken("ax-mp"), [], outerBlock),
         mp2: mp2Statement(outerBlock)
     };
     mp2StatementMockFrame(result);
@@ -98,8 +98,8 @@ function testMp2Statements() {
 function testMp2LabelToStatementMap(testStatements: IStatementsForMp2Testing): Map<string, LabeledStatement> {
     const result = new Map<string, LabeledStatement>();
     // const outerBlock = new BlockStatement(null);
-    result.set("wi",testStatements.wi);
-    result.set("ax-mp",testStatements.ax_mp);
+    result.set("wi", testStatements.wi);
+    result.set("ax-mp", testStatements.ax_mp);
     // result.set("wi", new AxiomStatement("wi", [], outerBlock));
     // result.set("ax-mp", new AxiomStatement("ax-mp", [], outerBlock));
     return result;
@@ -147,7 +147,7 @@ test("mocking to test mp2 in set.mm", () => {
     const expectedDecompressedProof = testMp2ExpectedDecompressedProof(testStatements);
     const proofCompressor: ProofCompressor = new ProofCompressor([]);
     const decompressedProof: Statement[] =
-    proofCompressor.getDecompressedProof(provableStatement,
+        proofCompressor.getDecompressedProof(provableStatement,
             [2, 3, 5, 1, 2, 3, 7, 4, 6, 8, 8], labelToStatementMap);
     expect(
         decompressedProof).toEqual(expectedDecompressedProof);

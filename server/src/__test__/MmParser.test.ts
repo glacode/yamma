@@ -97,6 +97,9 @@ test("Test big-unfier-bad1 ; expect error", () => {
     expect(parser.parseFailed).toBeTruthy();
     expect(doesDiagnosticsContain(parser.diagnostics,
         MmParserErrorCode.eHypDoesntMatchTheStackEntry)).toBeTruthy();
+    expect(parser.diagnostics[0].range.start.line).toBe(63);
+    expect(parser.diagnostics[0].range.end.character).toBe(9);
+
 });
 
 test("Test disjoint2-good ; expect success", () => {
@@ -268,7 +271,7 @@ test('Test impbii-bad , expect error, but pm3.2im, that comes later, should be a
     expect(pm32im).toBeDefined();
     expect((<ProvableStatement>pm32im).isProofVerified).toBeTruthy();
     expect((<ProvableStatement>pm32im).isProofVerificationFailed).toBeFalsy();
-     const impbi: LabeledStatement | undefined = labelToStatementMap.get('impbi');
+    const impbi: LabeledStatement | undefined = labelToStatementMap.get('impbi');
     expect(impbi).toBeDefined();
     expect((<ProvableStatement>impbi).isProofVerified).toBeFalsy();
     expect((<ProvableStatement>impbi).isProofVerificationFailed).toBeTruthy();

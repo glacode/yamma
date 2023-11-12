@@ -9,13 +9,13 @@ import { MmpProofStep } from "../mmp/MmpProofStep";
 import { AxiomStatement } from "../mm/AxiomStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { WorkingVars } from '../mmp/WorkingVars';
-import { doesDiagnosticsContain } from '../mm/Utils';
+import { doesDiagnosticsContain, dummyToken } from '../mm/Utils';
 import { createMmParser, eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { VerboseDiagnosticMessageForSyntaxError } from '../mmp/DiagnosticMessageForSyntaxError';
 import { MmParser } from '../mm/MmParser';
 
-const emptyLabelStatement = new AxiomStatement('x', [], new BlockStatement());
+const emptyLabelStatement = new AxiomStatement(dummyToken('x'), [], new BlockStatement());
 
 
 /**

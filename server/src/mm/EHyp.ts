@@ -3,7 +3,7 @@ import { BlockStatement } from './BlockStatement';
 import { LabeledStatement } from './LabeledStatement';
 
 export class EHyp extends LabeledStatement {
-    constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
-        super(label, content, parentBlock, comment);
+    constructor(labelToken: MmToken, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
+        super(labelToken, content, parentBlock, comment);
     }
 }

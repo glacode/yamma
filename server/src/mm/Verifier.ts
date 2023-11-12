@@ -56,21 +56,23 @@ export class Verifier {
             stackEHyps.push(stack[i]);
         return stackEHyps;
     }
-    buildSubstitution(frameFHyps: FHyp[],
-        fHypsStack: string[][]): Map<string, string[]> {
+    buildSubstitution(frameFHyps: FHyp[], fHypsStack: string[][],
+        rangeForDiagnostic?: Range): Map<string, string[]> {
         const substitution: Map<string, string[]> = new Map<string, string[]>();
         for (let i = 0; i < frameFHyps.length; i++) {
-            if (frameFHyps[i].Kind != fHypsStack[i][0]) {
+
+            if (frameFHyps[i].Kind == fHypsStack[i][0])
+                substitution.set(frameFHyps[i].Variable, fHypsStack[i].slice(1));
+            else if (rangeForDiagnostic != undefined) {
                 const message = `Stack entry doesn't match the kind of the mandatory var number ${i}. The current value on ` +
                     `the stack is '${fHypsStack[i][0]} . The $f hyp variable is ${frameFHyps[i].Variable} and the expected kind is ` +
                     `${frameFHyps[i].Kind} .`;
-                const range: Range = oneCharacterRange({ line: 0, character: 0 });
+                // const range: Range = oneCharacterRange({ line: 0, character: 0 });
                 const code = MmParserErrorCode.eHypDoesntMatchTheStackEntry;
-                this.addDiagnosticError(message, range, code);
-                // throw new Error("Stack entry doesn't match mandatory var hyp");
-            } else
-                // fHypsStack[i].shift()
-                substitution.set(frameFHyps[i].Variable, fHypsStack[i].slice(1));
+                this.addDiagnosticError(message, rangeForDiagnostic, code);
+            }
+
+            // fHypsStack[i].shift()
         }
         // frameFHyps.forEach(frameFHyp => {
         //     const fHypStackTop: string[] = <string[]>fHypsStack.pop()
@@ -179,8 +181,8 @@ export class Verifier {
     }
 
     //#region checkSubstitutionForStakEHyps
-    checkSubstitutionForStakEHyps1(currentEHypInTheStack: string[],
-        frameEHyp: string[], substitution: Map<string, string[]>): boolean {
+    checkSubstitutionForStakEHyps1(currentEHypInTheStack: string[], frameEHyp: string[],
+        substitution: Map<string, string[]>, rangeForDiagnostic: Range): boolean {
         //const currentEHypInTheStack: string[] = eHypsStack[index]
         const frameEHypWithSubstitution = this.applySubstitution(
             frameEHyp, substitution);
@@ -193,18 +195,18 @@ export class Verifier {
             const message = `$e hypothesis doesn't match stack entry. The current hypothesis on ` +
                 `the stack is '${concatWithSpaces(currentEHypInTheStack)} . The $e hyp with substitution is ` +
                 `${concatWithSpaces(frameEHypWithSubstitution)} .`;
-            const range: Range = oneCharacterRange({ line: 0, character: 0 });
+            // const range: Range = oneCharacterRange({ line: 0, character: 0 });
             const code = MmParserErrorCode.eHypDoesntMatchTheStackEntry;
-            this.addDiagnosticError(message, range, code);
+            this.addDiagnosticError(message, rangeForDiagnostic, code);
             //    throw new Error("$e hypothesis doesn't match stack.");
         }
         return areTheSame;
     }
-    checkSubstitutionForStakEHyps(eHypsStack: string[][],
-        frameEHyps: EHyp[], substitution: Map<string, string[]>) {
+    checkSubstitutionForStakEHyps(eHypsStack: string[][], frameEHyps: EHyp[],
+        substitution: Map<string, string[]>, rangeForDiagnostic: Range) {
         for (let i = 0; i < frameEHyps.length; i++)
             this.checkSubstitutionForStakEHyps1(eHypsStack[i],
-                frameEHyps[i].formula, substitution);
+                frameEHyps[i].formula, substitution, rangeForDiagnostic);
         // frameEHyps.forEach(eHyp => {
         //     Verifier.checkSubstitutionForStakEHyps1(eHypsStack, eHyp,
         //         substitution)
@@ -228,9 +230,10 @@ export class Verifier {
         const eHypsStack: string[][] = this.eHypsStack(frameProofStep, stack);
 
         const substitution: Map<string, string[]> =
-            this.buildSubstitution(frameProofStep.fHyps, fHypsStack);
+            this.buildSubstitution(frameProofStep.fHyps, fHypsStack, assertionStatement.labelToken.range);
         this.checkDisjointViolation(assertionStatement, frameProofStep, substitution);
-        this.checkSubstitutionForStakEHyps(eHypsStack, frameProofStep.eHyps, substitution);
+        this.checkSubstitutionForStakEHyps(eHypsStack, frameProofStep.eHyps, substitution,
+            assertionStatement.labelToken.range);
 
         for (let i = 0; i < popCount; i++)
             stack.pop();

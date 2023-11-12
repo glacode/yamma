@@ -6,7 +6,7 @@ import { MmParser } from '../mm/MmParser';
 import { ParseNode } from '../grammar/ParseNode';
 import { AxiomStatement } from "../mm/AxiomStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
-import { splitToTokensDefault } from '../mm/Utils';
+import { dummyToken, splitToTokensDefault } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { globalState, kindToPrefixMap, lastFetchedSettings, mp2Theory, opelcnMmParser } from './GlobalForTest.test';
 import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
@@ -59,15 +59,15 @@ test("buildStringArray and buildStringFormula", () => {
 test("GrammarManager.CreateGrammar", () => {
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	const outerBlock = new BlockStatement();
-	const wph = new FHyp("wph", splitToTokensDefault("wff ph"), outerBlock);
+	const wph = new FHyp(dummyToken("wph"), splitToTokensDefault("wff ph"), outerBlock);
 	labelToStatementMap.set("wph", wph);
 	outerBlock.varToKindMap.set("ph", "wff");
 	// outerBlock.fHyps.push(wph);
-	const wps = new FHyp("wps", splitToTokensDefault("wff ps"), outerBlock);
+	const wps = new FHyp(dummyToken("wps"), splitToTokensDefault("wff ps"), outerBlock);
 	labelToStatementMap.set("wps", wps);
 	outerBlock.varToKindMap.set("ps", "wff");
 
-	const wi = new AxiomStatement("wi", splitToTokensDefault(" wff ( ph -> ps )"), outerBlock);
+	const wi = new AxiomStatement(dummyToken("wi"), splitToTokensDefault(" wff ( ph -> ps )"), outerBlock);
 	labelToStatementMap.set("wi", wi);
 
 	// outerBlock.fHyps.push(wps);
@@ -106,28 +106,28 @@ test("GrammarManager.CreateGrammar for '|- x = A'", () => {
 
 	const labelToStatementMap: Map<string, LabeledStatement> = new Map<string, LabeledStatement>();
 	const outerBlock = new BlockStatement();
-	const vx = new FHyp("vx", splitToTokensDefault("setvar x"), outerBlock);
+	const vx = new FHyp(dummyToken("vx"), splitToTokensDefault("setvar x"), outerBlock);
 	labelToStatementMap.set("vx", vx);
 	outerBlock.varToKindMap.set("x", "setvar");
 	// outerBlock.fHyps.push(wph);
 
-	const ca = new FHyp("ca", splitToTokensDefault("class A"), outerBlock);
+	const ca = new FHyp(dummyToken("ca"), splitToTokensDefault("class A"), outerBlock);
 	labelToStatementMap.set("ca", ca);
 	outerBlock.varToKindMap.set("A", "class");
 
-	const cb = new FHyp("cb", splitToTokensDefault("class B"), outerBlock);
+	const cb = new FHyp(dummyToken("cb"), splitToTokensDefault("class B"), outerBlock);
 	labelToStatementMap.set("cb", cb);
 	outerBlock.varToKindMap.set("B", "class");
 
-	const cv = new AxiomStatement("cv", splitToTokensDefault("class x"), outerBlock);
+	const cv = new AxiomStatement(dummyToken("cv"), splitToTokensDefault("class x"), outerBlock);
 	labelToStatementMap.set("cv", cv);
 	// outerBlock.varToKindMap.set("ps","wff");
 
-	const wph = new FHyp("wph", splitToTokensDefault("wff ph"), outerBlock);
+	const wph = new FHyp(dummyToken("wph"), splitToTokensDefault("wff ph"), outerBlock);
 	labelToStatementMap.set("wph", wph);
 	outerBlock.varToKindMap.set("ph", "wff");
 
-	const wceq = new AxiomStatement("wceq", splitToTokensDefault("wff A = B"), outerBlock);
+	const wceq = new AxiomStatement(dummyToken("wceq"), splitToTokensDefault("wff A = B"), outerBlock);
 	labelToStatementMap.set("wceq", wceq);
 
 	// outerBlock.fHyps.push(wps);

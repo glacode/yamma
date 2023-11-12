@@ -1,7 +1,7 @@
 //import '@types/jest'
 import { BlockStatement } from "../mm/BlockStatement";
 import { FHyp } from '../mm/FHyp';
-import { splitToTokensDefault } from '../mm/Utils';
+import { dummyToken, splitToTokensDefault } from '../mm/Utils';
 
 test("lookup var",
     () => {
@@ -25,15 +25,15 @@ test("mandatoryFHyps should be ph and ps",
         outerBlock.add_v('ps');
         outerBlock.add_v('ch');
         outerBlock.add_c('wff');
-        const wph = new FHyp("wph", splitToTokensDefault( "wff ph" ), outerBlock);
+        const wph = new FHyp(dummyToken("wph"), splitToTokensDefault( "wff ph" ), outerBlock);
         outerBlock.addFHyp(wph);
         // outerBlock.fHyps.push(wph);
         // const wps = new FHyp("wps", ["wff", "ps"], outerBlock);
-        const wps = new FHyp("wps", splitToTokensDefault("wff ps"), outerBlock);
+        const wps = new FHyp(dummyToken("wps"), splitToTokensDefault("wff ps"), outerBlock);
         outerBlock.addFHyp(wps);
         // outerBlock.fHyps.push(wps);
         // const wch = new FHyp("wch", ["wff", "ch"], outerBlock);
-        const wch = new FHyp("wch", splitToTokensDefault("wff ch"), outerBlock);
+        const wch = new FHyp(dummyToken("wch"), splitToTokensDefault("wff ch"), outerBlock);
         outerBlock.addFHyp(wch);
         // outerBlock.fHyps.push(wch);
         let result = outerBlock.mandatoryFHyps(["ph", "dd", "ch"]);

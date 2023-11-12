@@ -3,7 +3,7 @@ import { BlockStatement } from './BlockStatement';
 import { LabeledStatement } from './LabeledStatement';
 
 export class FHyp extends LabeledStatement {
-    constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
+    constructor(label: MmToken, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
         if (content.length !== 2) {
             throw new Error("An f hyp expects two strings");
         }

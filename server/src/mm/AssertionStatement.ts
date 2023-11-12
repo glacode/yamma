@@ -269,8 +269,8 @@ export abstract class AssertionStatement extends LabeledStatement {
         return this._eHypsOrderForStepDerivation;
     }
     //#endregion eHypsOrderForStepDerivation
-    constructor(label: string, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
-        super(label, content, parentBlock, comment);
+    constructor(labelToken: MmToken, content: MmToken[], parentBlock: BlockStatement, comment?: MmToken[]) {
+        super(labelToken, content, parentBlock, comment);
     }
 
     // returns the mandatory vars for the current AssertionStatement

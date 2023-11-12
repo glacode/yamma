@@ -1,51 +1,98 @@
-$( demo0.mm  1-Jan-04 $)
+$( big-unifier.mm - Version of 30-Aug-2008
 
-$(
-                      PUBLIC DOMAIN DEDICATION
+                             PUBLIC DOMAIN
 
-This file is placed in the public domain per the Creative Commons Public
-Domain Dedication. http://creativecommons.org/licenses/publicdomain/
+This file (specifically, the version of this file with the above date)
+has been placed in the Public Domain per the Creative Commons Public
+Domain Dedication.  http://creativecommons.org/licenses/publicdomain/
 
-Norman Megill - email: nm at alum.mit.edu
+The public domain release applies worldwide.  In case this is not
+legally possible, the right is granted to use the work for any purpose,
+without any conditions, unless such conditions are required by law.
 
+Norman Megill - http://metamath.org
 $)
 
+$(
+This file (big-unifier.mm) is a unification and substitution test for
+Metamath verifiers, where small input expressions blow up to thousands
+of symbols.  It is a translation of William McCune's "big-unifier.in"
+for the OTTER theorem prover:
 
-$( This file is the introductory formal system example described
-   in Chapter 2 of the Meamath book. $)
+    http://www-unix.mcs.anl.gov/AR/award-2003/big-unifier.in
+    http://www-unix.mcs.anl.gov/AR/award-2003/big-unifier.out
 
-$( Declare the constant symbols we will use $)
-    $c 0 + = -> ( ) term wff |- $.
-$( Declare the metavariables we will use $)
-    $v t r s P Q $.
-$( Specify properties of the metavariables $)
-    tt $f term t $.
-    tr $f term r $.
-    ts $f term s $.
-    wp $f wff P $.
-    wq $f wff Q $.
-$( Define "term" (part 1) $)
-    tze $a term 0 $.
-$( Define "term" (part 2) $)
-    tpl $a term ( t + r ) $.
-$( Define "wff" (part 1) $)
-    weq $a wff t = r $.
-$( Define "wff" (part 2) $)
-    wim $a wff ( P -> Q ) $.
-$( State axiom a1 $)
-    a1 $a |- ( t = r -> ( t = s -> r = s ) ) $.
-$( State axiom a2 $)
-    a2 $a |- ( t + 0 ) = t $.
-    ${
-       min $e |- P $.
-       maj $e |- ( P -> Q ) $.
-$( Define the modus ponens inference rule $)
-       mp  $a |- Q $.
-    $}
-$( Prove a theorem $)
-    th1 $p |- t = t $=
-  $( Here is its proof: $)
-       tt tze tt tpl weq tt tt weq tt a2 tt tze tpl
-       tt weq tt tze tpl tt weq tt tt weq wim tt a2
-       tt tze tpl tt tt a1 mp mp
-     $.
+    Description:  "Examples of complicated substitutions in condensed
+        detachment.  These occur in Larry Wos's proofs that XCB is a single
+        axiom for EC."
+$)
+
+ $c wff |- e ( , ) $.
+ $v x y z w v u v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 $.
+
+  wx $f wff x $. wy $f wff y $. wz $f wff z $. ww $f wff w $.
+  wv $f wff v $. wu $f wff u $. wv1 $f wff v1 $. wv2 $f wff v2 $.
+  wv3 $f wff v3 $. wv4 $f wff v4 $. wv5 $f wff v5 $. wv6 $f wff v6 $.
+  wv7 $f wff v7 $. wv8 $f wff v8 $. wv9 $f wff v9 $. wv10 $f wff v10 $.
+  wv11 $f wff v11 $.
+
+ $( The binary connective of the language "EC". $)
+ wi $a wff e ( x , y ) $.
+
+ ${
+   ax-mp.1 $e |- x $.
+   ax-mp.2 $e |- e ( x , y ) $.
+   $( The inference rule. $)
+   ax-mp $a |- y $.
+ $}
+
+ $( The first axiom. $)
+ ax-maj $a |- e ( e ( e ( e ( e ( x , e ( y , e ( e ( e ( e ( e ( z , e (
+   e ( e ( z , u ) , e ( v , u ) ) , v ) ) , e ( e ( w , e ( e ( e ( w , v6
+   ) , e ( v7 , v6 ) ) , v7 ) ) , y ) ) , v8 ) , e ( v9 , v8 ) ) , v9 ) ) )
+   , x ) , v10 ) , e ( v11 , v10 ) ) , v11 ) $.
+
+ $( The second axiom. $)
+ ax-min $a |- e ( e ( e ( e ( e ( e ( x , e ( e ( y , e ( e ( e ( y , z )
+   , e ( u , z ) ) , u ) ) , x ) ) , e ( v , e ( e ( e ( v , w ) , e ( v6 ,
+   w ) ) , v6 ) ) ) , v7 ) , v8 ) , e ( v7 , v8 ) ) , e ( v9 , e ( e ( e (
+   v9 , v10 ) , e ( v11 , v10 ) ) , v11 ) ) ) $.
+
+ $( A 3-step proof that applies ~ ax-mp to the two axioms.  The proof was
+    saved in compressed format with "save proof theorem1 /compressed" in
+    the metamath program. $)
+ theorem1 $p |- e ( e ( e ( x , e ( y , e ( e ( e ( y , z ) , e ( u , z ) )
+   , u ) ) ) , v ) , e ( x , v ) ) $=
+   ( wi ax-min ax-maj ax-mp ) ABBCFECFFEFFZFZKDFADFFZAFZFJMFFZKNJFFNFZFAO
+   FFZMPAFFZFPFQPFZFLRFFLNKMJAJNQPLAPGPMKBADCEOARLIH $.
+
+$(
+This comment holds a simple typesetting definition file so that HTML
+pages can be created with "show statement theorem1/html" in the
+metamath program.
+
+$t
+htmldef "(" as " ( ";
+htmldef ")" as " ) ";
+htmldef "e" as " e ";
+htmldef "wff" as " wff ";
+htmldef "|-" as " |- ";
+htmldef "," as " , ";
+htmldef "x" as " x ";
+htmldef "y" as " y ";
+htmldef "z" as " z ";
+htmldef "w" as " w ";
+htmldef "v" as " v ";
+htmldef "u" as " u ";
+htmldef "v1" as " v1 ";
+htmldef "v2" as " v2 ";
+htmldef "v3" as " v3 ";
+htmldef "v4" as " v4 ";
+htmldef "v5" as " v5 ";
+htmldef "v6" as " v6 ";
+htmldef "v7" as " v7 ";
+htmldef "v8" as " v8 ";
+htmldef "v9" as " v9 ";
+htmldef "v10" as " v10 ";
+htmldef "v11" as " v11 ";
+$)
