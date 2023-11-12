@@ -10,6 +10,7 @@
 		"url": "https://github.com/glacode/yamma.git"
 	},
 	"publisher": "glacode",
+	"changelog": "CHANGELOG.md",
 	"icon": "images/metamathlogo.png",
 	"categories": [],
 	"keywords": [
