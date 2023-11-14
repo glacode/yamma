@@ -1,6 +1,6 @@
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { Frame } from '../mm/Frame';
-import { MmParser } from '../mm/MmParser';
+import { MmParser, MmParserEvents, ParsingProgressArgs } from '../mm/MmParser';
 import { Statement, ZIStatement, ZRStatement } from '../mm/Statements';
 import { ProvableStatement } from "../mm/ProvableStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
@@ -9,13 +9,14 @@ import * as fs from 'fs';
 import { Verifier } from '../mm/Verifier';
 import { ProofCompressor } from '../mmp/ProofCompressor';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { CompletionItemKind } from 'vscode-languageserver';
+import { CompletionItemKind, Connection } from 'vscode-languageserver';
 import { IFormulaClassifier } from './IFormulaClassifier';
 import { StepSuggestionTripleMap } from './StepSuggestionTripleMap';
 import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
 import { Grammar, Parser } from 'nearley';
 import { FHyp } from '../mm/FHyp';
 import { EHyp } from '../mm/EHyp';
+import { EventEmitter } from 'stream';
 
 export interface IStepSuggestion {
 	completionItemKind: CompletionItemKind,
@@ -28,7 +29,7 @@ export interface IStepSuggestion {
 // 	completionItemKind: CompletionItemKind
 // }
 
-export class ModelBuilder {
+export class ModelBuilder extends EventEmitter {
 	private mmFilePath: string;
 	// private completionItemGroups: ICompletionItemGroup[];
 	private formulaClassifiers: IFormulaClassifier[];
@@ -55,7 +56,9 @@ export class ModelBuilder {
 
 
 	constructor(mmFilePath: string, formulaClassifiers: IFormulaClassifier[],
-		notifyProgressEnabled: boolean) {
+		notifyProgressEnabled: boolean, private connection?: Connection,
+		private progressToken?: string) {
+		super();
 		this.mmFilePath = mmFilePath;
 		this.formulaClassifiers = formulaClassifiers;
 		this.notifyProgressEnabled = notifyProgressEnabled;
@@ -228,6 +231,14 @@ export class ModelBuilder {
 			const memory = `Memory heap used/total ${Math.round(used * 100) / 100} MB / ${Math.round(total * 100) / 100}`;
 			console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
 			console.log(percentageOfWorkDone + '% - ' + memory + new Date());
+			if (this.connection != undefined && this.progressToken != undefined) {
+				const parsingProgressArgs: ParsingProgressArgs = {
+					connection: this.connection,
+					percentageOfWorkDone: percentageOfWorkDone,
+					progressToken: this.progressToken
+				};
+				this.emit(MmParserEvents.parsingProgress, parsingProgressArgs);
+			}
 		}
 	}
 

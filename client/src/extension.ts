@@ -79,6 +79,9 @@ export function activate(context: ExtensionContext) {
 		disposable = commands.registerCommand('yamma.loadFromMMTfolder',
 			loadMmtFilesCommandHandler, client);
 		context.subscriptions.push(disposable);
+		disposable = commands.registerCommand('yamma.createModel',
+			() => { client.sendRequest('yamma/createModel', window.activeTextEditor.document.uri.toString()); });
+		context.subscriptions.push(disposable);
 		disposable = commands.registerCommand('yamma.unify',
 			() => { client.sendRequest('yamma/unify', window.activeTextEditor.document.uri.toString()); });
 		disposable = commands.registerCommand('yamma.unifyAndRenumber',

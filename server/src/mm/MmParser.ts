@@ -47,7 +47,7 @@ export type AssertionParsedArgs = {
 export type ParsingProgressArgs = {
     percentageOfWorkDone: number,
     connection: Connection,
-    progressToken?: string
+    progressToken: string
 }
 
 // Parser for .mm files
@@ -148,7 +148,7 @@ export class MmParser extends EventEmitter {
             // console.log(percentageOfWorkDone + '%');
             // if (this.progressListener != undefined)
             //     this.progressListener(percentageOfWorkDone);
-            if (this.globalState?.connection != undefined) {
+            if (this.globalState?.connection != undefined && this.progressToken != undefined) {
                 const parsingProgressArgs: ParsingProgressArgs = {
                     percentageOfWorkDone: percentageOfWorkDone,
                     connection: this.globalState.connection,

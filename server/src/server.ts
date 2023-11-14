@@ -53,6 +53,7 @@ import { MmpParser } from './mmp/MmpParser';
 import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchCommandHandler';
 import { Parameters } from './general/Parameters';
 import { ILabelMapCreatorForCompressedProof, MmpCompressedProofCreatorFromPackedProof } from './mmp/proofCompression/MmpCompressedProofCreator';
+import { OnCreateModelHandler } from './commandHandlers/OnCreateModelHandler';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -313,6 +314,16 @@ async function unifyRenumberAndValidate(textDocumentUri: string) {
 }
 
 connection.onRequest('yamma/unifyAndRenumber', unifyRenumberAndValidate);
+
+
+async function createModel(_textDocumentUri: string) {
+	// await OnCreateModelHandler.createModel(textDocumentUri, connection, documents, hasConfigurationCapability,
+	// 	globalState);
+	if (globalState.mmFilePath != undefined)
+		await OnCreateModelHandler.createModel(connection, globalState.mmFilePath);
+}
+
+connection.onRequest('yamma/createModel', createModel);
 
 
 connection.onInitialized(() => {

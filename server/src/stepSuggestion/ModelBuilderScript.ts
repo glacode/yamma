@@ -7,9 +7,9 @@ import { ModelBuilder } from './ModelBuilder';
 
 // const mmFilePath = __dirname.concat('/../../src/mmTestFiles/impbii.mm');
 // const mmFilePath = '/mnt/mmt/impbii.mm';
-const mmFilePath = '/mnt/mmt/set.mm';
+// const mmFilePath = '/mnt/mmt/set.mm';
 // const mmFilePath = '/mnt/mmt/dmsnop.mm';
-// const mmFilePath = '/mnt/mmt/opelcn.mm';
+const mmFilePath = '/mnt/mmt/opelcn.mm';
 
 
 consoleLogWithTimestamp('model builder start');

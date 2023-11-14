@@ -162,7 +162,12 @@
 			{
 				"command": "yamma.storeInMMTfolder",
 				"title": "Unify + Store in MMT Folder"
+			},
+			{
+				"command": "yamma.createModel",
+				"title": "Create models for the current theory (for step suggestions)"
 			}
+
 		],
 		"keybindings": [
 			{
@@ -202,6 +207,11 @@
 				{
 					"when": "resourceLangId == yamma",
 					"command": "yamma.storeInMMTfolder",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == yamma",
+					"command": "yamma.createModel",
 					"group": "navigation"
 				}
 			]
