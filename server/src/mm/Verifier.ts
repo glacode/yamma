@@ -258,10 +258,6 @@ export class Verifier {
         if (assertionStatementProofStep instanceof ProvableStatement &&
             assertionStatementProofStep.isProofVerificationFailed) {
             this.verificationFailed = true;
-            // const message = `Provable statement ${assertionStatementProofStep.Label} is in the ` +
-            //     `theory, but its veriication failed`;
-            // this.addDiagnosticError(message, assertionStatement, MmParserErrorCode.labelOfAProvableStatementWithFailedVerification,
-            //     assertionStatementProofStep.labelToken.range);
         }
         else
             this.verifyAssertionStatementActually(assertionStatement,

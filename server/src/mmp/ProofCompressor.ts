@@ -76,7 +76,7 @@ export class ProofCompressor {
         provableStatement: ProvableStatement, labelIndex: number) {
         const labelToken: MmToken = provableStatement.compressedProofLabelsTokens[labelIndex];
         const message = `Theorem ${provableStatement.Label} : Provable statement ${labelToken.value} is in the ` +
-            `theory, but its veriication failed`;
+            `theory, but its verification failed`;
         MmParser.addDiagnosticError(message, labelToken.range,
             MmParserErrorCode.labelOfAProvableStatementWithFailedVerification, this.diagnostics,
             provableStatement.Label);

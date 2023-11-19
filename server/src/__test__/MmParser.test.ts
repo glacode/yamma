@@ -292,7 +292,7 @@ test('Test impbii-bad , see comment above', () => {
     expect(parser.diagnostics[1].range.end.line).toBe(248);
     expect(parser.diagnostics[1].range.end.character).toBe(16);
     expect(parser.diagnostics[1].message).toBe(
-        'Theorem con3rr3 : Provable statement con3d is in the theory, but its veriication failed');
+        'Theorem con3rr3 : Provable statement con3d is in the theory, but its verification failed');
 });
 
 test("Test nested-frames ; expect success", () => {
