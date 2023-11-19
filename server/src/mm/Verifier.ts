@@ -1,15 +1,14 @@
-import { Diagnostic } from 'vscode-languageserver';
-import { Range } from 'vscode-languageserver-textdocument';
+import { Diagnostic, Range } from 'vscode-languageserver';
 import { BlockStatement } from './BlockStatement';
 import { Frame } from "./Frame";
-import { MmParserErrorCode } from './MmParser';
+import { MmDiagnostic, MmParserErrorCode } from './MmParser';
 import { ParseError } from '../grammar/ParseErrors';
 import { ProofCompressor } from "../mmp/ProofCompressor";
 import { Statement, ZIStatement, ZRStatement } from "./Statements";
 import { ProvableStatement } from "./ProvableStatement";
 import { LabeledStatement } from "./LabeledStatement";
 import { AssertionStatement } from "./AssertionStatement";
-import { AreArrayTheSame, concatWithSpaces, oneCharacterRange } from "./Utils";
+import { AreArrayTheSame, concatWithSpaces } from "./Utils";
 import { FHyp } from './FHyp';
 import { EHyp } from './EHyp';
 import { MmToken } from '../grammar/MmLexer';
@@ -24,14 +23,21 @@ export class Verifier {
         this.verificationFailed = false;
     }
 
-    private addDiagnosticError(message: string, range: Range, code: MmParserErrorCode) {
-        const diagnostic: Diagnostic = {
-            message: message,
-            range: range,
-            code: code
-        };
-        this.diagnostics.push(diagnostic);
-        this.verificationFailed = true;
+    private addDiagnosticError(message: string, assertionStatement: AssertionStatement,
+        code: MmParserErrorCode, range?: Range) {
+        if (!this.verificationFailed) {
+            // we want to return only the first Diagnostic error, for each verification
+            const completeMessage = `Theorem ${assertionStatement.Label} : ${message}`;
+            const diagnosticRange: Range = range != undefined ? range : assertionStatement.labelToken.range;
+            const diagnostic: MmDiagnostic = {
+                message: completeMessage,
+                range: diagnosticRange,
+                code: code,
+                provableStatementLabel: assertionStatement.Label
+            };
+            this.diagnostics.push(diagnostic);
+            this.verificationFailed = true;
+        }
     }
 
     //#region verifyDecompressedProof
@@ -57,19 +63,20 @@ export class Verifier {
         return stackEHyps;
     }
     buildSubstitution(frameFHyps: FHyp[], fHypsStack: string[][],
-        rangeForDiagnostic?: Range): Map<string, string[]> {
+        assertionStatement?: AssertionStatement): Map<string, string[]> {
         const substitution: Map<string, string[]> = new Map<string, string[]>();
         for (let i = 0; i < frameFHyps.length; i++) {
 
             if (frameFHyps[i].Kind == fHypsStack[i][0])
                 substitution.set(frameFHyps[i].Variable, fHypsStack[i].slice(1));
-            else if (rangeForDiagnostic != undefined) {
-                const message = `Stack entry doesn't match the kind of the mandatory var number ${i}. The current value on ` +
-                    `the stack is '${fHypsStack[i][0]} . The $f hyp variable is ${frameFHyps[i].Variable} and the expected kind is ` +
+            else if (assertionStatement != undefined) {
+                const message = `stack entry doesn't match the kind of ` +
+                    `the mandatory var number ${i}. The current value on the stack is '${fHypsStack[i][0]} . ` +
+                    `The $f hyp variable is ${frameFHyps[i].Variable} and the expected kind is ` +
                     `${frameFHyps[i].Kind} .`;
                 // const range: Range = oneCharacterRange({ line: 0, character: 0 });
                 const code = MmParserErrorCode.eHypDoesntMatchTheStackEntry;
-                this.addDiagnosticError(message, rangeForDiagnostic, code);
+                this.addDiagnosticError(message, assertionStatement, code);
             }
 
             // fHypsStack[i].shift()
@@ -139,9 +146,8 @@ export class Verifier {
                         `${disjVar2} was substituted with ${concatWithSpaces(substitution2)}. ` +
                         `Variables ${xVar} and ${yVar} do not have a disjoint variable requirement in the ` +
                         `assertion being proved, ${provableStatement.Label}`;
-                    const range: Range = oneCharacterRange({ line: 0, character: 0 });
                     const code = MmParserErrorCode.missingDjVarsStatement;
-                    this.addDiagnosticError(message, range, code);
+                    this.addDiagnosticError(message, provableStatement, code);
                     // throw new Error(message);
                 }
             }
@@ -182,7 +188,7 @@ export class Verifier {
 
     //#region checkSubstitutionForStakEHyps
     checkSubstitutionForStakEHyps1(currentEHypInTheStack: string[], frameEHyp: string[],
-        substitution: Map<string, string[]>, rangeForDiagnostic: Range): boolean {
+        substitution: Map<string, string[]>, assertionStatement: AssertionStatement): boolean {
         //const currentEHypInTheStack: string[] = eHypsStack[index]
         const frameEHypWithSubstitution = this.applySubstitution(
             frameEHyp, substitution);
@@ -197,16 +203,16 @@ export class Verifier {
                 `${concatWithSpaces(frameEHypWithSubstitution)} .`;
             // const range: Range = oneCharacterRange({ line: 0, character: 0 });
             const code = MmParserErrorCode.eHypDoesntMatchTheStackEntry;
-            this.addDiagnosticError(message, rangeForDiagnostic, code);
+            this.addDiagnosticError(message, assertionStatement, code);
             //    throw new Error("$e hypothesis doesn't match stack.");
         }
         return areTheSame;
     }
     checkSubstitutionForStakEHyps(eHypsStack: string[][], frameEHyps: EHyp[],
-        substitution: Map<string, string[]>, rangeForDiagnostic: Range) {
+        substitution: Map<string, string[]>, assertionStatement: AssertionStatement) {
         for (let i = 0; i < frameEHyps.length; i++)
             this.checkSubstitutionForStakEHyps1(eHypsStack[i],
-                frameEHyps[i].formula, substitution, rangeForDiagnostic);
+                frameEHyps[i].formula, substitution, assertionStatement);
         // frameEHyps.forEach(eHyp => {
         //     Verifier.checkSubstitutionForStakEHyps1(eHypsStack, eHyp,
         //         substitution)
@@ -230,10 +236,10 @@ export class Verifier {
         const eHypsStack: string[][] = this.eHypsStack(frameProofStep, stack);
 
         const substitution: Map<string, string[]> =
-            this.buildSubstitution(frameProofStep.fHyps, fHypsStack, assertionStatement.labelToken.range);
+            this.buildSubstitution(frameProofStep.fHyps, fHypsStack, assertionStatement);
         this.checkDisjointViolation(assertionStatement, frameProofStep, substitution);
         this.checkSubstitutionForStakEHyps(eHypsStack, frameProofStep.eHyps, substitution,
-            assertionStatement.labelToken.range);
+            assertionStatement);
 
         for (let i = 0; i < popCount; i++)
             stack.pop();
@@ -246,13 +252,17 @@ export class Verifier {
         stack.push(assertionStatementWithSubstitution);
     }
 
-    //TODO ParseError is not used anymore, remove it; now Diagnostic(s) are used
     verifyAssertionStatement(assertionStatement: AssertionStatement,
         assertionStatementProofStep: AssertionStatement,
         stack: string[][]) {
         if (assertionStatementProofStep instanceof ProvableStatement &&
-            assertionStatementProofStep.isProofVerificationFailed)
+            assertionStatementProofStep.isProofVerificationFailed) {
             this.verificationFailed = true;
+            // const message = `Provable statement ${assertionStatementProofStep.Label} is in the ` +
+            //     `theory, but its veriication failed`;
+            // this.addDiagnosticError(message, assertionStatement, MmParserErrorCode.labelOfAProvableStatementWithFailedVerification,
+            //     assertionStatementProofStep.labelToken.range);
+        }
         else
             this.verifyAssertionStatementActually(assertionStatement,
                 assertionStatementProofStep, stack);
@@ -284,9 +294,9 @@ export class Verifier {
             //TODO see the error in 'Test anatomy-bad1 , expect error' if
             //you want to have a better error message and Diagnostic's range
             const message = `Stack has more than one item at end of proof.`;
-            const range: Range = oneCharacterRange({ line: 0, character: 0 });
+            // const range: Range = oneCharacterRange({ line: 0, character: 0 });
             const code = MmParserErrorCode.stackHasMoreThanOneItemAtEndOfProof;
-            this.addDiagnosticError(message, range, code);
+            this.addDiagnosticError(message, provableStatement, code);
             // throw new Error("Stack has more than one item at end of proof.");
         }
         const stackOnlyElement: string[] = <string[]>stack.pop();
@@ -298,9 +308,8 @@ export class Verifier {
         if (!areEqual) {
             const message = `Assertion proven doesn't match. Expected: ` +
                 `${concatWithSpaces(contentBeforeTheProof)} , proven: ${concatWithSpaces(stackOnlyElement)} `;
-            const range: Range = oneCharacterRange({ line: 0, character: 0 });
             const code = MmParserErrorCode.assertionProvenDoesntMatch;
-            this.addDiagnosticError(message, range, code);
+            this.addDiagnosticError(message, provableStatement, code);
             // throw new Error("Assertion proved doesn't match.");
             //TODO check what you wanted to do, below with AssertionProvenDoesntMatch
             // const parseError: AssertionProvenDoesntMatch = {
@@ -345,15 +354,15 @@ export class Verifier {
         const lastToken: MmToken = provableStatement.Content[provableStatement.Content.length - 1];
         const range: Range = lastToken.range;
         if (proofStrings.indexOf(')') == -1) {
-            const message = `The $p statement ${provableStatement.Label} does not contain a '(' character`;
+            const message = `The $p statement ${provableStatement.Label} does not contain a ')' token`;
             const code: MmParserErrorCode = MmParserErrorCode.missingCloseParenthesisInPStatement;
-            this.addDiagnosticError(message, range, code);
+            this.addDiagnosticError(message, provableStatement, code, range);
         } else {
             // between ')' and '$.' there is not a sequence of characters
             const message = `The $p statement ${provableStatement.Label} does not contain a ` +
                 `compressed proof string between ')' and '$.'`;
             const code = MmParserErrorCode.assertionProvenDoesntMatch;
-            this.addDiagnosticError(message, range, code);
+            this.addDiagnosticError(message, provableStatement, code, range);
         }
     }
     decompressExistingProofString(provableStatement: ProvableStatement, labelToStatementMap: Map<string, LabeledStatement>): Statement[] | undefined {
@@ -361,9 +370,8 @@ export class Verifier {
         const proof: Statement[] | undefined = proofCompressor.DecompressProof(provableStatement, labelToStatementMap);
         if (proofCompressor.failed) {
             const message = `The proof of ${provableStatement.Label} , cannot be uncompressed`;
-            const range: Range = oneCharacterRange({ line: 0, character: 0 });
             const code = MmParserErrorCode.assertionProvenDoesntMatch;
-            this.addDiagnosticError(message, range, code);
+            this.addDiagnosticError(message, provableStatement, code);
         }
         return proof;
     }

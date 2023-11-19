@@ -30,7 +30,8 @@ export enum MmParserErrorCode {
     eHypDoesntMatchTheStackEntry = "eHypDoesntMatchTheStackEntry",
     missingDjVarsStatement = "missingDjVarsStatement",
     missingCloseParenthesisInPStatement = "missingCloseParenthesisInPStatement",
-    notALabelOfAssertionOrOptionalHyp = "notALabelOfAssertionOrOptionalHyp"
+    notALabelOfAssertionOrOptionalHyp = "notALabelOfAssertionOrOptionalHyp",
+    labelOfAProvableStatementWithFailedVerification = "labelOfAProvableStatementWithFailedVerification",
 }
 
 export enum MmParserEvents {
@@ -50,6 +51,11 @@ export type ParsingProgressArgs = {
     progressToken: string
 }
 
+export interface MmDiagnostic extends Diagnostic {
+    /** when defined, it is the label of the ProvableStatement of the proof the raises the Diagnostic */
+    provableStatementLabel?: string
+}
+
 // Parser for .mm files
 export class MmParser extends EventEmitter {
     //    blockStack: BlockStack
@@ -61,7 +67,7 @@ export class MmParser extends EventEmitter {
     lastComment: string;
     isParsingComplete = false;
 
-    diagnostics: Diagnostic[] = [];
+    diagnostics: MmDiagnostic[] = [];
 
     parseFailed: boolean;  // true iff parsing/validation fails
 
@@ -130,11 +136,12 @@ export class MmParser extends EventEmitter {
     }
 
     public static addDiagnosticError(message: string, range: Range, code: MmParserErrorCode,
-        diagnostics: Diagnostic[]) {
-        const diagnostic: Diagnostic = {
+        diagnostics: MmDiagnostic[], provableStatementLabel?: string) {
+        const diagnostic: MmDiagnostic = {
             message: message,
             range: range,
-            code: code
+            code: code,
+            provableStatementLabel: provableStatementLabel
         };
         diagnostics.push(diagnostic);
     }

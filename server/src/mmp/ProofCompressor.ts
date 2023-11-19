@@ -72,6 +72,18 @@ export class ProofCompressor {
             MmParserErrorCode.notALabelOfAssertionOrOptionalHyp, this.diagnostics);
         this.failed = true;
     }
+    private addDiagnosticForLabelOfAProvableStatementWithFailedVerification(
+        provableStatement: ProvableStatement, labelIndex: number) {
+        const labelToken: MmToken = provableStatement.compressedProofLabelsTokens[labelIndex];
+        const message = `Theorem ${provableStatement.Label} : Provable statement ${labelToken.value} is in the ` +
+            `theory, but its veriication failed`;
+        MmParser.addDiagnosticError(message, labelToken.range,
+            MmParserErrorCode.labelOfAProvableStatementWithFailedVerification, this.diagnostics,
+            provableStatement.Label);
+    }
+
+
+
     // adds the labels of the mandatory hyps ad the beginning of the proof labels
     getDecompressedProof(provableStatement: ProvableStatement,
         decompressed_ints: number[], labelToStatementMap: Map<string, LabeledStatement>): Statement[] {
@@ -109,6 +121,9 @@ export class ProofCompressor {
                                 labelToStatementMap, <BlockStatement>provableStatement.ParentBlock);
                             if (statement == undefined)
                                 this.addDiagnosticForNotALabelForAssertion(provableStatement, i);
+                            else if (statement instanceof ProvableStatement && statement.isProofVerificationFailed)
+                                this.addDiagnosticForLabelOfAProvableStatementWithFailedVerification(
+                                    provableStatement, i);
                         } else {
                             i -= labelCount;
                             if (i < zCount) {

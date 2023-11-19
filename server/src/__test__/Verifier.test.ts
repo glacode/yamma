@@ -2,10 +2,10 @@ import { BlockStatement } from "../mm/BlockStatement";
 import { Frame } from "../mm/Frame";
 import { AxiomStatement } from "../mm/AxiomStatement";
 import { ProvableStatement } from "../mm/ProvableStatement";
-import { AreArrayTheSame, dummyRange, dummyToken, splitToTokensDefault } from "../mm/Utils";
+import { AreArrayTheSame, dummyToken, splitToTokensDefault } from "../mm/Utils";
 import { Verifier } from "../mm/Verifier";
 import { FHyp } from '../mm/FHyp';
-import { Range } from 'vscode-languageserver';
+import { MmToken } from '../grammar/MmLexer';
 
 test("stack manipulation in the verification process. Step 5 at page 137 of the Metamath book",
     () => {
@@ -50,9 +50,11 @@ test("checkSubstitutionForStakEHyps1 for ax-mp",
         substitution.set("ps", ["(", "ps", "->", "ch", ")"]);
 
         const verifier: Verifier = new Verifier([]);
-        const range: Range = dummyRange;
+        // const range: Range = dummyRange;
+        const provableStatement: ProvableStatement = new ProvableStatement(
+            new MmToken("dummy",0,0),[],new BlockStatement());
         const areTheSame = verifier.checkSubstitutionForStakEHyps1(
-            eHypInTheStack, frameEHyp, substitution, range);
+            eHypInTheStack, frameEHyp, substitution, provableStatement);
         expect(areTheSame).toBe(true);
     }
 );
