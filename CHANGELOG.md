@@ -13,3 +13,7 @@
 ### Version 0.0.10 (2023-11-14)
 
 * A new 'Create Model' command has been added, enabling users to directly update the model for step suggestions from within the extension.
+
+### Version 0.0.11 (2023-11-26)
+
+* If the theory is invalid, a valid partial theory is loaded anyway: this allows for easier change of signature of existing theorems
