@@ -121,12 +121,11 @@ export class StepSuggestion {
 		return insertReplaceEdit;
 	}
 	sortText(completionItemKind: CompletionItemKind, index: number): string {
+		//TODO1 feb 5 sort using the Wilson Score Confidence Interval
 		const completionItemKindOrder: string = this.completionItemKindOrder.get(completionItemKind)!;
 		const result: string = completionItemKindOrder + String(index).padStart(3, '0');
 		return result;
 	}
-
-
 
 	private addCompletionItemFromModel(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
 		completionItems: CompletionItem[]) {

@@ -18,15 +18,23 @@ function buildRpnSyntaxTree(stringToParse: string, maxLevel: number): string {
 test("test SyntaxTreeClassifierFull", () => {
 	// opthg2 $p | - ((C e.V /\ D e.W ) ->
 	// 	(<.A , B >. = <.C , D >. <-> (A = C /\ B = D ) ) ) $ =
-	let rpnSyntaxTree = buildRpnSyntaxTree('|- ( ph -> ps )', 2);
+	let rpnSyntaxTree = buildRpnSyntaxTree('|- ( ph -> ps )', 0);
+	expect(rpnSyntaxTree).toEqual('TOP');
+	rpnSyntaxTree = buildRpnSyntaxTree('|- ( ph -> ps )', 1);
+	expect(rpnSyntaxTree).toEqual('wi TOP');
+	rpnSyntaxTree = buildRpnSyntaxTree('|- ( ph -> ps )', 2);
 	expect(rpnSyntaxTree).toEqual('wff wff wi TOP');
 	rpnSyntaxTree = buildRpnSyntaxTree('|- ( ph -> ps )', 3);
 	expect(rpnSyntaxTree).toEqual('wff wff wi TOP');
-	rpnSyntaxTree = buildRpnSyntaxTree('|- ( ph -> ps )', 1);
-	expect(rpnSyntaxTree).toEqual('wi TOP');
 	rpnSyntaxTree = buildRpnSyntaxTree('|- ( ( ph -> ps ) -> ch )', 3);
 	expect(rpnSyntaxTree).toEqual('wff wff wi wff wi TOP');
 	rpnSyntaxTree = buildRpnSyntaxTree('|- ( ( C e. V /\\ D e. W ) ->\n' +
 		'( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) ) )', 3);
 	expect(rpnSyntaxTree).toEqual('wcel wcel wa wceq wa wb wi TOP');
+	rpnSyntaxTree = buildRpnSyntaxTree('|- E. x e. A B = B', 1);
+	expect(rpnSyntaxTree).toEqual('wrex TOP');
+	rpnSyntaxTree = buildRpnSyntaxTree('|- E. x e. A ph', 2);
+	expect(rpnSyntaxTree).toEqual('setvar class wff wrex TOP');
+	rpnSyntaxTree = buildRpnSyntaxTree('|- E. x e. A B = B', 2);
+	expect(rpnSyntaxTree).toEqual('setvar class wceq wrex TOP');
 });
