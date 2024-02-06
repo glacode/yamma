@@ -144,7 +144,6 @@ connection.onInitialize((params: InitializeParams) => {
 connection.onRequest('yamma/storemmt', async (pathAndUri: PathAndUri) => {
 	if (globalState.mmParser != undefined) {
 		const text: string = <string>documents.get(pathAndUri.uri)?.getText();
-		//TODO1 21 AUG 2023 add IMmpLabelMapCreator (based on configuration)
 		//TODO1 21 AUG 2023 remove the hardcoded test below
 		// const hardCodedLabelSequence: string[] = [
 		// 	"cpi", "co", "wceq", "wcel", "a1i", "cc0", "cr", "c4", "cdiv", "cn", "c2", "cmul", "c1", "cmin",

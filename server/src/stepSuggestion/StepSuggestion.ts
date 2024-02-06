@@ -12,6 +12,7 @@ import { IStepSuggestion } from './ModelBuilder';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { IFormulaClassifier } from './IFormulaClassifier';
 import { StepSuggestionMap } from './StepSuggestionMap';
+import { WilsonScoreArgs, calculateWilsonScore } from './WilsonScore';
 
 
 export class StepSuggestion {
@@ -127,10 +128,22 @@ export class StepSuggestion {
 		return result;
 	}
 
-	private addCompletionItemFromModel(stepSuggestion: IStepSuggestion, index: number, totalMultiplicity: number,
+	private getWilsonScore(stepSuggestionMultiplicity: number, totalMultiplicity: number): number {
+		const wilsonScoreArgs: WilsonScoreArgs = {
+			totalVotes: totalMultiplicity,
+			upVotes: stepSuggestionMultiplicity
+		};
+		const wilsonInterval = calculateWilsonScore(wilsonScoreArgs);
+		return wilsonInterval.leftSide;
+	}
+	private addCompletionItemFromModel(stepSuggestion: IStepSuggestion, _index: number, totalMultiplicity: number,
 		completionItems: CompletionItem[]) {
-		const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
-		const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
+		// const relativeMultiplicity: number = stepSuggestion.multiplicity / totalMultiplicity;
+		const wilsonScore: number = this.getWilsonScore(stepSuggestion.multiplicity, totalMultiplicity);
+		const strWilsonScore: string = wilsonScore.toFixed(2);
+		// const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
+		// TODO1 feb 6 add modelId in the detail below
+		const detail = `wscore: ${strWilsonScore}  -  ${stepSuggestion.multiplicity}/${totalMultiplicity}`;
 		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(stepSuggestion.label);
 		const completionItem: CompletionItem = {
 			label: stepSuggestion.label,
@@ -138,7 +151,8 @@ export class StepSuggestion {
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
 			// sortText: String(index).padStart(3, '0'),
-			sortText: this.sortText(stepSuggestion.completionItemKind, index),
+			// sortText: this.sortText(stepSuggestion.completionItemKind, index),
+			sortText: (1 - wilsonScore).toFixed(4),
 			textEdit: insertReplaceEdit,
 			kind: stepSuggestion.completionItemKind
 			// data: symbol

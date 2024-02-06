@@ -1,6 +1,7 @@
 export interface WilsonScoreArgs {
-	votes: number;
-	averageRating: number;
+	totalVotes: number;
+	upVotes: number;
+	// averageRating: number;
 }
 
 export interface WilsonScoreInterval {
@@ -10,8 +11,8 @@ export interface WilsonScoreInterval {
 
 export function calculateWilsonScore(wilsonScoreArgs: WilsonScoreArgs): WilsonScoreInterval {
 	const z = 1.96; // 95% confidence interval
-	const n = wilsonScoreArgs.votes;
-	const p = wilsonScoreArgs.averageRating;
+	const n = wilsonScoreArgs.totalVotes;
+	const p = wilsonScoreArgs.upVotes / wilsonScoreArgs.totalVotes;
 
 	const term1 = p + (z * z) / (2 * n);
 	const term2 = z * Math.sqrt((p * (1 - p) + (z * z) / (4 * n)) / n);

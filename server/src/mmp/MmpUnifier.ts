@@ -70,14 +70,10 @@ export class MmpUnifier {
 		this._charactersPerLine = characterPerLine == undefined ? Parameters.charactersPerLine : characterPerLine;
 		this._mmpCompressedProofCreator = mmpCompressedProofCreator != undefined ? mmpCompressedProofCreator :
 			// new MmpCompressedProofCreatorFromUncompressedProof();
-			//TODO1 30 OTT 2023
 			// new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
 			new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceWithKnapsackLabelMapCreator(4, 79));
 		// new MmpCompressedProofCreatorFromPackedProof();
 
-
-		//TODO1 21 MAY use the range of the last actual statement (now I can't, because not all statements implement
-		//the range property (see interface IMmpStatementWithRange and interface interface IUStatement)
 		this.textLastLine = this.uProof!.lastMmpProofStep != undefined ?
 			this.uProof!.lastMmpProofStep!.range.end.line + 3000 : 3000;
 		this.thrownError = false;

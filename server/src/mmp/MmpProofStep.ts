@@ -371,7 +371,6 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 	}
 	//#endregion proofArrayForFStatements
 
-	//TODO1 1 lug 2023 see if using double arrays and a single concat at the end, you can get better performance
 	/**
 	 * returns a proof for the current step (undefined if there is no proof, yet).
 	 * It assumes that every UProofStep has already been checked for unification
@@ -395,7 +394,8 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 					<UProofStatementStep[]>eHypUStep?.proofArray(outermostBlock);
 				proof = proofForEHypUStep.concat(proof);
 			}
-			const proofArrayForFStatements = this.proofArrayForFStatements(outermostBlock);
+			const proofArrayForFStatements: UProofStatementStep[] =
+				this.proofArrayForFStatements(outermostBlock);
 			proof = proofArrayForFStatements.concat(proof);
 		}
 		return proof;

@@ -109,13 +109,14 @@ test("test 2 SyntaxTreeClassifierFull and SyntaxTreeClassifierImp", () => {
 	expect(completionItems.length).toBe(17);
 	expect(completionItems[0].label).toEqual('id');
 	expect(completionItems[0].kind).toBe(CompletionItemKind.Event);
-	expect(completionItems[0].detail).toEqual('0.50 relative weight   -    5  total');
+	expect(completionItems[0].detail).toEqual('wscore: 0.24  -  5/10');
 	expect(completionItems[1].label).toEqual('con3i');
 	expect(completionItems[1].kind).toBe(CompletionItemKind.Event);
-	expect(completionItems[1].detail).toEqual('0.30 relative weight   -    3  total');
+	// expect(completionItems[1].detail).toEqual('0.30 relative weight   -    3  total');
+	expect(completionItems[1].detail).toEqual('wscore: 0.11  -  3/10');
 	expect(completionItems[5].label).toEqual('a1i');
 	expect(completionItems[5].kind).toBe(CompletionItemKind.Interface);
-	expect(completionItems[5].detail).toEqual('0.13 relative weight   -    3  total');
+	expect(completionItems[5].detail).toEqual('wscore: 0.05  -  3/23');
 });
 
 test("test completion items from partial label", () => {

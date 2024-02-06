@@ -189,7 +189,6 @@ export class MmtLoader {
 			theorem, labeledStatement, defaultRangeForDiagnostics, this.diagnostics);
 		theoremCoherenceChecker.checkCoherence();
 		const isCoherent: boolean = <boolean>theoremCoherenceChecker.isTheoremCoherent;
-		//TODO1 mar 11 add diagnostics theoremCoherenceChecker.diagnostics
 		return isCoherent;
 	}
 	canTheoremBeAdded(fileContent: string): boolean {

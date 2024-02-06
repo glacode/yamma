@@ -951,8 +951,6 @@ test("Compressed proof for opth using MmpHardcodedLabelSequenceCreator", () => {
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-
-//TODO1 21 AUG 2023 use LabelSequenceCreatorLikeMmj2
 test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 	const mmpSource =
 		'\n* test comment\n\n' +
