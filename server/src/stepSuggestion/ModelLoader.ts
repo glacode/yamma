@@ -1,10 +1,16 @@
 import { CompletionItemKind, Connection } from 'vscode-languageserver';
 import { IFormulaClassifier } from './IFormulaClassifier';
-import { StepSuggestionMap } from './StepSuggestionMap';
+import { StepSuggestionMap, StepSuggestionsForFormulaCluster, } from './StepSuggestionMap';
 import * as fs from 'fs';
 import { ModelBuilder } from './ModelBuilder';
 import { notifyWarning } from '../mm/Utils';
 
+export interface IStepSuggestion {
+	completionItemKind: CompletionItemKind,
+	label: string,
+	multiplicity: number,
+	stepSuggestionsForFormulaCluster: StepSuggestionsForFormulaCluster
+}
 
 export class ModelLoader {
 	private mmFilePath: string;

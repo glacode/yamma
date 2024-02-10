@@ -8,11 +8,11 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 import { range } from '../mm/Utils';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { SubstitutionResult, MmpSubstitutionBuilder } from '../mmp/MmpSubstitutionBuilder';
-import { IStepSuggestion } from './ModelBuilder';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { IFormulaClassifier } from './IFormulaClassifier';
 import { StepSuggestionMap } from './StepSuggestionMap';
 import { WilsonScoreArgs, calculateWilsonScore } from './WilsonScore';
+import { IStepSuggestion } from './ModelLoader';
 
 
 export class StepSuggestion {
@@ -143,7 +143,8 @@ export class StepSuggestion {
 		const strWilsonScore: string = wilsonScore.toFixed(2);
 		// const detail = `${relativeMultiplicity.toFixed(2)} relative weight   -    ${stepSuggestion.multiplicity}  total`;
 		// TODO1 feb 6 add modelId in the detail below
-		const detail = `wscore: ${strWilsonScore}  -  ${stepSuggestion.multiplicity}/${totalMultiplicity}`;
+		const detail = `wscore: ${strWilsonScore}  -  ${stepSuggestion.multiplicity}/${totalMultiplicity}  ` +
+			`-  model: ${stepSuggestion.stepSuggestionsForFormulaCluster.formulaClassifierId}`;
 		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(stepSuggestion.label);
 		const completionItem: CompletionItem = {
 			label: stepSuggestion.label,
@@ -163,10 +164,12 @@ export class StepSuggestion {
 	private getCompletionItemsFromStepSuggestions(stepSuggestions: IStepSuggestion[]): CompletionItem[] {
 		const completionItems: CompletionItem[] = [];
 		const unifiableStepSuggestions: IStepSuggestion[] = this.getUnifiableStepSuggestions(stepSuggestions);
-		const totalMultiplicity: number =
-			unifiableStepSuggestions.reduce((sum: number, current: IStepSuggestion) => sum + current.multiplicity, 0);
+		// const totalMultiplicity: number =
+		// 	unifiableStepSuggestions.reduce((sum: number, current: IStepSuggestion) => sum + current.multiplicity, 0);
 		unifiableStepSuggestions.forEach((stepSuggestion: IStepSuggestion, i: number) => {
-			this.addCompletionItemFromModel(stepSuggestion, i, totalMultiplicity, completionItems);
+			this.addCompletionItemFromModel(stepSuggestion, i,
+				stepSuggestion.stepSuggestionsForFormulaCluster.totalMultiplicityForThisCluster,
+				completionItems);
 		});
 		return completionItems;
 	}
@@ -186,6 +189,52 @@ export class StepSuggestion {
 	}
 	//#endregion completionItemsFromClassifier
 
+	//#region getStepSuggestionsFromAllModels
+	addSetSuggestionsForClassifier(formulaClassifier: IFormulaClassifier, stepSuggestions: IStepSuggestion[]) {
+		const formulaClusterId: string | undefined = this.classifyProofStepFormula(formulaClassifier);
+		if (formulaClusterId != undefined) {
+			// the cursor is on a proof step that has a valid parse node
+			const stepSuggestionsFromThisClassifier: IStepSuggestion[] | undefined =
+				this.stepSuggestionMap.getStepSuggestions(formulaClassifier.id, formulaClusterId);
+			if (stepSuggestionsFromThisClassifier != undefined)
+				// the model does have step suggestions, for this classifier and this parse node
+				stepSuggestions.push(...stepSuggestionsFromThisClassifier);
+		}
+	}
+	getStepSuggestionsFromAllModels(): IStepSuggestion[] {
+		const stepSuggestions: IStepSuggestion[] = [];
+		this.formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
+			this.addSetSuggestionsForClassifier(formulaClassifier, stepSuggestions);
+		});
+		return stepSuggestions;
+	}
+	//#endregion getStepSuggestionsFromAllModels
+
+	//#region orderStepSuggestionsByWilsonScore
+	private wilsonScore(stepSuggestion: IStepSuggestion): number {
+		// const totalMultiplicityOfTheClassifier: number =
+		// 	this.getTotalMultiplicity(stepSuggestion.classifierId);
+		const output: number = this.getWilsonScore(stepSuggestion.multiplicity,
+			stepSuggestion.stepSuggestionsForFormulaCluster.totalMultiplicityForThisCluster!);
+		return output;
+	}
+	orderStepSuggestionsByWilsonScore(stepSuggestions: IStepSuggestion[]) {
+		stepSuggestions.sort((a, b) => this.wilsonScore(b) - this.wilsonScore(a));
+	}
+	//#endregion orderStepSuggestionsByWilsonScore
+
+	getStepSuggestionsWithoutDuplication(stepSuggestions: IStepSuggestion[]): IStepSuggestion[] {
+		const stepSuggestionsWithoutDuplication: IStepSuggestion[] = [];
+		const alreadyAddedLabels: Set<string> = new Set<string>();
+		stepSuggestions.forEach((stepSuggestion: IStepSuggestion) => {
+			if (!alreadyAddedLabels.has(stepSuggestion.label)) {
+				stepSuggestionsWithoutDuplication.push(stepSuggestion);
+				alreadyAddedLabels.add(stepSuggestion.label);
+			}
+		});
+		return stepSuggestionsWithoutDuplication;
+	}
+
 	private getCompletionItemsFromModels(): CompletionItem[] {
 		//TODO this is an example to add a snippet, you will use it later
 		// const testSnippet: CompletionItem = {
@@ -200,13 +249,21 @@ export class StepSuggestion {
 		// };
 		// const completionItemsFromModels: CompletionItem[] = [testSnippet];
 
-		const completionItemsFromModels: CompletionItem[] = [];
-		this.formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
-			const completionItemsFromClassifier: CompletionItem[] =
-				this.completionItemsFromClassifier(formulaClassifier);
-			completionItemsFromModels.push(...completionItemsFromClassifier);
 
-		});
+		const stepSuggestions: IStepSuggestion[] = this.getStepSuggestionsFromAllModels();
+		this.orderStepSuggestionsByWilsonScore(stepSuggestions);
+		const stepSuggestionsWithoutDuplication: IStepSuggestion[] =
+			this.getStepSuggestionsWithoutDuplication(stepSuggestions);
+		const completionItemsFromModels = this.getCompletionItemsFromStepSuggestions(stepSuggestionsWithoutDuplication);
+
+		// const completionItemsFromModels: CompletionItem[] = [];
+		// this.formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
+		// 	const completionItemsFromClassifier: CompletionItem[] =
+		// 		this.completionItemsFromClassifier(formulaClassifier);
+		// 	completionItemsFromModels.push(...completionItemsFromClassifier);
+
+		// });
+
 		return completionItemsFromModels;
 	}
 	//#endregion getCompletionItemsFromModels

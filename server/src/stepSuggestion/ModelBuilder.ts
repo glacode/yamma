@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import { Verifier } from '../mm/Verifier';
 import { ProofCompressor } from '../mmp/ProofCompressor';
 import { GrammarManager } from '../grammar/GrammarManager';
-import { CompletionItemKind, Connection } from 'vscode-languageserver';
+import { Connection } from 'vscode-languageserver';
 import { IFormulaClassifier } from './IFormulaClassifier';
 import { StepSuggestionTripleMap } from './StepSuggestionTripleMap';
 import { MmLexerFromStringArray } from '../grammar/MmLexerFromStringArray';
@@ -17,12 +17,6 @@ import { Grammar, Parser } from 'nearley';
 import { FHyp } from '../mm/FHyp';
 import { EHyp } from '../mm/EHyp';
 import { EventEmitter } from 'stream';
-
-export interface IStepSuggestion {
-	completionItemKind: CompletionItemKind,
-	label: string,
-	multiplicity: number
-}
 
 // export interface ICompletionItemGroup {
 // 	formulaClassifier: IFormulaClassifier,

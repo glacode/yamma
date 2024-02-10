@@ -106,17 +106,20 @@ test("test 2 SyntaxTreeClassifierFull and SyntaxTreeClassifierImp", () => {
 	const stepSuggestion: StepSuggestion = new StepSuggestion(cursorContext, stepSuggestionMap,
 		fomulaClassifiers, mmpProofStep, opelcnMmParser);
 	const completionItems: CompletionItem[] = stepSuggestion.completionItems();
-	expect(completionItems.length).toBe(17);
+	expect(completionItems.length).toBe(13);
 	expect(completionItems[0].label).toEqual('id');
 	expect(completionItems[0].kind).toBe(CompletionItemKind.Event);
-	expect(completionItems[0].detail).toEqual('wscore: 0.24  -  5/10');
+	// notice that below we have 16 because 'bitri' is added to full3 (se comment above for fake suggestion)
+	expect(completionItems[0].detail).toEqual('wscore: 0.14  -  5/16  -  model: full3');
 	expect(completionItems[1].label).toEqual('con3i');
 	expect(completionItems[1].kind).toBe(CompletionItemKind.Event);
-	// expect(completionItems[1].detail).toEqual('0.30 relative weight   -    3  total');
-	expect(completionItems[1].detail).toEqual('wscore: 0.11  -  3/10');
-	expect(completionItems[5].label).toEqual('a1i');
-	expect(completionItems[5].kind).toBe(CompletionItemKind.Interface);
-	expect(completionItems[5].detail).toEqual('wscore: 0.05  -  3/23');
+	expect(completionItems[1].detail).toEqual('wscore: 0.07  -  3/16  -  model: full3');
+	expect(completionItems[2].label).toEqual('a1i');
+	expect(completionItems[2].kind).toBe(CompletionItemKind.Interface);
+	expect(completionItems[2].detail).toEqual('wscore: 0.05  -  3/23  -  model: imp2');
+	expect(completionItems[5].label).toEqual('nsyl');
+	expect(completionItems[5].kind).toBe(CompletionItemKind.Event);
+	expect(completionItems[5].detail).toEqual('wscore: 0.01  -  1/16  -  model: full3');
 });
 
 test("test completion items from partial label", () => {
@@ -164,20 +167,20 @@ test("test completion items from partial label", () => {
 	// I've not checked that the results below are correct (it would be too time consuming to do),
 	// but they are returned by a test 'on the field' and are coherent with what I would expect.
 	// I've inclueded these tests to get an alert if things are unwittingly changed.
-	expect(completionItems.length).toBe(21);
-	expect(completionItems[17].label).toEqual('con4i');
-	expect(completionItems[17].kind).toBe(CompletionItemKind.Text);
-	expect(completionItems[17].command).toBeDefined();
-	expect(completionItems[17].detail).toBeUndefined();
-	expect(completionItems[18].label).toEqual('con2i');
-	expect(completionItems[18].kind).toBe(CompletionItemKind.Text);
-	expect(completionItems[18].detail).toBeUndefined();
-	expect(completionItems[19].label).toEqual('con1i');
-	expect(completionItems[19].kind).toBe(CompletionItemKind.Text);
-	expect(completionItems[19].detail).toBeUndefined();
-	expect(completionItems[20].label).toEqual('con3i');
-	expect(completionItems[20].kind).toBe(CompletionItemKind.Text);
-	expect(completionItems[20].detail).toBeUndefined();
+	expect(completionItems.length).toBe(17);
+	expect(completionItems[13].label).toEqual('con4i');
+	expect(completionItems[13].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[13].command).toBeDefined();
+	expect(completionItems[13].detail).toBeUndefined();
+	expect(completionItems[14].label).toEqual('con2i');
+	expect(completionItems[14].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[14].detail).toBeUndefined();
+	expect(completionItems[15].label).toEqual('con1i');
+	expect(completionItems[15].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[15].detail).toBeUndefined();
+	expect(completionItems[16].label).toEqual('con3i');
+	expect(completionItems[16].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[16].detail).toBeUndefined();
 
 });
 
