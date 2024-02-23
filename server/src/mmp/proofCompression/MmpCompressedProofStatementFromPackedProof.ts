@@ -221,19 +221,21 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 				currentRow = ' '.repeat(leftPadding) + label;
 			}
 		});
-		if (currentRow.length < this._charactersPerLine - 3) {
+		if (currentRow.length <= this._charactersPerLine - 3) {
 			// the close parenthesis can be added to the current row
 			currentRow += ' ) ';
 			// text[0]+= currentRow;
-		} else if (currentRow.length == this._charactersPerLine - 3)
-			// the close parenthesis is exactly at the end of the line
-			currentRow += ' )\n';
-		else {
-			// currentRow.length > this._rightMargin - 3
-			// the close parenthesis must be moved to a new row
-			text[0] += currentRow + '\n';
-			const leftPadding: number = this.computeLeftPaddingForTheSecondRow();
-			currentRow = ' '.repeat(leftPadding) + ') ';
+		} else {
+			if (currentRow.length == this._charactersPerLine - 2)
+				// the close parenthesis is exactly at the end of the line
+				currentRow += ' )';
+			else {
+				// currentRow.length > this._rightMargin - 2
+				// the close parenthesis must be moved to a new row
+				text[0] += currentRow + '\n';
+				const leftPadding: number = this.computeLeftPaddingForTheSecondRow();
+				currentRow = ' '.repeat(leftPadding) + ') ';
+			}
 		}
 		return currentRow;
 	}

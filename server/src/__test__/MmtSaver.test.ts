@@ -273,3 +273,39 @@ test('Expect $d constraints with 3 and 4 variables', () => {
 		'  $}\n';
 	expect(textProduced).toEqual(textExpected);
 });
+
+test("Expect NO empty line below the closed parens ", () => {
+	const mmpSource =
+		"$theorem test\n" +
+		"* This is just a test comment\n" +
+		"qed:ax-5 |- ( x e. A -> A. y x e. A )\n" +
+		"$d A y\n" +
+		"$d x y\n";
+	const mmParser: MmParser = new MmParser();
+	mmParser.ParseText(theoryToTestDjVarViolation);
+	const mmtSaverArgs: MmtSaverArgs = {
+		textDocumentPath: '',
+		documentContentInTheEditor: '',
+		mmParser: mmParser,
+		leftMargin: 6,
+		charactersPerLine: 22
+	};
+	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
+	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
+	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
+	const textExpected =
+		'  ${\n' +
+		'    $d A y $.\n' +
+		'    $d x y $.\n' +
+		'    $( This is just a\n' +
+		'       test comment $)\n' +
+		'    test $p |- ( x e.\n' +
+		'       A -> A. y x e.\n' +
+		'       A ) $=\n' +
+		'      ( cv wcel ax-5 )\n' +
+		'      ADCEBF $.\n' +
+		'  $}\n';
+
+	expect(textProduced).toEqual(textExpected);
+
+});
