@@ -17,3 +17,11 @@
 ### Version 0.0.11 (2023-11-26)
 
 * If the theory is invalid, a valid partial theory is loaded anyway: this allows for easier change of signature of existing theorems
+
+### Version 0.0.11 (2024-02-24)
+
+* Completion items now are not duplicated and sorted by the Wilson Score
+
+* Removed erroneous empty line in compressed proof formatting (when the parenthesis closing the labels was the last character on its own line)
+
+* Fixed issue with transformation being applied to hypotheses of existing theorems
