@@ -365,7 +365,7 @@ export class MmpProofTransformer {
 				areEHypLabelsToBeTransformed) {
 				currentIndexInEHypLabel = this.transformEHyp(currentMmpStatement, currentIndexInEHypLabel);
 				i++;
-			} else if (currentMmpStatement instanceof MmpProofStep) {
+			} else if (currentMmpStatement instanceof MmpProofStep && !currentMmpStatement.isEHyp) {
 				// !currentMmpStatement.isEHyp
 				i = this.transformUStep(i);
 			} else if (currentMmpStatement instanceof MmpGetProofStatement) {

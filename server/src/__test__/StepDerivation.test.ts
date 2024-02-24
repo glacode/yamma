@@ -469,3 +469,30 @@ test('Step derivation at step 3 must not be tried because there is no formula', 
 		'qed::b             |- ch\n';
 	expect(textEdit.newText).toEqual(expectedText);
 });
+
+test('Step derivation should NOT change the h2 label with nfv', () => {
+	const mmpSource =
+		'$theorem nfxfr\n' +
+		'* Justa a test comment\n' +
+		'h1::nfbii.1          |- ( ph <-> ps )\n' +
+		'h2::nfxfr.2         |- F/ x ps\n' +
+		'3:1:nfbii           |- ( F/ x ph <-> F/ x ps )\n' +
+		'qed:2,3:mpbir      |- F/ x ph\n';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 100);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText =
+		'$theorem nfxfr\n' +
+		'\n' +
+		'* Justa a test comment\n' +
+		'\n' +
+		'h1::nfbii.1          |- ( ph <-> ps )\n' +
+		'h2::nfxfr.2         |- F/ x ps\n' +
+		'3:1:nfbii           |- ( F/ x ph <-> F/ x ps )\n' +
+		'qed:2,3:mpbir      |- F/ x ph\n\n' +
+		'$=    wph vx wnf wps vx wnf nfxfr.2 wph wps vx nfbii.1 nfbii mpbir $.\n\n';
+	expect(textEdit.newText).toEqual(expectedText);
+});
