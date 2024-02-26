@@ -7,7 +7,7 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { StepSuggestion } from '../stepSuggestion/StepSuggestion';
 import { StepSuggestionMap } from '../stepSuggestion/StepSuggestionMap';
-import { impbiiMmParser, kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
+import { formulaClassifiersForTest, impbiiMmParser, kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
 
 test("test 1 SyntaxTreeClassifierFull", () => {
 	// 	50::df-c             |- CC = ( R. X. R. )
@@ -29,7 +29,7 @@ test("test 1 SyntaxTreeClassifierFull", () => {
 	const stepSuggestionMap: StepSuggestionMap = new StepSuggestionMap();
 	//full3,cop cxp wcel wcel wcel wa wb TOP,opelxp,1
 
-	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
+	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersForTest();
 	stepSuggestionMap.add('full3', CompletionItemKind.Event,
 		'cop cxp wcel wcel wcel wa wb TOP', 'bitri', 1);
 	stepSuggestionMap.add('full3', CompletionItemKind.Event,
@@ -63,7 +63,7 @@ test("test 2 SyntaxTreeClassifierFull and SyntaxTreeClassifierImp", () => {
 	const stepSuggestionMap: StepSuggestionMap = new StepSuggestionMap();
 	//full3,cop cxp wcel wcel wcel wa wb TOP,opelxp,1
 
-	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
+	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersForTest();
 	// full3,wff wn wff wn wi TOP,id,5
 	// full3,wff wn wff wn wi TOP,con3i,3
 	// full3,wff wn wff wn wi TOP,a1i,1
@@ -136,7 +136,7 @@ test("test completion items from partial label", () => {
 	const stepSuggestionMap: StepSuggestionMap = new StepSuggestionMap();
 	//full3,cop cxp wcel wcel wcel wa wb TOP,opelxp,1
 
-	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
+	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersForTest();
 
 	stepSuggestionMap.add('full3', CompletionItemKind.Event, 'wff wn wff wn wi TOP', 'id', 5);
 	stepSuggestionMap.add('full3', CompletionItemKind.Event, 'wff wn wff wn wi TOP', 'con3i', 3);

@@ -1,7 +1,8 @@
 import { CompletionItemKind } from 'vscode-languageserver';
-import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
+import { IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { IStepSuggestion, ModelLoader } from '../stepSuggestion/ModelLoader';
 import { StepSuggestionMap, StepSuggestionsForClassifier } from '../stepSuggestion/StepSuggestionMap';
+import { formulaClassifiersForTest } from './GlobalForTest.test';
 
 /**
  * This class is used to test protected methods
@@ -13,7 +14,7 @@ class TestModelLoader extends ModelLoader {
 }
 
 test("test 1 ModelLoader", () => {
-	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
+	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersForTest();
 	const modelLoader: TestModelLoader = new TestModelLoader('', fomulaClassifiers);
 	const model: string =
 		'full3,wff wff wi TOP,id,15\n' +

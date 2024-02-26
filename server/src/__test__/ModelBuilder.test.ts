@@ -1,21 +1,21 @@
-import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
+import { IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { ModelBuilder } from '../stepSuggestion/ModelBuilder';
 import { StepSuggestionTripleMap } from '../stepSuggestion/StepSuggestionTripleMap';
-import { fullPathForTestFile } from './GlobalForTest.test';
+import { formulaClassifiersForTest, fullPathForTestFile } from './GlobalForTest.test';
 
 /**
  * This class is used to test protected methods
  */
- class TestModelBuilder extends ModelBuilder {
+class TestModelBuilder extends ModelBuilder {
 	public buildStepSuggestionTripleMap() {
 		return super.buildStepSuggestionTripleMap();
 	}
 }
 
 test("test 1 ModelBuilder for opelcn.mm", () => {
-	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersExample();
+	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersForTest();
 	const mmFilePath = fullPathForTestFile('opelcn.mm');
-	const modelBuilder: TestModelBuilder = new TestModelBuilder(mmFilePath, fomulaClassifiers,false);
+	const modelBuilder: TestModelBuilder = new TestModelBuilder(mmFilePath, fomulaClassifiers, false);
 	// modelBuilder.buildModel();
 	modelBuilder.buildStepSuggestionTripleMap();
 	const stepSuggestionTripleMap: StepSuggestionTripleMap = modelBuilder.stepSuggestionTripleMap;

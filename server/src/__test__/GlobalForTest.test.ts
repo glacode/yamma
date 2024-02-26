@@ -3,6 +3,9 @@ import { MmParser } from '../mm/MmParser';
 import * as fs from 'fs';
 import { MmStatistics } from '../mm/MmStatistics';
 import { GlobalState } from '../general/GlobalState';
+import { IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
+import { SyntaxTreeClassifierFull } from '../stepSuggestion/SyntaxTreeClassifierFull';
+import { SyntaxTreeClassifierImp } from '../stepSuggestion/SyntaxTreeClassifierImp';
 
 
 const variableKindsConfiguration: Map<string, IVariableKindConfiguration> = new Map<string, IVariableKindConfiguration>();
@@ -95,3 +98,10 @@ test('impbii ok', () => {
 	expect(impbiiMmParser2.isParsingComplete).toBeTruthy();
 	expect(impbiiMmParser2.parseFailed).toBeFalsy();
 });
+
+export function formulaClassifiersForTest() : IFormulaClassifier[] {
+	const syntaxTreeClassifierFull: SyntaxTreeClassifierFull = new SyntaxTreeClassifierFull(3);
+	const syntaxTreeClassifierImp: SyntaxTreeClassifierImp = new SyntaxTreeClassifierImp(2);
+	const classifiers: IFormulaClassifier[] = [syntaxTreeClassifierFull,syntaxTreeClassifierImp];
+	return classifiers;
+}
