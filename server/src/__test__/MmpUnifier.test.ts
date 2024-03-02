@@ -7,7 +7,7 @@ import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, mp2Theory, vexTheoryMmParser } from './GlobalForTest.test';
+import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
 
 
 const exampleSettings: IExtensionSettings = {
@@ -520,3 +520,26 @@ test("Unify() removes search statements", () => {
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
+
+test("Working vars to be unified in a single step", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'1::0ss             |- &C1 C_ A\n' +
+		'2::eqss            |- ( A = &C1 <-> ( A C_ &C1 /\\ &C2 C_ A ) )\n' +
+		'qed::              |- ch';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'1::0ss             |- (/) C_ A\n' +
+		'2::eqss            |- ( A = (/) <-> ( A C_ (/) /\\ (/) C_ A ) )\n' +
+		'qed::              |- ch\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+

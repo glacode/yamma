@@ -337,7 +337,7 @@ export class MmpSubstitutionBuilder {
 		const startingPairsForMGUAlgorthm: OrderedPairOfNodes[] =
 			workingVarsUnifierInitializer.buildStartingPairsForMGUAlgorithm();
 		const workingVarsUnifierFinder: WorkingVarsUnifierFinder =
-			new WorkingVarsUnifierFinder(startingPairsForMGUAlgorthm, this.outermostBlock.v);
+			new WorkingVarsUnifierFinder(startingPairsForMGUAlgorthm);
 		workingVarsUnifierFinder.findMostGeneralUnifier();
 		const result: boolean = workingVarsUnifierFinder.currentState == UnificationAlgorithmState.complete;
 		this.addDiagnosticsForWorkingVarsIfTheCase(workingVarsUnifierFinder);

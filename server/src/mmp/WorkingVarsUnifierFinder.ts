@@ -38,13 +38,13 @@ export enum UnificationAlgorithmState {
 export class WorkingVarsUnifierFinder {
 
 	currentState: UnificationAlgorithmState | undefined;
-	
+
 	/**
 	 * when the unification is succesfully completed, this substitutionResult will contain
 	 * a Most General Unifier for Working Vars
 	 */
 	mostGeneralUnifierResult: Map<string, InternalNode>;
-	
+
 	/**if the MGU algorith ends in error, this will contain the pair of nodes that gave the occur check error;
 	 * the first node is a node for a working var
 	 */
@@ -64,7 +64,7 @@ export class WorkingVarsUnifierFinder {
 
 	// alreadyReplacedWorkingVars: Set<string>;
 
-	constructor(startingOrderedPairsOfNodes: OrderedPairOfNodes[], private logicalVariables: Set<string>) {
+	constructor(startingOrderedPairsOfNodes: OrderedPairOfNodes[]) {
 		this.currentOrderedPairsOfNodes = startingOrderedPairsOfNodes;
 
 		this.mostGeneralUnifierResult = new Map<string, InternalNode>();
@@ -78,8 +78,9 @@ export class WorkingVarsUnifierFinder {
 	//#region tryToPerformAnActionForCurrentPair
 
 	private isInternalNodeForVariable(parseNode: InternalNode): boolean {
-		const result: boolean = GrammarManager.isInternalParseNodeForWorkingVar(parseNode) ||
-			GrammarManager.isInternalParseNodeForFHyp(parseNode, this.logicalVariables);
+		// const result: boolean = GrammarManager.isInternalParseNodeForWorkingVar(parseNode) ||
+		// 	GrammarManager.isInternalParseNodeForFHyp(parseNode, this.logicalVariables);
+		const result: boolean = GrammarManager.isInternalParseNodeForWorkingVar(parseNode);
 		return result;
 	}
 
@@ -160,17 +161,15 @@ export class WorkingVarsUnifierFinder {
 			this.currentOrderedPairsOfNodes[i].parseNode2 = parseNode1;
 			hasBeenPerformedOneAction = true;
 		} else if (isParseNode1WorkingVar &&
-			this.workingVarsForWhichRule5hasAlreadyBeenApplied.has(GrammarManager.getTokenValueFromInternalNode(parseNode1)) &&
-			// this.mostGeneralUnifierResult.get(GrammarManager.getWorkingVarFromInternalNode(parseNode1)) == undefined &&
-			// !this.alreadyReplacedWorkingVars.has(GrammarManager.getWorkingVarFromInternalNode(parseNode1)) &&
+			!this.workingVarsForWhichRule5hasAlreadyBeenApplied.has(GrammarManager.getTokenValueFromInternalNode(parseNode1)) &&
 			!(<InternalNode>parseNode2).containsTokenValue(GrammarManager.getTokenValueFromInternalNode(parseNode1))) {
 			//rule 5
 			this.applyRule5(i, parseNode1, parseNode2);
 			hasBeenPerformedOneAction = true;
 		}
 		else if (isParseNode1WorkingVar &&
-			this.mostGeneralUnifierResult.get(GrammarManager.getTokenValueFromInternalNode(parseNode1)) == undefined
-			&& (<InternalNode>parseNode2).containsTokenValue(GrammarManager.getTokenValueFromInternalNode(parseNode1))) {
+			// this.mostGeneralUnifierResult.get(GrammarManager.getTokenValueFromInternalNode(parseNode1)) == undefined &&
+			(<InternalNode>parseNode2).containsTokenValue(GrammarManager.getTokenValueFromInternalNode(parseNode1))) {
 			// rule 6  (the second AND condition above has been added for performance only)
 			this.currentState = UnificationAlgorithmState.occourCheckFailure;
 			this.occourCheckOrderedPair = { parseNode1: parseNode1, parseNode2: parseNode2 };

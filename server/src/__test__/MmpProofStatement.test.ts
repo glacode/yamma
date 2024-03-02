@@ -6,7 +6,7 @@ import { MmpUnifier } from '../mmp/MmpUnifier';
 import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
-import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
+import { elexdMmParser, eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmToken } from '../grammar/MmLexer';
@@ -1056,6 +1056,60 @@ test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 		'$d B x\n' +
 		'$d C x\n' +
 		'$d D x\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+// the following test was introduced because there was a bug when
+// a working var was unified at the last step
+test("Packed proof for working var", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'hd3::test.1         |- x e. A\n' +
+		'd4::elex            |- ( x e. &C1 -> x e. _V )\n' +
+		'qed:d3,d4:ax-mp    |- x e. _V';
+	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
+	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
+	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'hd3::test.1         |- x e. A\n' +
+		'd4::elex            |- ( x e. A -> x e. _V )\n' +
+		'qed:d3,d4:ax-mp    |- x e. _V' +
+		'\n\n' +
+		'$=  vx 1:cv cA wcel 1 cvv wcel test.1 1 cA elex ax-mp $.\n\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+// the following test was introduced because there was a bug when
+// a working var was unified at the last step
+test("Packed proof 2 for working var", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'hd3::test.1         |- x e. A\n' +
+		'd4::elex            |- &W1\n' +
+		'qed:d3,d4:ax-mp    |- x e. _V';
+	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
+	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
+	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'hd3::test.1         |- x e. A\n' +
+		'd4::elex            |- ( x e. A -> x e. _V )\n' +
+		'qed:d3,d4:ax-mp    |- x e. _V' +
+		'\n\n' +
+		'$=  vx 1:cv cA wcel 1 cvv wcel test.1 1 cA elex ax-mp $.\n\n';
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

@@ -796,7 +796,7 @@ export class MmpParser {
 
 	protected checkUnificationOfWorkingVars() {
 		const workingVarsUnifierFinder: WorkingVarsUnifierFinder =
-			new WorkingVarsUnifierFinder(this._orderedPairsOfNodesForMGUalgorithm, this.outermostBlock.v);
+			new WorkingVarsUnifierFinder(this._orderedPairsOfNodesForMGUalgorithm);
 		workingVarsUnifierFinder.findMostGeneralUnifier();
 		if (workingVarsUnifierFinder.currentState == UnificationAlgorithmState.occourCheckFailure) {
 			// the MGU algorithm stopped in error: a Working Var was required to be unified with a

@@ -5,6 +5,7 @@ import { MmpProof } from './MmpProof';
 import { IMmpStatement } from './MmpStatement';
 import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
 import { concatTokenValuesWithSpaces } from '../mm/Utils';
+import { MmpSubstitutionBuilder, SubstitutionResult } from './MmpSubstitutionBuilder';
 
 export class WorkingVarsUnifierApplier {
 	unifier: Map<string, InternalNode>;
@@ -29,7 +30,8 @@ export class WorkingVarsUnifierApplier {
 		}
 	}
 
-	applyUnifierToSingleInternalNode(parseNode: InternalNode, mmpProofStep: MmpProofStep) {
+	applyUnifierToSingleInternalNode(parseNode: InternalNode): boolean {
+		let isParseNodeChanged = false;
 		for (let i = 0; i < parseNode.parseNodes.length; i++) {
 			const child: ParseNode = parseNode.parseNodes[i];
 			if (GrammarManager.isInternalParseNodeForWorkingVar(child)) {
@@ -38,25 +40,81 @@ export class WorkingVarsUnifierApplier {
 				const substitutionForWorkingVar: InternalNode | undefined = this.unifier.get(workingVar);
 				if (substitutionForWorkingVar != undefined) {
 					parseNode.parseNodes.splice(i, 1, substitutionForWorkingVar);
-					this.invalidateParseNodeCache(mmpProofStep);
-
+					isParseNodeChanged = true;
 				}
-			} else if (child instanceof InternalNode)
-				this.applyUnifierToSingleNode(child, mmpProofStep);
+			} else if (child instanceof InternalNode) {
+				const isChildChanged = this.applyUnifierToSingleInternalNode(child);
+				isParseNodeChanged ||= isChildChanged;
+			}
+		}
+
+		// const length: number = parseNode.parseNodes.length;
+		// // let i = 0;
+		// for (i = 0; i < length; i++) {
+		// 	const child: ParseNode = parseNode.parseNodes[i];
+		// 	if (GrammarManager.isInternalParseNodeForWorkingVar(child)) {
+		// 		// child is an internal node for a Working Var
+		// 		const workingVar: string = GrammarManager.getTokenValueFromInternalNode(<InternalNode>child);
+		// 		const substitutionForWorkingVar: InternalNode | undefined = this.unifier.get(workingVar);
+		// 		if (substitutionForWorkingVar != undefined) {
+		// 			parseNode.parseNodes.splice(i, 1, substitutionForWorkingVar);
+		// 			isParseNodeChanged = true;
+
+		// 		}
+		// 	} else if (child instanceof InternalNode)
+		// 		isParseNodeChanged ||= this.applyUnifierToSingleInternalNode(child);
+		// }
+		return isParseNodeChanged;
+	}
+	// applyUnifierToSingleNode(parseNode: InternalNode | undefined): boolean {
+	// 	let isParseNodeChanged = false;
+	// 	if (parseNode instanceof InternalNode)
+	// 		isParseNodeChanged = this.applyUnifierToSingleInternalNode(parseNode);
+	// 	return isParseNodeChanged;
+	// }
+	//#endregion applyUnifierToSingleNode
+	applyUnifierToSubstitution(mmpProofStep: MmpProofStep) {
+		mmpProofStep.substitution?.forEach((internalNode: InternalNode, logicalVar: string) => {
+			if (GrammarManager.isInternalParseNodeForWorkingVar(internalNode)) {
+				// the substitution substitutes the logical var with a single working var
+				const workingVar: string = GrammarManager.getTokenValueFromInternalNode(internalNode);
+				const substitutionForWorkingVar: InternalNode | undefined = this.unifier.get(workingVar);
+				if (substitutionForWorkingVar != undefined)
+					mmpProofStep.substitution?.set(logicalVar, substitutionForWorkingVar);
+			} else
+				// the substitution is an internal node that may contain some working vars
+				// for which the unifier has found a substitution
+				this.applyUnifierToSingleInternalNode(internalNode);
+		});
+	}
+
+	rebuildSubstitution(mmpProofStep: MmpProofStep) {
+		if (mmpProofStep.assertion != undefined) {
+			const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(mmpProofStep,
+				mmpProofStep.assertion, mmpProofStep.uProof.outermostBlock,
+				mmpProofStep.uProof.workingVars, mmpProofStep.uProof.outermostBlock.grammar!, []);
+			const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
+			if (substitutionResult.hasBeenFound)
+				mmpProofStep.substitution = substitutionResult.substitution!;
 		}
 	}
-	applyUnifierToSingleNode(parseNode: InternalNode | undefined, mmpProofStep: MmpProofStep) {
-		if (parseNode instanceof InternalNode)
-			this.applyUnifierToSingleInternalNode(parseNode, mmpProofStep);
-	}
-	//#endregion applyUnifierToSingleNode
+
 	applyUnifierToProofStep(mmpProofStep: MmpProofStep) {
-		mmpProofStep.eHypUSteps.forEach((eHypUStep: MmpProofStep | undefined) => {
-			if (eHypUStep != undefined)
-				// eHypUStep is a UProofStep
-				this.applyUnifierToSingleNode(eHypUStep.parseNode, mmpProofStep);
-		});
-		this.applyUnifierToSingleNode(mmpProofStep.parseNode, mmpProofStep);
+
+		// mmpProofStep.eHypUSteps.forEach((eHypUStep: MmpProofStep | undefined) => {
+		// 	if (eHypUStep != undefined)
+		// 		// eHypUStep is a UProofStep
+		// 		isParseNodeChanged ||= this.applyUnifierToSingleNode(eHypUStep.parseNode, eHypUStep);
+		// });
+		if (mmpProofStep.parseNode != undefined) {
+			const isParseNodeChanged = this.applyUnifierToSingleInternalNode(mmpProofStep.parseNode);
+			if (isParseNodeChanged) {
+				// the unifier changed at least a working var in the parse node
+				this.invalidateParseNodeCache(mmpProofStep);
+				this.rebuildSubstitution(mmpProofStep);
+				// this.applyUnifierToSubstitution(mmpProofStep);
+			}
+		}
 	}
 	//#endregion applyUnifierToProofStep
 

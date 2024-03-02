@@ -30,7 +30,7 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 	upperCaseLetterSequence: string[];
 
 
-	private _proofInNormalMode: UProofStatementStep[]
+	private _proofInNormalMode?: UProofStatementStep[]
 
 
 	/** maps each label (form mandatory hyps and for step labels) to the corresponding 
@@ -65,7 +65,7 @@ export class MmpCompressedProofStatementFromPackedProof implements IMmpStatement
 
 		//TODO1 18 AUG 2023 this step is slow and is probably not needed (it can be replaced by inspection of this._mmpPackedProofStatement)
 		// see if you can remove it
-		this._proofInNormalMode = <UProofStatementStep[]>this.uProof.lastMmpProofStep!.proofArray(uProof.outermostBlock);
+		// this._proofInNormalMode = <UProofStatementStep[]>this.uProof.lastMmpProofStep!.proofArray(uProof.outermostBlock);
 
 		this._mmpPackedProofStatement = new MmpPackedProofStatement(this.uProof, 80);
 
