@@ -1113,3 +1113,30 @@ test("Packed proof 2 for working var", () => {
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
+
+test("Packed proof 3 for working var", () => {
+	const mmpSource =
+		'\n* test comment\n\n' +
+		'h1::test2.1          |- (/) e. A\n' +
+		'h2::test2.2          |- A = B\n' +
+		'3:1,2:eleqtri       |- (/) e. &C1\n' +
+		'qed:3:elexi        |- (/) e. _V';
+	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
+	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected =
+		'\n* test comment\n\n' +
+		'h1::test2.1          |- (/) e. A\n' +
+		'h2::test2.2          |- A = B\n' +
+		'3:1,2:eleqtri       |- (/) e. B\n' +
+		'qed:3:elexi        |- (/) e. _V\n' +
+		'\n' +
+		'$=  c0 cB c0 cA cB test2.1 test2.2 eleqtri elexi $.\n\n';
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});

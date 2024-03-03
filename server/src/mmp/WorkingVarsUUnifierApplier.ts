@@ -111,10 +111,11 @@ export class WorkingVarsUnifierApplier {
 			if (isParseNodeChanged) {
 				// the unifier changed at least a working var in the parse node
 				this.invalidateParseNodeCache(mmpProofStep);
-				this.rebuildSubstitution(mmpProofStep);
 				// this.applyUnifierToSubstitution(mmpProofStep);
 			}
 		}
+		this.rebuildSubstitution(mmpProofStep);
+
 	}
 	//#endregion applyUnifierToProofStep
 

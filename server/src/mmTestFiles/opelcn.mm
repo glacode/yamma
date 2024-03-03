@@ -4652,6 +4652,11 @@
       HOCHABFAIFOPCJCABKCALM $.
   $}
   ${
+    elexi.1 $e |- A e. B $.
+    elexi $p |- A e. _V $=
+      ( wcel cvv elex ax-mp ) ABDAEDCABFG $.
+  $}
+  ${
     $d x A $.
     
     elisset $p |- ( A e. V -> E. x x = A ) $=
