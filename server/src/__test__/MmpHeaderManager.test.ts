@@ -12,7 +12,8 @@ test('expect default comment to be added', () => {
 		'qed:: |- ch';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0, true);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0,renumber: true });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -34,7 +35,9 @@ test('expect $theorem example to be added', () => {
 		'qed:: |- ch';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0, false, "example");
+	// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0, false, "example");
+	const mmpUnifier: MmpUnifier = new MmpUnifier({mmpParser: mmpParser,proofMode: ProofMode.normal,
+		maxNumberOfHypothesisDispositionsForStepDerivation: 0,expectedTheoremLabel: "example"});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);

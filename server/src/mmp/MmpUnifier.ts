@@ -14,10 +14,16 @@ import { MmpPackedProofStatement } from './proofCompression/MmpPackedProofStatem
 import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from './proofCompression/MmpCompressedProofCreator';
 import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from './proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
 
-// export interface UnifyResult {
-// 	diagnostics: Diagnostic[]
-// 	textEditArray: TextEdit[]
-// }
+interface MmpUnifierArgs {
+	mmpParser: MmpParser;
+	proofMode: ProofMode;
+	maxNumberOfHypothesisDispositionsForStepDerivation: number;
+	renumber?: boolean;
+	expectedTheoremLabel?: string;
+	leftMarginForCompressedProof?: number;
+	characterPerLine?: number;
+	mmpCompressedProofCreator?: IMmpCompressedProofCreator;
+}
 
 // Parser for .mmp files
 export class MmpUnifier {
@@ -28,6 +34,11 @@ export class MmpUnifier {
 	workingVars: WorkingVars;
 	proofMode: ProofMode;
 	private maxNumberOfHypothesisDispositionsForStepDerivation: number;
+
+	private renumber?: boolean
+	private expectedTheoremLabel?: string
+	private leftMarginForCompressedProof?: number
+	private characterPerLine?: number
 
 	/** the final proof produced with by the unify() method */
 	uProof: MmpProof | undefined
@@ -52,30 +63,35 @@ export class MmpUnifier {
 
 
 	//#region constructor
-	constructor(mmpParser: MmpParser, proofMode: ProofMode,
-		maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		private renumber?: boolean, private expectedTheoremLabel?: string,
-		private leftMarginForCompressedProof?: number,
-		private characterPerLine?: number,
-		mmpCompressedProofCreator?: IMmpCompressedProofCreator) {
-		// private labelSequenceCreator?: ILabelMapCreatorForCompressedProof) {
-		// this.textDocument = textDocument
-		this.mmpParser = mmpParser;
-		this.uProof = mmpParser.mmpProof;
-		this.outermostBlock = mmpParser.outermostBlock;
-		this.grammar = mmpParser.grammar;
-		this.workingVars = mmpParser.workingVars;
-		this.proofMode = proofMode;
-		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
-		this._charactersPerLine = characterPerLine == undefined ? Parameters.charactersPerLine : characterPerLine;
-		this._mmpCompressedProofCreator = mmpCompressedProofCreator != undefined ? mmpCompressedProofCreator :
+	// constructor(mmpParser: MmpParser, proofMode: ProofMode,
+	// 	maxNumberOfHypothesisDispositionsForStepDerivation: number,
+	// 	private renumber?: boolean, private expectedTheoremLabel?: string,
+	// 	private leftMarginForCompressedProof?: number,
+	// 	private characterPerLine?: number,
+	// 	mmpCompressedProofCreator?: IMmpCompressedProofCreator) {
+	constructor(args: MmpUnifierArgs) {
+		this.mmpParser = args.mmpParser;
+		this.uProof = args.mmpParser.mmpProof;
+		this.outermostBlock = args.mmpParser.outermostBlock;
+		this.grammar = args.mmpParser.grammar;
+		this.workingVars = args.mmpParser.workingVars;
+		this.proofMode = args.proofMode;
+		this.maxNumberOfHypothesisDispositionsForStepDerivation = args.maxNumberOfHypothesisDispositionsForStepDerivation;
+		this.renumber = args.renumber;
+		this.expectedTheoremLabel = args.expectedTheoremLabel;
+		this.leftMarginForCompressedProof = args.leftMarginForCompressedProof;
+		this.characterPerLine = args.characterPerLine;
+
+		this._charactersPerLine = args.characterPerLine == undefined ? Parameters.charactersPerLine : args.characterPerLine;
+		this._mmpCompressedProofCreator = args.mmpCompressedProofCreator != undefined ? args.mmpCompressedProofCreator :
 			// new MmpCompressedProofCreatorFromUncompressedProof();
 			// new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
 			new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceWithKnapsackLabelMapCreator(4, 79));
 		// new MmpCompressedProofCreatorFromPackedProof();
 
-		this.textLastLine = this.uProof!.lastMmpProofStep != undefined ?
-			this.uProof!.lastMmpProofStep!.range.end.line + 3000 : 3000;
+		// this.textLastLine = this.uProof!.lastMmpProofStep != undefined ?
+		// 	this.uProof!.lastMmpProofStep!.range.end.line + 3000 : 3000;
+		this.textLastLine = 1000000;
 		this.thrownError = false;
 	}
 

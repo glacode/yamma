@@ -71,9 +71,19 @@ export class MmtSaver {
 	buildUProof(mmpContent: string): MmpProof {
 		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser, this.mmParser.workingVars);
 		mmpParser.parse();
-		const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
-			Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, false, undefined,
-			this.leftMargin, this.charactersPerLine, this.mmpCompressedProofCreator);
+		// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
+		// 	Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, false, undefined,
+		// 	this.leftMargin, this.charactersPerLine, this.mmpCompressedProofCreator);
+		const mmpUnifier: MmpUnifier = new MmpUnifier(
+			{
+				mmpParser: mmpParser, proofMode: ProofMode.compressed,
+				maxNumberOfHypothesisDispositionsForStepDerivation: Parameters.maxNumberOfHypothesisDispositionsForStepDerivation,
+				renumber: false,
+				leftMarginForCompressedProof: this.leftMargin,
+				characterPerLine: this.charactersPerLine,
+				mmpCompressedProofCreator: this.mmpCompressedProofCreator
+			}
+		);
 		mmpUnifier.unify();
 		return mmpUnifier.uProof!;
 	}

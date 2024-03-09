@@ -96,9 +96,11 @@ export function activate(context: ExtensionContext) {
 		client.onNotification('yamma/movecursor', (range: Range) => {
 			const start: Position = new Position(range.start.line, range.start.character);
 			const end: Position = new Position(range.end.line, range.end.character);
-			window.activeTextEditor.selection = new Selection(start, end);
-			const vsCodeRange: VsCodeRange = new VsCodeRange(start, end);
-			window.activeTextEditor.revealRange(vsCodeRange, TextEditorRevealType.Default);
+			if (window.activeTextEditor != undefined) {
+				window.activeTextEditor.selection = new Selection(start, end);
+				const vsCodeRange: VsCodeRange = new VsCodeRange(start, end);
+				window.activeTextEditor.revealRange(vsCodeRange, TextEditorRevealType.Default);
+			}
 		});
 
 		client.onNotification('yamma/triggerSuggest', () => {

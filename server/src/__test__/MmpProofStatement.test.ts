@@ -42,7 +42,8 @@ test("Build proof for mp2", () => {
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -73,7 +74,8 @@ test("Remove existing proof and recreate it", () => {
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -167,8 +169,11 @@ test("Build Compressed proof for mp2", () => {
 	mmpParser.parse();
 	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
-		false, undefined, undefined, undefined, mmpCompressedProofCreator);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			mmpCompressedProofCreator: mmpCompressedProofCreator
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -191,8 +196,12 @@ test("Build Compressed proof for mp2", () => {
 	new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
 	const mmpCompressedProofCreatorSortedByReference: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
-	const mmpUnifierWithSortedByReferenceLabelMapCreator: MmpUnifier = new MmpUnifier(mmpParser2, ProofMode.compressed, 0,
-		false, undefined, undefined, undefined, mmpCompressedProofCreatorSortedByReference);
+	const mmpUnifierWithSortedByReferenceLabelMapCreator: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser2, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			mmpCompressedProofCreator: mmpCompressedProofCreatorSortedByReference
+		});
 	mmpUnifierWithSortedByReferenceLabelMapCreator.unify();
 	const textEditArray2: TextEdit[] = mmpUnifierWithSortedByReferenceLabelMapCreator.textEditArray;
 	expect(textEditArray2.length).toBe(1);
@@ -212,7 +221,8 @@ test("Build Compressed proof for mp2", () => {
 	//below, we expect ( wi ax-mp ) because the default labelMapCreator is a MmpLabelMapCreatorLikeMmj2
 	const mmpParser3: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser3.parse();
-	const mmpUnifierWithDefaultLabelMapCreator: MmpUnifier = new MmpUnifier(mmpParser3, ProofMode.compressed, 0);
+	const mmpUnifierWithDefaultLabelMapCreator: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser3, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifierWithDefaultLabelMapCreator.unify();
 	const textEditArray3: TextEdit[] = mmpUnifierWithDefaultLabelMapCreator.textEditArray;
 	expect(textEditArray3.length).toBe(1);
@@ -254,7 +264,8 @@ test("id - Build Compressed proof for id", () => {
 	parser.ParseText(idTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -277,7 +288,8 @@ test("alnex - Build normal proof for alnex", () => {
 		"qed:50:con2bii |- ( A. x -. ph <-> -. E. x ph )";
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -300,7 +312,8 @@ test("vex - Build normal proof for vex", () => {
 		"qed:50,52:mpbir |- x e. _V";
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -340,8 +353,12 @@ test("vex - Build Compressed proof for vex", () => {
 	mmpParser.parse();
 	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
-		undefined, undefined, undefined, undefined, mmpCompressedProofCreator);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			mmpCompressedProofCreator: mmpCompressedProofCreator
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -368,7 +385,8 @@ test("Build normal proof for use of ax-5", () => {
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -391,7 +409,8 @@ test("Expect proof not to be produced for Disj Var Violation", () => {
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
 	// 	parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
 	mmpUnifier.unify();
@@ -414,7 +433,8 @@ test("Expect 2 proof not to be produced for missing Disj Var statement", () => {
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -435,7 +455,8 @@ test("Build compressed proof for use of ax-5", () => {
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -470,8 +491,11 @@ test("Format equvinv compressed proof", () => {
 	mmpParser.parse();
 	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
-		undefined, undefined, undefined, undefined, mmpCompressedProofCreator);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0, mmpCompressedProofCreator: mmpCompressedProofCreator
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -499,8 +523,12 @@ test("Format equvinv compressed proof", () => {
 	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 
-	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.compressed, 0, false, undefined,
-		undefined, 30, mmpCompressedProofCreator);
+	const mmpUnifier2 = new MmpUnifier(
+		{
+			mmpParser: mmpParser2, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0, characterPerLine: 30,
+			mmpCompressedProofCreator: mmpCompressedProofCreator
+		});
 	mmpUnifier2.unify();
 
 	const newTextExpected2 =
@@ -548,7 +576,8 @@ test("Format equvinv uncompressed proof", () => {
 		'$d y z\n';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -586,7 +615,11 @@ test("Format equvinv uncompressed proof", () => {
 	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 
-	const mmpUnifier2 = new MmpUnifier(mmpParser2, ProofMode.normal, 0, undefined, undefined, undefined, 29);
+	const mmpUnifier2 = new MmpUnifier(
+		{
+			mmpParser: mmpParser2, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0, characterPerLine: 29
+		});
 	mmpUnifier2.unify();
 
 	const newTextExpected2 =
@@ -651,7 +684,8 @@ test("Build proof for abid", () => {
 	const proofArray: UProofStatementStep[] = phParseNode.proofArray(mmpParser.outermostBlock, mmpParser.grammar);
 	const proofString: string[] = UProofStatement.labelsArray(proofArray);
 	expect(proofString).toEqual(["vx", "cv", "wph", "vx", "cab", "wcel"]);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -674,7 +708,8 @@ test("Packed proof for eqeq1", () => {
 		'qed:1:eqeq1d      |- ( A = B -> ( A = C <-> B = C ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -696,7 +731,8 @@ test("Packed proof for id", () => {
 		'qed:50,51:mpd      |- ( ph -> ph )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -727,7 +763,8 @@ test("Packet proof for elabgf", () => {
 		'				    |- ( A e. B -> ( A e. { x | ph } <-> ps ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -761,7 +798,8 @@ test("Packed proof for opelcn", () => {
 		'qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -787,7 +825,7 @@ test("MmpSortedByReferenceLabelMapCreator", () => {
 		'qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier({ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const labelMapCreator: ILabelMapCreatorForCompressedProof =
 		new MmpSortedByReferenceLabelMapCreator();
@@ -896,8 +934,12 @@ test("Compressed proof for opth using MmpHardcodedLabelSequenceCreator", () => {
 	// 	new MmpCompressedProofCreatorFromUncompressedProof(labelSequenceCreator);
 	const compressedProofCreator: IMmpCompressedProofCreator =
 		new MmpCompressedProofCreatorFromPackedProof(labelMapCreator);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
-		undefined, undefined, undefined, undefined, compressedProofCreator);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			mmpCompressedProofCreator: compressedProofCreator
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -1005,8 +1047,12 @@ test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 	const compressedProofCreator: IMmpCompressedProofCreator =
 		new MmpCompressedProofCreatorFromPackedProof(labelMapCreator);
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0);
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
-		undefined, undefined, undefined, undefined, compressedProofCreator);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			mmpCompressedProofCreator: compressedProofCreator
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -1072,7 +1118,8 @@ test("Packed proof for working var", () => {
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -1099,7 +1146,8 @@ test("Packed proof 2 for working var", () => {
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -1125,7 +1173,8 @@ test("Packed proof 3 for working var", () => {
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.packed, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.packed,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);

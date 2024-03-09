@@ -77,10 +77,13 @@ mmpParser.parse();
 consoleLogWithTimestamp('mmpParser end');
 
 
-// const compressedProofCreator: IMmpCompressedProofCreator =
-// 	new MmpCompressedProofCreatorFromUncompressedProof(labelSequenceCreator);
-const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
-	undefined, undefined, undefined, undefined, new MmpCompressedProofCreatorFromPackedProof());
+// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed, 0,
+// 	undefined, undefined, undefined, undefined, new MmpCompressedProofCreatorFromPackedProof());
+const mmpUnifier: MmpUnifier = new MmpUnifier(
+	{
+		mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+		mmpCompressedProofCreator: new MmpCompressedProofCreatorFromPackedProof()
+	});
 
 consoleLogWithTimestamp('mmpUnifier begin');
 mmpUnifier.unify();

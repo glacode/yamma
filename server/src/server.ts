@@ -384,7 +384,8 @@ documents.onDidChangeContent(async change => {
 	// consoleLogWithTimestamp('validateTextDocument mar 12 afer setTimeout');
 	if (globalState.mmParser == undefined)
 		await configurationManager.updateTheoryIfTheCase();
-	await validateTextDocument(change.document);
+	if (globalState.mmParser != undefined)
+		await validateTextDocument(change.document);
 });
 //#endregion onDidChangeContent
 

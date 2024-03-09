@@ -33,7 +33,8 @@ test('buildNewProof()', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	expect(mmpUnifier.uProof!.mmpStatements.length).toBe(3);
 	expect((<MmpProofStep>mmpUnifier.uProof!.mmpStatements[1]).stepLabel).toEqual('ax-mp');
 });
@@ -47,7 +48,8 @@ test('Unify ax-mp', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -69,7 +71,8 @@ test('Unify 2 ax-mp', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -91,7 +94,8 @@ test('Unify 3 ax-mp', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -115,7 +119,8 @@ test('Unify with working var ax-mp', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -138,7 +143,8 @@ test('Unify double ax-mp', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -162,7 +168,8 @@ test('Expect new ref to be d7', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const adjustedIndex: number | undefined = mmpUnifier.uProof?.adjustedStepIndexForThisFormula('|- ph');
 	expect(adjustedIndex).toBe(3);
@@ -186,7 +193,8 @@ test('Expect new working var to be &W4', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -208,7 +216,8 @@ test('Complete ax-mp', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -231,7 +240,8 @@ test('Mgu inolving logical vars on the right side', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -253,7 +263,8 @@ test('Expect unify error to leave line unchanged', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -274,7 +285,8 @@ test('Expect 2 unify error to leave line unchanged', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -292,7 +304,8 @@ test('Expect impbii ref error to leave line unchanged', () => {
 		'qed:5:impbii |- ch';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -310,7 +323,8 @@ test('Expect long label to move the formula to new line', () => {
 		'qed::exactlonglabel |- ch';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -331,7 +345,8 @@ test('Expect ref error to leave line unchanged', () => {
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -351,7 +366,8 @@ test('unify a1i with already present working var', () => {
 	// impbiiMmParser.ParseText(impbiiTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -375,7 +391,8 @@ test('Expect comments to be left unchanged', () => {
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -398,7 +415,8 @@ test('expect2 x to unify with &S1', () => {
 		'qed: |- ch';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(eqeq1iMmParser.labelToStatementMap, eqeq1iMmParser.outermostBlock,
 	// 	eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
 	mmpUnifier.unify();
@@ -421,7 +439,8 @@ test('expect &W1 and &W2 to be unified properly', () => {
 		'qed:d1,d2:ax-mp |- ph\n';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -440,7 +459,8 @@ test('expect ax6ev to be unified without loop', () => {
 		'qed: |- ch\n';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -458,7 +478,8 @@ test('expect ax9v1 to be unified in a single step', () => {
 		'qed: |- ch\n';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -477,7 +498,8 @@ test('expect wrong ref not to throw an exception', () => {
 		'd1:d2,d3a:ax-mp    |- ch\n';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -509,7 +531,8 @@ test("Unify() removes search statements", () => {
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -529,7 +552,8 @@ test("Working vars to be unified in a single step", () => {
 		'qed::              |- ch';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);

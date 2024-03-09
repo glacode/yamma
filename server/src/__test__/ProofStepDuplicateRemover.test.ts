@@ -18,7 +18,8 @@ test('Remove 3rd and 4th proof steps', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -44,7 +45,8 @@ test('Remove 3 after working var unification', () => {
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.normal, 0);
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);

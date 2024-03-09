@@ -63,8 +63,17 @@ export class OnUnifyHandler {
 		const mmpCompressedProofCreator: IMmpCompressedProofCreator =
 			this.buildMmpCompressedProofCreator(labelsOrderInCompressedProof);
 		const mmpUnifier: MmpUnifier =
-			new MmpUnifier(this.mmpParser, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation,
-				this.renumber, expectedTheoremLabel, undefined, undefined, mmpCompressedProofCreator);
+			// new MmpUnifier(this.mmpParser, proofMode, this.maxNumberOfHypothesisDispositionsForStepDerivation,
+			// 	this.renumber, expectedTheoremLabel, undefined, undefined, mmpCompressedProofCreator);
+			new MmpUnifier(
+				{
+					mmpParser: this.mmpParser,
+					proofMode: proofMode,
+					maxNumberOfHypothesisDispositionsForStepDerivation: this.maxNumberOfHypothesisDispositionsForStepDerivation,
+					renumber: this.renumber,
+					expectedTheoremLabel: expectedTheoremLabel,
+					mmpCompressedProofCreator: mmpCompressedProofCreator
+				});
 		// const textToParse: string = textDocument.getText();
 		if (this.mmParser.grammar != undefined)
 			mmpUnifier.unify();
