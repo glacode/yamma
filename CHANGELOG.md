@@ -26,8 +26,12 @@
 
 * Fixed issue with transformation being applied to hypotheses of existing theorems
 
-### Version 0.0.13 (2024-02-24)
+### Version 0.0.13 (2024-03-03)
 
 * Corrected the unification algorithm for Working Vars
 
 * Resolved problems with proof generation occurring in specific cases where a variable was unified at the final step.
+
+### Version 0.0.14 (2024-03-10)
+
+* A couple of runtime errors have been fixed. These fixes enhance the stability and reliability of the extension.
