@@ -56,7 +56,8 @@ export enum MmpParserErrorCode {
 	missingQedStatementForAlreadyExistingTheorem = "missingQedStatementForAlreadyExistingTheorem",
 	doesntMatchTheoryFormula = "doesntMatchTheoryFormula",
 	disjVarConstraintNotInTheTheory = "disjVarConstraintNotInTheTheory",
-	wrongNumberOfEHypsForAlreadyExistingTheorem = "wrongNumberOfEHypsForAlreadyExistingTheorem"
+	wrongNumberOfEHypsForAlreadyExistingTheorem = "wrongNumberOfEHypsForAlreadyExistingTheorem",
+	disjVarWithItself = "disjVarWithItself"
 }
 
 
@@ -456,11 +457,11 @@ export class MmpParser {
 		else if (!this.outermostBlock.v.has(nextProofStepTokens[2].value))
 			// the third symbol is NOT a variable
 			this.addDiagnosticForExpectedVariable(nextProofStepTokens[2]);
-		else if (nextProofStepTokens[1] == nextProofStepTokens[2]) {
+		else if (nextProofStepTokens[1].value == nextProofStepTokens[2].value) {
 			// the two distinct variables are the same
-			const errorMessage = `The two distinct variables are both '${nextProofStepTokens[1]}' : ` +
+			const errorMessage = `The two distinct variables are both '${nextProofStepTokens[1].value}' : ` +
 				`a variable cannot be declared distinct from itself, the two symbols after a $d must be different.`;
-			MmpValidator.addDiagnosticError(errorMessage, nextProofStepTokens[0].range, MmpParserErrorCode.disjVarSyntaxError, this.diagnostics);
+			MmpValidator.addDiagnosticError(errorMessage, nextProofStepTokens[0].range, MmpParserErrorCode.disjVarWithItself, this.diagnostics);
 		}
 		else
 			// there are exactly 2 distinctvariables, after the $d symbol

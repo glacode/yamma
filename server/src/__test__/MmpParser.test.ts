@@ -10,7 +10,7 @@ import { AxiomStatement } from "../mm/AxiomStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { WorkingVars } from '../mmp/WorkingVars';
 import { doesDiagnosticsContain, dummyToken } from '../mm/Utils';
-import { createMmParser, eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
+import { createMmParser, elexdMmParser, eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { VerboseDiagnosticMessageForSyntaxError } from '../mmp/DiagnosticMessageForSyntaxError';
 import { MmParser } from '../mm/MmParser';
@@ -958,6 +958,30 @@ test('expect mmp parsing from mm parser partially succesfull', () => {
 			expect(diagnostic.range.start.character).toBe(0);
 			expect(diagnostic.range.end.line).toBe(0);
 			expect(diagnostic.range.end.character).toBe(4);
+		}
+	});
+});
+
+test('expect self disjoint var error', () => {
+	const mmpSource: string =
+		'\n* A comment\n\n' +
+		'qed:: |- ( x = y -> ( x = z -> y = z ) )\n' +
+		'$d x x\n' +
+		'$d x y';
+	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(2);
+	expect(doesDiagnosticsContain(
+		mmpParser.diagnostics, MmpParserErrorCode.disjVarWithItself)).toBeTruthy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserErrorCode.disjVarWithItself) {
+			const expectedMessage =
+				`The two distinct variables are both 'x' : a variable cannot be declared distinct from itself, the two symbols after a $d must be different.`;
+			expect(diagnostic.message).toEqual(expectedMessage);
+			expect(diagnostic.range.start.line).toBe(4);
+			expect(diagnostic.range.start.character).toBe(0);
+			expect(diagnostic.range.end.line).toBe(4);
+			expect(diagnostic.range.end.character).toBe(2);
 		}
 	});
 });
