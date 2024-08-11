@@ -40,10 +40,11 @@ test('buildNewProof()', () => {
 });
 
 test('Unify ax-mp', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'ax-mp\n' +
-		'qed:: |- ps';
+	const mmpSource = `
+* test comment
+
+ax-mp
+qed:: |- ps`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -53,20 +54,23 @@ test('Unify ax-mp', () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'd2::                |- &W1\n' +
-		'd3::                |- ( &W1 -> &W2 )\n' +
-		'd1:d2,d3:ax-mp     |- &W2\n' +
-		'qed::              |- ps\n';
+	const newTextExpected = `
+* test comment
+
+d2::                |- &W1
+d3::                |- ( &W1 -> &W2 )
+d1:d2,d3:ax-mp     |- &W2
+qed::              |- ps
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Unify 2 ax-mp', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed::ax-mp |- ph';
+	const mmpSource = `
+* test comment
+
+qed::ax-mp |- ph`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -76,11 +80,13 @@ test('Unify 2 ax-mp', () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'd1::                |- &W1\n' +
-		'd2::                |- ( &W1 -> ph )\n' +
-		'qed:d1,d2:ax-mp    |- ph\n';
+const newTextExpected = `
+* test comment
+
+d1::                |- &W1
+d2::                |- ( &W1 -> ph )
+qed:d1,d2:ax-mp    |- ph
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
