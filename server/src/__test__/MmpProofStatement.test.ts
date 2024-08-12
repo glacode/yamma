@@ -31,13 +31,14 @@ import { MmpCompressedProofStatementFromPackedProof } from '../mmp/proofCompress
 
 
 test("Build proof for mp2", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch";
+	const mmpSource = `
+* test comment
+
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -47,29 +48,35 @@ test("Build proof for mp2", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		"h50::mp2.1           |- ph\n" +
-		"h51::mp2.2          |- ps\n" +
-		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp    |- ch\n" +
-		"\n" +
-		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n\n";
+	const newTextExpected = `
+* test comment
+
+h50::mp2.1           |- ph
+h51::mp2.2          |- ps
+h52::mp2.3           |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp      |- ( ps -> ch )
+qed:51,53:ax-mp    |- ch
+
+$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
+
+`;
+
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("Remove existing proof and recreate it", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch\n" +
-		"\n" +
-		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n";
+	const mmpSource = `
+* test comment
+
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch
+
+$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
+`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -79,15 +86,18 @@ test("Remove existing proof and recreate it", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		"h50::mp2.1           |- ph\n" +
-		"h51::mp2.2          |- ps\n" +
-		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp    |- ch\n" +
-		"\n" +
-		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n\n";
+	const newTextExpected = `
+* test comment
+
+h50::mp2.1           |- ph
+h51::mp2.2          |- ps
+h52::mp2.3           |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp      |- ( ps -> ch )
+qed:51,53:ax-mp    |- ch
+
+$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -154,13 +164,14 @@ test("Build Compressed proof for mp2", () => {
 	// 53:50,52:ax-mp     |- ( ps -> ch )
 	// qed:51,53:ax-mp    |- ch
 
-	const mmpSource =
-		'\n* test comment\n\n' +
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch";
+	const mmpSource = `
+* test comment
+
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch`;
 
 	//below, we expect ( ax-mp wi ) because the default labelMapCreator is a MmpFifoLabelMapCreator
 	const parser: MmParser = new MmParser();
@@ -177,16 +188,18 @@ test("Build Compressed proof for mp2", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		"h50::mp2.1           |- ph\n" +
-		"h51::mp2.2          |- ps\n" +
-		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp    |- ch\n" +
-		'\n' +
-		"$= ( wi ax-mp ) BCEABCGDFHH $.\n" +
-		'\n';
+	const newTextExpected = `
+* test comment
+
+h50::mp2.1           |- ph
+h51::mp2.2          |- ps
+h52::mp2.3           |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp      |- ( ps -> ch )
+qed:51,53:ax-mp    |- ch
+
+$= ( wi ax-mp ) BCEABCGDFHH $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 
@@ -205,16 +218,18 @@ test("Build Compressed proof for mp2", () => {
 	mmpUnifierWithSortedByReferenceLabelMapCreator.unify();
 	const textEditArray2: TextEdit[] = mmpUnifierWithSortedByReferenceLabelMapCreator.textEditArray;
 	expect(textEditArray2.length).toBe(1);
-	const newTextExpected2 =
-		'\n* test comment\n\n' +
-		"h50::mp2.1           |- ph\n" +
-		"h51::mp2.2          |- ps\n" +
-		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp    |- ch\n" +
-		'\n' +
-		"$= ( ax-mp wi ) BCEABCHDFGG $.\n" +
-		'\n';
+const newTextExpected2 = `
+* test comment
+
+h50::mp2.1           |- ph
+h51::mp2.2          |- ps
+h52::mp2.3           |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp      |- ( ps -> ch )
+qed:51,53:ax-mp    |- ch
+
+$= ( ax-mp wi ) BCEABCHDFGG $.
+
+`;
 	const textEdit2: TextEdit = textEditArray2[0];
 	expect(textEdit2.newText).toEqual(newTextExpected2);
 
@@ -1174,7 +1189,7 @@ test("Packed proof 3 for working var", () => {
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.packed,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);

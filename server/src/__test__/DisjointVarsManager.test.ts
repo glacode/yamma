@@ -86,10 +86,10 @@ test("Expect y Disjoint Constraint violation", () => {
 test("Parse Disjoint Vars", () => {
 	//Step 59: Substitution (to) vars subject to DjVars restriction by proof step but
 	//not listed as DjVars in theorem to be proved: [<j,ph>, <M,j>, <Z,j>]
-	const mmpSource =
-		"qed:ax-5 |- ( y e. A -> A. x y e. A )\n" +
-		"$d A x\n" +
-		"$d x y";
+const mmpSource = `
+qed:ax-5 |- ( y e. A -> A. x y e. A )
+$d A x
+$d x y`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));

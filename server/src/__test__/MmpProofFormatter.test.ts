@@ -16,13 +16,12 @@ class TestMmpProofFormatter extends MmpProofFormatter {
 }
 
 test("Test MmpProofFormatter.computeIndentationLevels()", () => {
-	const mmpSource =
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch";
-
+const mmpSource = `
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpProofFormatter: TestMmpProofFormatter = new TestMmpProofFormatter(mmpParser.mmpProof!);
@@ -45,15 +44,14 @@ test("Test MmpProofFormatter.computeIndentationLevels()", () => {
 });
 
 test("Test simple indentation", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch";
-	// const parser: MmParser = mp2MmParser;
-	// parser.ParseText(mp2Theory);
+const mmpSource = `
+* test comment
+
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
@@ -61,15 +59,18 @@ test("Test simple indentation", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		"h50::mp2.1           |- ph\n" +
-		"h51::mp2.2          |- ps\n" +
-		"h52::mp2.3           |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp      |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp    |- ch\n" +
-		"\n" +
-		"$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n\n";
+const newTextExpected = `
+* test comment
+
+h50::mp2.1           |- ph
+h51::mp2.2          |- ps
+h52::mp2.3           |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp      |- ( ps -> ch )
+qed:51,53:ax-mp    |- ch
+
+$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

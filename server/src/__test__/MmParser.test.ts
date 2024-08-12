@@ -161,12 +161,6 @@ test("Test vex.mm; expect disj vars for axext3", () => {
 
 
 test("expect opelcnParser to be successfully parsed", () => {
-    // const mmpSource =
-    // 	"h50::mp2.1   |- \n" +
-    // 	"h51::mp2.2  |- ps\n" +
-    // 	"h52::mp2.3   |- ( ph -> ( ps -> ch ) )\n" +
-    // 	"53:50,52:ax-mp |- ( ps -> ch )\n" +
-    // 	"qed:51,53:ax-mp |- ch";
 
     expect(opelcnMmParser.isParsingComplete).toBeTruthy();
     expect(opelcnMmParser.parseFailed).toBeFalsy();

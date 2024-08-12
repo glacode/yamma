@@ -190,12 +190,6 @@ test("Nearly.js for working vars", () => {
 
 
 test("expect statement with working var to be parsed", () => {
-	// const mmpSource =
-	// 	"h50::mp2.1   |- \n" +
-	// 	"h51::mp2.2  |- ps\n" +
-	// 	"h52::mp2.3   |- ( ph -> ( ps -> ch ) )\n" +
-	// 	"53:50,52:ax-mp |- ( ps -> ch )\n" +
-	// 	"qed:51,53:ax-mp |- ch";
 	const mmParser: MmParser = new MmParser(globalState);
 	mmParser.ParseText(mp2Theory);
 	mmParser.grammar.lexer = new MmLexer(new WorkingVars(kindToPrefixMap));

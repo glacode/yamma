@@ -6,12 +6,13 @@ import { IMmpStatement } from '../mmp/MmpStatement';
 import { MmpGetProofStatement } from '../mmp/MmpGetProofStatement';
 
 test('expect fourth statement to be a MmpGetProof', () => {
-	const mmpSource: string =
-		'\n* test comment\n\n' +
-		'h50::hyp1 |- ps\n' +
-		'h51::hyp2 |- ph\n' +
-		'$getproof id\n' +
-		'qed:50,51:ax-mp |- ph';
+const mmpSource = `
+* test comment
+
+h50::hyp1 |- ps
+h51::hyp2 |- ph
+$getproof id
+qed:50,51:ax-mp |- ph`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpProof: MmpProof = mmpParser.mmpProof!;
