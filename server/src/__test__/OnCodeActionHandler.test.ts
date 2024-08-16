@@ -70,9 +70,11 @@ test("Expect 3 CodeAcion(s) ", () => {
 	expect(codeAction2.title).toEqual("Add disjoint var constraint <x,y>");
 	const codeAction3: CodeAction = codeActions[2];
 	expect(codeAction3.title).toEqual("Add all missing disjoint var constraints");
-	const expectedEditTex3 =
-		"\n$d A y\n" +
-		"$d x y\n";
+	const expectedEditTex3 = `
+$d A y
+$d x y
+`;
+
 	const textEdit3: TextEdit = <TextEdit>codeAction3.edit?.changes![testURI][0];
 	expect(textEdit3.newText).toEqual(expectedEditTex3);
 

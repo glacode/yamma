@@ -18,12 +18,13 @@ class OnDidChangeContentHandlerTest extends OnDidChangeContentHandler {
 }
 
 test("Cursor should go to step 53", () => {
-	const mmpSource =
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:        |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch";
+const mmpSource = `\
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:        |- ( ps -> ch )
+qed:51,53:ax-mp |- ch`;
+
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -37,13 +38,14 @@ test("Cursor should go to step 53", () => {
 });
 
 test("Cursor should go to '$='", () => {
-	const mmpSource =
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:        |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch\n" +
-		"$= ( bla bla bla3 ) $.";
+const mmpSource = `\
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:        |- ( ps -> ch )
+qed:51,53:ax-mp |- ch
+$= ( bla bla bla3 ) $.`;
+
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));

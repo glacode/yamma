@@ -6,10 +6,11 @@ import { CursorContext, CursorContextForCompletion } from '../mmp/CursorContext'
 import { CompletionProviderForAfterGetProof } from '../mmp/CompletionProviderForAfterGetProof';
 
 test("CompletionProviderForAfterGetProof 1", () => {
-	const mmpSource: string =
-		'$theorem test\n' +
-		'$getproof \n' +
-		'qed:: |- ph';
+	const mmpSource = `\
+$theorem test
+$getproof 
+qed:: |- ph`;
+
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));

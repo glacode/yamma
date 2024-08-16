@@ -22,12 +22,14 @@ class TestMmtSaver extends MmtSaver {
 }
 
 test("Expect created .mmt text ", () => {
-	const mmpSource =
-		"$theorem test\n" +
-		"* This is just a test comment\n" +
-		"qed:ax-5 |- ( x e. A -> A. y x e. A )\n" +
-		"$d A y\n" +
-		"$d x y\n";
+	const mmpSource = `\
+$theorem test
+* This is just a test comment
+qed:ax-5 |- ( x e. A -> A. y x e. A )
+$d A y
+$d x y
+`;
+
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(theoryToTestDjVarViolation);
 	const mmtSaverArgs: MmtSaverArgs = {
@@ -40,27 +42,30 @@ test("Expect created .mmt text ", () => {
 	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
-	const textExpected =
-		"  ${\n" +
-		"    $d A y $. $d x y $.\n" +
-		"    $( This is just a test comment $)\n" +
-		"    test $p |- ( x e. A -> A. y x e. A ) $=\n" +
-		"      ( cv wcel ax-5 ) ADCEBF $.\n" +
-		"  $}\n";
+	const textExpected = `\
+  \${
+    $d A y $. $d x y $.
+    $( This is just a test comment $)
+    test $p |- ( x e. A -> A. y x e. A ) $=
+      ( cv wcel ax-5 ) ADCEBF $.
+  $}
+`;
+
 
 	expect(textProduced).toEqual(textExpected);
 
 });
 
 test("Expect mmp2 created .mmt text with labels in 'most referenced' order", () => {
-	const mmpSource =
-		"$theorem test\n" +
-		"* This is just a test comment\n" +
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch";
+	const mmpSource = `\
+$theorem test
+* This is just a test comment
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch`;
+
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(mp2Theory);
 	const mmtSaverArgs: MmtSaverArgs = {
@@ -75,29 +80,31 @@ test("Expect mmp2 created .mmt text with labels in 'most referenced' order", () 
 	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 
-	const textExpected =
-		"  ${\n" +
-		"    mp2.1 $e |- ph $.\n" +
-		"    mp2.2 $e |- ps $.\n" +
-		"    mp2.3 $e |- ( ph -> ( ps -> ch ) ) $.\n" +
-		"    $( This is just a test comment $)\n" +
-		"    test $p |- ch $=\n" +
-		"      ( ax-mp wi ) BCEABCHDFGG $.\n" +
-		"  $}\n";
+	const textExpected = `\
+  \${
+    mp2.1 $e |- ph $.
+    mp2.2 $e |- ps $.
+    mp2.3 $e |- ( ph -> ( ps -> ch ) ) $.
+    $( This is just a test comment $)
+    test $p |- ch $=
+      ( ax-mp wi ) BCEABCHDFGG $.
+  $}
+`;
 
 	expect(textProduced).toEqual(textExpected);
 
 });
 
 test("Expect mmp2 created .mmt text with labels in 'FIFO' order", () => {
-	const mmpSource =
-		"$theorem test\n" +
-		"* This is just a test comment\n" +
-		"h50::mp2.1 |- ph\n" +
-		"h51::mp2.2 |- ps\n" +
-		"h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n" +
-		"53:50,52:ax-mp |- ( ps -> ch )\n" +
-		"qed:51,53:ax-mp |- ch";
+	const mmpSource = `\
+$theorem test
+* This is just a test comment
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch`;
+
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(mp2Theory);
 	const mmtSaverArgs: MmtSaverArgs = {
@@ -113,15 +120,17 @@ test("Expect mmp2 created .mmt text with labels in 'FIFO' order", () => {
 	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 
-	const textExpected =
-		"  ${\n" +
-		"    mp2.1 $e |- ph $.\n" +
-		"    mp2.2 $e |- ps $.\n" +
-		"    mp2.3 $e |- ( ph -> ( ps -> ch ) ) $.\n" +
-		"    $( This is just a test comment $)\n" +
-		"    test $p |- ch $=\n" +
-		"      ( wi ax-mp ) BCEABCGDFHH $.\n" +
-		"  $}\n";
+	const textExpected = `\
+  \${
+    mp2.1 $e |- ph $.
+    mp2.2 $e |- ps $.
+    mp2.3 $e |- ( ph -> ( ps -> ch ) ) $.
+    $( This is just a test comment $)
+    test $p |- ch $=
+      ( wi ax-mp ) BCEABCGDFHH $.
+  $}
+`;
+
 
 	expect(textProduced).toEqual(textExpected);
 
@@ -275,12 +284,12 @@ test('Expect $d constraints with 3 and 4 variables', () => {
 });
 
 test("Expect NO empty line below the closed parens ", () => {
-	const mmpSource =
-		"$theorem test\n" +
-		"* This is just a test comment\n" +
-		"qed:ax-5 |- ( x e. A -> A. y x e. A )\n" +
-		"$d A y\n" +
-		"$d x y\n";
+	const mmpSource = `\
+$theorem test
+* This is just a test comment
+qed:ax-5 |- ( x e. A -> A. y x e. A )
+$d A y
+$d x y`;
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(theoryToTestDjVarViolation);
 	const mmtSaverArgs: MmtSaverArgs = {
@@ -293,18 +302,20 @@ test("Expect NO empty line below the closed parens ", () => {
 	// const testMmtSaver: TestMmtSaver = new TestMmtSaver("", '', mmParser, 6, 80);
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
-	const textExpected =
-		'  ${\n' +
-		'    $d A y $.\n' +
-		'    $d x y $.\n' +
-		'    $( This is just a\n' +
-		'       test comment $)\n' +
-		'    test $p |- ( x e.\n' +
-		'       A -> A. y x e.\n' +
-		'       A ) $=\n' +
-		'      ( cv wcel ax-5 )\n' +
-		'      ADCEBF $.\n' +
-		'  $}\n';
+	const textExpected = `\
+  \${
+    $d A y $.
+    $d x y $.
+    $( This is just a
+       test comment $)
+    test $p |- ( x e.
+       A -> A. y x e.
+       A ) $=
+      ( cv wcel ax-5 )
+      ADCEBF $.
+  $}
+`;
+
 
 	expect(textProduced).toEqual(textExpected);
 

@@ -96,11 +96,12 @@ test("SearchStatementCompletionProvider with symbol in EHyp", () => {
 });
 
 test("SearchStatementCompletionProvider for exact string", () => {
-	const mmpSource: string =
-		"h50::hyp1 |- ph\n" +
-		"51::      |- ps\n" +
-		"SearchSymbols: ' ( A X. B ) ' SearchComment: \n" +
-		"qed:: |- ph";
+	const mmpSource = `\
+h50::hyp1 |- ph
+51::      |- ps
+SearchSymbols: ' ( A X. B ) ' SearchComment: 
+qed:: |- ph`;
+
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.mmpProof!.mmpStatements[2];
@@ -113,19 +114,20 @@ test("SearchStatementCompletionProvider for exact string", () => {
 });
 
 test("SearchStatementCompletionProvider with exact match 2 using eHyps also", () => {
-	const mmpSource =
-		'50::       |- ps\n' +
-		'51:        |- ch\n' +
-		'SearchSymbols: \n' +
-		"  '  { x | ph } '   ' A e. V -> '   SearchComment: \n" +
-		'qed::      |- ph\n';
-		const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
-		mmpParser.parse();
-		const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.mmpProof!.mmpStatements[2];
-		const searchStatementCompletionProvider: SearchStatementCompletionProvider =
-			new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, opelcnStatistics);
-		const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
-		expect(completionItems.length).toBe(2);
-		expect(completionItems[0].label).toBe('elabg');
-		expect(completionItems[1].label).toBe('elab2g');
+	const mmpSource = `\
+50::       |- ps
+51:        |- ch
+SearchSymbols: 
+  '  { x | ph } '   ' A e. V -> '   SearchComment: 
+qed::      |- ph
+`;
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.mmpProof!.mmpStatements[2];
+	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
+		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, opelcnStatistics);
+	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
+	expect(completionItems.length).toBe(2);
+	expect(completionItems[0].label).toBe('elabg');
+	expect(completionItems[1].label).toBe('elab2g');
 });
