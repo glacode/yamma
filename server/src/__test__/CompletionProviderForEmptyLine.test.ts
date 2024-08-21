@@ -8,10 +8,10 @@ import { mp2MmParser, kindToPrefixMap } from './GlobalForTest.test';
 
 test("MmpStatement suggestion for empty line", () => {
 	const mmParser: MmParser = mp2MmParser;
-	const mmpSource =
-		'\n' +
-		'\n' +
-		'qed: |- ps';
+	const mmpSource = `\
+
+
+qed: |- ps`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
@@ -30,10 +30,10 @@ test("MmpStatement suggestion for empty line", () => {
 
 test("No suggestion for $theorem, because it is already present", () => {
 	const mmParser: MmParser = mp2MmParser;
-	const mmpSource =
-		'$theorem test\n' +
-		'\n' +
-		'qed: |- ps';
+	const mmpSource = `\
+$theorem test
+
+qed: |- ps`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
@@ -51,11 +51,10 @@ test("No suggestion for $theorem, because it is already present", () => {
 test("MmpStatement suggestion when $ is inserted", () => {
 
 	const mmParser: MmParser = mp2MmParser;
+	const mmpSource = `\
 
-	const mmpSource =
-		'\n' +
-		'$\n' +
-		'qed: |- ps';
+$
+qed: |- ps`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();

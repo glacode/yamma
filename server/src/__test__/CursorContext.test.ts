@@ -4,13 +4,13 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
 
 test('CursorContext 1', () => {
-	const mmpSource =
-		'$theorem impbii\n' +
-		'h50::impbii.1       |- ( ph -> ps )\n' +
-		'SearchSymbols: x y   SearchComment:  \n' +
-		'52::           |- ( ( ph -> ps ) ->\n' +
-		'                       ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
-		'qed:50,51,52:mp2   |- ( ph <->   )';
+	const mmpSource = `\
+$theorem impbii
+h50::impbii.1       |- ( ph -> ps )
+SearchSymbols: x y   SearchComment:  
+52::           |- ( ( ph -> ps ) ->
+                       ( ( ps -> ph ) -> ( ph <-> ps ) ) )
+qed:50,51,52:mp2   |- ( ph <->   )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const cursorContextSearch: CursorContext = new CursorContext(2, 5, mmpParser);

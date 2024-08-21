@@ -6,13 +6,16 @@ import { MmToken } from '../grammar/MmLexer';
 
 
 test('Disj Vars edge clique cover 1', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed:: |- ch\n' +
-		'$d y z\n' +
-		'$d x y\n' +
-		'$d x z\n' +
-		'$d y z\n';
+	const mmpSource = `\
+* test comment
+
+qed:: |- ch
+$d y z
+$d x y
+$d x z
+$d y z
+`;
+
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpDisjVarStatements: MmpDisjVarStatement[] =
@@ -26,14 +29,17 @@ test('Disj Vars edge clique cover 1', () => {
 });
 
 test('Disj Vars edge clique cover 2', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed:: |- ch\n' +
-		'$d x y\n' +
-		'$d y z\n' +
-		'$d x z\n' +
-		'$d z v\n' +
-		'$d y z\n';
+	const mmpSource = `\
+* test comment
+
+qed:: |- ch
+$d x y
+$d y z
+$d x z
+$d z v
+$d y z
+`;
+
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpDisjVarStatements: MmpDisjVarStatement[] =
@@ -57,19 +63,22 @@ test('Disj Vars edge clique cover 3', () => {
 	// whereas mmj2 produces
 
 	// $d A j k x $. $d F k x $. $d k ph x $.
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed:: |- ch\n' +
-		'$d ph x\n' +
-		'$d k x\n' +
-		'$d k ph\n' +
-		'$d j x\n' +
-		'$d j k\n' +
-		'$d F x\n' +
-		'$d F k\n' +
-		'$d A x\n' +
-		'$d A k\n' +
-		'$d A j\n';
+const mmpSource = `
+* test comment
+
+qed:: |- ch
+$d ph x
+$d k x
+$d k ph
+$d j x
+$d j k
+$d F x
+$d F k
+$d A x
+$d A k
+$d A j
+`;
+
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpDisjVarStatements: MmpDisjVarStatement[] =

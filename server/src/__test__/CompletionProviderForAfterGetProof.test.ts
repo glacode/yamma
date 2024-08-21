@@ -32,12 +32,10 @@ qed:: |- ph`;
 });
 
 test("CompletionProviderForAfterGetProof partial label", () => {
-	const mmpSource: string =
-		'$theorem test\n' +
-		'$getproof b\n' +
-		'qed:: |- ph';
-	// const parser: MmParser = new MmParser();
-	// parser.ParseText(axmpTheory);
+	const mmpSource = `\
+$theorem test
+$getproof b
+qed:: |- ph`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
