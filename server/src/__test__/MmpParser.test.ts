@@ -110,13 +110,16 @@ test('proofStepFirstTokenInfo with hyp refs',
 
 
 test('createMmpStatements', () => {
-	const mmptext = '* A double modus ponens inference.\n' +
-		'h50::mp2.1           |- ph\n' +
-		'h51::mp2.2          |- ps\n' +
-		'h52::mp2.3           |-\n' +
-		' ( ph -> ( ps -> ch ) )\n' +
-		'53:50,52:ax-mp      |- ( ps -> ch )\n' +
-		'qed:51,53:ax-mp    |- ch\n';
+	const mmptext = `\
+* A double modus ponens inference.
+h50::mp2.1           |- ph
+h51::mp2.2          |- ps
+h52::mp2.3           |- 
+ ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp      |- ( ps -> ch )
+qed:51,53:ax-mp    |- ch
+`;
+
 	const mmpParser: MmpParser = new MmpParser(mmptext, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpStatements: IMmpStatement[] = <IMmpStatement[]>mmpParser.mmpProof?.mmpStatements;
@@ -340,10 +343,12 @@ test('should be accepted |- x = A ', () => {
 });
 
 test('expect reference statement unification error', () => {
-	const mmpSource: string =
-		'h50::hyp1 |- ps\n' +
-		'h51::hyp2 |- ph\n' +
-		'qed:50,51:ax-mp |- ph';
+	const mmpSource = `\
+h50::hyp1 |- ps
+h51::hyp2 |- ph
+qed:50,51:ax-mp |- ph
+`;
+
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser.labelToStatementMap, parser.outermostBlock, parser.grammar, new WorkingVars(kindToPrefixMap));
@@ -390,9 +395,11 @@ test('expect missing ref error', () => {
 });
 
 test('expect label only to be parsed', () => {
-	const mmpSource =
-		'ax-mp\n' +
-		'qed:: |- ps';
+	const mmpSource = `\
+ax-mp
+qed:: |- ps
+`;
+
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(2);
@@ -419,10 +426,11 @@ test('expect 2 hyp refs', () => {
 });
 
 test('Expect Working Var unification error', () => {
-	const mmpSource =
-		'd1:: |- &W2\n' +
-		'd2:: |- &W2\n' +
-		'qed:d1,d2:ax-mp |- ph';
+	const mmpSource = `\
+d1:: |- &W2
+d2:: |- &W2
+qed:d1,d2:ax-mp |- ph
+`;
 	// const mp2Parser: MmParser = new MmParser();
 	// mp2Parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -453,11 +461,12 @@ test('Expect Working Var unification error', () => {
 });
 
 test('Expect v3x to parse', () => {
-	const mmpSource =
-		'50::equid |- x = x\n' +
-		'51::df-v |- _V = { x | x = x }\n' +
-		'52:51:abeq2i |- ( x e. _V <-> x = x )\n' +
-		'qed:50,52:mpbir |- x e. _V';
+	const mmpSource = `\
+50::equid |- x = x
+51::df-v  |- _V = { x | x = x }
+52:51:abeq2i |- ( x e. _V <-> x = x )
+qed:50,52:mpbir |- x e. _V
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser,
 		new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
@@ -482,13 +491,15 @@ test('Expect v3x to parse', () => {
 // });
 
 test('expect mmp2 proof to be parsed', () => {
-	const mmpSource =
-		'$theorem testname\n' +
-		'h50::mp2.1   |- ph\n' +
-		'h51::mp2.2  |- ps\n' +
-		'h52::mp2.3   |- ( ph -> ( ps -> ch ) )\n' +
-		'53:50,52:ax-mp |- ( ps -> ch )\n' +
-		'qed:51,53:ax-mp |- ch';
+	const mmpSource = `\
+$theorem testname
+h50::mp2.1   |- ph
+h51::mp2.2  |- ps
+h52::mp2.3   |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch
+`;
+
 	// const mp2Parser: MmParser = new MmParser();
 	// mp2Parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -530,9 +541,10 @@ test('expect proper diagnostic proof to be parsed', () => {
 });
 
 test('working vars unification should be parsed with minimal warnings', () => {
-	const mmpSource =
-		'a::a1i |- &W1\n' +
-		'qed:: |- ch';
+	const mmpSource = `\
+a::a1i |- &W1
+qed::  |- ch
+`;
 	// const impbiiMmParser: MmParser = new MmParser();
 	// impbiiMmParser.ParseText(impbiiTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
@@ -543,11 +555,12 @@ test('working vars unification should be parsed with minimal warnings', () => {
 });
 
 test('impbi partial proof should be parsed with minimal warnings', () => {
-	const mmpSource =
-		'd2:: |- &W1\n' +
-		'd3::simprim |- ( &W1 -> ( -. ( ( ph -> ps ) -> -. ( ps -> ph ) ) -> ( ph <-> ps ) ) )\n' +
-		'd1:d2,d3:ax-mp |- ( -. ( ( ph -> ps ) -> -. ( ps -> ph ) ) -> ( ph <-> ps ) )\n' +
-		'qed:d1:expi |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )';
+	const mmpSource = `\
+d2:: |- &W1
+d3::simprim |- ( &W1 -> ( -. ( ( ph -> ps ) -> -. ( ps -> ph ) ) -> ( ph <-> ps ) ) )
+d1:d2,d3:ax-mp |- ( -. ( ( ph -> ps ) -> -. ( ps -> ph ) ) -> ( ph <-> ps ) )
+qed:d1:expi |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )
+`;
 	// const impbiiMmParser: MmParser = new MmParser();
 	// impbiiMmParser.ParseText(impbiiTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
@@ -558,14 +571,15 @@ test('impbi partial proof should be parsed with minimal warnings', () => {
 });
 
 test('proof statement parsed without warnings/errors', () => {
-	const mmpSource =
-		'h50::mp2.1 |- ph\n' +
-		'h51::mp2.2 |- ps\n' +
-		'h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n' +
-		'53:50,52:ax-mp |- ( ps -> ch )\n' +
-		'qed:51,53:ax-mp |- ch\n' +
-		'\n' +
-		'$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.\n';
+	const mmpSource = `\
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch
+
+$=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
+`;
 	// const mp2Parser: MmParser = new MmParser();
 	// mp2Parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -577,10 +591,11 @@ test('proof statement parsed without warnings/errors', () => {
 });
 
 test('expect x to unify with &S1', () => {
-	const mmpSource =
-		'd2:: |- x = &C2\n' +
-		'd1:d2:eqeq1i |- ( &S1 = &C3 <-> &C2 = &C3 )\n' +
-		'qed: |- ch';
+	const mmpSource = `\
+d2:: |- x = &C2
+d1:d2:eqeq1i |- ( &S1 = &C3 <-> &C2 = &C3 )
+qed::  |- ch
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
@@ -591,10 +606,11 @@ test('expect x to unify with &S1', () => {
 });
 
 test('expect no unification error for working vars', () => {
-	const mmpSource =
-		'd1:: |- ( ch -> &W2 )\n' +
-		'd2:: |- ( ( &W1 -> ps ) -> ph )\n' +
-		'qed:d1,d2:ax-mp |- ph\n';
+	const mmpSource = `\
+d1:: |- ( ch -> &W2 )
+d2:: |- ( ( &W1 -> ps ) -> ph )
+qed:d1,d2:ax-mp |- ph
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -605,9 +621,10 @@ test('expect no unification error for working vars', () => {
 });
 
 test('expect vex to be parsed without loop', () => {
-	const mmpSource =
-		'd2::ax6ev |- E. &S1 &W1\n' +
-		'qed: |- ch\n';
+	const mmpSource = `\
+d2::ax6ev |- E. &S1 &W1
+qed::  |- ch
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
@@ -616,12 +633,13 @@ test('expect vex to be parsed without loop', () => {
 });
 
 test('expect 2 already existing (identical) theorem can be added', () => {
-	const mmpSource =
-		'$theorem impbii\n' +
-		'h50::impbii.1       |- ( ph -> ps )\n' +
-		'h51::impbii.2       |- ( ps -> ph )\n' +
-		'52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
-		'qed:50,51,52:mp2   |- ( ph <-> ps )';
+	const mmpSource = `\
+$theorem impbii
+h50::impbii.1       |- ( ph -> ps )
+h51::impbii.2       |- ( ps -> ph )
+52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )
+qed:50,51,52:mp2   |- ( ph <-> ps )
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
@@ -630,12 +648,13 @@ test('expect 2 already existing (identical) theorem can be added', () => {
 });
 
 test('expect first label wrong impbii w.r.t. already existing theorem', () => {
-	const mmpSource =
-		'$theorem impbii\n' +
-		'h50::impbi.1       |- ( ph -> ps )\n' +
-		'h51::impbii.2       |- ( ps -> ph )\n' +
-		'52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
-		'qed:50,51,52:mp2   |- ( ph <-> ps )';
+	const mmpSource = `\
+$theorem impbii
+h50::impbi.1       |- ( ph -> ps )
+h51::impbii.2      |- ( ps -> ph )
+52::impbi          |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )
+qed:50,51,52:mp2   |- ( ph <-> ps )
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
@@ -650,12 +669,13 @@ test('expect first label wrong impbii w.r.t. already existing theorem', () => {
 });
 
 test('expect second label wrong impbii w.r.t. already existing theorem', () => {
-	const mmpSource =
-		'$theorem impbii\n' +
-		'h50::impbii.1       |- ( ph -> ps )\n' +
-		'h51::impbi.2       |- ( ps -> ph )\n' +
-		'52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
-		'qed:50,51,52:mp2   |- ( ph <-> ps )';
+const mmpSource = `\
+$theorem impbii
+h50::impbii.1       |- ( ph -> ps )
+h51::impbi.2        |- ( ps -> ph )
+52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )
+qed:50,51,52:mp2    |- ( ph <-> ps )
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));

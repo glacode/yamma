@@ -15,7 +15,6 @@ $d x y
 $d x z
 $d y z
 `;
-
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpDisjVarStatements: MmpDisjVarStatement[] =
@@ -39,7 +38,6 @@ $d x z
 $d z v
 $d y z
 `;
-
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpDisjVarStatements: MmpDisjVarStatement[] =
