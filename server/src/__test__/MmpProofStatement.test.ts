@@ -440,9 +440,11 @@ $d A y
 });
 
 test("Expect proof not to be produced for Disj Var Violation", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed::ax-5 |- ( y e. A -> A. y y e. A )\n';
+	const mmpSource = `
+* test comment
+
+qed::ax-5 |- ( y e. A -> A. y y e. A )
+`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -457,16 +459,20 @@ test("Expect proof not to be produced for Disj Var Violation", () => {
 	// const newTextExpected =
 	// "qed::ax-5 |- ( x e. A -> A. x x e. A )\n";
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'\n* test comment\n\n' +
-		'qed::ax-5          |- ( y e. A -> A. y y e. A )\n';
+	const expectedText = `
+* test comment
+
+qed::ax-5          |- ( y e. A -> A. y y e. A )
+`;
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
 test("Expect 2 proof not to be produced for missing Disj Var statement", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		"qed::ax-5 |- ( x e. A -> A. y x e. A )\n";
+	const mmpSource = `
+* test comment
+
+qed::ax-5 |- ( x e. A -> A. y x e. A )
+`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
@@ -477,9 +483,12 @@ test("Expect 2 proof not to be produced for missing Disj Var statement", () => {
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'\n* test comment\n\n' +
-		"qed::ax-5          |- ( x e. A -> A. y x e. A )\n";
+	const expectedText = `
+* test comment
+
+qed::ax-5          |- ( x e. A -> A. y x e. A )
+`;
+
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
@@ -517,20 +526,23 @@ $d A y
 });
 
 test("Format equvinv compressed proof", () => {
-	const mmpSource =
-		'$theorem equvinv\n' +
-		'\n* test comment\n\n' +
-		'50::ax6ev            |- E. z z = x\n' +
-		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
-		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
-		'53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )\n' +
-		'54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )\n' +
-		'55::ax7               |- ( z = x -> ( z = y -> x = y ) )\n' +
-		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
-		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
-		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
-		'$d x z\n' +
-		'$d y z\n';
+	const mmpSource = `\
+$theorem equvinv
+
+* test comment
+
+50::ax6ev            |- E. z z = x
+51::equtrr             |- ( x = y -> ( z = x -> z = y ) )
+52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )
+53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )
+54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )
+55::ax7               |- ( z = x -> ( z = y -> x = y ) )
+56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )
+57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )
+qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )
+$d x z
+$d y z
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
@@ -543,24 +555,27 @@ test("Format equvinv compressed proof", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'$theorem equvinv\n' +
-		'\n* test comment\n\n' +
-		'50::ax6ev            |- E. z z = x\n' +
-		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
-		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
-		'53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )\n' +
-		'54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )\n' +
-		'55::ax7               |- ( z = x -> ( z = y -> x = y ) )\n' +
-		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
-		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
-		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
-		'\n' +
-		'$= ( cv wceq wa wex ax6ev equtrr ancld eximdv mpi ax7 imp exlimiv impbii ) ADZB\n' +
-		'   DZEZCDZQEZTREZFZCGZSUACGUDCAHSUAUCCSUAUBABCIJKLUCSCUAUBSCABMNOP $.\n' +
-		'\n' +
-		'$d x z\n' +
-		'$d y z\n';
+	const newTextExpected = `\
+$theorem equvinv
+
+* test comment
+
+50::ax6ev            |- E. z z = x
+51::equtrr             |- ( x = y -> ( z = x -> z = y ) )
+52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )
+53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )
+54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )
+55::ax7               |- ( z = x -> ( z = y -> x = y ) )
+56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )
+57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )
+qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )
+
+$= ( cv wceq wa wex ax6ev equtrr ancld eximdv mpi ax7 imp exlimiv impbii ) ADZB
+   DZEZCDZQEZTREZFZCGZSUACGUDCAHSUAUCCSUAUBABCIJKLUCSCUAUBSCABMNOP $.
+
+$d x z
+$d y z
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 
@@ -575,28 +590,31 @@ test("Format equvinv compressed proof", () => {
 		});
 	mmpUnifier2.unify();
 
-	const newTextExpected2 =
-		'$theorem equvinv\n' +
-		'\n* test comment\n\n' +
-		'50::ax6ev            |- E. z z = x\n' +
-		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
-		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
-		'53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )\n' +
-		'54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )\n' +
-		'55::ax7               |- ( z = x -> ( z = y -> x = y ) )\n' +
-		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
-		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
-		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
-		'\n' +
-		'$= ( cv wceq wa wex ax6ev\n' +
-		'   equtrr ancld eximdv mpi ax7\n' +
-		'   imp exlimiv impbii ) ADZBDZ\n' +
-		'   EZCDZQEZTREZFZCGZSUACGUDCAH\n' +
-		'   SUAUCCSUAUBABCIJKLUCSCUAUBS\n' +
-		'   CABMNOP $.\n' +
-		'\n' +
-		'$d x z\n' +
-		'$d y z\n';
+	const newTextExpected2 = `\
+$theorem equvinv
+
+* test comment
+
+50::ax6ev            |- E. z z = x
+51::equtrr             |- ( x = y -> ( z = x -> z = y ) )
+52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )
+53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )
+54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )
+55::ax7               |- ( z = x -> ( z = y -> x = y ) )
+56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )
+57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )
+qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )
+
+$= ( cv wceq wa wex ax6ev
+   equtrr ancld eximdv mpi ax7
+   imp exlimiv impbii ) ADZBDZ
+   EZCDZQEZTREZFZCGZSUACGUDCAH
+   SUAUCCSUAUBABCIJKLUCSCUAUBS
+   CABMNOP $.
+
+$d x z
+$d y z
+`;
 	expect(mmpUnifier2.textEditArray[0].newText).toEqual(newTextExpected2);
 
 	// Parameters.defaultRightMarginForCompressedProofs = defaultRightMargin;
@@ -604,20 +622,23 @@ test("Format equvinv compressed proof", () => {
 });
 
 test("Format equvinv uncompressed proof", () => {
-	const mmpSource =
-		'$theorem equvinv\n' +
-		'\n* test comment\n\n' +
-		'50::ax6ev            |- E. z z = x\n' +
-		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
-		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
-		'53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )\n' +
-		'54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )\n' +
-		'55::ax7               |- ( z = x -> ( z = y -> x = y ) )\n' +
-		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
-		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
-		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
-		'$d x z\n' +
-		'$d y z\n';
+	const mmpSource = `\
+$theorem equvinv
+
+* test comment
+
+50::ax6ev            |- E. z z = x
+51::equtrr             |- ( x = y -> ( z = x -> z = y ) )
+52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )
+53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )
+54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )
+55::ax7               |- ( z = x -> ( z = y -> x = y ) )
+56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )
+57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )
+qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )
+$d x z
+$d y z
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
@@ -666,43 +687,46 @@ test("Format equvinv uncompressed proof", () => {
 		});
 	mmpUnifier2.unify();
 
-	const newTextExpected2 =
-		'$theorem equvinv\n' +
-		'\n* test comment\n\n' +
-		'50::ax6ev            |- E. z z = x\n' +
-		'51::equtrr             |- ( x = y -> ( z = x -> z = y ) )\n' +
-		'52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )\n' +
-		'53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )\n' +
-		'54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )\n' +
-		'55::ax7               |- ( z = x -> ( z = y -> x = y ) )\n' +
-		'56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )\n' +
-		'57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )\n' +
-		'qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )\n' +
-		'\n' +
-		'$=    vx cv vy cv wceq vz cv\n' +
-		'      vx cv wceq vz cv vy cv\n' +
-		'      wceq wa vz wex vx cv vy\n' +
-		'      cv wceq vz cv vx cv\n' +
-		'      wceq vz wex vz cv vx cv\n' +
-		'      wceq vz cv vy cv wceq\n' +
-		'      wa vz wex vz vx ax6ev\n' +
-		'      vx cv vy cv wceq vz cv\n' +
-		'      vx cv wceq vz cv vx cv\n' +
-		'      wceq vz cv vy cv wceq\n' +
-		'      wa vz vx cv vy cv wceq\n' +
-		'      vz cv vx cv wceq vz cv\n' +
-		'      vy cv wceq vx vy vz\n' +
-		'      equtrr ancld eximdv mpi\n' +
-		'      vz cv vx cv wceq vz cv\n' +
-		'      vy cv wceq wa vx cv vy\n' +
-		'      cv wceq vz vz cv vx cv\n' +
-		'      wceq vz cv vy cv wceq\n' +
-		'      vx cv vy cv wceq vz vx\n' +
-		'      vy ax7 imp exlimiv\n' +
-		'      impbii $.\n' +
-		'\n' +
-		'$d x z\n' +
-		'$d y z\n';
+	const newTextExpected2 = `\
+$theorem equvinv
+
+* test comment
+
+50::ax6ev            |- E. z z = x
+51::equtrr             |- ( x = y -> ( z = x -> z = y ) )
+52:51:ancld           |- ( x = y -> ( z = x -> ( z = x /\\ z = y ) ) )
+53:52:eximdv         |- ( x = y -> ( E. z z = x -> E. z ( z = x /\\ z = y ) ) )
+54:50,53:mpi        |- ( x = y -> E. z ( z = x /\\ z = y ) )
+55::ax7               |- ( z = x -> ( z = y -> x = y ) )
+56:55:imp            |- ( ( z = x /\\ z = y ) -> x = y )
+57:56:exlimiv       |- ( E. z ( z = x /\\ z = y ) -> x = y )
+qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )
+
+$=    vx cv vy cv wceq vz cv
+      vx cv wceq vz cv vy cv
+      wceq wa vz wex vx cv vy
+      cv wceq vz cv vx cv
+      wceq vz wex vz cv vx cv
+      wceq vz cv vy cv wceq
+      wa vz wex vz vx ax6ev
+      vx cv vy cv wceq vz cv
+      vx cv wceq vz cv vx cv
+      wceq vz cv vy cv wceq
+      wa vz vx cv vy cv wceq
+      vz cv vx cv wceq vz cv
+      vy cv wceq vx vy vz
+      equtrr ancld eximdv mpi
+      vz cv vx cv wceq vz cv
+      vy cv wceq wa vx cv vy
+      cv wceq vz vz cv vx cv
+      wceq vz cv vy cv wceq
+      vx cv vy cv wceq vz vx
+      vy ax7 imp exlimiv
+      impbii $.
+
+$d x z
+$d y z
+`;
 	expect(mmpUnifier2.textEditArray[0].newText).toEqual(newTextExpected2);
 
 	// Parameters.defaultRightMarginForNormalProofs = defaultRightMargin;
@@ -714,11 +738,13 @@ test("Format equvinv uncompressed proof", () => {
 // handles properly syntax axioms with variables that don't appear
 // in rpn order
 test("Build proof for abid", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'50::df-clab         |- ( x e. { x | ph } <-> [ x / x ] ph )\n' +
-		'51::sbid            |- ( [ x / x ] ph <-> ph )\n' +
-		'qed:50,51:bitri    |- ( x e. { x | ph } <-> ph )\n';
+	const mmpSource = `
+* test comment
+
+50::df-clab         |- ( x e. { x | ph } <-> [ x / x ] ph )
+51::sbid            |- ( [ x / x ] ph <-> ph )
+qed:50,51:bitri    |- ( x e. { x | ph } <-> ph )
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const qedProofStep: MmpProofStep = <MmpProofStep>mmpParser.mmpProof!.mmpStatements[3];
@@ -733,23 +759,27 @@ test("Build proof for abid", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'50::df-clab         |- ( x e. { x | ph } <-> [ x / x ] ph )\n' +
-		'51::sbid            |- ( [ x / x ] ph <-> ph )\n' +
-		'qed:50,51:bitri    |- ( x e. { x | ph } <-> ph )\n' +
-		'\n' +
-		'$=    vx cv wph vx cab wcel wph vx vx wsb wph wph vx vx df-clab wph vx sbid\n' +
-		'      bitri $.\n\n';
+	const newTextExpected = `
+* test comment
+
+50::df-clab         |- ( x e. { x | ph } <-> [ x / x ] ph )
+51::sbid            |- ( [ x / x ] ph <-> ph )
+qed:50,51:bitri    |- ( x e. { x | ph } <-> ph )
+
+$=    vx cv wph vx cab wcel wph vx vx wsb wph wph vx vx df-clab wph vx sbid
+      bitri $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("Packed proof for eqeq1", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'1::id              |- ( A = B -> A = B )\n' +
-		'qed:1:eqeq1d      |- ( A = B -> ( A = C <-> B = C ) )';
+	const mmpSource = `
+* test comment
+
+1::id              |- ( A = B -> A = B )
+qed:1:eqeq1d      |- ( A = B -> ( A = C <-> B = C ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
@@ -757,22 +787,26 @@ test("Packed proof for eqeq1", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'1::id               |- ( A = B -> A = B )\n' +
-		'qed:1:eqeq1d       |- ( A = B -> ( A = C <-> B = C ) )\n' +
-		'\n' +
-		'$=  cA cB 1:wceq cA cB cC 1 id eqeq1d $.\n\n';
+	const newTextExpected = `
+* test comment
+
+1::id               |- ( A = B -> A = B )
+qed:1:eqeq1d       |- ( A = B -> ( A = C <-> B = C ) )
+
+$=  cA cB 1:wceq cA cB cC 1 id eqeq1d $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("Packed proof for id", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'50::ax-1            |- ( ph -> ( ph -> ph ) )\n' +
-		'51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )\n' +
-		'qed:50,51:mpd      |- ( ph -> ph )';
+	const mmpSource = `
+* test comment
+
+50::ax-1            |- ( ph -> ( ph -> ph ) )
+51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )
+qed:50,51:mpd      |- ( ph -> ph )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
@@ -780,31 +814,35 @@ test("Packed proof for id", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'50::ax-1            |- ( ph -> ( ph -> ph ) )\n' +
-		'51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )\n' +
-		'qed:50,51:mpd      |- ( ph -> ph )\n' +
-		'\n' +
-		'$=  wph wph wph 1:wi wph wph wph ax-1 wph 1 ax-1 mpd $.\n\n';
+	const newTextExpected = `
+* test comment
+
+50::ax-1            |- ( ph -> ( ph -> ph ) )
+51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )
+qed:50,51:mpd      |- ( ph -> ph )
+
+$=  wph wph wph 1:wi wph wph wph ax-1 wph 1 ax-1 mpd $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("Packet proof for elabgf", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'h50::elabgf.1         |- F/_ x A\n' +
-		'h51::elabgf.2        |- F/ x ps\n' +
-		'h52::elabgf.3        |- ( x = A -> ( ph <-> ps ) )\n' +
-		'53::nfab1             |- F/_ x { x | ph }\n' +
-		'54:50,53:nfel        |- F/ x A e. { x | ph }\n' +
-		'55:54,51:nfbi       |- F/ x ( A e. { x | ph } <-> ps )\n' +
-		'56::eleq1            |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )\n' +
-		'57:56,52:bibi12d    |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )\n' +
-		'58::abid            |- ( x e. { x | ph } <-> ph )\n' +
-		'qed:50,55,57,58:vtoclgf\n' +
-		'				    |- ( A e. B -> ( A e. { x | ph } <-> ps ) )';
+	const mmpSource = `
+* test comment
+
+h50::elabgf.1         |- F/_ x A
+h51::elabgf.2        |- F/ x ps
+h52::elabgf.3        |- ( x = A -> ( ph <-> ps ) )
+53::nfab1             |- F/_ x { x | ph }
+54:50,53:nfel        |- F/ x A e. { x | ph }
+55:54,51:nfbi       |- F/ x ( A e. { x | ph } <-> ps )
+56::eleq1            |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )
+57:56,52:bibi12d    |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )
+58::abid            |- ( x e. { x | ph } <-> ph )
+qed:50,55,57,58:vtoclgf
+				    |- ( A e. B -> ( A e. { x | ph } <-> ps ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
@@ -812,34 +850,38 @@ test("Packet proof for elabgf", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'h50::elabgf.1         |- F/_ x A\n' +
-		'h51::elabgf.2        |- F/ x ps\n' +
-		'h52::elabgf.3        |- ( x = A -> ( ph <-> ps ) )\n' +
-		'53::nfab1             |- F/_ x { x | ph }\n' +
-		'54:50,53:nfel        |- F/ x A e. { x | ph }\n' +
-		'55:54,51:nfbi       |- F/ x ( A e. { x | ph } <-> ps )\n' +
-		'56::eleq1            |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )\n' +
-		'57:56,52:bibi12d    |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )\n' +
-		'58::abid            |- ( x e. { x | ph } <-> ph )\n' +
-		'qed:50,55,57,58:vtoclgf\n' +
-		'                   |- ( A e. B -> ( A e. { x | ph } <-> ps ) )\n' +
-		'\n' +
-		'$=  vx 1:cv wph vx 2:cab 3:wcel wph wb cA 2 4:wcel wps wb vx cA cB elabgf.1 4\n' +
-		'    wps vx vx cA 2 elabgf.1 wph vx nfab1 nfel elabgf.2 nfbi 1 cA wceq 3 4 wph\n' +
-		'    wps 1 cA 2 eleq1 elabgf.3 bibi12d wph vx abid vtoclgf $.\n\n';
+	const newTextExpected = `
+* test comment
+
+h50::elabgf.1         |- F/_ x A
+h51::elabgf.2        |- F/ x ps
+h52::elabgf.3        |- ( x = A -> ( ph <-> ps ) )
+53::nfab1             |- F/_ x { x | ph }
+54:50,53:nfel        |- F/ x A e. { x | ph }
+55:54,51:nfbi       |- F/ x ( A e. { x | ph } <-> ps )
+56::eleq1            |- ( x = A -> ( x e. { x | ph } <-> A e. { x | ph } ) )
+57:56,52:bibi12d    |- ( x = A -> ( ( x e. { x | ph } <-> ph ) <-> ( A e. { x | ph } <-> ps ) ) )
+58::abid            |- ( x e. { x | ph } <-> ph )
+qed:50,55,57,58:vtoclgf
+                   |- ( A e. B -> ( A e. { x | ph } <-> ps ) )
+
+$=  vx 1:cv wph vx 2:cab 3:wcel wph wb cA 2 4:wcel wps wb vx cA cB elabgf.1 4
+    wps vx vx cA 2 elabgf.1 wph vx nfab1 nfel elabgf.2 nfbi 1 cA wceq 3 4 wph
+    wps 1 cA 2 eleq1 elabgf.3 bibi12d wph vx abid vtoclgf $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("Packed proof for opelcn", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'1::df-c             |- CC = ( R. X. R. )\n' +
-		'2:1:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
-		'3::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
-		'qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpSource = `
+* test comment
+
+1::df-c             |- CC = ( R. X. R. )
+2:1:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
+3::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
+qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
@@ -847,26 +889,30 @@ test("Packed proof for opelcn", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'1::df-c              |- CC = ( R. X. R. )\n' +
-		'2:1:eleq2i          |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
-		'3::opelxp           |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
-		'qed:2,3:bitri      |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )\n' +
-		'\n' +
-		'$=  cA cB 1:cop cc wcel 1 cnr cnr 2:cxp wcel cA cnr wcel cB cnr wcel wa cc 2 1\n' +
-		'    df-c eleq2i cA cB cnr cnr opelxp bitri $.\n\n';
+	const newTextExpected = `
+* test comment
+
+1::df-c              |- CC = ( R. X. R. )
+2:1:eleq2i          |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
+3::opelxp           |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
+qed:2,3:bitri      |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )
+
+$=  cA cB 1:cop cc wcel 1 cnr cnr 2:cxp wcel cA cnr wcel cB cnr wcel wa cc 2 1
+    df-c eleq2i cA cB cnr cnr opelxp bitri $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("MmpSortedByReferenceLabelMapCreator", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'1::df-c             |- CC = ( R. X. R. )\n' +
-		'2:1:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
-		'3::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
-		'qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpSource = `
+* test comment
+
+1::df-c             |- CC = ( R. X. R. )
+2:1:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
+3::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
+qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier({ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
@@ -926,44 +972,45 @@ test("MmpSortedByReferenceLabelMapCreator", () => {
 });
 
 test("Compressed proof for opth using MmpHardcodedLabelSequenceCreator", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'h1::opth.1                    |- A e. _V\n' +
-		'h2::opth.2                    |- B e. _V\n' +
-		'3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )\n' +
-		'4:1,2:opi1                   |- { A } e. <. A , B >.\n' +
-		'5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )\n' +
-		'6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )\n' +
-		'7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
-		'8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
-		'9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )\n' +
-		'10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )\n' +
-		'11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )\n' +
-		'12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )\n' +
-		'13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )\n' +
-		'14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )\n' +
-		'15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )\n' +
-		'16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )\n' +
-		'17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )\n' +
-		'18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )\n' +
-		'19::prex                |- { C , B } e. _V\n' +
-		'20::prex                |- { C , D } e. _V\n' +
-		'21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )\n' +
-		'22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )\n' +  // ok
-		'23::preq2                |- ( x = D -> { C , x } = { C , D } )\n' +
-		'24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )\n' +
-		'25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )\n' +
-		'26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )\n' +   // ok
-		'27::vex                 |- x e. _V\n' +
-		'28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )\n' +   // ok
-		'29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )\n' +  // KO!!!!
-		'30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )\n' +
-		'31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )\n' +   // KO!!!!
-		'32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )\n' +
-		'qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )\n' +
-		'$d B x\n' +
-		'$d C x\n' +
-		'$d D x';
+	const mmpSource = `
+* test comment
+
+h1::opth.1                    |- A e. _V
+h2::opth.2                    |- B e. _V
+3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )
+4:1,2:opi1                   |- { A } e. <. A , B >.
+5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )
+6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )
+7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )
+8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )
+9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )
+10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )
+11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )
+12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )
+13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )
+14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )
+15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )
+16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )
+17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )
+18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )
+19::prex                |- { C , B } e. _V
+20::prex                |- { C , D } e. _V
+21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )
+22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )
+23::preq2                |- ( x = D -> { C , x } = { C , D } )
+24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )
+25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )
+26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )
+27::vex                 |- x e. _V
+28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )
+29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )
+30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )
+31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )
+32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )
+qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )
+$d B x
+$d C x
+$d D x`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const labels: string[] = [
@@ -987,95 +1034,99 @@ test("Compressed proof for opth using MmpHardcodedLabelSequenceCreator", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'h1::opth.1                    |- A e. _V\n' +
-		'h2::opth.2                    |- B e. _V\n' +
-		'3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )\n' +
-		'4:1,2:opi1                   |- { A } e. <. A , B >.\n' +
-		'5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )\n' +
-		'6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )\n' +
-		'7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
-		'8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
-		'9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )\n' +
-		'10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )\n' +
-		'11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )\n' +
-		'12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )\n' +
-		'13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )\n' +
-		'14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )\n' +
-		'15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )\n' +
-		'16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )\n' +
-		'17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )\n' +
-		'18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )\n' +
-		'19::prex                |- { C , B } e. _V\n' +
-		'20::prex                |- { C , D } e. _V\n' +
-		'21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )\n' +
-		'22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )\n' +
-		'23::preq2                |- ( x = D -> { C , x } = { C , D } )\n' +
-		'24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )\n' +
-		'25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )\n' +
-		'26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )\n' +
-		'27::vex                 |- x e. _V\n' +
-		'28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )\n' +
-		'29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )\n' +
-		'30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )\n' +
-		'31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )\n' +
-		'32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )\n' +
-		'qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )\n' +
-		'\n' +
-		'$= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi id simprd\n' +
-		'   opth1 opi1 syl5eleq oprcl opeq1d simpld sylancl cv preq2 eqeq2d imbi12d vex\n' +
-		'   eqeq2 vtoclg sylc jca opeq12 impbii ) ABHZCDHZIZACIZBDIZJVCVDVEABCDEFUCZVCDK\n' +
-		'   LZCBMZCDMZIZVEVCCKLZVGVCANZVBLVKVGJZVCVLVAVBABEFUDVCUAZUECDVLUFOZUBVCCNZVHMZ\n' +
-		'   VPVIMZIVJVCVBVQVRVCCBHZVBVQVCVAVSVBVCACBVFUGVNPVCVKBKLVSVQIVCVKVGVOUHFCBKKQU\n' +
-		'   IPVCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWA\n' +
-		'   VIVHVTDCUKULVTDBUOUMBVTCFGUNSUPUQURABCDUSUT $.\n\n' +
-		'$d B x\n' +
-		'$d C x\n' +
-		'$d D x\n';
+	const newTextExpected = `
+* test comment
+
+h1::opth.1                    |- A e. _V
+h2::opth.2                    |- B e. _V
+3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )
+4:1,2:opi1                   |- { A } e. <. A , B >.
+5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )
+6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )
+7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )
+8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )
+9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )
+10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )
+11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )
+12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )
+13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )
+14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )
+15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )
+16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )
+17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )
+18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )
+19::prex                |- { C , B } e. _V
+20::prex                |- { C , D } e. _V
+21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )
+22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )
+23::preq2                |- ( x = D -> { C , x } = { C , D } )
+24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )
+25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )
+26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )
+27::vex                 |- x e. _V
+28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )
+29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )
+30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )
+31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )
+32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )
+qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )
+
+$= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi id simprd
+   opth1 opi1 syl5eleq oprcl opeq1d simpld sylancl cv preq2 eqeq2d imbi12d vex
+   eqeq2 vtoclg sylc jca opeq12 impbii ) ABHZCDHZIZACIZBDIZJVCVDVEABCDEFUCZVCDK
+   LZCBMZCDMZIZVEVCCKLZVGVCANZVBLVKVGJZVCVLVAVBABEFUDVCUAZUECDVLUFOZUBVCCNZVHMZ
+   VPVIMZIVJVCVBVQVRVCCBHZVBVQVCVAVSVBVCACBVFUGVNPVCVKBKLVSVQIVCVKVGVOUHFCBKKQU
+   IPVCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWA
+   VIVHVTDCUKULVTDBUOUMBVTCFGUNSUPUQURABCDUSUT $.
+
+$d B x
+$d C x
+$d D x
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'h1::opth.1                    |- A e. _V\n' +
-		'h2::opth.2                    |- B e. _V\n' +
-		'3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )\n' +
-		'4:1,2:opi1                   |- { A } e. <. A , B >.\n' +
-		'5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )\n' +
-		'6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )\n' +
-		'7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
-		'8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
-		'9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )\n' +
-		'10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )\n' +
-		'11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )\n' +
-		'12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )\n' +
-		'13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )\n' +
-		'14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )\n' +
-		'15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )\n' +
-		'16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )\n' +
-		'17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )\n' +
-		'18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )\n' +
-		'19::prex                |- { C , B } e. _V\n' +
-		'20::prex                |- { C , D } e. _V\n' +
-		'21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )\n' +
-		'22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )\n' +  // ok
-		'23::preq2                |- ( x = D -> { C , x } = { C , D } )\n' +
-		'24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )\n' +
-		'25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )\n' +
-		'26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )\n' +   // ok
-		'27::vex                 |- x e. _V\n' +
-		'28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )\n' +   // ok
-		'29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )\n' +  // KO!!!!
-		'30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )\n' +
-		'31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )\n' +   // KO!!!!
-		'32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )\n' +
-		'qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )\n' +
-		'$d B x\n' +
-		'$d C x\n' +
-		'$d D x';
+	const mmpSource = `
+* test comment
+
+h1::opth.1                    |- A e. _V
+h2::opth.2                    |- B e. _V
+3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )
+4:1,2:opi1                   |- { A } e. <. A , B >.
+5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )
+6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )
+7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )
+8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )
+9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )
+10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )
+11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )
+12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )
+13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )
+14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )
+15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )
+16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )
+17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )
+18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )
+19::prex                |- { C , B } e. _V
+20::prex                |- { C , D } e. _V
+21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )
+22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )
+23::preq2                |- ( x = D -> { C , x } = { C , D } )
+24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )
+25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )
+26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )
+27::vex                 |- x e. _V
+28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )
+29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )
+30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )
+31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )
+32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )
+qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )
+$d B x
+$d C x
+$d D x`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// const labels: string[] = [
@@ -1100,52 +1151,55 @@ test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'h1::opth.1                    |- A e. _V\n' +
-		'h2::opth.2                    |- B e. _V\n' +
-		'3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )\n' +
-		'4:1,2:opi1                   |- { A } e. <. A , B >.\n' +
-		'5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )\n' +
-		'6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )\n' +
-		'7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
-		'8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )\n' +
-		'9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )\n' +
-		'10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )\n' +
-		'11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )\n' +
-		'12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )\n' +
-		'13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )\n' +
-		'14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )\n' +
-		'15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )\n' +
-		'16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )\n' +
-		'17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )\n' +
-		'18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )\n' +
-		'19::prex                |- { C , B } e. _V\n' +
-		'20::prex                |- { C , D } e. _V\n' +
-		'21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )\n' +
-		'22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )\n' +
-		'23::preq2                |- ( x = D -> { C , x } = { C , D } )\n' +
-		'24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )\n' +
-		'25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )\n' +
-		'26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )\n' +
-		'27::vex                 |- x e. _V\n' +
-		'28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )\n' +
-		'29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )\n' +
-		'30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )\n' +
-		'31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )\n' +
-		'32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )\n' +
-		'qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )\n' +
-		'\n' +
-		'$= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi opth1 opi1\n' +
-		'   id syl5eleq oprcl simprd opeq1d simpld sylancl cv preq2 eqeq2d eqeq2 imbi12d\n' +
-		'   vex vtoclg sylc jca opeq12 impbii ) ABHZCDHZIZACIZBDIZJVCVDVEABCDEFUAZVCDKLZ\n' +
-		'   CBMZCDMZIZVEVCCKLZVGVCANZVBLVKVGJZVCVLVAVBABEFUBVCUCZUDCDVLUEOZUFVCCNZVHMZVP\n' +
-		'   VIMZIVJVCVBVQVRVCCBHZVBVQVCVAVSVBVCACBVFUGVNPVCVKBKLVSVQIVCVKVGVOUHFCBKKQUIP\n' +
-		'   VCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWAVI\n' +
-		'   VHVTDCUKULVTDBUMUNBVTCFGUOSUPUQURABCDUSUT $.\n\n' +
-		'$d B x\n' +
-		'$d C x\n' +
-		'$d D x\n';
+	const newTextExpected = `
+* test comment
+
+h1::opth.1                    |- A e. _V
+h2::opth.2                    |- B e. _V
+3:1,2:opth1                |- ( <. A , B >. = <. C , D >. -> A = C )
+4:1,2:opi1                   |- { A } e. <. A , B >.
+5::id                        |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , D >. )
+6:4,5:syl5eleq              |- ( <. A , B >. = <. C , D >. -> { A } e. <. C , D >. )
+7::oprcl                    |- ( { A } e. <. C , D >. -> ( C e. _V /\\ D e. _V ) )
+8:6,7:syl                  |- ( <. A , B >. = <. C , D >. -> ( C e. _V /\\ D e. _V ) )
+9:8:simprd            |- ( <. A , B >. = <. C , D >. -> D e. _V )
+10:3:opeq1d               |- ( <. A , B >. = <. C , D >. -> <. A , B >. = <. C , B >. )
+11:10,5:eqtr3d           |- ( <. A , B >. = <. C , D >. -> <. C , B >. = <. C , D >. )
+12:8:simpld               |- ( <. A , B >. = <. C , D >. -> C e. _V )
+13::dfopg                 |- ( ( C e. _V /\\ B e. _V ) -> <. C , B >. = { { C } , { C , B } } )
+14:12,2,13:sylancl       |- ( <. A , B >. = <. C , D >. -> <. C , B >. = { { C } , { C , B } } )
+15:11,14:eqtr3d         |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , B } } )
+16::dfopg                |- ( ( C e. _V /\\ D e. _V ) -> <. C , D >. = { { C } , { C , D } } )
+17:8,16:syl             |- ( <. A , B >. = <. C , D >. -> <. C , D >. = { { C } , { C , D } } )
+18:15,17:eqtr3d        |- ( <. A , B >. = <. C , D >. -> { { C } , { C , B } } = { { C } , { C , D } } )
+19::prex                |- { C , B } e. _V
+20::prex                |- { C , D } e. _V
+21:19,20:preqr2        |- ( { { C } , { C , B } } = { { C } , { C , D } } -> { C , B } = { C , D } )
+22:18,21:syl          |- ( <. A , B >. = <. C , D >. -> { C , B } = { C , D } )
+23::preq2                |- ( x = D -> { C , x } = { C , D } )
+24:23:eqeq2d            |- ( x = D -> ( { C , B } = { C , x } <-> { C , B } = { C , D } ) )
+25::eqeq2               |- ( x = D -> ( B = x <-> B = D ) )
+26:24,25:imbi12d       |- ( x = D -> ( ( { C , B } = { C , x } -> B = x ) <-> ( { C , B } = { C , D } -> B = D ) ) )
+27::vex                 |- x e. _V
+28:2,27:preqr2         |- ( { C , B } = { C , x } -> B = x )
+29:26,28:vtoclg       |- ( D e. _V -> ( { C , B } = { C , D } -> B = D ) )
+30:9,22,29:sylc      |- ( <. A , B >. = <. C , D >. -> B = D )
+31:3,30:jca         |- ( <. A , B >. = <. C , D >. -> ( A = C /\\ B = D ) )
+32::opeq12          |- ( ( A = C /\\ B = D ) -> <. A , B >. = <. C , D >. )
+qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )
+
+$= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi opth1 opi1
+   id syl5eleq oprcl simprd opeq1d simpld sylancl cv preq2 eqeq2d eqeq2 imbi12d
+   vex vtoclg sylc jca opeq12 impbii ) ABHZCDHZIZACIZBDIZJVCVDVEABCDEFUAZVCDKLZ
+   CBMZCDMZIZVEVCCKLZVGVCANZVBLVKVGJZVCVLVAVBABEFUBVCUCZUDCDVLUEOZUFVCCNZVHMZVP
+   VIMZIVJVCVBVQVRVCCBHZVBVQVCVAVSVBVCACBVFUGVNPVCVKBKLVSVQIVCVKVGVOUHFCBKKQUIP
+   VCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWAVI
+   VHVTDCUKULVTDBUMUNBVTCFGUOSUPUQURABCDUSUT $.
+
+$d B x
+$d C x
+$d D x
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -1153,11 +1207,12 @@ test("Compressed proof for opth without LabelSequenceCreatorLikeMmj2", () => {
 // the following test was introduced because there was a bug when
 // a working var was unified at the last step
 test("Packed proof for working var", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'hd3::test.1         |- x e. A\n' +
-		'd4::elex            |- ( x e. &C1 -> x e. _V )\n' +
-		'qed:d3,d4:ax-mp    |- x e. _V';
+	const mmpSource = `
+* test comment
+
+hd3::test.1         |- x e. A
+d4::elex            |- ( x e. &C1 -> x e. _V )
+qed:d3,d4:ax-mp    |- x e. _V`;
 	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
@@ -1167,13 +1222,16 @@ test("Packed proof for working var", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'hd3::test.1         |- x e. A\n' +
-		'd4::elex            |- ( x e. A -> x e. _V )\n' +
-		'qed:d3,d4:ax-mp    |- x e. _V' +
-		'\n\n' +
-		'$=  vx 1:cv cA wcel 1 cvv wcel test.1 1 cA elex ax-mp $.\n\n';
+	const newTextExpected = `
+* test comment
+
+hd3::test.1         |- x e. A
+d4::elex            |- ( x e. A -> x e. _V )
+qed:d3,d4:ax-mp    |- x e. _V
+
+$=  vx 1:cv cA wcel 1 cvv wcel test.1 1 cA elex ax-mp $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
@@ -1181,11 +1239,12 @@ test("Packed proof for working var", () => {
 // the following test was introduced because there was a bug when
 // a working var was unified at the last step
 test("Packed proof 2 for working var", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'hd3::test.1         |- x e. A\n' +
-		'd4::elex            |- &W1\n' +
-		'qed:d3,d4:ax-mp    |- x e. _V';
+	const mmpSource = `
+* test comment
+
+hd3::test.1         |- x e. A
+d4::elex            |- &W1
+qed:d3,d4:ax-mp    |- x e. _V`;
 	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
@@ -1195,24 +1254,28 @@ test("Packed proof 2 for working var", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'hd3::test.1         |- x e. A\n' +
-		'd4::elex            |- ( x e. A -> x e. _V )\n' +
-		'qed:d3,d4:ax-mp    |- x e. _V' +
-		'\n\n' +
-		'$=  vx 1:cv cA wcel 1 cvv wcel test.1 1 cA elex ax-mp $.\n\n';
+	const newTextExpected = `
+* test comment
+
+hd3::test.1         |- x e. A
+d4::elex            |- ( x e. A -> x e. _V )
+qed:d3,d4:ax-mp    |- x e. _V
+
+$=  vx 1:cv cA wcel 1 cvv wcel test.1 1 cA elex ax-mp $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("Packed proof 3 for working var", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'h1::test2.1          |- (/) e. A\n' +
-		'h2::test2.2          |- A = B\n' +
-		'3:1,2:eleqtri       |- (/) e. &C1\n' +
-		'qed:3:elexi        |- (/) e. _V';
+	const mmpSource = `
+* test comment
+
+h1::test2.1          |- (/) e. A
+h2::test2.2          |- A = B
+3:1,2:eleqtri       |- (/) e. &C1
+qed:3:elexi        |- (/) e. _V`;
 	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
@@ -1222,14 +1285,17 @@ test("Packed proof 3 for working var", () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'h1::test2.1          |- (/) e. A\n' +
-		'h2::test2.2          |- A = B\n' +
-		'3:1,2:eleqtri       |- (/) e. B\n' +
-		'qed:3:elexi        |- (/) e. _V\n' +
-		'\n' +
-		'$=  c0 cB c0 cA cB test2.1 test2.2 eleqtri elexi $.\n\n';
+	const newTextExpected = `
+* test comment
+
+h1::test2.1          |- (/) e. A
+h2::test2.2          |- A = B
+3:1,2:eleqtri       |- (/) e. B
+qed:3:elexi        |- (/) e. _V
+
+$=  c0 cB c0 cA cB test2.1 test2.2 eleqtri elexi $.
+
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

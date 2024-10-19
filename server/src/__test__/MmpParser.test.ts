@@ -794,7 +794,6 @@ test('wrong number of eHyps for already existing theorem impbii', () => {
 		// impbii.2 below is missing
 		//'h51::impbii.2       |- ( ps -> ph )\n' +
 		'52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
-		// diagnostic error, because below it should be qed:
 		'qed:50,51,52:mp2   |- ( ph <-> ps )';
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
@@ -817,14 +816,15 @@ test('wrong number of eHyps for already existing theorem impbii', () => {
 
 
 test("axext3 good - is already existing, but it should not add diagnostic for disj vars", () => {
-	const mmtFileForAxext3 =
-		'$theorem axext3\n' +
-		'qed::exlimiiv |- ( A. z ( z e. x <-> z e. y ) -> x = y )\n' +
-		'$d w x\n' +
-		'$d x z\n' +
-		'$d y z\n' +
-		'$d w z\n';
-	const mmpParser: MmpParser = new MmpParser(mmtFileForAxext3, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+const mmtFileForAxext3 = `\
+$theorem axext3
+qed::exlimiiv |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+$d w x
+$d x z
+$d y z
+$d w z
+`;
+const mmpParser: MmpParser = new MmpParser(mmtFileForAxext3, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(
 		mmpParser.diagnostics, MmpParserErrorCode.missingQedStatementForAlreadyExistingTheorem)).toBeFalsy();
@@ -864,11 +864,12 @@ test("axext3 bad 1 - it's already existing, but x y is not an existing constrain
 });
 
 test('expect MmpStatement.range ', () => {
-	const mmpSource: string =
-		'h50::hyp1 |- ps\n' +
-		':\n' +
-		'55::\n' +
-		' ax-mp |- ph';
+const mmpSource = `\
+h50::hyp1 |- ps
+:
+55::
+ ax-mp |- ph
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -894,10 +895,10 @@ test('expect MmpStatement.range ', () => {
 });
 
 test('expect qed warning for last step', () => {
-	const mmpSource: string =
-		'h50::hyp1 |- ps\n' +
-		'h51::hyp2 |- ph\n' +
-		'555:50,51:ax-mp |- ph';
+const mmpSource = `\
+h50::hyp1 |- ps
+h51::hyp2 |- ph
+555:50,51:ax-mp |- ph`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
@@ -917,11 +918,13 @@ test('expect qed warning for last step', () => {
 });
 
 test('expect comment edit warning', () => {
-	const mmpSource: string =
-		'\n* MissingComment\n\n' +
-		'h50::hyp1 |- ps\n' +
-		'h51::hyp2 |- ph\n' +
-		'qed:50,51:ax-mp |- ph';
+const mmpSource = `
+* MissingComment
+
+h50::hyp1 |- ps
+h51::hyp2 |- ph
+qed:50,51:ax-mp |- ph
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
@@ -941,10 +944,10 @@ test('expect comment edit warning', () => {
 });
 
 test('expect comment edit warning', () => {
-	const mmpSource: string =
-		'h50::hyp1 |- ps\n' +
-		'h51::hyp1 |- ph\n' +
-		'qed:50,51:ax-mp |- ph';
+const mmpSource = `\
+h50::hyp1 |- ps
+h51::hyp1 |- ph
+qed:50,51:ax-mp |- ph`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
@@ -964,9 +967,9 @@ test('expect comment edit warning', () => {
 
 test('expect mmp parsing from mm parser partially succesfull', () => {
 	const parser: MmParser = createMmParser('impbii-bad.mm');
-	const mmpSource: string =
-		'impi $p |- ( -. ( ph -> -. ps ) -> ch )\n' +
-		'qed:pm3.2im |- ( ph -> ( ps -> -. ( ph -> -. ps ) ) )';
+const mmpSource = `\
+impi $p |- ( -. ( ph -> -. ps ) -> ch )
+qed:pm3.2im |- ( ph -> ( ps -> -. ( ph -> -. ps ) ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	expect(mmpParser.diagnostics.length).toBeGreaterThanOrEqual(1);
