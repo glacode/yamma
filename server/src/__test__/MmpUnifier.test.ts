@@ -25,10 +25,11 @@ export const exampleConfigurationManager: ConfigurationManager = new Configurati
 	<Connection>dummyConnection, new GlobalState());
 
 test('buildNewProof()', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'ax-mp\n' +
-		'qed:: |- ps';
+	const mmpSource = `
+* test comment
+
+ax-mp
+qed:: |- ps`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -80,7 +81,7 @@ qed::ax-mp |- ph`;
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-const newTextExpected = `
+	const newTextExpected = `
 * test comment
 
 d1::                |- &W1
@@ -92,10 +93,11 @@ qed:d1,d2:ax-mp    |- ph
 });
 
 test('Unify 3 ax-mp', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'50:: |- ( &W3 -> ph )\n' +
-		'qed:,50:ax-mp |- ph';
+	const mmpSource = `
+* test comment
+
+50:: |- ( &W3 -> ph )
+qed:,50:ax-mp |- ph`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -105,22 +107,26 @@ test('Unify 3 ax-mp', () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'50::                |- ( &W3 -> ph )\n' +
-		'd1::                |- &W3\n' +
-		'qed:d1,50:ax-mp    |- ph\n';
+	const newTextExpected = `
+* test comment
+
+50::                |- ( &W3 -> ph )
+d1::                |- &W3
+qed:d1,50:ax-mp    |- ph
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Unify with working var ax-mp', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'h1::a |- ps\n' +
-		'h2::b |- &W1\n' +
-		'5:1,2:ax-mp |- ph\n' +
-		'qed::d |- ps\n';
+	const mmpSource = `
+* test comment
+
+h1::a |- ps
+h2::b |- &W1
+5:1,2:ax-mp |- ph
+qed::d |- ps
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -130,21 +136,24 @@ test('Unify with working var ax-mp', () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'h1::a               |- ps\n' +
-		'h2::b               |- ( ps -> ph )\n' +
-		'5:1,2:ax-mp        |- ph\n' +
-		'qed::d             |- ps\n';
+	const newTextExpected = `
+* test comment
+
+h1::a               |- ps
+h2::b               |- ( ps -> ph )
+5:1,2:ax-mp        |- ph
+qed::d             |- ps
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Unify double ax-mp', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'50:ax-mp\n' +
-		'qed:,50:ax-mp |- ph';
+	const mmpSource = `
+* test comment
+
+50:ax-mp
+qed:,50:ax-mp |- ph`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -154,22 +163,25 @@ test('Unify double ax-mp', () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'd1::                 |- &W1\n' +
-		'd2::                 |- ( &W1 -> ( &W3 -> ph ) )\n' +
-		'50:d1,d2:ax-mp      |- ( &W3 -> ph )\n' +
-		'd3::                |- &W3\n' +
-		'qed:d3,50:ax-mp    |- ph\n';
+	const newTextExpected = `
+* test comment
+
+d1::                 |- &W1
+d2::                 |- ( &W1 -> ( &W3 -> ph ) )
+50:d1,d2:ax-mp      |- ( &W3 -> ph )
+d3::                |- &W3
+qed:d3,50:ax-mp    |- ph
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Expect new ref to be d7', () => {
-	const mmpSource =
-		'\n* test comment\n' +
-		'd6:: |- ( ps -> ph )\n' +
-		'qed:,d6:ax-mp    |- ph\n';
+	const mmpSource = `
+* test comment
+d6:: |- ( ps -> ph )
+qed:,d6:ax-mp    |- ph
+`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -181,20 +193,23 @@ test('Expect new ref to be d7', () => {
 	expect(adjustedIndex).toBe(3);
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'd6::                |- ( ps -> ph )\n' +
-		'd7::                |- ps\n' +
-		'qed:d7,d6:ax-mp    |- ph\n';
+	const newTextExpected = `
+* test comment
+
+d6::                |- ( ps -> ph )
+d7::                |- ps
+qed:d7,d6:ax-mp    |- ph
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Expect new working var to be &W4', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'd1:: |- &W3\n' +
-		'qed::ax-mp  |- ph';
+	const mmpSource = `
+* test comment
+
+d1:: |- &W3
+qed::ax-mp  |- ph`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -204,20 +219,23 @@ test('Expect new working var to be &W4', () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'd1::               |- &W3\n' +
-		'd2::                |- &W4\n' +
-		'd3::                |- ( &W4 -> ph )\n' +
-		'qed:d2,d3:ax-mp    |- ph\n';
+	const newTextExpected = `
+* test comment
+
+d1::               |- &W3
+d2::                |- &W4
+d3::                |- ( &W4 -> ph )
+qed:d2,d3:ax-mp    |- ph
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Complete ax-mp', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed:ax-mp |- ( ps -> ph )';
+	const mmpSource = `
+* test comment
+
+qed:ax-mp |- ( ps -> ph )`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -227,285 +245,325 @@ test('Complete ax-mp', () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'd1::                |- &W1\n' +
-		'd2::                |- ( &W1 -> ( ps -> ph ) )\n' +
-		'qed:d1,d2:ax-mp    |- ( ps -> ph )\n';
+	const newTextExpected = `
+* test comment
+
+d1::                |- &W1
+d2::                |- ( &W1 -> ( ps -> ph ) )
+qed:d1,d2:ax-mp    |- ( ps -> ph )
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Mgu inolving logical vars on the right side', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'd1::              |- &W1\n' +
-		'd2::              |- &W2\n' +
-		'qed:d1,d2:ax-mp     |- ( ph -> ch )';
+	const mmpSource = `
+* test comment
+
+d1::              |- &W1
+d2::              |- &W2
+qed:d1,d2:ax-mp     |- ( ph -> ch )`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'd1::                |- &W1\n' +
-		'd2::                |- ( &W1 -> ( ph -> ch ) )\n' +
-		'qed:d1,d2:ax-mp    |- ( ph -> ch )\n';
+	const newTextExpected = `
+* test comment
+
+d1::                |- &W1
+d2::                |- ( &W1 -> ( ph -> ch ) )
+qed:d1,d2:ax-mp    |- ( ph -> ch )
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Expect unify error to leave line unchanged', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'ax-mp:: |- ( ch -> )\n' +
-		'qed:: |- ps';
+	const mmpSource = `
+* test comment
+
+ax-mp:: |- ( ch -> )
+qed:: |- ps`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'ax-mp::            |- ( ch -> )\n' +
-		'qed::              |- ps\n';
+	const newTextExpected = `
+* test comment
+
+ax-mp::            |- ( ch -> )
+qed::              |- ps
+`;
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Expect 2 unify error to leave line unchanged', () => {
 	// ZZ is unknown, thus formula is not parsed and the unification should do nothing
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed::ax-mp |- M e. ZZ';
+	const mmpSource = `
+* test comment
+
+qed::ax-mp |- M e. ZZ`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'qed::ax-mp         |- M e. ZZ\n';
+	const newTextExpected = `
+* test comment
+
+qed::ax-mp         |- M e. ZZ
+`;
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Expect impbii ref error to leave line unchanged', () => {
 	// we've decided not to remove the wrong ref
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed:5:impbii |- ch';
+	const mmpSource = `
+* test comment
+
+qed:5:impbii |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'qed:5:impbii       |- ch\n';
+	const newTextExpected = `
+* test comment
+
+qed:5:impbii       |- ch
+`;
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Expect long label to move the formula to new line', () => {
 	// we've decided not to remove the wrong ref
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed::exactlonglabel |- ch';
+	const mmpSource = `
+* test comment
+
+qed::exactlonglabel |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'qed::exactlonglabel\n' +
-		'                   |- ch\n';
+	const newTextExpected = `
+* test comment
+
+qed::exactlonglabel
+                   |- ch
+`;
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Expect ref error to leave line unchanged', () => {
 	// we've decided not to remove the wrong ref
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'qed:5:ax-mp |- ch';
+	const mmpSource = `
+* test comment
+
+qed:5:ax-mp |- ch`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'qed:5:ax-mp        |- ch\n';
+	const newTextExpected = `
+* test comment
+
+qed:5:ax-mp        |- ch
+`;
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('unify a1i with already present working var', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'a::a1i |- &W1\n' +
-		'qed:: |- ch';
+	const mmpSource = `
+* test comment
+
+a::a1i |- &W1
+qed:: |- ch`;
 	// const impbiiMmParser: MmParser = new MmParser();
 	// impbiiMmParser.ParseText(impbiiTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'd1::                |- &W2\n' +
-		'a:d1:a1i           |- ( &W3 -> &W2 )\n' +
-		'qed::              |- ch\n';
+	const newTextExpected = `
+* test comment
+
+d1::                |- &W2
+a:d1:a1i           |- ( &W3 -> &W2 )
+qed::              |- ch
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test('Expect comments to be left unchanged', () => {
-	const mmpSource =
-		'* comment that\n' +
-		'  should be left on two lines, with   wierd     spacing preserved\n' +
-		'6:: |- ps\n' +
-		'* second comment    to be left    unchanged\n' +
-		'qed:5:ax-mp |- ch';
+	const mmpSource = `* comment that
+  should be left on two lines, with   wierd     spacing preserved
+6:: |- ps
+* second comment    to be left    unchanged
+qed:5:ax-mp |- ch`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'\n* comment that\n' +
-		'  should be left on two lines, with   wierd     spacing preserved\n' +
-		'\n' +
-		'6::                |- ps\n' +
-		'* second comment    to be left    unchanged\n' +
-		'qed:5:ax-mp        |- ch\n';
+	const expectedText = `
+* comment that
+  should be left on two lines, with   wierd     spacing preserved
+
+6::                |- ps
+* second comment    to be left    unchanged
+qed:5:ax-mp        |- ch
+`;
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
 test('expect2 x to unify with &S1', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'd2:: |- x = &C2\n' +
-		'd1:d2:eqeq1i |- ( &S1 = &C3 <-> &C2 = &C3 )\n' +
-		'qed: |- ch';
+	const mmpSource = `
+* test comment
+
+d2:: |- x = &C2
+d1:d2:eqeq1i |- ( &S1 = &C3 <-> &C2 = &C3 )
+qed: |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(eqeq1iMmParser.labelToStatementMap, eqeq1iMmParser.outermostBlock,
 	// 	eqeq1iMmParser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'\n* test comment\n\n' +
-		'd2::                |- x = &C2\n' +
-		'd1:d2:eqeq1i       |- ( x = &C3 <-> &C2 = &C3 )\n' +
-		'qed::              |- ch\n';
+	const expectedText = `
+* test comment
+
+d2::                |- x = &C2
+d1:d2:eqeq1i       |- ( x = &C3 <-> &C2 = &C3 )
+qed::              |- ch
+`;
 	expect(textEdit.newText).toEqual(expectedText);
 
 });
 
 test('expect &W1 and &W2 to be unified properly', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'd1:: |- ( ch -> &W2 )\n' +
-		'd2:: |- ( ( &W1 -> ps ) -> ph )\n' +
-		'qed:d1,d2:ax-mp |- ph\n';
+	const mmpSource = `
+* test comment
+
+d1:: |- ( ch -> &W2 )
+d2:: |- ( ( &W1 -> ps ) -> ph )
+qed:d1,d2:ax-mp |- ph
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'\n* test comment\n\n' +
-		'd1::                |- ( ch -> ps )\n' +
-		'd2::                |- ( ( ch -> ps ) -> ph )\n' +
-		'qed:d1,d2:ax-mp    |- ph\n';
+	const expectedText = `
+* test comment
+
+d1::                |- ( ch -> ps )
+d2::                |- ( ( ch -> ps ) -> ph )
+qed:d1,d2:ax-mp    |- ph
+`;
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
 test('expect ax6ev to be unified without loop', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'd2::ax6ev |- E. &S1 &W1\n' +
-		'qed: |- ch\n';
+	const mmpSource = `
+* test comment
+
+d2::ax6ev |- E. &S1 &W1
+qed: |- ch
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'\n* test comment\n\n' +
-		'd2::ax6ev          |- E. &S1 &S1 = &S2\n' +
-		'qed::              |- ch\n';
+	const expectedText = `
+* test comment
+
+d2::ax6ev          |- E. &S1 &S1 = &S2
+qed::              |- ch
+`;
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
 test('expect ax9v1 to be unified in a single step', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'd5::ax9v1 |- ( &W5 -> ( &W4 -> z e. y ) )\n' +
-		'qed: |- ch\n';
+	const mmpSource = `
+* test comment
+
+d5::ax9v1 |- ( &W5 -> ( &W4 -> z e. y ) )
+qed: |- ch
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
-	const expectedText =
-		'\n* test comment\n\n' +
-		'd5::ax9v1          |- ( &S1 = y -> ( z e. &S1 -> z e. y ) )\n' +
-		'qed::              |- ch\n';
+	const expectedText = `
+* test comment
+
+d5::ax9v1          |- ( &S1 = y -> ( z e. &S1 -> z e. y ) )
+qed::              |- ch
+`;
 	expect(textEdit.newText).toEqual(expectedText);
 });
 
 test('expect wrong ref not to throw an exception', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'd2::                |- &W1\n' +
-		'd3::               |- ( &W1 -> ch )\n' +
-		'd1:d2,d3a:ax-mp    |- ch\n';
+	const mmpSource = `
+* test comment
+
+d2::                |- &W1
+d3::               |- ( &W1 -> ch )
+d1:d2,d3a:ax-mp    |- ch
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	const textEdit: TextEdit = textEditArray[0];
@@ -513,12 +571,11 @@ test('expect wrong ref not to throw an exception', () => {
 });
 
 test('MmpParser.uProof.formulaToProofStepMap 1', () => {
-	const mmpSource =
-		'h1:: |- ps\n' +
-		'* comment\n' +
-		'h2:: |- ( ps -> ph )\n' +
-		'3:: |- ph\n' +
-		'qed:: |- ch';
+	const mmpSource = `h1:: |- ps
+* comment
+h2:: |- ( ps -> ph )
+3:: |- ph
+qed:: |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const indexPs: number | undefined = mmpParser.mmpProof!.formulaToProofStepMap.get('|- ps');
@@ -528,46 +585,52 @@ test('MmpParser.uProof.formulaToProofStepMap 1', () => {
 });
 
 test("Unify() removes search statements", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'h50::mp2.1 |- ph\n' +
-		'SearchSymbols: x y   SearchComment:  \n' +
-		'qed:51:ax-mp |- ch';
+	const mmpSource = `
+* test comment
+
+h50::mp2.1 |- ph
+SearchSymbols: x y   SearchComment:  
+qed:51:ax-mp |- ch`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'h50::mp2.1         |- ph\n' +
-		'qed:51:ax-mp       |- ch\n';
+	const newTextExpected = `
+* test comment
+
+h50::mp2.1         |- ph
+qed:51:ax-mp       |- ch
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
 test("Working vars to be unified in a single step", () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'1::0ss             |- &C1 C_ A\n' +
-		'2::eqss            |- ( A = &C1 <-> ( A C_ &C1 /\\ &C2 C_ A ) )\n' +
-		'qed::              |- ch';
+	const mmpSource = `
+* test comment
+
+1::0ss             |- &C1 C_ A
+2::eqss            |- ( A = &C1 <-> ( A C_ &C1 /\\ &C2 C_ A ) )
+qed::              |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'1::0ss             |- (/) C_ A\n' +
-		'2::eqss            |- ( A = (/) <-> ( A C_ (/) /\\ (/) C_ A ) )\n' +
-		'qed::              |- ch\n';
+	const newTextExpected = `
+* test comment
+
+1::0ss             |- (/) C_ A
+2::eqss            |- ( A = (/) <-> ( A C_ (/) /\\ (/) C_ A ) )
+qed::              |- ch
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

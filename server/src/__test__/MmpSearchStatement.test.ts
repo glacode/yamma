@@ -5,13 +5,13 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
 
 test("MmpSearchStatement 1", () => {
-	const mmpSource =
-		'50::df-c             |- CC = ( R. X. R. )\n' +
-		'51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
-		'SearchSymbols: R. \n' +
-		'  X.   SearchComment: \n' +
-		'52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
-		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpSource = `\
+50::df-c             |- CC = ( R. X. R. )
+51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
+SearchSymbols: R. 
+  X.   SearchComment: 
+52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
+qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const searchStatement: IMmpStatement | undefined = mmpParser.mmpProof?.mmpStatements[2];
@@ -44,12 +44,13 @@ qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 });
 
 test("MmpSearchStatement with exact match 2 using eHyps also", () => {
-	const mmpSource =
-		'50::       |- ps\n' +
-		'51:        |- ch\n' +
-		'SearchSymbols: \n' +
-		"  '  { x | ph } '   ' A e. V -> '   SearchComment: \n" +
-		'qed::      |- ph\n';
+	const mmpSource = `\
+50::       |- ps
+51:        |- ch
+SearchSymbols: 
+  '  { x | ph } '   ' A e. V -> '   SearchComment: 
+qed::      |- ph
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const searchStatement: IMmpStatement | undefined = mmpParser.mmpProof?.mmpStatements[2];

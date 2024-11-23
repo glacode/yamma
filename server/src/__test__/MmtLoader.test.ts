@@ -23,17 +23,17 @@ class TestMmtLoader extends MmtLoader {
 }
 
 test("test MmtLoader.addGlobalDependenciesForSingleTheorem ", () => {
-	const mmtContent =
-		'${\n' +
-		'breldmd.1 $e    |- ( ph -> A e. C ) $.\n' +
-		'breldmd.2 $e    |- ( ph -> B e. D ) $.\n' +
-		'breldmd.3 $e    |- ( ph -> A R B ) $.\n' +
-		'$( Membership of first of a binary relation in a domain. $)\n' +
-		'breldmd $p       \n' +
-		'    |- ( ph -> A e. dom R ) $=\n' +
-		'  ( wcel wbr cdm breldmg syl3anc ) ABDJCEJBCFKBFLJGHIBCDEFMN $.\n' +
-		'       \n' +
-		'$}';
+	const mmtContent = `\
+\${
+breldmd.1 $e    |- ( ph -> A e. C ) $.
+breldmd.2 $e    |- ( ph -> B e. D ) $.
+breldmd.3 $e    |- ( ph -> A R B ) $.
+$( Membership of first of a binary relation in a domain. $)
+breldmd $p       
+    |- ( ph -> A e. dom R ) $=
+  ( wcel wbr cdm breldmg syl3anc ) ABDJCEJBCFKBFLJGHIBCDEFMN $.
+       
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader("", new MmParser());
 	const globalDependencies: Map<string, Set<string>> = new Map<string, Set<string>>();
 	testMmtLoader.addGlobalDependenciesForSingleTheorem(mmtContent, globalDependencies);
@@ -72,41 +72,41 @@ test("test MmtLoader.restrictToLocalMmtDependencies ", () => {
 test("expect new theorem can be added ", () => {
 	// mp2Parser containst the theory for all that's needed for mp2, but
 	// mp2 is not in the theory
-	const mmtFileForMp2 =
-		'${\n' +
-		'mp2.1 $e         |- ph $.\n' +
-		'mp2.2 $e        |- ps $.\n' +
-		'mp2.3 $e         |- ( ph -> ( ps -> ch ) ) $.\n' +
-		'$( A double modus ponens inference.  $)\n' +
-		'mp2 $p         |- ch $=\n' +
-		'  ( wi ax-mp ) BCEABCGDFHH $.\n' +
-		'$}';
+	const mmtFileForMp2 = `\
+\${
+mp2.1 $e         |- ph $.
+mp2.2 $e        |- ps $.
+mp2.3 $e         |- ( ph -> ( ps -> ch ) ) $.
+$( A double modus ponens inference.  $)
+mp2 $p         |- ch $=
+  ( wi ax-mp ) BCEABCGDFHH $.
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader(mmtFileForMp2, mp2MmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForMp2);
 	expect(canBeAdded).toBeTruthy();
 });
 
 test("impbii good expect already existing (identical) theorem can be added ", () => {
-	const mmtFileForImpbii =
-		'${\n' +
-		'impbii.1 $e |- ( ph -> ps ) $.\n' +
-		'impbii.2 $e |- ( ps -> ph ) $.\n' +
-		'impbii $p |- ( ph <-> ps ) $=\n' +
-		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $.\n' +
-		'$}';
+	const mmtFileForImpbii = `\
+\${
+impbii.1 $e |- ( ph -> ps ) $.
+impbii.2 $e |- ( ps -> ph ) $.
+impbii $p |- ( ph <-> ps ) $=
+( wi wb impbi mp2 ) ABEBAEABFCDABGH $.
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForImpbii);
 	expect(canBeAdded).toBeTruthy();
 });
 
 test("expect ParseNode created, for new loaded theorems ", () => {
-	const mmtFileForImpbii2 =
-		'${\n' +
-		'impbii2.1 $e |- ( ph -> ps ) $.\n' +
-		'impbii2.2 $e |- ( ps -> ph ) $.\n' +
-		'impbii2 $p |- ( ph <-> ps ) $=\n' +
-		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $.\n' +
-		'$}';
+	const mmtFileForImpbii2 = `\
+\${
+impbii2.1 $e |- ( ph -> ps ) $.
+impbii2.2 $e |- ( ps -> ph ) $.
+impbii2 $p |- ( ph <-> ps ) $=
+( wi wb impbi mp2 ) ABEBAEABFCDABGH $.
+$}`;
 	const impbiiMmParserLocal: MmParser = createMmParser('impbii.mm');
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParserLocal);
 	const impbii2Before: LabeledStatement | undefined =
@@ -127,13 +127,13 @@ test("expect ParseNode created, for new loaded theorems ", () => {
 
 test("impbii bad 1 expect to be rejected for first label wrong", () => {
 	// the label of the first $e hyp is wrong
-	const mmtFileForImpbii =
-		'${\n' +
-		'impbi.1 $e |- ( ph -> ps ) $.\n' +
-		'impbii.2 $e |- ( ps -> ph ) $.\n' +
-		'impbii $p |- ( ph <-> ps ) $=\n' +
-		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $..\n' +
-		'$}';
+	const mmtFileForImpbii = `\
+\${
+impbi.1 $e |- ( ph -> ps ) $.
+impbii.2 $e |- ( ps -> ph ) $.
+impbii $p |- ( ph <-> ps ) $=
+( wi wb impbi mp2 ) ABEBAEABFCDABGH $..
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForImpbii);
 	expect(canBeAdded).toBeFalsy();
@@ -141,13 +141,13 @@ test("impbii bad 1 expect to be rejected for first label wrong", () => {
 
 test("impbii bad 2 expect to be rejected for second label wrong", () => {
 	// the label of the first $e hyp is wrong
-	const mmtFileForImpbii =
-		'${\n' +
-		'impbii.1 $e |- ( ph -> ps ) $.\n' +
-		'impbi.2 $e |- ( ps -> ph ) $.\n' +
-		'impbii $p |- ( ph <-> ps ) $=\n' +
-		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $..\n' +
-		'$}';
+	const mmtFileForImpbii = `\
+\${
+impbii.1 $e |- ( ph -> ps ) $.
+impbi.2 $e |- ( ps -> ph ) $.
+impbii $p |- ( ph <-> ps ) $=
+( wi wb impbi mp2 ) ABEBAEABFCDABGH $..
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForImpbii);
 	expect(canBeAdded).toBeFalsy();
@@ -155,13 +155,13 @@ test("impbii bad 2 expect to be rejected for second label wrong", () => {
 
 test("impbii bad 3 expect to be rejected for $p label wrong", () => {
 	// the label of the first $e hyp is wrong
-	const mmtFileForImpbii =
-		'${\n' +
-		'impbii.1 $e |- ( ph -> ps ) $.\n' +
-		'impbii.2 $e |- ( ps -> ph ) $.\n' +
-		'impbi $p |- ( ph <-> ps ) $=\n' +
-		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $..\n' +
-		'$}';
+	const mmtFileForImpbii = `\
+\${
+impbii.1 $e |- ( ph -> ps ) $.
+impbii.2 $e |- ( ps -> ph ) $.
+impbi $p |- ( ph <-> ps ) $=
+( wi wb impbi mp2 ) ABEBAEABFCDABGH $..
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForImpbii);
 	expect(canBeAdded).toBeFalsy();
@@ -169,13 +169,13 @@ test("impbii bad 3 expect to be rejected for $p label wrong", () => {
 
 test("impbii bad 4 expect to be rejected for first formula not matching", () => {
 	// the label of the first $e hyp is wrong
-	const mmtFileForImpbii =
-		'${\n' +
-		'impbii.1 $e |- ( ph -> ph ) $.\n' +
-		'impbii.2 $e |- ( ps -> ph ) $.\n' +
-		'impbii $p |- ( ph <-> ps ) $=\n' +
-		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $..\n' +
-		'$}';
+const mmtFileForImpbii = `\
+\${
+impbii.1 $e |- ( ph -> ph ) $.
+impbii.2 $e |- ( ps -> ph ) $.
+impbii $p |- ( ph <-> ps ) $=
+( wi wb impbi mp2 ) ABEBAEABFCDABGH $..
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForImpbii);
 	expect(canBeAdded).toBeFalsy();
@@ -183,13 +183,13 @@ test("impbii bad 4 expect to be rejected for first formula not matching", () => 
 
 test("impbii bad 5 expect to be rejected for second formula not matching", () => {
 	// the label of the first $e hyp is wrong
-	const mmtFileForImpbii =
-		'${\n' +
-		'impbii.1 $e |- ( ph -> ps ) $.\n' +
-		'impbii.2 $e |- ( ps - ph ) $.\n' +
-		'impbii $p |- ( ph <-> ps ) $=\n' +
-		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $..\n' +
-		'$}';
+const mmtFileForImpbii = `\
+\${
+impbii.1 $e |- ( ph -> ps ) $.
+impbii.2 $e |- ( ps - ph ) $.
+impbii $p |- ( ph <-> ps ) $=
+( wi wb impbi mp2 ) ABEBAEABFCDABGH $..
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForImpbii);
 	expect(canBeAdded).toBeFalsy();
@@ -197,13 +197,13 @@ test("impbii bad 5 expect to be rejected for second formula not matching", () =>
 
 test("impbii bad 6 expect to be rejected for $p formula not matching", () => {
 	// the label of the first $e hyp is wrong
-	const mmtFileForImpbii =
-		'${\n' +
-		'impbii.1 $e |- ( ph -> ps ) $.\n' +
-		'impbii.2 $e |- ( ps -> ph ) $.\n' +
-		'impbii $p |- ( ph <-> ch ) $=\n' +
-		'( wi wb impbi mp2 ) ABEBAEABFCDABGH $..\n' +
-		'$}';
+const mmtFileForImpbii = `\
+\${
+impbii.1 $e |- ( ph -> ps ) $.
+impbii.2 $e |- ( ps -> ph ) $.
+impbii $p |- ( ph <-> ch ) $=
+( wi wb impbi mp2 ) ABEBAEABFCDABGH $..
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', impbiiMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForImpbii);
 	expect(canBeAdded).toBeFalsy();
@@ -228,16 +228,16 @@ test("impbii bad 7 expect to be rejected for wrong number of eHyps ", () => {
 // vexTheoryParser.ParseText(vexTheory);
 
 test("axext3 good - identical to existing one, expected to be accepted", () => {
-	const mmtFileForAxext3 =
-		'${\n' +
-		'$d w x z $. $d w y z $. \n' +
-		'$( A generalization of the Axiom of Extensionality in which ` x ` and ` y `\n' +
-		'   need not be distinct. $)\n' +
-		'axext3 $p |- ( A. z ( z e. x <-> z e. y ) -> x = y ) $=\n' +
-		'  ( vw cv wceq wcel wal elequ2 bibi1d albidv ax-ext syl6bir ax7 syld\n' +
-		'  exlimiiv wb wi ax6e ) DEZAEZFZCEZUAGZUCBEZGZQZCHZUAUEFZRDUBUHTUEFZUIUBUHU\n' +
-		'  CTGZUFQZCHUJUBULUGCUBUKUDUFDACIJKDBCLMDABNODASP $.\n' +
-		'$}';
+const mmtFileForAxext3 = `\
+\${
+$d w x z $. $d w y z $. 
+$( A generalization of the Axiom of Extensionality in which \` x \` and \` y \`
+   need not be distinct. $)
+axext3 $p |- ( A. z ( z e. x <-> z e. y ) -> x = y ) $=
+  ( vw cv wceq wcel wal elequ2 bibi1d albidv ax-ext syl6bir ax7 syld
+  exlimiiv wb wi ax6e ) DEZAEZFZCEZUAGZUCBEZGZQZCHZUAUEFZRDUBUHTUEFZUIUBUHU
+  CTGZUFQZCHUJUBULUGCUBUKUDUFDACIJKDBCLMDABNODASP $.
+$}`;
 	const testMmtLoader: TestMmtLoader = new TestMmtLoader('', vexTheoryMmParser);
 	const canBeAdded: boolean = testMmtLoader.canTheoremBeAdded(mmtFileForAxext3);
 	expect(canBeAdded).toBeTruthy();
@@ -246,7 +246,7 @@ test("axext3 good - identical to existing one, expected to be accepted", () => {
 test("axext3 bad 1 - it contains the additional $d x y  thus it should be rejected", () => {
 	const mmtFileForAxext3 =
 		'${\n' +
-		// below it would be expected '$d w x z $. $d w y z $.' but the additional
+		// below it would be expected '$d w x z $. $d w y z $.' but the additional $d x y is present
 		'$d w x y z $.\n' +
 		'$( A generalization of the Axiom of Extensionality in which ` x ` and ` y `\n' +
 		'   need not be distinct. $)\n' +
