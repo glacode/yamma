@@ -14,11 +14,11 @@ test("test 1 SyntaxTreeClassifierFull", () => {
 	// 51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
 	// 52::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\ B e. R. ) )
 	// qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\ B e. R. ) )
-	const mmpSource =
-		'50::df-c             |- CC = ( R. X. R. )\n' +
-		'51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )\n' +
-		'52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )\n' +
-		'qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpSource = `\
+50::df-c             |- CC = ( R. X. R. )
+51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
+52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
+qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	// opthg2 $p | - ((C e.V /\ D e.W ) ->
 	// 	(<.A , B >. = <.C , D >. <-> (A = C /\ B = D ) ) ) $ =
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
@@ -51,10 +51,10 @@ test("test 1 SyntaxTreeClassifierFull", () => {
 
 test("test 2 SyntaxTreeClassifierFull and SyntaxTreeClassifierImp", () => {
 
-	const mmpSource =
-		'50::df-c |- CC = ( R. X. R. )\n' +
-		'52:: |- ( -. &W1 -> -. &W3 )\n' +
-		'qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpSource = `\
+50::df-c |- CC = ( R. X. R. )
+52:: |- ( -. &W1 -> -. &W3 )
+qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
@@ -124,10 +124,9 @@ test("test 2 SyntaxTreeClassifierFull and SyntaxTreeClassifierImp", () => {
 
 test("test completion items from partial label", () => {
 
-	const mmpSource =
-		'50::df-c |- CC = ( R. X. R. )\n' +
-		'52::coi |- ( -. &W1 -> -. &W3 )\n' +
-		'qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )';
+	const mmpSource = `50::df-c |- CC = ( R. X. R. )
+52::coi |- ( -. &W1 -> -. &W3 )
+qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
@@ -188,9 +187,9 @@ test("step suggestion for empty parse node from partial label", () => {
 
 	const mmParser: MmParser = impbiiMmParser;
 
-	const mmpSource =
-		'ax-\n' +
-		'qed: |- ps';
+	const mmpSource = `\
+ax-
+qed: |- ps`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();

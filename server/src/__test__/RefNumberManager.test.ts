@@ -6,11 +6,12 @@ import { WorkingVars } from '../mmp/WorkingVars';
 import { impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
 
 test('expect proper renumbering', () => {
-	const mmpSource =
-		'\n* test comment\n\n' +
-		'h50: |- ps\n' +
-		'a::a1i |- &W1\n' +
-		'qed:: |- ch';
+	const mmpSource = `
+* test comment
+
+h50: |- ps
+a::a1i |- &W1
+qed:: |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
@@ -21,12 +22,14 @@ test('expect proper renumbering', () => {
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-	const newTextExpected =
-		'\n* test comment\n\n' +
-		'h1::               |- ps\n' +
-		'2::                 |- &W2\n' +
-		'3:2:a1i            |- ( &W3 -> &W2 )\n' +
-		'qed::              |- ch\n';
+	const newTextExpected = `
+* test comment
+
+h1::               |- ps
+2::                 |- &W2
+3:2:a1i            |- ( &W3 -> &W2 )
+qed::              |- ch
+`;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

@@ -137,12 +137,12 @@ qed:51,53:ax-mp |- ch`;
 });
 
 test('Expect proof right parenthesis to be on a new line, followed by a space', () => {
-	const mmpSource =
-		'$theorem test\n' +
-		'* This is just a test comment\n' +
-		'qed:ax-5 |- ( x e. A -> A. y x e. A )\n' +
-		'$d A y\n' +
-		'$d x y\n';
+	const mmpSource = `$theorem test
+* This is just a test comment
+qed:ax-5 |- ( x e. A -> A. y x e. A )
+$d A y
+$d x y
+`;
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(theoryToTestDjVarViolation);
 	const mmtSaverArgs: MmtSaverArgs = {
@@ -155,19 +155,20 @@ test('Expect proof right parenthesis to be on a new line, followed by a space', 
 	// testMmtSaver: TestMmtSaver = new TestMmtSaver('', '', mmParser, 6, 20);
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
-	const textExpected =
-		'  ${\n' +
-		'    $d A y $.\n' +
-		'    $d x y $.\n' +
-		'    $( This is just\n' +
-		'       a test\n' +
-		'       comment $)\n' +
-		'    test $p |- ( x\n' +
-		'       e. A -> A. y\n' +
-		'       x e. A ) $=\n' +
-		'      ( cv wcel ax-5\n' +
-		'      ) ADCEBF $.\n' +
-		'  $}\n';
+	const textExpected = `\
+  \${
+    $d A y $.
+    $d x y $.
+    $( This is just
+       a test
+       comment $)
+    test $p |- ( x
+       e. A -> A. y
+       x e. A ) $=
+      ( cv wcel ax-5
+      ) ADCEBF $.
+  $}
+`;
 
 	expect(textProduced).toEqual(textExpected);
 
@@ -185,22 +186,23 @@ test('reformat comment', () => {
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const text = '$( This is just a test comment $)';
 	const textProduced: string | undefined = testMmtSaver.reformat(text, 4, 7);
-	const textExpected =
-		'    $( This is just\n' +
-		'       a test\n' +
-		'       comment $)\n';
+	const textExpected = `\
+    $( This is just
+       a test
+       comment $)
+`;
 	expect(textProduced).toEqual(textExpected);
 });
 
 test('reformat EHyps ', () => {
-	const mmpSource =
-		'$theorem test\n' +
-		'* This is just a test comment\n' +
-		'h50::mp2.1 |- ph\n' +
-		'h51::mp2.2 |- ps\n' +
-		'h52::mp2.3 |- ( ph -> ( ps -> ch ) )\n' +
-		'53:50,52:ax-mp |- ( ps -> ch )\n' +
-		'qed:51,53:ax-mp |- ch';
+	const mmpSource = `\
+$theorem test
+* This is just a test comment
+h50::mp2.1 |- ph
+h51::mp2.2 |- ps
+h52::mp2.3 |- ( ph -> ( ps -> ch ) )
+53:50,52:ax-mp |- ( ps -> ch )
+qed:51,53:ax-mp |- ch`;
 	const mmParser: MmParser = new MmParser();
 	mmParser.ParseText(mp2Theory);
 	const mmtSaverArgs: MmtSaverArgs = {
@@ -216,16 +218,17 @@ test('reformat EHyps ', () => {
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 
-	const textExpected =
-		'  ${\n' +
-		'    mp2.1 $e |- ph $.\n' +
-		'    mp2.2 $e |- ps $.\n' +
-		'    mp2.3 $e |- ( ph -> ( ps -> ch )\n' +
-		'       ) $.\n' +
-		'    $( This is just a test comment $)\n' +
-		'    test $p |- ch $=\n' +
-		'      ( wi ax-mp ) BCEABCGDFHH $.\n' +
-		'  $}\n';
+	const textExpected = `\
+  \${
+    mp2.1 $e |- ph $.
+    mp2.2 $e |- ps $.
+    mp2.3 $e |- ( ph -> ( ps -> ch )
+       ) $.
+    $( This is just a test comment $)
+    test $p |- ch $=
+      ( wi ax-mp ) BCEABCGDFHH $.
+  $}
+`;
 
 	expect(textProduced).toEqual(textExpected);
 
@@ -238,22 +241,25 @@ test('Expect $d constraints with 3 and 4 variables', () => {
 	// whereas mmj2 produces
 
 	// $d A j k x $. $d F k x $. $d k ph x $.
-	const mmpSource =
-		'$theorem test\n' +
-		'\n* test comment\n\n' +
-		'h1::test.1 |- ph\n' +
-		'h2::test.2 |- ( ph -> ps )\n' +
-		'qed:1,2:ax-mp |- ps\n' +
-		'$d ph x\n' +
-		'$d k x\n' +
-		'$d k ph\n' +
-		'$d j x\n' +
-		'$d j k\n' +
-		'$d F x\n' +
-		'$d F k\n' +
-		'$d A x\n' +
-		'$d A k\n' +
-		'$d A j\n';
+	const mmpSource = `\
+$theorem test
+
+* test comment
+
+h1::test.1 |- ph
+h2::test.2 |- ( ph -> ps )
+qed:1,2:ax-mp |- ps
+$d ph x
+$d k x
+$d k ph
+$d j x
+$d j k
+$d F x
+$d F k
+$d A x
+$d A k
+$d A j
+`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 
@@ -268,18 +274,17 @@ test('Expect $d constraints with 3 and 4 variables', () => {
 	const testMmtSaver: TestMmtSaver = new TestMmtSaver(mmtSaverArgs);
 	const textProduced: string | undefined = testMmtSaver.tryToCreateTextToBeStored(mmpSource);
 
-	const textExpected =
-		'  ${\n' +
-		// '    $d ph x $. $d k x $. $d k ph $. $d j x $. $d j k $. $d F x $. $d F k $.\n' +
-		// '    $d A x $. $d A k $. $d A j $.\n' +
-		'    $d A j k x $. $d F k x $.\n' +
-		'    $d k ph x $.\n' +
-		'    test.1 $e |- ph $.\n' +
-		'    test.2 $e |- ( ph -> ps ) $.\n' +
-		'    $( test comment $)\n' +
-		'    test $p |- ps $=\n' +
-		'      ( ax-mp ) ABCDE $.\n' +
-		'  $}\n';
+	const textExpected = `\
+  \${
+    $d A j k x $. $d F k x $.
+    $d k ph x $.
+    test.1 $e |- ph $.
+    test.2 $e |- ( ph -> ps ) $.
+    $( test comment $)
+    test $p |- ps $=
+      ( ax-mp ) ABCDE $.
+  $}
+`;
 	expect(textProduced).toEqual(textExpected);
 });
 

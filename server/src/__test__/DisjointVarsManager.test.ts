@@ -7,13 +7,13 @@ import { doesDiagnosticsContain } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
 
-export const theoryToTestDjVarViolation = " $c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. $v ps $. " +
-	"wph $f wff ph $. wps $f wff ps $. wi $a wff ( ph -> ps ) $. $c A. $. $c setvar $. $c class $. " +
-	"${ $v x $. vx.cv $f setvar x $. " +
-	"cv $a class x $. $} $v x $. $v y $. vx $f setvar x $. vy $f setvar y $. " +
-	"wal $a wff A. x ph $. ${ $d x ph $. " +
-	"ax-5 $a |- ( ph -> A. x ph ) $. $}	$c e. $. ${ $v A $. $v B $. wcel.cA $f class A $. wcel.cB $f class B $. " +
-	"wcel $a wff A e. B $. $} $v A $. cA $f class A $. $v B $. cB $f class B $. ";
+export const theoryToTestDjVarViolation = ' $c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. $v ps $. ' +
+	'wph $f wff ph $. wps $f wff ps $. wi $a wff ( ph -> ps ) $. $c A. $. $c setvar $. $c class $. ' +
+	'${ $v x $. vx.cv $f setvar x $. ' +
+	'cv $a class x $. $} $v x $. $v y $. vx $f setvar x $. vy $f setvar y $. ' +
+	'wal $a wff A. x ph $. ${ $d x ph $. ' +
+	'ax-5 $a |- ( ph -> A. x ph ) $. $}	$c e. $. ${ $v A $. $v B $. wcel.cA $f class A $. wcel.cB $f class B $. ' +
+	'wcel $a wff A e. B $. $} $v A $. cA $f class A $. $v B $. cB $f class B $. ';
 
 test("Expect Disjoint Constraint violation", () => {
 	// mmj2 error

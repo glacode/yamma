@@ -6,11 +6,10 @@ import { SearchStatementCompletionProvider } from '../search/SearchStatementComp
 import { kindToPrefixMap, mp2MmParser, mp2Statistics, opelcnMmParser, opelcnStatistics, vexStatistics, vexTheoryMmParser } from './GlobalForTest.test';
 
 test("SearchStatementCompletionProvider 1", () => {
-	const mmpSource: string =
-		'h50::hyp1 |- ph\n' +
-		'51::      |- ps\n' +
-		'SearchSymbols: ps   SearchComment: \n' +
-		'qed:: |- ph';
+	const mmpSource = `h50::hyp1 |- ph
+51::      |- ps
+SearchSymbols: ps   SearchComment: 
+qed:: |- ph`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -30,11 +29,11 @@ test("SearchStatementCompletionProvider 1", () => {
 });
 
 test("SearchStatementCompletionProvider empty", () => {
-	const mmpSource: string =
-		'h50::hyp1 |- ph\n' +
-		'51::      |- ps\n' +
-		'SearchSymbols: ps nonexistent   SearchComment: \n' +
-		'qed:: |- ph';
+	const mmpSource = `\
+h50::hyp1 |- ph
+51::      |- ps
+SearchSymbols: ps nonexistent   SearchComment: 
+qed:: |- ph`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -50,12 +49,12 @@ test("SearchStatementCompletionProvider empty", () => {
 });
 
 test("SearchStatementCompletionProvider multiline", () => {
-	const mmpSource: string =
-		'h50::hyp1 |- ph\n' +
-		'51::      |- ( ps \n' +
-		'              -> ph )\n' +
-		'SearchSymbols: ps   SearchComment: \n' +
-		'qed:: |- ph';
+	const mmpSource = `\
+h50::hyp1 |- ph
+51::      |- ( ps 
+              -> ph )
+SearchSymbols: ps   SearchComment: 
+qed:: |- ph`;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
@@ -77,11 +76,11 @@ test("SearchStatementCompletionProvider multiline", () => {
 });
 
 test("SearchStatementCompletionProvider with symbol in EHyp", () => {
-	const mmpSource: string =
-		'h50::hyp1 |- ph\n' +
-		'51::      |- ps\n' +
-		'SearchSymbols: | A  SearchComment: \n' +
-		'qed:: |- ph';
+const mmpSource = `\
+h50::hyp1 |- ph
+51::      |- ps
+SearchSymbols: | A  SearchComment: 
+qed:: |- ph`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();

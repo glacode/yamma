@@ -16,15 +16,15 @@ class TestModelLoader extends ModelLoader {
 test("test 1 ModelLoader", () => {
 	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersForTest();
 	const modelLoader: TestModelLoader = new TestModelLoader('', fomulaClassifiers);
-	const model: string =
-		'full3,wff wff wi TOP,id,15\n' +
-		'full3,wff wff wi TOP,syl,10\n' +
-		'full3,wff wff wi TOP,biimpi,10\n' +
-		'full3,wff wff wn wi wi TOP,con2d,2\n' +
-		'full3,wff wff wn wi wi TOP,con4d,1\n' +
-		'full3,wff wff wn wi wi TOP,a1i,1\n' +
-		'imp2,wff,syl,17\n' +
-		'imp2,wff,id,15';
+const model = `\
+full3,wff wff wi TOP,id,15
+full3,wff wff wi TOP,syl,10
+full3,wff wff wi TOP,biimpi,10
+full3,wff wff wn wi wi TOP,con2d,2
+full3,wff wff wn wi wi TOP,con4d,1
+full3,wff wff wn wi wi TOP,a1i,1
+imp2,wff,syl,17
+imp2,wff,id,15`;
 	const stepSuggestionMap: StepSuggestionMap = modelLoader.buildSuggestionsMapForModel(model);
 	expect(stepSuggestionMap.map.size).toBe(2);
 	const suggestionsForClassifierFull3: StepSuggestionsForClassifier | undefined = stepSuggestionMap.map.get('full3');

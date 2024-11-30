@@ -245,18 +245,18 @@ $= ( ax-mp wi ) BCEABCHDFGG $.
 	expect(textEdit3.newText).toEqual(newTextExpected);
 });
 
-const idTheory = "$c ( $. $c ) $. $c -> $. $c wff $. $c |- $.\n" +
-	"$v ph $. $v ps $. $v ch $.\n" +
-	"wph $f wff ph $. wps $f wff ps $. wch $f wff ch $.\n" +
-	"wi $a wff ( ph -> ps ) $.\n" +
-	"${ min $e |- ph $. maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $. $}\n" +
-	"ax-1 $a |- ( ph -> ( ps -> ph ) ) $.\n" +
-	"ax-2 $a |- ( ( ph -> ( ps -> ch ) ) -> ( ( ph -> ps ) -> ( ph -> ch ) ) ) $.\n" +
-	"${ a2i.1 $e |- ( ph -> ( ps -> ch ) ) $. a2i $p |- ( ( ph -> ps ) -> ( ph -> ch ) ) $=\n" +
-	"( wi ax-2 ax-mp ) ABCEEABEACEEDABCFG $. $}\n" +
-	"${ mpd.1 $e |- ( ph -> ps ) $. mpd.2 $e |- ( ph -> ( ps -> ch ) ) $.\n" +
-	"mpd $p |- ( ph -> ch ) $= ( wi a2i ax-mp ) ABFACFDABCEGH $. $}\n" +
-	"id $p |- ( ph -> ph ) $= ( wi ax-1 mpd ) AAABZAAACAECD $.";
+const idTheory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $.\n' +
+	'$v ph $. $v ps $. $v ch $.\n' +
+	'wph $f wff ph $. wps $f wff ps $. wch $f wff ch $.\n' +
+	'wi $a wff ( ph -> ps ) $.\n' +
+	'${ min $e |- ph $. maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $. $}\n' +
+	'ax-1 $a |- ( ph -> ( ps -> ph ) ) $.\n' +
+	'ax-2 $a |- ( ( ph -> ( ps -> ch ) ) -> ( ( ph -> ps ) -> ( ph -> ch ) ) ) $.\n' +
+	'${ a2i.1 $e |- ( ph -> ( ps -> ch ) ) $. a2i $p |- ( ( ph -> ps ) -> ( ph -> ch ) ) $=\n' +
+	'( wi ax-2 ax-mp ) ABCEEABEACEEDABCFG $. $}\n' +
+	'${ mpd.1 $e |- ( ph -> ps ) $. mpd.2 $e |- ( ph -> ( ps -> ch ) ) $.\n' +
+	'mpd $p |- ( ph -> ch ) $= ( wi a2i ax-mp ) ABFACFDABCEGH $. $}\n' +
+	'id $p |- ( ph -> ph ) $= ( wi ax-1 mpd ) AAABZAAACAECD $.';
 
 test("id - Build Compressed proof for id", () => {
 	//in mmj2

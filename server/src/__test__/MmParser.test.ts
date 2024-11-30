@@ -42,10 +42,10 @@ test("Parsing two $f statements", () => {
 
 // a self-contained database containing exactly and only the axioms and theorems for ax-mp
 // wi would not be needed for the theory, but we need it for the Proof Assistant (the grammar for wff is the least requirement)
-const axmpTheory = "$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. " +
-    "$v ps $. wph $f wff ph $. wps $f wff ps $.\n" +
-    "wi $a wff ( ph -> ps ) $.\n" +
-    "${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}";
+const axmpTheory = '$c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. ' +
+    '$v ps $. wph $f wff ph $. wps $f wff ps $.\n' +
+    'wi $a wff ( ph -> ps ) $.\n' +
+    '${ min $e |- ph $.  maj $e |- ( ph -> ps ) $. ax-mp $a |- ps $.  $}';
 
 test("Parsing axmp", () => {
     const parser: MmParser = new MmParser();

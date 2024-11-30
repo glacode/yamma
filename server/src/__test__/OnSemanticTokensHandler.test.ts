@@ -14,14 +14,14 @@ class TestOnSemanticTokensHandler extends OnSemanticTokensHandler {
 }
 
 test('semantic tokens', () => {
-	const mmpSource =
-		'ax-mp |- ph\n' +
-		'* comment\n' +
-		'd1: |- ( A. x e. A -> x e. B )\n' +
-		'SearchSymbols: aa bb SearchComment: cc\n' +
-		'qed:: |- ps\n' +
-		'$= ( cvv wcel ) ABDJK $.\n' +
-		'd x y';
+const mmpSource = `\
+ax-mp |- ph
+* comment
+d1: |- ( A. x e. A -> x e. B )
+SearchSymbols: aa bb SearchComment: cc
+qed:: |- ps
+$= ( cvv wcel ) ABDJK $.
+d x y`;
 	const expectedData: number[] = [
 		0, 9, 2, 1, 0,  // ph : 1 stands for 'variable' i.e. 'wff'
 		1, 0, 1, 0, 0,  // * 0 stands for 'comment'

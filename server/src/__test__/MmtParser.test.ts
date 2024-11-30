@@ -2,17 +2,17 @@ import { concatTokenValuesWithSpaces } from '../mm/Utils';
 import { MmtParser } from '../mmt/MmtParser';
 
 test('exlimddv should be successfully parsed', () => {
-	const mmtContent =
-		'${\n' +
-		'$d x ch $.  $d x ph $.\n' +
-		'exlimddv.1 $e |- ( ph -> E. x \n' +
-		'ps ) $.\n' +
-		'exlimddv.2 $e |- ( ( ph /\\ ps ) -> ch ) $.\n' +
-		'$( Some comment spanning two\n' +
-		'rows $)\n' +
-		'exlimddv $p |- ( ph -> ch ) $=\n' +
-		'( wex ex exlimdv mpd ) ABDGCEABCDABCFHIJ $.\n' +
-		'$}';
+	const mmtContent = `\
+\${
+$d x ch $.  $d x ph $.
+exlimddv.1 $e |- ( ph -> E. x 
+ps ) $.
+exlimddv.2 $e |- ( ( ph /\\ ps ) -> ch ) $.
+$( Some comment spanning two
+rows $)
+exlimddv $p |- ( ph -> ch ) $=
+( wex ex exlimdv mpd ) ABDGCEABCDABCFHIJ $.
+$}`;
 	const mmtParser: MmtParser = new MmtParser(mmtContent);
 	mmtParser.parse();
 	expect(mmtParser.parseFailed).toBeFalsy();
@@ -36,10 +36,10 @@ test('exlimddv should be successfully parsed', () => {
 
 
 test('multiple disj vars constraints should be successfully parsed', () => {
-	const mmtContent =
-		'${\n' +
-		'$d x ph ch $.  $d ph w z $.\n' +
-		'$}';
+	const mmtContent = `\
+\${
+$d x ph ch $.  $d ph w z $.
+$}`;
 	const mmtParser: MmtParser = new MmtParser(mmtContent);
 	mmtParser.parse();
 	expect(mmtParser.parseFailed).toBeFalsy();

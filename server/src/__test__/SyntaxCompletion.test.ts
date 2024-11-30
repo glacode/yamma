@@ -40,11 +40,10 @@ test("creation of a list of symbols from a nearly.js error message",
 );
 
 test('expect syntax completion ordered by popularity', () => {
-	const mmpSource =
-		'$theorem impbii\n' +
-		'h50::impbii.1       |- ( ph -> ps )\n' +
-		'52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )\n' +
-		'qed:50,51,52:mp2   |- ( ph <->   )';
+	const mmpSource = `$theorem impbii
+h50::impbii.1       |- ( ph -> ps )
+52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )
+qed:50,51,52:mp2   |- ( ph <->   )`;
 	//           cursor context is here ^
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
@@ -54,7 +53,7 @@ test('expect syntax completion ordered by popularity', () => {
 	mmpStatistics.buildStatistics();
 	const cursorContext: CursorContext = new CursorContext(3, 31, mmpParser);
 	const syntaxCompletion: SyntaxCompletion = new SyntaxCompletion(cursorContext, impbiiMmParser,
-		mmpParser, mmStatistics,mmpStatistics);
+		mmpParser, mmStatistics, mmpStatistics);
 	const completionItems: CompletionItem[] = syntaxCompletion.completionItems();
 	expect(completionItems.length).toBeGreaterThan(3);
 	completionItems.forEach((completionItem: CompletionItem) => {
