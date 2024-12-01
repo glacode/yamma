@@ -127,6 +127,7 @@ export class ConfigurationManager implements IConfigurationManager {
 		if (this.hasConfigurationCapability) {
 			// Reset all cached document settings
 			this._documentSettings.clear();
+			console.log('didChangeConfiguration - going to updateTheoryIfTheCase');
 			await this.updateTheoryIfTheCase(change);
 		} else {
 			this.globalSettings = <IExtensionSettings>(

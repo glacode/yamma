@@ -391,9 +391,9 @@ export class Verifier {
 
     verify(provableStatement: ProvableStatement, proofStrings: string[],
         labelToStatementMap: Map<string, LabeledStatement>) {
-        if (labelToStatementMap.size % 1000 === 0) {
-            console.log("verifying : " + labelToStatementMap.size + " : " + provableStatement.Label);
-        }
+        // if (labelToStatementMap.size % 1000 === 0) {
+        //     console.log("verifying : " + labelToStatementMap.size + " : " + provableStatement.Label);
+        // }
 
         let proof: Statement[] | undefined;
         if (proofStrings[0] === '(')

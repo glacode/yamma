@@ -389,7 +389,7 @@ export class MmParser extends EventEmitter {
 
                 await events.EventEmitter.once(rl, 'close');
 
-                console.log('Reading file line by line with readline done.');
+                console.log('ParseFileAsync: Reading file line by line with readline done.');
                 const used = process.memoryUsage().heapUsed / 1024 / 1024;
                 console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
 
@@ -431,7 +431,7 @@ export class MmParser extends EventEmitter {
             const fileLines: string[] = fs.readFileSync(localFileName, 'utf-8')
                 .split('\n');
 
-            console.log('Reading file line by line with readline done.');
+            console.log('ParseFileSync: Reading file line by line with readline done.');
             const used = process.memoryUsage().heapUsed / 1024 / 1024;
             console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
 
