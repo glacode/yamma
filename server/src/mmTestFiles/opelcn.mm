@@ -4182,14 +4182,16 @@
   ${
     eqeltr.1 $e |- A = B $.
     eqeltr.2 $e |- B e. C $.
-    
+    $( Substitution of equal classes comment1
+       newline1 $)
     eqeltri $p |- A e. C $=
       ( wcel eleq1i mpbir ) ACFBCFEABCDGH $.
   $}
   ${
     eleqtr.1 $e |- A e. B $.
     eleqtr.2 $e |- B = C $.
-    
+    $( Substitution of equal classes comment2
+       newline2 $)
     eleqtri $p |- A e. C $=
       ( wcel eleq2i mpbi ) ABFACFDBCAEGH $.
   $}

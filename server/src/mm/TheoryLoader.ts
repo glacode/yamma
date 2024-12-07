@@ -130,7 +130,8 @@ export class TheoryLoader {
 	 * 
 	 */
 	async loadNewTheoryIfNeededAndThenTheStepSuggestionModel() {
-		if (this.globalState.mmFilePath != this.mmFilePath) {
+		if (this.globalState.mmFilePath != this.mmFilePath && !this.globalState.loadingATheory) {
+			this.globalState.loadingATheory = true;
 			console.log('before loadNewTheorySync - GlobalState.mmParser = ' + this.globalState.mmParser);
 			await this.loadNewTheorySync();
 			//TODO consider using worker threads, I'm afraid this one is 'blocking', not really async
@@ -150,6 +151,7 @@ export class TheoryLoader {
 				console.log('after createParseNodesForAssertions');
 
 			}
+			this.globalState.loadingATheory = false;
 		}
 	}
 	//#endregion loadNewTheoryIfNeededAndThenTheStepSuggestionModel

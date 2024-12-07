@@ -130,3 +130,21 @@ qed::      |- ph
 	expect(completionItems[0].label).toBe('elabg');
 	expect(completionItems[1].label).toBe('elab2g');
 });
+
+test("SearchStatementCompletionProvider for single comment word", () => {
+	const mmpSource = `\
+h50::hyp1 |- ph
+51::      |- ps
+SearchSymbols: SearchComment: classes
+qed:: |- ph`;
+
+	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpSearchStatement: MmpSearchStatement = <MmpSearchStatement>mmpParser.mmpProof!.mmpStatements[2];
+	const searchStatementCompletionProvider: SearchStatementCompletionProvider =
+		new SearchStatementCompletionProvider(mmpSearchStatement, mmpParser, opelcnStatistics);
+	const completionItems: CompletionItem[] = searchStatementCompletionProvider.completionItems();
+	expect(completionItems.length).toBe(2);
+	const completionItem0: CompletionItem = completionItems[0];
+	expect(completionItem0.label).toBe('eqeltri');
+});

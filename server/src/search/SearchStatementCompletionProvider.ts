@@ -19,6 +19,8 @@ export class SearchStatementCompletionProvider {
 
 	//#region completionItems
 
+	//#region getAssertionsFromSymbolFilter
+
 	//#region assertionsSets
 	addAssertionSet(symbol: string, result: Set<Set<AssertionStatement>>) {
 		let assertionsContainingThisSymbol: Set<AssertionStatement> | undefined =
@@ -37,6 +39,68 @@ export class SearchStatementCompletionProvider {
 		return result;
 	}
 	//#endregion assertionsSets
+
+	//#region selectAssertionsContainingNormalizedSubstrings
+
+	//#region assertionContainsAllSubstrings
+	private assertionOrEHypsContainSubstring(assertion: AssertionStatement, normalizedSUbstring: string): boolean {
+		let containsSubstring: boolean = assertion.normalizedFormula.indexOf(normalizedSUbstring) != -1;
+		let i = 0;
+		while (!containsSubstring && i < assertion.frame!.eHyps.length) {
+			// all substrings are contained, so far; and i points to an existing substring to check
+			// containsAllSubstrings = assertion.normalizedFormula.indexOf(normalizedSubstringsToSearch[i]) != -1;
+			containsSubstring = assertion.frame!.eHyps[i].normalizedFormula.indexOf(normalizedSUbstring) != -1;
+			i++;
+		}
+		return containsSubstring;
+	}
+	private assertionContainsAllSubstrings(assertion: AssertionStatement, normalizedSubstringsToSearch: string[]): boolean {
+		let containsAllSubstrings = true;
+		let i = 0;
+		while (containsAllSubstrings && i < normalizedSubstringsToSearch.length) {
+			// all substrings are contained, so far; and i points to an existing substring to check
+			// containsAllSubstrings = assertion.normalizedFormula.indexOf(normalizedSubstringsToSearch[i]) != -1;
+			containsAllSubstrings = this.assertionOrEHypsContainSubstring(assertion, normalizedSubstringsToSearch[i]);
+			i++;
+		}
+		return containsAllSubstrings;
+	}
+	//#endregion assertionContainsAllSubstrings
+	private selectAssertionsContainingNormalizedSubstrings(assertions: Set<AssertionStatement> | undefined,
+		normalizedSubstringsToSearch: string[]): Set<AssertionStatement> | undefined {
+		let assertionsContainingNormalizedSubstrings: Set<AssertionStatement> | undefined = assertions;
+		if (normalizedSubstringsToSearch.length > 0 && assertions != undefined) {
+			// at least one normalized substring is used to filter out assertions
+			assertionsContainingNormalizedSubstrings = new Set<AssertionStatement>();
+			assertions.forEach((assertion: AssertionStatement) => {
+				if (this.assertionContainsAllSubstrings(assertion, normalizedSubstringsToSearch))
+					assertionsContainingNormalizedSubstrings!.add(assertion);
+			});
+		}
+		return assertionsContainingNormalizedSubstrings;
+	}
+	//#endregion selectAssertionsContainingNormalizedSubstrings
+
+	private getAssertionsFromSymbolFilter() {
+		const assertionsSets: Set<Set<AssertionStatement>> = this.assertionsSets();
+		const assertionsInTheIntersection: Set<AssertionStatement> | undefined = intersection<AssertionStatement>(assertionsSets);
+		const assertionsInTheIntersectionContainingNormalizedSubstrings: Set<AssertionStatement> | undefined = this.selectAssertionsContainingNormalizedSubstrings(assertionsInTheIntersection,
+			this.mmpSearchStatement.normalizedSubstringsToSearch);
+		return assertionsInTheIntersectionContainingNormalizedSubstrings;
+	}
+
+	//#endregion getAssertionsFromSymbolFilter
+
+	addItemNotFound(completionItems: CompletionItem[]) {
+		const command: Command = Command.create('Search completion item selected', 'yamma.completionitemselected');
+		const completionItem: CompletionItem = {
+			label: SearchStatementCompletionProvider.noAssertionFoundLabel,
+			command: command,
+			// additionalTextEdits: [additionalTextEdit],
+		};
+		completionItems.push(completionItem);
+	}
+
 
 	//#region completionItemsForAssertionsInTheIntersections
 
@@ -127,70 +191,65 @@ export class SearchStatementCompletionProvider {
 	}
 	//#endregion completionItemsForAssertionsInTheIntersections
 
-	addItemNotFound(completionItems: CompletionItem[]) {
-		const command: Command = Command.create('Search completion item selected', 'yamma.completionitemselected');
-		const completionItem: CompletionItem = {
-			label: SearchStatementCompletionProvider.noAssertionFoundLabel,
-			command: command,
-			// additionalTextEdits: [additionalTextEdit],
-		};
-		completionItems.push(completionItem);
-	}
-
-	//#region selectAssertionsContainingNormalizedSubstrings
-	//#region assertionContainsAllSubstrings
-	private assertionOrEHypsContainSubstring(assertion: AssertionStatement, normalizedSUbstring: string): boolean {
-		let containsSubstring: boolean = assertion.normalizedFormula.indexOf(normalizedSUbstring) != -1;
-		let i = 0;
-		while (!containsSubstring && i < assertion.frame!.eHyps.length) {
-			// all substrings are contained, so far; and i points to an existing substring to check
-			// containsAllSubstrings = assertion.normalizedFormula.indexOf(normalizedSubstringsToSearch[i]) != -1;
-			containsSubstring = assertion.frame!.eHyps[i].normalizedFormula.indexOf(normalizedSUbstring) != -1;
-			i++;
+	//#region applyCommentFilter
+	addAssertionIfItPassesCommentFilter(assertion: AssertionStatement,
+		assertionsFromSymbolAndCommentFilters: Set<AssertionStatement>) {
+		if (this.assertionContainsAllSubstrings(assertion, this.mmpSearchStatement.substringsToSearchInComments)) {
+			assertionsFromSymbolAndCommentFilters.add(assertion);
 		}
-		return containsSubstring;
 	}
-	private assertionContainsAllSubstrings(assertion: AssertionStatement, normalizedSubstringsToSearch: string[]): boolean {
-		let containsAllSubstrings = true;
+	private doesCommentContainAllSubstrings(assertionComment: string, normalizedSubstringsToSearch: string[]): boolean {
+		let containsAllSubstrings = (assertionComment != undefined);
 		let i = 0;
 		while (containsAllSubstrings && i < normalizedSubstringsToSearch.length) {
 			// all substrings are contained, so far; and i points to an existing substring to check
 			// containsAllSubstrings = assertion.normalizedFormula.indexOf(normalizedSubstringsToSearch[i]) != -1;
-			containsAllSubstrings = this.assertionOrEHypsContainSubstring(assertion, normalizedSubstringsToSearch[i]);
+			containsAllSubstrings = assertionComment.indexOf(normalizedSubstringsToSearch[i]) != -1;
 			i++;
 		}
 		return containsAllSubstrings;
 	}
-	//#endregion assertionContainsAllSubstrings
-	private selectAssertionsContainingNormalizedSubstrings(assertions: Set<AssertionStatement> | undefined,
-		normalizedSubstringsToSearch: string[]): Set<AssertionStatement> | undefined {
-		let assertionsContainingNormalizedSubstrings: Set<AssertionStatement> | undefined = assertions;
-		if (normalizedSubstringsToSearch.length > 0 && assertions != undefined) {
-			// at least one normalized substring is used to filter out assertions
-			assertionsContainingNormalizedSubstrings = new Set<AssertionStatement>();
-			assertions.forEach((assertion: AssertionStatement) => {
-				if (this.assertionContainsAllSubstrings(assertion, normalizedSubstringsToSearch))
-					assertionsContainingNormalizedSubstrings!.add(assertion);
-			});
+
+	applyCommentFilter(assertionsFromSymbolFilter: Set<AssertionStatement> | undefined): Set<AssertionStatement> | undefined {
+		let assertionsFromSymbolAndCommentFilters = assertionsFromSymbolFilter;
+		if (this.mmpSearchStatement.substringsToSearchInComments.length > 0) {
+			// the user added a filter for comments content
+			assertionsFromSymbolAndCommentFilters = new Set<AssertionStatement>();
+
+			if (this.mmpSearchStatement.symbolsToSearch.length == 0) {
+
+				// the use didn't request to filter for symbols, but only for comments
+				this.mmpParser.mmParser.labelToNonSyntaxAssertionMap.forEach((assertion: AssertionStatement) => {
+					if (this.doesCommentContainAllSubstrings(assertion.normalizedComment,
+						this.mmpSearchStatement.substringsToSearchInComments))
+						assertionsFromSymbolAndCommentFilters!.add(assertion);
+				}, assertionsFromSymbolAndCommentFilters);
+			}
+			else if (assertionsFromSymbolFilter != undefined)
+				assertionsFromSymbolFilter.forEach((assertion: AssertionStatement) => {
+					if (this.doesCommentContainAllSubstrings(assertion.normalizedComment,
+						this.mmpSearchStatement.substringsToSearchInComments))
+						assertionsFromSymbolAndCommentFilters!.add(assertion);
+				});
 		}
-		return assertionsContainingNormalizedSubstrings;
+		return assertionsFromSymbolAndCommentFilters;
 	}
-	//#endregion selectAssertionsContainingNormalizedSubstrings
+	//#endregion applyCommentFilter
 
 	completionItems(): CompletionItem[] {
-		const assertionsSets: Set<Set<AssertionStatement>> = this.assertionsSets();
-		const assertionsInTheIntersection: Set<AssertionStatement> | undefined = intersection<AssertionStatement>(assertionsSets);
-		const assertionsInTheIntersectionContainingNormalizedSubstrings: Set<AssertionStatement> | undefined =
-			this.selectAssertionsContainingNormalizedSubstrings(assertionsInTheIntersection,
-				this.mmpSearchStatement.normalizedSubstringsToSearch);
+		const assertionsFromSymbolFilter: Set<AssertionStatement> | undefined = this.getAssertionsFromSymbolFilter();
+		const assertionsFromSymbolAndCommentFilters: Set<AssertionStatement> | undefined =
+			this.applyCommentFilter(assertionsFromSymbolFilter);
 		// const result: CompletionItem[] = this.completionItemsForAssertionsInTheIntersections(assertionsInTheIntersection);
 		const result: CompletionItem[] =
-			this.completionItemsForAssertionsInTheIntersections(assertionsInTheIntersectionContainingNormalizedSubstrings);
+			this.completionItemsForAssertionsInTheIntersections(assertionsFromSymbolAndCommentFilters);
 		if (result.length == 0)
 			// the search yelds no result
 			this.addItemNotFound(result);
 		return result;
 	}
+
+
 	//#endregion completionItems
 
 }

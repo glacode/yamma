@@ -12,3 +12,4 @@ scripts/e2e.sh
 server/coverage
 syntaxes/*
 *.vsix
+tsconfig.tsbuildinfo

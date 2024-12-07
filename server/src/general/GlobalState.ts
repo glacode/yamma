@@ -39,9 +39,15 @@ export class GlobalState {
 	lastFetchedSettings: IExtensionSettings | undefined;
 
 	connection?: Connection;
+	
+	/** true iff the extension is loading a theory; used to avoid multiple loading
+	 * triggered by different events
+	 */
+	loadingATheory = false;
 
 	/** true iff a unify() has been performed, but the cursor has not been updated yet*/
 	private _isCursorPositionUpdateRequired = false;
+
 
 	public get isCursorPositionUpdateRequired() {
 		const result: boolean = this._isCursorPositionUpdateRequired;
