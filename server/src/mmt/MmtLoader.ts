@@ -225,6 +225,7 @@ export class MmtLoader {
 			if (!this.loadFailed)
 				// TODO we stop if a single file failed to be load, see
 				// if it's better to load all those that can be loaded
+				console.log(theoremLabel);
 				this.loadFile(theoremLabel + '.mmt');
 		});
 	}
