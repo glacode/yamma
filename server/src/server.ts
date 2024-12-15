@@ -248,8 +248,12 @@ connection.onRequest('yamma/loadmmt', (pathAndUri: PathAndUri) => {
 		const mmtLoader: MmtLoader = new MmtLoader(pathAndUri.fsPath, globalState.mmParser,
 			globalState);
 		mmtLoader.loadMmt();
-		if (mmtLoader.loadFailed && mmtLoader.diagnostics.length > 0) {
-			const errorMessage: string = mmtLoader.diagnostics[0].message;
+		if (mmtLoader.loadFailed && mmtLoader.diagnosticsMap.size > 0) {
+			const errorMessage: string = `\
+Some error occoured loading .mmt files.
+See the "PROBLEMS" tab for the complete list of errors.
+This is the first error found:
+${mmtLoader.diagnostics[0].message}`;
 			notifyError(errorMessage, connection);
 			sendDiagnosticsFromLoadMmt(mmtLoader.diagnosticsMap);
 

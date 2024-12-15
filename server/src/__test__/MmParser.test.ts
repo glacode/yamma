@@ -241,7 +241,8 @@ test("expect not a label of an assertion or optional hypothesis", () => {
     expect(parser.diagnostics.length).toBeGreaterThanOrEqual(1);
     const diagnostic: Diagnostic = parser.diagnostics[0];
     expect(diagnostic.code).toBe(MmParserErrorCode.notALabelOfAssertionOrOptionalHyp);
-    expect(diagnostic.message).toBe("'wixxx' is not the label of an assertion or optional hypothesis");
+    expect(diagnostic.message).toBe(
+        "Theorem mp2 : 'wixxx' is not the label of an assertion or optional hypothesis");
     expect(diagnostic.range.start.line).toBe(7);
     expect(diagnostic.range.start.character).toBe(2);
     expect(diagnostic.range.end.line).toBe(7);

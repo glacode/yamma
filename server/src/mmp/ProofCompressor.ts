@@ -67,9 +67,11 @@ export class ProofCompressor {
     //#region getDecompressedProof
     private addDiagnosticForNotALabelForAssertion(provableStatement: ProvableStatement, labelIndex: number) {
         const labelToken: MmToken = provableStatement.compressedProofLabelsTokens[labelIndex];
-        const message = `'${labelToken.value}' is not the label of an assertion or optional hypothesis`;
+        const message = `\
+Theorem ${provableStatement.Label} : '${labelToken.value}' is not the label of an assertion or optional hypothesis`;
         MmParser.addDiagnosticError(message, labelToken.range,
-            MmParserErrorCode.notALabelOfAssertionOrOptionalHyp, this.diagnostics);
+            MmParserErrorCode.notALabelOfAssertionOrOptionalHyp, this.diagnostics,
+            provableStatement.Label);
         this.failed = true;
     }
     private addDiagnosticForLabelOfAProvableStatementWithFailedVerification(
