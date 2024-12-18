@@ -1,7 +1,7 @@
 /**
  * An efficient representation for a set of disjoint vars
  */
- export class DisjointVarMap {
+export class DisjointVarMap {
 	map: Map<string, Set<string>>;
 
 	constructor() {
@@ -33,4 +33,25 @@
 		return result;
 	}
 
+	/**
+	* Disjoint Vars are sorted lexicographically (each constraint is returned as an array with two elements)
+	*/
+	public get sortedDisjVarPairs(): Array<[string, string]> {
+		const pairs: Array<[string, string]> = [];
+
+		// Sort the keys of the Map
+		const sortedVar1 = Array.from(this.map.keys()).sort();
+
+		for (const var1 of sortedVar1) {
+			const setOfVarsDisjointFromVar1 = this.map.get(var1);
+			if (setOfVarsDisjointFromVar1) {
+				// Sort the elements of the Set
+				const sortedVars2 = Array.from(setOfVarsDisjointFromVar1).sort();
+				for (const var2 of sortedVars2) {
+					pairs.push([var1, var2]);
+				}
+			}
+		}
+		return pairs;
+	}
 }

@@ -1062,7 +1062,8 @@
        df-cleq $a |- ( A = B <-> A. x ( x e. A <-> x e. B ) ) $.
   $}
   ${
-    $d x A $.  $d x B $.  $d x y z $.
+    $d x A $.  $d x B $.  $d x y z $. 
+    $( Comment for dfcleq for unit test $)
        dfcleq $p |- ( A = B <-> A. x ( x e. A <-> x e. B ) ) $=
       ( vy vz axext3 df-cleq ) ADEBCDEAFG $.
   $}

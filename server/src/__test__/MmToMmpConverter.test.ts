@@ -3,7 +3,7 @@ import { ProofMode } from '../mm/ConfigurationManager';
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
-import { createMmParser, impbiiMmParser, kindToPrefixMap, opelcnMmParser } from './GlobalForTest.test';
+import { createMmParser, impbiiMmParser, kindToPrefixMap, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { MmParser } from '../mm/MmParser';
 
 test('Expect mmp proof for id theorem, to be inserted', () => {
@@ -116,13 +116,33 @@ qed:1:impi         |- ( -. ( ph -> -. ps ) -> ps )
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
 
-// $theorem test
+test('Expect $d constraints, to be inserted', () => {
+	// we've decided not to remove the wrong ref
+	const mmpSource = `
+* comment before
 
-// * MissingComment
+$getproof dfcleq`;
+	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const textEdit: TextEdit = textEditArray[0];
+	const newTextExpected = `
+* comment before
 
-// $theorem simprim
-// * Simplification.  Similar to Theorem *3.27 (Simp) of [WhiteheadRussell]
-//      p. 112.  (Contributed by NM, 3-Jan-1993.)  (Proof shortened by Wolf
-//      Lammen, 13-Nov-2012.)
-// 1::idd              |- ( ph -> ( ps -> ps ) )
-// qed:1:impi         |- ( -. ( ph -> -. ps ) -> ps )
+$theorem dfcleq
+* Comment for dfcleq for unit test
+1::axext3           |- ( A. x ( x e. y <-> x e. z ) -> y = z )
+qed:1:df-cleq      |- ( A = B <-> A. x ( x e. A <-> x e. B ) )
+$d A x
+$d B x
+$d x y
+$d x z
+$d y z
+`;
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+

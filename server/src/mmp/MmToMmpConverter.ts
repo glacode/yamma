@@ -237,9 +237,29 @@ export class MmToMmpConverter {
 		this.addMmpStatementsFromDecompressedProof(provableStatement, mmProof);
 	}
 	//#endregion addMmpStatements
+
+	//#region addDisjStatements
+	buildStatementTokens(var1: string, var2: string): MmToken[] {
+		const statementTokens: MmToken[] = [
+			new MmToken('$', 0, 0),
+			new MmToken(var1, 0, 2),
+			new MmToken(var2, 0, 4)
+		];
+		return statementTokens;
+	}
+	addDisjStatements(provableStatement: ProvableStatement) {
+		const sortedDisjVarPairs: Array<[string, string]> = provableStatement.frame!.disjVars.sortedDisjVarPairs;
+		for (const [var1, var2] of sortedDisjVarPairs) {
+			const statement: MmToken[] = this.buildStatementTokens(var1, var2);
+			this.mmpProof.addDisjointVarStatement(statement);
+		}
+	}
+	//#endregion addDisjStatements
+
 	buildProofForProvableStatement(provableStatement: ProvableStatement): MmpProof {
 		this.addHeaderStatements(provableStatement);
 		this.addMmpStatements(provableStatement);
+		this.addDisjStatements(provableStatement);
 		return this.mmpProof;
 	}
 	//#endregion buildProofForProvableStatement
