@@ -35,3 +35,15 @@
 ### Version 0.0.14 (2024-03-10)
 
 * A couple of runtime errors have been fixed. These fixes enhance the stability and reliability of the extension.
+
+### Version 0.0.15 (2024-12-19)
+
+* improved error notification and diagnostics when loading .mmt files
+
+* $getproof now also loads $d statements for the specified theorem
+
+#### Fixed
+
+* the multiple theory load problem has been fixed. ([#14](https://github.com/glacode/yamma/issues/14))
+
+* minor bug fixes
