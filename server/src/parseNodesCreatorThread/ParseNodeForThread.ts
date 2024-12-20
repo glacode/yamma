@@ -13,6 +13,11 @@ export interface MmTokenForThread {
 	column: number;
 }
 
+/**
+ * The ParseNodeForThreadConverter class provides methods to convert parse nodes and tokens
+ * into a format suitable for multi-threaded processing. We need this because threads cannot
+ * pass objects that are not serializable.
+ */
 export abstract class ParseNodeForThreadConverter {
 
 	//#region convertParseNode

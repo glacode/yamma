@@ -41,20 +41,38 @@ export function createParseNodeForThread(formula: string, grammar:
 	return parseNodeForThread;
 }
 
+function getParseNodeForThread(formula: string, grammar: Grammar, workingVars: WorkingVars,
+	formulaToParseNodeForThreadCache: Map<string, ParseNodeForThread>): ParseNodeForThread | undefined {
+	let parseNodeForThread: ParseNodeForThread | undefined = formulaToParseNodeForThreadCache.get(formula);
+	if (parseNodeForThread == undefined) {
+		parseNodeForThread = LabeledStatement.parseString(formula, grammar, workingVars);
+		if (parseNodeForThread != undefined)
+			formulaToParseNodeForThreadCache.set(formula, parseNodeForThread);
+	}
+	return parseNodeForThread;
+}
+
 // export for testing, only
 export function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string, string>,
 	mmpRulesForThread: IMmpRuleForThread[]): Map<string, ParseNodeForThread> {
 	const labelToParseNodeForThreadMap: Map<string, ParseNodeForThread> = new Map<string, ParseNodeForThread>();
 	const workingVars: WorkingVars = new WorkingVars(new Map<string, string>());
 	const grammar: Grammar = createGrammar(mmpRulesForThread, workingVars);
-	// const grammar: Grammar = createGrammar()
+	const formulaToParseNodeForThreadCache: Map<string, ParseNodeForThread> = new Map<string, ParseNodeForThread>();
 	let i = 0;
 	labelToFormulaMap.forEach((formula: string, label: string) => {
 		notifyProgress(i++, labelToFormulaMap.size, "createLabelToParseNodeForThreadMap");
-		const parseNodeForThread: ParseNodeForThread | undefined = createParseNodeForThread(formula, grammar, workingVars);
+		// comment out the following line to avoid caching
+		let parseNodeForThread: ParseNodeForThread | undefined = getParseNodeForThread(
+			formula, grammar, workingVars, formulaToParseNodeForThreadCache);
+		// uncomment the following line to avoid caching
+		// let parseNodeForThread: ParseNodeForThread | undefined = LabeledStatement.parseString(formula, grammar, workingVars);
+
 		if (parseNodeForThread != undefined)
 			labelToParseNodeForThreadMap.set(label, parseNodeForThread);
 	});
+	console.log('labelToParseNodeForThreadMap.size = ' + labelToParseNodeForThreadMap.size);
+	console.log('formulaToParseNodeForThreadCache.size = ' + formulaToParseNodeForThreadCache.size);
 	return labelToParseNodeForThreadMap;
 }
 //#endregion createLabelToParseNodeForThreadMap
