@@ -26,6 +26,7 @@ import { IExtensionSettings } from './ConfigurationManager';
 export enum MmParserErrorCode {
     varNotInActiveFStatement = "varNotInActiveFStatement",
     stackHasMoreThanOneItemAtEndOfProof = "stackHasMoreThanOneItemAtEndOfProof",
+    stackUnderflow = "stackUnderflow",
     assertionProvenDoesntMatch = "assertionProvenDoesntMatch",
     eHypDoesntMatchTheStackEntry = "eHypDoesntMatchTheStackEntry",
     missingDjVarsStatement = "missingDjVarsStatement",

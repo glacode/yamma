@@ -262,6 +262,8 @@ export class MmtLoader {
 			this.mmParser.on(MmParserEvents.newAxiomStatement, this.completeDataForStatement);
 			this.mmParser.on(MmParserEvents.newProvableStatement, this.completeDataForStatement);
 			this.loadFiles(theoremLabelsInLoadOrder);
+			this.mmParser.off(MmParserEvents.newAxiomStatement, this.completeDataForStatement);
+			this.mmParser.off(MmParserEvents.newProvableStatement, this.completeDataForStatement);
 			this.updateStatistics();
 		}
 		else {

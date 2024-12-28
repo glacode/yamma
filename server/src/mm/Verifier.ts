@@ -2,7 +2,6 @@ import { Diagnostic, Range } from 'vscode-languageserver';
 import { BlockStatement } from './BlockStatement';
 import { Frame } from "./Frame";
 import { MmDiagnostic, MmParserErrorCode } from './MmParser';
-import { ParseError } from '../grammar/ParseErrors';
 import { ProofCompressor } from "../mmp/ProofCompressor";
 import { Statement, ZIStatement, ZRStatement } from "./Statements";
 import { ProvableStatement } from "./ProvableStatement";
@@ -221,35 +220,37 @@ export class Verifier {
 
     verifyAssertionStatementActually(assertionStatement: AssertionStatement, assertionStatementProofStep: AssertionStatement,
         stack: string[][]) {
-        const parseErrors: ParseError[] = [];
+        // const parseErrors: ParseError[] = [];
         const frameProofStep: Frame = <Frame>assertionStatementProofStep.frame;
         const popCount: number = frameProofStep.fHyps.length + frameProofStep.eHyps.length;
         if (popCount > stack.length) {
-            //throw new Error("Stack underflow");
-            // const parseError: StackUnderflow = {
-            //     description: "Stack underflow", numFHyps: frameProofStep.fHyps.length,
-            //     numEHyps: frameProofStep.eHyps.length, stackLength: stack.length
-            // };
-            parseErrors.push({ description: "Stack underflow", });
+            const errorMessage = `Stack underflow. The stack has ${stack.length} items, but ` +
+                `the proof step ${assertionStatementProofStep.Label} requires ${popCount} items to be popped.`;
+            // parseErrors.push({ description: "Stack underflow", });
+            this.addDiagnosticError(errorMessage, assertionStatement,
+                MmParserErrorCode.stackUnderflow,
+                assertionStatement.labelToken.range);
+        } else {
+
+            const fHypsStack: string[][] = this.fHypsStack(frameProofStep, stack);
+            const eHypsStack: string[][] = this.eHypsStack(frameProofStep, stack);
+
+            const substitution: Map<string, string[]> =
+                this.buildSubstitution(frameProofStep.fHyps, fHypsStack, assertionStatement);
+            this.checkDisjointViolation(assertionStatement, frameProofStep, substitution);
+            this.checkSubstitutionForStakEHyps(eHypsStack, frameProofStep.eHyps, substitution,
+                assertionStatement);
+
+            for (let i = 0; i < popCount; i++)
+                stack.pop();
+
+            // const assertionContentToBeSubstituted = (assertionStatementProofStep instanceof AxiomStatement ? assertionStatementProofStep.Content :
+            //     (<ProvableStatement>assertionStatementProofStep).ContentBeforeProof);
+            const assertionStatementWithSubstitution =
+                this.applySubstitution(assertionStatementProofStep.formula,
+                    substitution);
+            stack.push(assertionStatementWithSubstitution);
         }
-        const fHypsStack: string[][] = this.fHypsStack(frameProofStep, stack);
-        const eHypsStack: string[][] = this.eHypsStack(frameProofStep, stack);
-
-        const substitution: Map<string, string[]> =
-            this.buildSubstitution(frameProofStep.fHyps, fHypsStack, assertionStatement);
-        this.checkDisjointViolation(assertionStatement, frameProofStep, substitution);
-        this.checkSubstitutionForStakEHyps(eHypsStack, frameProofStep.eHyps, substitution,
-            assertionStatement);
-
-        for (let i = 0; i < popCount; i++)
-            stack.pop();
-
-        // const assertionContentToBeSubstituted = (assertionStatementProofStep instanceof AxiomStatement ? assertionStatementProofStep.Content :
-        //     (<ProvableStatement>assertionStatementProofStep).ContentBeforeProof);
-        const assertionStatementWithSubstitution =
-            this.applySubstitution(assertionStatementProofStep.formula,
-                substitution);
-        stack.push(assertionStatementWithSubstitution);
     }
 
     verifyAssertionStatement(assertionStatement: AssertionStatement,
