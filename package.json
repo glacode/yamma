@@ -166,8 +166,11 @@
 			{
 				"command": "yamma.createModel",
 				"title": "Create models for the current theory (for step suggestions)"
+			},
+			{
+				"command": "yamma.removeUnusedStatements",
+				"title": "Remove unused statements in the current .mmp file"
 			}
-
 		],
 		"keybindings": [
 			{
@@ -194,9 +197,15 @@
 					"when": "resourceLangId == yamma",
 					"command": "yamma.unifyAndRenumber",
 					"group": "navigation"
-				},				{
+				},
+				{
 					"when": "resourceLangId == yamma",
 					"command": "yamma.search",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == yamma",
+					"command": "yamma.removeUnusedStatements",
 					"group": "navigation"
 				},
 				{

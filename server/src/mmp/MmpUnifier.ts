@@ -18,7 +18,8 @@ interface MmpUnifierArgs {
 	mmpParser: MmpParser;
 	proofMode: ProofMode;
 	maxNumberOfHypothesisDispositionsForStepDerivation: number;
-	renumber?: boolean;
+	renumber: boolean;
+	removeUnusedStatements: boolean;
 	expectedTheoremLabel?: string;
 	leftMarginForCompressedProof?: number;
 	characterPerLine?: number;
@@ -35,7 +36,8 @@ export class MmpUnifier {
 	proofMode: ProofMode;
 	private maxNumberOfHypothesisDispositionsForStepDerivation: number;
 
-	private renumber?: boolean
+	private renumber: boolean
+	private removeUnusedStatements: boolean
 	private expectedTheoremLabel?: string
 	private leftMarginForCompressedProof?: number
 	private characterPerLine?: number
@@ -78,6 +80,7 @@ export class MmpUnifier {
 		this.proofMode = args.proofMode;
 		this.maxNumberOfHypothesisDispositionsForStepDerivation = args.maxNumberOfHypothesisDispositionsForStepDerivation;
 		this.renumber = args.renumber;
+		this.removeUnusedStatements = args.removeUnusedStatements;
 		this.expectedTheoremLabel = args.expectedTheoremLabel;
 		this.leftMarginForCompressedProof = args.leftMarginForCompressedProof;
 		this.characterPerLine = args.characterPerLine;
@@ -154,9 +157,18 @@ export class MmpUnifier {
 	unify() {
 		//TODO see if this can be faster if done in the MmpParser
 		this.uProof!.updateAllWorkingVars();
+		// const uProofTransformer: MmpProofTransformer = new MmpProofTransformer(
+		// 	this.mmpParser, this.maxNumberOfHypothesisDispositionsForStepDerivation,
+		// 	this.renumber, this.expectedTheoremLabel);
 		const uProofTransformer: MmpProofTransformer = new MmpProofTransformer(
-			this.mmpParser, this.maxNumberOfHypothesisDispositionsForStepDerivation,
-			this.renumber, this.expectedTheoremLabel);
+			{
+				mmpParser: this.mmpParser,
+				maxNumberOfHypothesisDispositionsForStepDerivation:
+					this.maxNumberOfHypothesisDispositionsForStepDerivation,
+				renumber: this.renumber,
+				removeUnusedStatements: this.removeUnusedStatements,
+				expectedTheoremLabel: this.expectedTheoremLabel
+			});
 		uProofTransformer.transformUProof();
 		this.buildProofStatementIfProofIsComplete(this.uProof!);
 		this.textEditArray = this.buildTextEditArray(uProofTransformer.uProof);

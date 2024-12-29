@@ -17,7 +17,9 @@ qed:: |- ch`;
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
 			mmpParser: mmpParser, proofMode: ProofMode.normal,
-			maxNumberOfHypothesisDispositionsForStepDerivation: 0, renumber: true
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: true,
+			removeUnusedStatements: false
 		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;

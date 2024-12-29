@@ -292,9 +292,20 @@ async function unifyAndValidate(textDocumentUri: string) {
 	try {
 		//TODO1 see if an await here solves the response back before the unify is complete
 		const unificationResult: IUnificationResult =
-			await OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
-				Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
-				false);
+			await OnUnifyHandler.unifyAndValidate(
+				{
+					textDocumentUri: textDocumentUri,
+					connection: connection,
+					documents: documents,
+					hasConfigurationCapability: hasConfigurationCapability,
+					maxNumberOfHypothesisDispositionsForStepDerivation: Parameters.maxNumberOfHypothesisDispositionsForStepDerivation,
+					globalState: globalState,
+					renumber: false,
+					removeUnusedStatements: false
+				});
+		// textDocumentUri, connection, documents, hasConfigurationCapability,
+		// Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
+		// false);
 		if (unificationResult.mmpParser?.mmpProof != undefined &&
 			unificationResult.mmpParser.mmpProof.isProofComplete)
 			notifyInformation('The proof is complete!', connection);
@@ -311,12 +322,40 @@ connection.onRequest('yamma/unify', unifyAndValidate);
 
 
 async function unifyRenumberAndValidate(textDocumentUri: string) {
-	await OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
-		Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
-		true);
+	// await OnUnifyHandler.unifyAndValidate(textDocumentUri, connection, documents, hasConfigurationCapability,
+	// 	Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, globalState,
+	// 	true);
+	await OnUnifyHandler.unifyAndValidate(
+		{
+			textDocumentUri: textDocumentUri,
+			connection: connection,
+			documents: documents,
+			hasConfigurationCapability: hasConfigurationCapability,
+			maxNumberOfHypothesisDispositionsForStepDerivation: Parameters.maxNumberOfHypothesisDispositionsForStepDerivation,
+			globalState: globalState,
+			renumber: true,
+			removeUnusedStatements: false
+		});
 }
 
 connection.onRequest('yamma/unifyAndRenumber', unifyRenumberAndValidate);
+
+async function removeUnusedStatements(textDocumentUri: string) {
+	console.log('removeUnusedStatements');
+	await OnUnifyHandler.unifyAndValidate(
+		{
+			textDocumentUri: textDocumentUri,
+			connection: connection,
+			documents: documents,
+			hasConfigurationCapability: hasConfigurationCapability,
+			maxNumberOfHypothesisDispositionsForStepDerivation: Parameters.maxNumberOfHypothesisDispositionsForStepDerivation,
+			globalState: globalState,
+			renumber: false,
+			removeUnusedStatements: true
+		});
+}
+
+connection.onRequest('yamma/removeUnusedStatements', removeUnusedStatements);
 
 
 async function createModel(_textDocumentUri: string) {

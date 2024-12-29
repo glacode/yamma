@@ -79,6 +79,7 @@ export class MmtSaver {
 				mmpParser: mmpParser, proofMode: ProofMode.compressed,
 				maxNumberOfHypothesisDispositionsForStepDerivation: Parameters.maxNumberOfHypothesisDispositionsForStepDerivation,
 				renumber: false,
+				removeUnusedStatements: false,
 				leftMarginForCompressedProof: this.leftMargin,
 				characterPerLine: this.charactersPerLine,
 				mmpCompressedProofCreator: this.mmpCompressedProofCreator

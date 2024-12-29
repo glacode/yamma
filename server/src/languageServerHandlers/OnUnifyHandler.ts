@@ -11,6 +11,17 @@ import { MmpValidator } from '../mmp/MmpValidator';
 import { OnDidChangeContentHandler } from './OnDidChangeContentHandler';
 import { ILabelMapCreatorForCompressedProof, IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
 
+export interface UnifyAndValidateArgs {
+	textDocumentUri: string,
+	connection: Connection,
+	documents: TextDocuments<TextDocument>,
+	hasConfigurationCapability: boolean,
+	maxNumberOfHypothesisDispositionsForStepDerivation: number,
+	globalState: GlobalState,
+	renumber: boolean,
+	removeUnusedStatements: boolean
+}
+
 export interface IUnificationResult {
 	textEdits: TextEdit[];
 	mmpParser?: MmpParser
@@ -26,7 +37,7 @@ export class OnUnifyHandler {
 	// constructor(params: DocumentFormattingParams, mmParser: MmParser,
 	constructor(private textDocumentUri: string, mmParser: MmParser, private mmpParser: MmpParser,
 		configurationManager: ConfigurationManager, maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		private renumber: boolean) {
+		private renumber: boolean, private removeUnusedStatements: boolean) {
 		// this.params = params;
 		// this.documents = documents;
 		this.mmParser = mmParser;
@@ -71,6 +82,7 @@ export class OnUnifyHandler {
 					proofMode: proofMode,
 					maxNumberOfHypothesisDispositionsForStepDerivation: this.maxNumberOfHypothesisDispositionsForStepDerivation,
 					renumber: this.renumber,
+					removeUnusedStatements: this.removeUnusedStatements,
 					expectedTheoremLabel: expectedTheoremLabel,
 					mmpCompressedProofCreator: mmpCompressedProofCreator
 				});
@@ -91,28 +103,38 @@ export class OnUnifyHandler {
 	}
 	//#endregion unify
 
-	static async unifyIfTheCase(textDocumentUri: string, documents: TextDocuments<TextDocument>,
-		globalState: GlobalState, maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		// renumber: boolean): Promise<TextEdit[]> {
-		renumber: boolean): Promise<IUnificationResult> {
+	// static async unifyIfTheCase(textDocumentUri: string, documents: TextDocuments<TextDocument>,
+	// 	globalState: GlobalState, maxNumberOfHypothesisDispositionsForStepDerivation: number,
+	// 	// renumber: boolean): Promise<TextEdit[]> {
+	// 	renumber: boolean): Promise<IUnificationResult> {
+	static async unifyIfTheCase(unifyAndValidateArgs: UnifyAndValidateArgs): Promise<IUnificationResult> {
 		// let result: Promise<TextEdit[]> = Promise.resolve([]);
 		let result: Promise<IUnificationResult> = Promise.resolve({ textEdits: [] });
-		if (globalState.mmParser != undefined && globalState.lastMmpParser != undefined
-			&& globalState.configurationManager != undefined) {
+		if (unifyAndValidateArgs.globalState.mmParser != undefined &&
+			unifyAndValidateArgs.globalState.lastMmpParser != undefined &&
+			unifyAndValidateArgs.globalState.configurationManager != undefined) {
 			const mmpParser: MmpParser | undefined = MmpValidator.buildMmpParserFromUri(
-				textDocumentUri, documents, globalState.mmParser, globalState.formulaToParseNodeCache);
+				unifyAndValidateArgs.textDocumentUri,
+				unifyAndValidateArgs.documents,
+				unifyAndValidateArgs.globalState.mmParser,
+				unifyAndValidateArgs.globalState.formulaToParseNodeCache);
 			if (mmpParser != undefined) {
 				const onDocumentFormattingHandler: OnUnifyHandler =
-					new OnUnifyHandler(textDocumentUri, globalState.mmParser, mmpParser,
-						globalState.configurationManager, maxNumberOfHypothesisDispositionsForStepDerivation,
-						renumber);
+					new OnUnifyHandler(
+						unifyAndValidateArgs.textDocumentUri,
+						unifyAndValidateArgs.globalState.mmParser,
+						mmpParser,
+						unifyAndValidateArgs.globalState.configurationManager,
+						unifyAndValidateArgs.maxNumberOfHypothesisDispositionsForStepDerivation,
+						unifyAndValidateArgs.renumber,
+						unifyAndValidateArgs.removeUnusedStatements);
 				const textEditArray: TextEdit[] = await onDocumentFormattingHandler.unify();
 				const unificationResult: IUnificationResult = {
 					mmpParser: mmpParser,
 					textEdits: textEditArray
 				};
 				result = Promise.resolve(unificationResult);
-				globalState.requireCursorPositionUpdate();
+				unifyAndValidateArgs.globalState.requireCursorPositionUpdate();
 			}
 		}
 		return result;
@@ -149,13 +171,25 @@ export class OnUnifyHandler {
 			hasConfigurationCapability, globalState);
 	}
 	//#endregion applyTextEditsAndValidate
-	static async unifyAndValidate(textDocumentUri: string, connection: Connection, documents: TextDocuments<TextDocument>,
-		hasConfigurationCapability: boolean, maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		globalState: GlobalState, renumber: boolean): Promise<IUnificationResult> {
-		const result: IUnificationResult = await OnUnifyHandler.unifyIfTheCase(textDocumentUri, documents,
-			globalState, maxNumberOfHypothesisDispositionsForStepDerivation, renumber);
-		await OnUnifyHandler.applyTextEditsAndValidate(result.textEdits, textDocumentUri, connection, documents,
-			hasConfigurationCapability, globalState);
+	// static async unifyAndValidate(textDocumentUri: string, connection: Connection, documents: TextDocuments<TextDocument>,
+	// 	hasConfigurationCapability: boolean, maxNumberOfHypothesisDispositionsForStepDerivation: number,
+	// 	globalState: GlobalState, renumber: boolean): Promise<IUnificationResult> {
+	// 	const result: IUnificationResult = await OnUnifyHandler.unifyIfTheCase(textDocumentUri, documents,
+	// 		globalState, maxNumberOfHypothesisDispositionsForStepDerivation, renumber);
+	// 	await OnUnifyHandler.applyTextEditsAndValidate(result.textEdits, textDocumentUri, connection, documents,
+	// 		hasConfigurationCapability, globalState);
+	// 	return result;
+	// }
+	static async unifyAndValidate(unifyAndValidateParams: UnifyAndValidateArgs): Promise<IUnificationResult> {
+		const result: IUnificationResult = await OnUnifyHandler.unifyIfTheCase(
+			unifyAndValidateParams);
+		await OnUnifyHandler.applyTextEditsAndValidate(
+			result.textEdits,
+			unifyAndValidateParams.textDocumentUri,
+			unifyAndValidateParams.connection,
+			unifyAndValidateParams.documents,
+			unifyAndValidateParams.hasConfigurationCapability,
+			unifyAndValidateParams.globalState);
 		return result;
 	}
 	//#endregion unifyAndValidate

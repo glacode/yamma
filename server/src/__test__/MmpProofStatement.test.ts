@@ -44,7 +44,12 @@ qed:51,53:ax-mp |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -82,7 +87,12 @@ $=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -182,7 +192,10 @@ qed:51,53:ax-mp |- ch`;
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
-			mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			mmpParser: mmpParser, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
 			mmpCompressedProofCreator: mmpCompressedProofCreator
 		});
 	mmpUnifier.unify();
@@ -213,6 +226,8 @@ $= ( wi ax-mp ) BCEABCGDFHH $.
 		{
 			mmpParser: mmpParser2, proofMode: ProofMode.compressed,
 			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
 			mmpCompressedProofCreator: mmpCompressedProofCreatorSortedByReference
 		});
 	mmpUnifierWithSortedByReferenceLabelMapCreator.unify();
@@ -237,7 +252,12 @@ $= ( ax-mp wi ) BCEABCHDFGG $.
 	const mmpParser3: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser3.parse();
 	const mmpUnifierWithDefaultLabelMapCreator: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser3, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser3, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifierWithDefaultLabelMapCreator.unify();
 	const textEditArray3: TextEdit[] = mmpUnifierWithDefaultLabelMapCreator.textEditArray;
 	expect(textEditArray3.length).toBe(1);
@@ -282,7 +302,12 @@ qed:50,51:mpd |- ( ph -> ph )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -310,7 +335,12 @@ qed:50:con2bii |- ( A. x -. ph <-> -. E. x ph )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -338,7 +368,12 @@ qed:50,52:mpbir |- x e. _V`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -387,6 +422,8 @@ qed:50,52:mpbir |- x e. _V`;
 		{
 			mmpParser: mmpParser, proofMode: ProofMode.compressed,
 			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
 			mmpCompressedProofCreator: mmpCompressedProofCreator
 		});
 	mmpUnifier.unify();
@@ -420,7 +457,12 @@ $d A y`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -450,7 +492,12 @@ qed::ax-5 |- ( y e. A -> A. y y e. A )
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	// const mmpUnifier: MmpUnifier = new MmpUnifier(parser.labelToStatementMap, parser.outermostBlock,
 	// 	parser.grammar, new WorkingVars(kindToPrefixMap), ProofMode.normal);
 	mmpUnifier.unify();
@@ -478,7 +525,12 @@ qed::ax-5 |- ( x e. A -> A. y x e. A )
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -506,7 +558,12 @@ $d A y
 	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.compressed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -550,7 +607,10 @@ $d y z
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
 			mmpParser: mmpParser, proofMode: ProofMode.compressed,
-			maxNumberOfHypothesisDispositionsForStepDerivation: 0, mmpCompressedProofCreator: mmpCompressedProofCreator
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+			mmpCompressedProofCreator: mmpCompressedProofCreator
 		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
@@ -585,7 +645,10 @@ $d y z
 	const mmpUnifier2 = new MmpUnifier(
 		{
 			mmpParser: mmpParser2, proofMode: ProofMode.compressed,
-			maxNumberOfHypothesisDispositionsForStepDerivation: 0, characterPerLine: 30,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+			characterPerLine: 30,
 			mmpCompressedProofCreator: mmpCompressedProofCreator
 		});
 	mmpUnifier2.unify();
@@ -642,7 +705,12 @@ $d y z
 	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -683,7 +751,10 @@ $d y z
 	const mmpUnifier2 = new MmpUnifier(
 		{
 			mmpParser: mmpParser2, proofMode: ProofMode.normal,
-			maxNumberOfHypothesisDispositionsForStepDerivation: 0, characterPerLine: 29
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+			characterPerLine: 29
 		});
 	mmpUnifier2.unify();
 
@@ -755,7 +826,12 @@ qed:50,51:bitri    |- ( x e. { x | ph } <-> ph )
 	const proofString: string[] = UProofStatement.labelsArray(proofArray);
 	expect(proofString).toEqual(["vx", "cv", "wph", "vx", "cab", "wcel"]);
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -783,7 +859,12 @@ qed:1:eqeq1d      |- ( A = B -> ( A = C <-> B = C ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.packed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -810,7 +891,12 @@ qed:50,51:mpd      |- ( ph -> ph )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.packed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -846,7 +932,12 @@ qed:50,55,57,58:vtoclgf
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.packed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -885,7 +976,12 @@ qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.packed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -915,7 +1011,12 @@ test("MmpSortedByReferenceLabelMapCreator", () => {
 qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
-	const mmpUnifier: MmpUnifier = new MmpUnifier({ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+	const mmpUnifier: MmpUnifier = new MmpUnifier({
+		mmpParser: mmpParser, proofMode: ProofMode.packed,
+		maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+		renumber: false,
+		removeUnusedStatements: false
+	});
 	mmpUnifier.unify();
 	const labelMapCreator: ILabelMapCreatorForCompressedProof =
 		new MmpSortedByReferenceLabelMapCreator();
@@ -1029,6 +1130,8 @@ $d D x`;
 		{
 			mmpParser: mmpParser, proofMode: ProofMode.compressed,
 			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
 			mmpCompressedProofCreator: compressedProofCreator
 		});
 	mmpUnifier.unify();
@@ -1146,6 +1249,8 @@ $d D x`;
 		{
 			mmpParser: mmpParser, proofMode: ProofMode.compressed,
 			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false,
 			mmpCompressedProofCreator: compressedProofCreator
 		});
 	mmpUnifier.unify();
@@ -1218,7 +1323,12 @@ qed:d3,d4:ax-mp    |- x e. _V`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.packed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -1250,7 +1360,12 @@ qed:d3,d4:ax-mp    |- x e. _V`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.packed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
@@ -1281,7 +1396,12 @@ qed:3:elexi        |- (/) e. _V`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.packed, maxNumberOfHypothesisDispositionsForStepDerivation: 0 });
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.packed,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);

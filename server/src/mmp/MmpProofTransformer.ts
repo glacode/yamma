@@ -26,6 +26,15 @@ import { MmpHeaderManager } from './MmpHeaderManager';
 import { MmpGetProofStatement } from './MmpGetProofStatement';
 import { MmToMmpConverter } from './MmToMmpConverter';
 import { LabeledStatement } from '../mm/LabeledStatement';
+import { UnusedStatementsRemover } from './UnusedStatementsRemover';
+
+export interface MmpProofTransformerArgs {
+	mmpParser: MmpParser;
+	maxNumberOfHypothesisDispositionsForStepDerivation: number;
+	renumber: boolean;
+	removeUnusedStatements: boolean;
+	expectedTheoremLabel?: string;
+}
 
 // Parser for .mmp files
 export class MmpProofTransformer {
@@ -36,6 +45,9 @@ export class MmpProofTransformer {
 	outermostBlock: BlockStatement;
 	grammar: Grammar;
 	workingVars: WorkingVars;
+	private renumber: boolean;
+	private removeUnusedStatements: boolean;
+	private expectedTheoremLabel?: string;
 	private maxNumberOfHypothesisDispositionsForStepDerivation: number;
 	// the list of statements, after createMmpStatements() has been invoked
 	// mmpStatements: MmpStatement[] = []
@@ -56,18 +68,20 @@ export class MmpProofTransformer {
 	}
 
 	//#region constructor
-	// constructor(uProof: UProof, labelToNonSyntaxAssertionMap: Map<string, AssertionStatement>,
-	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars,
-	// 	maxNumberOfHypothesisDispositionsForStepDerivation: number) {
-	constructor(mmpParser: MmpParser, maxNumberOfHypothesisDispositionsForStepDerivation: number,
-		private renumber?: boolean, private expectedTheoremLabel?: string) {
-		this.mmpParser = mmpParser;
-		this.uProof = mmpParser.mmpProof!;
-		this.labelToNonSyntaxAssertionMap = mmpParser.mmParser.labelToNonSyntaxAssertionMap;
-		this.outermostBlock = mmpParser.outermostBlock;
-		this.grammar = mmpParser.grammar;
-		this.workingVars = mmpParser.workingVars;
-		this.maxNumberOfHypothesisDispositionsForStepDerivation = maxNumberOfHypothesisDispositionsForStepDerivation;
+	// constructor(mmpParser: MmpParser, maxNumberOfHypothesisDispositionsForStepDerivation: number,
+	// 	private renumber?: boolean, private expectedTheoremLabel?: string) {
+	constructor(private mmpProofTransformerArgs: MmpProofTransformerArgs) {
+		this.mmpParser = this.mmpProofTransformerArgs.mmpParser;
+		this.uProof = this.mmpParser.mmpProof!;
+		this.labelToNonSyntaxAssertionMap = this.mmpParser.mmParser.labelToNonSyntaxAssertionMap;
+		this.outermostBlock = this.mmpParser.outermostBlock;
+		this.grammar = this.mmpParser.grammar;
+		this.workingVars = this.mmpParser.workingVars;
+		this.renumber = this.mmpProofTransformerArgs.renumber;
+		this.removeUnusedStatements = this.mmpProofTransformerArgs.removeUnusedStatements;
+		this.expectedTheoremLabel = this.mmpProofTransformerArgs.expectedTheoremLabel;
+		this.maxNumberOfHypothesisDispositionsForStepDerivation =
+			mmpProofTransformerArgs.maxNumberOfHypothesisDispositionsForStepDerivation;
 		this._orderedPairsOfNodesForMGUalgorithm = [];
 	}
 
@@ -248,7 +262,7 @@ export class MmpProofTransformer {
 		if (mmpProofStep.parseNode != undefined)
 			if (mmpProofStep.hasWorkingVars && mmpProofStep.stepLabel != undefined)
 				this.tryToDeriveEHypsOnly(uStepIndex, mmpProofStep);
-			else
+			else if (!mmpProofStep.hasWorkingVars)
 				this.deriveLabelAndHypotesisWithoutWorkingVars(uStepIndex, mmpProofStep);
 	}
 
@@ -401,12 +415,18 @@ export class MmpProofTransformer {
 		if (this.renumber)
 			RefNumberManager.renumber(this.uProof);
 	}
+
+	private removeUnusedStatementsIfRequired() {
+		if (this.removeUnusedStatements)
+			UnusedStatementsRemover.removeUnusedStatements(this.uProof);
+	}
 	transformUProof() {
 		this.addMissingStatements();
 		this.transformUSteps();
 		this.unifyWorkingVars();
 		this.removeStepDuplicates();
 		this.renumberIfRequired();
+		this.removeUnusedStatementsIfRequired();
 	}
 	//#endregion transformUProof
 

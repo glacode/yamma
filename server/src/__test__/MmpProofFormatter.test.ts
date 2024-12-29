@@ -16,7 +16,7 @@ class TestMmpProofFormatter extends MmpProofFormatter {
 }
 
 test("Test MmpProofFormatter.computeIndentationLevels()", () => {
-const mmpSource = `
+	const mmpSource = `
 h50::mp2.1 |- ph
 h51::mp2.2 |- ps
 h52::mp2.3 |- ( ph -> ( ps -> ch ) )
@@ -44,7 +44,7 @@ qed:51,53:ax-mp |- ch`;
 });
 
 test("Test simple indentation", () => {
-const mmpSource = `
+	const mmpSource = `
 * test comment
 
 h50::mp2.1 |- ph
@@ -55,11 +55,16 @@ qed:51,53:ax-mp |- ch`;
 	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{mmpParser: mmpParser,proofMode: ProofMode.normal,maxNumberOfHypothesisDispositionsForStepDerivation: 0});
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
 	mmpUnifier.unify();
 	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
 	expect(textEditArray.length).toBe(1);
-const newTextExpected = `
+	const newTextExpected = `
 * test comment
 
 h50::mp2.1           |- ph

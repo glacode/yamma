@@ -81,7 +81,10 @@ consoleLogWithTimestamp('mmpParser end');
 // 	undefined, undefined, undefined, undefined, new MmpCompressedProofCreatorFromPackedProof());
 const mmpUnifier: MmpUnifier = new MmpUnifier(
 	{
-		mmpParser: mmpParser, proofMode: ProofMode.compressed, maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+		mmpParser: mmpParser, proofMode: ProofMode.compressed,
+		maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+		renumber: false,
+		removeUnusedStatements: false,
 		mmpCompressedProofCreator: new MmpCompressedProofCreatorFromPackedProof()
 	});
 

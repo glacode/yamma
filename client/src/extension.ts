@@ -84,14 +84,22 @@ export function activate(context: ExtensionContext) {
 		context.subscriptions.push(disposable);
 		disposable = commands.registerCommand('yamma.unify',
 			() => { client.sendRequest('yamma/unify', window.activeTextEditor.document.uri.toString()); });
+		context.subscriptions.push(disposable); context.subscriptions.push(disposable);
+		disposable = commands.registerCommand('yamma.removeUnusedStatements',
+			() => { client.sendRequest('yamma/removeUnusedStatements', window.activeTextEditor.document.uri.toString()); });
+		context.subscriptions.push(disposable); context.subscriptions.push(disposable);
 		disposable = commands.registerCommand('yamma.unifyAndRenumber',
 			() => { client.sendRequest('yamma/unifyAndRenumber', window.activeTextEditor.document.uri.toString()); });
+		context.subscriptions.push(disposable);
 		disposable = commands.registerCommand('yamma.search', searchCommandHandler, client);
+		context.subscriptions.push(disposable);
 		disposable = commands.registerCommand('yamma.completionitemselected',
 			completionItemSelectedHandler, client);
+		context.subscriptions.push(disposable);
 		disposable = commands.registerCommand('yamma.triggersuggestion',
 			triggerSuggestionHandler, client);
 		context.subscriptions.push(disposable);
+
 
 		client.onNotification('yamma/movecursor', (range: Range) => {
 			const start: Position = new Position(range.start.line, range.start.character);
