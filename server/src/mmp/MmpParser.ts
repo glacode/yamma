@@ -405,7 +405,8 @@ export class MmpParser {
 		if (parseNode == undefined) {
 			parseNode = MmpParser.tryToParse(stepFormulaString, stepFormula, this.grammar,
 				this.workingVars, this.diagnostics, this.diagnosticMessageForSyntaxError);
-			if (parseNode != undefined && this.formulaToParseNodeCache != undefined)
+			if (parseNode != undefined && this.formulaToParseNodeCache != undefined
+				&& !GrammarManager.containsWorkingVar(parseNode))
 				this.formulaToParseNodeCache.add(stepFormulaString, parseNode);
 		}
 		return parseNode;
