@@ -63,7 +63,7 @@ export function createLabelToParseNodeForThreadMap(labelToFormulaMap: Map<string
 	labelToFormulaMap.forEach((formula: string, label: string) => {
 		notifyProgress(i++, labelToFormulaMap.size, "createLabelToParseNodeForThreadMap");
 		// comment out the following line to avoid caching
-		let parseNodeForThread: ParseNodeForThread | undefined = getParseNodeForThread(
+		const parseNodeForThread: ParseNodeForThread | undefined = getParseNodeForThread(
 			formula, grammar, workingVars, formulaToParseNodeForThreadCache);
 		// uncomment the following line to avoid caching
 		// let parseNodeForThread: ParseNodeForThread | undefined = LabeledStatement.parseString(formula, grammar, workingVars);

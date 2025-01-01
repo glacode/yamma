@@ -72,6 +72,7 @@ h3::elabgf.3         |- ( x = A -> ( ph <-> ps ) )
 9::abid             |- ( x e. { x | ph } <-> ph )
 qed:1,6,8,9:vtoclgf
                    |- ( A e. B -> ( A e. { x | ph } <-> ps ) )
+qed::              |- ( A e. B -> ( A e. { x | ph } <-> ps ) )
 `;
 	expect(textEdit.newText).toEqual(newTextExpected);
 });

@@ -11,26 +11,29 @@ export abstract class ProofStepDuplicateRemover {
 		mmpProof: MmpProof, oldRefToNewRefMap: Map<string, MmpProofStep>): number {
 		let duplicatedMmpProofStep: MmpProofStep | undefined;
 		let nextIndex: number = index + 1;
-		if (mmpProofStep.formula != undefined && mmpProofStep.label == undefined &&
-			mmpProofStep.parseNode != undefined) {
+		// if (mmpProofStep.formula != undefined && mmpProofStep.label == undefined &&
+		// 	mmpProofStep.parseNode != undefined) {
+		if (mmpProofStep.formula != undefined && mmpProofStep.parseNode != undefined
+			&& mmpProofStep.stepRef != 'qed') {
 			const normalizedFormula: string = mmpProofStep.parseNode.stringFormula;
 			// const normalizedFormula: string = concatTokenValuesWithSpaces(mmpProofStep.formula!);
 			const duplicatedMmpProofStepIndex: number | undefined = mmpProof.adjustedStepIndexForThisFormula(normalizedFormula);
-			if (duplicatedMmpProofStepIndex != undefined && duplicatedMmpProofStepIndex < index) {
-				// mmpProofStep duplicates mmpProof.uStatements[duplicatedMmpProofStepIndex]
-				duplicatedMmpProofStep = <MmpProofStep>mmpProof.mmpStatements[duplicatedMmpProofStepIndex];
-				if (mmpProofStep.stepRef != undefined)
-					oldRefToNewRefMap.set(mmpProofStep.stepRef, duplicatedMmpProofStep);
-				mmpProof.mmpStatements.splice(index, 1);
-				nextIndex = index;
+			if (duplicatedMmpProofStepIndex != undefined && duplicatedMmpProofStepIndex < index
+				&& (!mmpProofStep.isProven || (<MmpProofStep>mmpProof.mmpStatements[duplicatedMmpProofStepIndex]).isProven)) {	
+					// mmpProofStep duplicates mmpProof.uStatements[duplicatedMmpProofStepIndex]
+					duplicatedMmpProofStep = <MmpProofStep>mmpProof.mmpStatements[duplicatedMmpProofStepIndex];
+					if (mmpProofStep.stepRef != undefined)
+						oldRefToNewRefMap.set(mmpProofStep.stepRef, duplicatedMmpProofStep);
+					mmpProof.mmpStatements.splice(index, 1);
+					nextIndex = index;
+				}
 			}
+			return nextIndex;
 		}
-		return nextIndex;
-	}
 
 	//#region updateEHypsIfNeeded
 	private static updateEHypIfNeeded(stepRef: string, i: number, oldRefToNewRefMap: Map<string, MmpProofStep>,
-		eHypUSteps: (MmpProofStep | undefined)[]) {
+			eHypUSteps: (MmpProofStep | undefined)[]) {
 		const newEHyp: MmpProofStep | undefined = oldRefToNewRefMap.get(stepRef);
 		if (newEHyp != undefined)
 			eHypUSteps[i] = newEHyp;
