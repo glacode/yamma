@@ -47,3 +47,25 @@
 * the multiple theory load problem has been fixed. ([#14](https://github.com/glacode/yamma/issues/14))
 
 * minor bug fixes
+
+### Version 0.0.16 (2025-01-01)
+
+#### Added  
+
+- **New Command**: "Remove unused statements" – Cleans up unused statements in a proof, making it easier to finalize. This command can also be used during proof construction, even if the proof is incomplete.  
+
+#### Improved  
+
+- **ProofStepDuplicateRemover**: Enhanced handling of duplicate proof steps, including those with labels.  
+  - Duplicate steps are now removed unless:  
+    1. The step is proven.  
+    2. The preceding step with the same formula is unproven.  
+
+#### Fixed  
+
+- **.mm and .mmt Parsing**: Replaced residual `throw error` statements with `DiagnosticError`, preventing crashes and improving error reporting.  
+
+- **Caching of Formulas with Working Variables**:  
+  - Excluded formulas containing working variables from the cache to prevent invalid cache usage.  
+  - This addresses issues caused by the unification algorithm modifying these formulas during operations.  
+
