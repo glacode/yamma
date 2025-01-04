@@ -1010,3 +1010,32 @@ $d x y`;
 		}
 	});
 });
+
+test('expect discouraged warning', () => {
+	// TODO 202501
+	const mmpSource = `
+$theorem test
+
+* test
+
+h1::test.1          |- -. -. ch
+2::notnotr          |- ( -. -. ch -> ch )
+qed:1,2:ax-mp      |- ch`;
+
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	expect(mmpParser.diagnostics.length).toBe(1);
+	expect(doesDiagnosticsContain(
+		mmpParser.diagnostics, MmpParserWarningCode.isDiscouraged)).toBeTruthy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserWarningCode.isDiscouraged) {
+			const expectedMessage =
+				`The new use of 'notnotr' is discouraged.`;
+			expect(diagnostic.message).toEqual(expectedMessage);
+			expect(diagnostic.range.start.line).toBe(6);
+			expect(diagnostic.range.start.character).toBe(3);
+			expect(diagnostic.range.end.line).toBe(6);
+			expect(diagnostic.range.end.character).toBe(10);
+		}
+	});
+});

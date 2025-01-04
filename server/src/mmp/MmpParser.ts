@@ -71,7 +71,8 @@ export enum MmpParserWarningCode {
 	missingDjVarsStatement = "missingDjVarsStatement",
 	missingTheoremLabel = "missingTheoremLabel",
 	lastStatementShouldBeQed = "lastStatementShouldBeQED",
-	missingComment = "missingComment"
+	missingComment = "missingComment",
+	isDiscouraged = "isDiscouraged"
 }
 
 // Parser for .mmp files
@@ -334,15 +335,16 @@ export class MmpParser {
 			this.addDiagnosticForEHypLabel(proofStepFirstTokenInfo.stepLabel);
 		else {
 			// current proof step is NOT an EHyp
+			const stepLabel: MmToken = proofStepFirstTokenInfo.stepLabel;
 			const labeledStatement: LabeledStatement | undefined =
-				this.labelToStatementMap.get(proofStepFirstTokenInfo.stepLabel.value);
+				this.labelToStatementMap.get(stepLabel.value);
 			if (labeledStatement == undefined) {
 				const message = `Unknown label: this label does not exist in the logical system`;
-				MmpValidator.addDiagnosticError(message, proofStepFirstTokenInfo.stepLabel.range,
+				MmpValidator.addDiagnosticError(message, stepLabel.range,
 					MmpParserErrorCode.unknownLabel, this.diagnostics);
 			} else if (!(labeledStatement instanceof AssertionStatement)) {
 				const message = `This is is not a label for an Assertion in the logical system`;
-				MmpValidator.addDiagnosticError(message, proofStepFirstTokenInfo.stepLabel.range,
+				MmpValidator.addDiagnosticError(message, stepLabel.range,
 					MmpParserErrorCode.notAnAssertion, this.diagnostics);
 			} else if (labeledStatement instanceof ProvableStatement &&
 				labeledStatement.isProofVerificationFailed) {
@@ -350,7 +352,13 @@ export class MmpParser {
 					`use $getproof to try to load its proof and fix it`;
 				MmpValidator.addDiagnosticError(message, proofStepFirstTokenInfo.stepLabel.range,
 					MmpParserErrorCode.provableStatementWithFailedVerification, this.diagnostics);
-			} else {
+			}  else if (labeledStatement.isDiscouraged) {
+				const message = `The new use of '${stepLabel.value}' is discouraged.`;
+				MmpValidator.addDiagnosticWarning(message, proofStepFirstTokenInfo.stepLabel.range,
+					MmpParserWarningCode.isDiscouraged, this.diagnostics);
+			}
+				
+			else {
 				// labeledStatement instanceof AssertionStatement
 				this.addDiagnisticsForEHypRefs(proofStepFirstTokenInfo,
 					proofStepFirstTokenInfo.stepLabel, labeledStatement);
