@@ -5,7 +5,7 @@ import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { TokenReader } from "../mm/TokenReader";
 import { doesDiagnosticsContain, rebuildOriginalStringFromTokens } from '../mm/Utils';
-import { createMmParser, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
+import { createMmParser, impbiiMmParser, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { Diagnostic } from 'vscode-languageserver';
 
 test("Parsing two $f statements", () => {
@@ -306,4 +306,18 @@ test("Test nested-frames ; expect success", () => {
     expect(disjVars.containsDjContraint('w', 'x')).toBeTruthy();
     expect(disjVars.containsDjContraint('z', 'z')).toBeFalsy();
     expect(disjVars.containsDjContraint('x', 'a')).toBeFalsy();
+});
+
+test("Test (New usage is discouraged.)", () => {
+    const impbi: AssertionStatement = <AssertionStatement>impbiiMmParser.labelToStatementMap.get('impbi');
+    const isImpbiDiscouraged: boolean = impbi.isDiscouraged;
+    expect(isImpbiDiscouraged).toBeFalsy();
+
+    const simprim: AssertionStatement = <AssertionStatement>impbiiMmParser.labelToStatementMap.get('notnotr');
+    const isSimprimDiscouraged: boolean = simprim.isDiscouraged;
+    expect(isSimprimDiscouraged).toBeTruthy();
+
+    const id: AssertionStatement = <AssertionStatement>impbiiMmParser.labelToStatementMap.get('id');
+    const isIdDiscouraged: boolean = id.isDiscouraged;
+    expect(isIdDiscouraged).toBeFalsy(); 
 });

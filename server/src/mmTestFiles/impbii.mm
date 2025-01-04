@@ -178,6 +178,7 @@
       ( wn wi pm2.18 syl ) ABDBEBCBFG $.
   $}
   
+  $( For test discouraged (New usage is discouraged.) $)
   notnotr $p |- ( -. -. ph -> ph ) $=
     ( wn pm2.21 pm2.18d ) ABZBAEACD $.
   ${

@@ -7,6 +7,7 @@ export abstract class Statement {
     outermostBlock?: BlockStatement;
     comment?: MmToken[];
     private _normalizedComment = '';
+    private _isDiscouraged?: boolean;
 
     constructor(parentBlock?: BlockStatement, comment?: MmToken[]) {
         this.ParentBlock = parentBlock;
@@ -31,6 +32,12 @@ export abstract class Statement {
             this._normalizedComment = concatTokenValuesWithSpaces(this.comment);
         }
         return this._normalizedComment;
+    }
+
+    get isDiscouraged(): boolean {
+        if ( this._isDiscouraged == undefined )
+            this._isDiscouraged = this.normalizedComment.indexOf('(New usage is discouraged.)') != -1;
+        return this._isDiscouraged;
     }
 
 }
