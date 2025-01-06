@@ -10,6 +10,7 @@ import { MmpTheoremLabel } from "./MmpTheoremLabel";
 import { WorkingVars } from './WorkingVars';
 import { MmpProofFormatter } from './MmpProofFormatter';
 import { ITheoremSignature } from '../mmt/MmtParser';
+import { MmpAllowDiscouraged } from './MmpAllowDiscouraged';
 
 export class MmpProof implements ITheoremSignature {
 	outermostBlock: BlockStatement;
@@ -18,6 +19,9 @@ export class MmpProof implements ITheoremSignature {
 
 	mmpStatements: IMmpStatement[];
 	mmpTheoremLabels: MmpTheoremLabel[] = [];
+
+	public allowDiscouragedStatement = false;  // it will be true iff the proof contains $allowdiscouraged
+	// it is not used for now, but it could be, in the future
 
 	private _mandatoryHypLabels?: Set<string>;
 
@@ -30,22 +34,24 @@ export class MmpProof implements ITheoremSignature {
 		return theoremLabel;
 	}
 
+	public mainComment?: MmpComment;
+
 	/**
 	 * The main comment is expected to be the second statement, just after
 	 * the theorem label statement
 	 */
-	public get mainComment(): MmpComment | undefined {
-		let uComment: MmpComment | undefined;
-		if (this.mmpStatements[0] instanceof MmpTheoremLabel && this.mmpStatements[1] instanceof MmpComment)
-			// the first statement is a theorem label statement and the second statement is a comment;
-			// this is the expected state with no diagnostics
-			uComment = this.mmpStatements[1];
-		else if (this.mmpStatements[0] instanceof MmpComment)
-			// the theorem label statement is missing; this will rise a Diagnostic, but if
-			// the first statement is comment, we return it as the main comment
-			uComment = this.mmpStatements[0];
-		return uComment;
-	}
+	// public get mainComment(): MmpComment | undefined {
+	// 	let uComment: MmpComment | undefined;
+	// 	if (this.mmpStatements[0] instanceof MmpTheoremLabel && this.mmpStatements[1] instanceof MmpComment)
+	// 		// the first statement is a theorem label statement and the second statement is a comment;
+	// 		// this is the expected state with no diagnostics
+	// 		uComment = this.mmpStatements[1];
+	// 	else if (this.mmpStatements[0] instanceof MmpComment)
+	// 		// the theorem label statement is missing; this will rise a Diagnostic, but if
+	// 		// the first statement is comment, we return it as the main comment
+	// 		uComment = this.mmpStatements[0];
+	// 	return uComment;
+	// }
 
 
 	/** if the qed step is proven, proofStatement will contain the proof statement */
@@ -261,6 +267,8 @@ export class MmpProof implements ITheoremSignature {
 	}
 	insertStatementToTheHeader(mmpStatement: IMmpStatement, index: number) {
 		this.mmpStatements.splice(index, 0, mmpStatement);
+		if (mmpStatement instanceof MmpComment && this.mainComment == undefined)
+			this.mainComment = mmpStatement;
 		this.incrementFormulaToProofStepMap();
 	}
 	//#endregion insertStatementToTheHeader
@@ -281,6 +289,10 @@ export class MmpProof implements ITheoremSignature {
 			this.mmpStatements.push(mmpStatement);
 			if (mmpStatement instanceof MmpTheoremLabel)
 				this.mmpTheoremLabels.push(mmpStatement);
+			else if (mmpStatement instanceof MmpAllowDiscouraged)
+				this.allowDiscouragedStatement = true;
+			else if (mmpStatement instanceof MmpComment && this.mainComment == undefined)
+				this.mainComment = mmpStatement;
 		}
 	}
 

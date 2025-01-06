@@ -792,3 +792,78 @@ qed:1,3:ax-mp      |- ph
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
+
+test('expect proof not created because notnor is discouraged', () => {
+	const mmpSource = `\
+$theorem test
+
+* test
+
+h1::test.1          |- -. -. ch
+2::notnotr          |- ( -. -. ch -> ch )
+qed:1,2:ax-mp      |- ch`;
+
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: true
+		});
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected = `\
+$theorem test
+
+* test
+
+h1::test.1          |- -. -. ch
+2::notnotr          |- ( -. -. ch -> ch )
+qed:1,2:ax-mp      |- ch
+`;
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test('expect proof to be created because $allowdiscouraged is present (notnor is discouraged)', () => {
+	const mmpSource = `\
+$theorem test
+$allowdiscouraged
+
+* test
+
+h1::test.1          |- -. -. ch
+2::notnotr          |- ( -. -. ch -> ch )
+qed:1,2:ax-mp      |- ch`;
+
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: true
+		});
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected = `\
+$theorem test
+$allowdiscouraged
+
+* test
+
+h1::test.1          |- -. -. ch
+2::notnotr          |- ( -. -. ch -> ch )
+qed:1,2:ax-mp      |- ch
+
+$=    wch wn wn wch test.1 wch notnotr ax-mp $.
+
+`;
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});

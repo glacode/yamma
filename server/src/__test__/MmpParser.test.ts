@@ -1012,7 +1012,6 @@ $d x y`;
 });
 
 test('expect discouraged warning', () => {
-	// TODO 202501
 	const mmpSource = `
 $theorem test
 
@@ -1038,4 +1037,24 @@ qed:1,2:ax-mp      |- ch`;
 			expect(diagnostic.range.end.character).toBe(10);
 		}
 	});
+});
+
+test('expect discouraged warning NOT risen because of $allowdiscouraged', () => {
+	const mmpSource = `
+$theorem test
+$allowdiscouraged
+
+* test
+
+h1::test.1          |- -. -. ch
+2::notnotr          |- ( -. -. ch -> ch )
+qed:1,2:ax-mp      |- ch`;
+
+	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	expect(mmpParser.diagnostics.length).toBe(0);
+	// if above is zero, then the following is obviously true, but I keep it in case of future changes
+	// that could introduce other diagnostics
+	expect(doesDiagnosticsContain(
+		mmpParser.diagnostics, MmpParserWarningCode.isDiscouraged)).toBeFalsy();
 });

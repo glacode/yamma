@@ -1,5 +1,6 @@
 import { Parameters } from '../general/Parameters';
 import { splitToTokensDefault } from '../mm/Utils';
+import { MmpAllowDiscouraged } from './MmpAllowDiscouraged';
 import { MmpProof } from './MmpProof';
 import { IMmpStatement, MmpComment } from './MmpStatement';
 import { MmpTheoremLabel } from "./MmpTheoremLabel";
@@ -27,7 +28,8 @@ export class MmpHeaderManager {
 		while (index < mmpStatements.length &&
 			// !(mmpStatements[index] instanceof MmpComment) &&
 			// !(mmpStatements[index] instanceof MmpProofStep))
-			mmpStatements[index] instanceof MmpTheoremLabel)
+			(mmpStatements[index] instanceof MmpTheoremLabel ||
+				mmpStatements[index] instanceof MmpAllowDiscouraged))
 			index++;
 		const indexOfFirstMmpStatement: number | undefined = mmpStatements[index] instanceof MmpComment ?
 			undefined : index;

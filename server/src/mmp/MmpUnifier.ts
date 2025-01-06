@@ -1,7 +1,7 @@
 import { Grammar } from 'nearley';
 import { Diagnostic, Position, TextEdit } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
-import { MmpParser } from './MmpParser';
+import { MmpParser, MmpParserWarningCode } from './MmpParser';
 import { MmpProof } from './MmpProof';
 import { WorkingVars } from './WorkingVars';
 import { MmpProofTransformer } from './MmpProofTransformer';
@@ -9,7 +9,7 @@ import { IMmpStatement, UProofStatementStep } from './MmpStatement';
 import { UProofStatement } from "./UProofStatement";
 import { ProofMode } from '../mm/ConfigurationManager';
 import { Parameters } from '../general/Parameters';
-import { consoleLogWithTimestamp } from '../mm/Utils';
+import { consoleLogWithTimestamp, doesDiagnosticsContain } from '../mm/Utils';
 import { MmpPackedProofStatement } from './proofCompression/MmpPackedProofStatement';
 import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from './proofCompression/MmpCompressedProofCreator';
 import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from './proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
@@ -127,11 +127,32 @@ export class MmpUnifier {
 		return textEdits;
 	}
 
-	buildProofStatementIfProofIsComplete(uProof: MmpProof) {
-		if (uProof.lastMmpProofStep?.stepRef == 'qed' && uProof.lastMmpProofStep.isProven) {
+	//#region buildProofStatementIfProofIsComplete
+
+	//#region isProofToBeGenerated
+	private isDiscouragedNotAProblem(
+		// mmpProof: MmpProof,
+		diagnostics: Diagnostic[]): boolean {
+		const result =
+			// uProof.allowDiscouragedStatement ||    // I had this condition, but it should not be necessary
+			// because when this is true no discuraged warning is generated
+			!doesDiagnosticsContain(diagnostics, MmpParserWarningCode.isDiscouraged);
+		return result;
+	}
+	private isProofToBeGenerated(uProof: MmpProof, diagnostics: Diagnostic[]): boolean {
+		const isProofToBeGenerated: boolean =
+			uProof.lastMmpProofStep?.stepRef == 'qed' &&
+			uProof.lastMmpProofStep.isProven &&
+			this.isDiscouragedNotAProblem(diagnostics);
+		return isProofToBeGenerated;
+	}
+	//#endregion isProofToBeGenerated
+	buildProofStatementIfProofIsComplete(uProof: MmpProof, diagnostics: Diagnostic[]) {
+		// if (uProof.lastMmpProofStep?.stepRef == 'qed' && uProof.lastMmpProofStep.isProven) {
+		if (this.isProofToBeGenerated(uProof, diagnostics)) {
 			consoleLogWithTimestamp('buildProofStatementIfProofIsComplete begin');
 			if (this.proofMode == ProofMode.normal) {
-				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastMmpProofStep.proofArray(this.outermostBlock);
+				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastMmpProofStep!.proofArray(this.outermostBlock);
 				const proofStatement: UProofStatement = new UProofStatement(proofArray, this._charactersPerLine);
 				uProof.insertProofStatement(proofStatement);
 			} else if (this.proofMode == ProofMode.packed) {
@@ -148,6 +169,7 @@ export class MmpUnifier {
 			consoleLogWithTimestamp('buildProofStatementIfProofIsComplete end');
 		}
 	}
+	//#endregion buildProofStatementIfProofIsComplete
 
 	/**
 	 * Unifies textToParse and builds a UProof and a single TextEdit to replace the whole
@@ -170,7 +192,7 @@ export class MmpUnifier {
 				expectedTheoremLabel: this.expectedTheoremLabel
 			});
 		uProofTransformer.transformUProof();
-		this.buildProofStatementIfProofIsComplete(this.uProof!);
+		this.buildProofStatementIfProofIsComplete(this.uProof!, this.mmpParser.diagnostics);
 		this.textEditArray = this.buildTextEditArray(uProofTransformer.uProof);
 	}
 	//#endregion unify

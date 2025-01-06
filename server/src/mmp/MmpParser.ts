@@ -29,6 +29,7 @@ import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
 import { Parameters } from '../general/Parameters';
 import { IDiagnosticMessageForSyntaxError, ShortDiagnosticMessageForSyntaxError } from './DiagnosticMessageForSyntaxError';
 import { MmpGetProofStatement } from './MmpGetProofStatement';
+import { MmpAllowDiscouraged } from './MmpAllowDiscouraged';
 
 
 
@@ -99,6 +100,9 @@ export class MmpParser {
 	// mmParser: MmParser
 	// mmpStatements: MmpStatement[] = []
 	refToProofStepMap: Map<string, MmpProofStep>;  // maps each proof step id to the proof step
+
+	allowDiscouraged = false; // true iff the $allowdiscouraged statement is present
+
 	diagnostics: Diagnostic[] = [] // diagnostics built while parsing
 	mmpProof: MmpProof | undefined;
 
@@ -245,6 +249,12 @@ export class MmpParser {
 		this.mmpProof?.addMmpStatement(uTheoremLabel);
 	}
 
+	private addAllowDiscouraged(nextProofStepTokens: MmToken[]) {
+		const allowDiscouraged = new MmpAllowDiscouraged(nextProofStepTokens[0]);
+		this.mmpProof?.addMmpStatement(allowDiscouraged);
+		this.allowDiscouraged = true;
+	}
+
 	addGetProofStatement(nextProofStepTokens: MmToken[]) {
 		let mmpGetProofStatement: MmpGetProofStatement | undefined;
 		if (nextProofStepTokens.length == 1) {
@@ -352,12 +362,12 @@ export class MmpParser {
 					`use $getproof to try to load its proof and fix it`;
 				MmpValidator.addDiagnosticError(message, proofStepFirstTokenInfo.stepLabel.range,
 					MmpParserErrorCode.provableStatementWithFailedVerification, this.diagnostics);
-			}  else if (labeledStatement.isDiscouraged) {
+			} else if (labeledStatement.isDiscouraged && !this.allowDiscouraged) {
 				const message = `The new use of '${stepLabel.value}' is discouraged.`;
 				MmpValidator.addDiagnosticWarning(message, proofStepFirstTokenInfo.stepLabel.range,
 					MmpParserWarningCode.isDiscouraged, this.diagnostics);
 			}
-				
+
 			else {
 				// labeledStatement instanceof AssertionStatement
 				this.addDiagnisticsForEHypRefs(proofStepFirstTokenInfo,
@@ -529,6 +539,8 @@ export class MmpParser {
 		const nextTokenValue = nextProofStepTokens[0].value;
 		if (nextTokenValue == "$theorem")
 			this.addTheoremLabel(nextProofStepTokens);
+		else if (nextTokenValue == "$allowdiscouraged")
+			this.addAllowDiscouraged(nextProofStepTokens);
 		else if (nextTokenValue == "$getproof")
 			this.addGetProofStatement(nextProofStepTokens);
 		else if (nextTokenValue.startsWith('*'))
