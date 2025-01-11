@@ -22,10 +22,11 @@ qed: |- ps`;
 	const completionProvider: CompletionProviderForEmptyLine =
 		new CompletionProviderForEmptyLine(cursorContext, mmpParser);
 	const completionItems: CompletionItem[] = completionProvider.completionItems();
-	expect(completionItems.length).toBe(2);
+	expect(completionItems.length).toBe(3);
 	expect(completionItems[0].label).toEqual('$theorem ');
 	// expect(completionItems[0].kind).toBe(CompletionItemKind.Text);
 	expect(completionItems[1].label).toEqual('$getproof ');
+	expect(completionItems[2].label).toEqual('$allowdiscouraged ');
 });
 
 test("No suggestion for $theorem, because it is already present", () => {
@@ -44,8 +45,9 @@ qed: |- ps`;
 	const completionProvider: CompletionProviderForEmptyLine =
 		new CompletionProviderForEmptyLine(cursorContext, mmpParser);
 	const completionItems: CompletionItem[] = completionProvider.completionItems();
-	expect(completionItems.length).toBe(1);
+	expect(completionItems.length).toBe(2);
 	expect(completionItems[0].label).toEqual('$getproof ');
+	expect(completionItems[1].label).toEqual('$allowdiscouraged ');
 });
 
 test("MmpStatement suggestion when $ is inserted", () => {
@@ -65,8 +67,9 @@ qed: |- ps`;
 	const completionProvider: CompletionProviderForEmptyLine =
 		new CompletionProviderForEmptyLine(cursorContext, mmpParser);
 	const completionItems: CompletionItem[] = completionProvider.completionItems();
-	expect(completionItems.length).toBe(2);
+	expect(completionItems.length).toBe(3);
 	expect(completionItems[0].label).toEqual('$theorem ');
 	// expect(completionItems[0].kind).toBe(CompletionItemKind.Text);
 	expect(completionItems[1].label).toEqual('$getproof ');
+	expect(completionItems[2].label).toEqual('$allowdiscouraged ');
 });

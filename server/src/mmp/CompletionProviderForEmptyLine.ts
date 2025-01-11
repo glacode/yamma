@@ -54,10 +54,15 @@ export class CompletionProviderForEmptyLine {
 	addCompletionItemForGetProof(completionItems: CompletionItem[]) {
 		this.addCompletionItem('$getproof ', '2', completionItems, this.command);
 	}
+	private addCompletionItemForAllowDiscouraged(completionItems: CompletionItem[]) {
+		this.addCompletionItem('$allowdiscouraged ', '3', completionItems);
+
+	}
 	completionItems(): CompletionItem[] {
 		const completionItems: CompletionItem[] = [];
 		this.addCompletionItemForTheoremLabel(completionItems);
 		this.addCompletionItemForGetProof(completionItems);
+		this.addCompletionItemForAllowDiscouraged(completionItems);
 		return completionItems;
 	}
 	//#endregion completionItems
