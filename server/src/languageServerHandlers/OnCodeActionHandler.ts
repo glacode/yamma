@@ -25,7 +25,7 @@ export class CodeActionForDiagnostic {
 	//#region buildCodeActions
 
 	//#region calculateRange
-	calculateRange(): Range {
+	calculateRangeToAddAtTheEnd(): Range {
 		// const line = lineOfTheLastMmpProofStep + 1;
 		const line: number = this._textDocument.lineCount;
 		const range: Range = { start: { line: line, character: 0 }, end: { line: line, character: 0 } };
@@ -54,34 +54,20 @@ export class CodeActionForDiagnostic {
 		return codeAction;
 	}
 
-	private addCodeAction(diagnostic: Diagnostic, range: Range,
-		carriageReturnIfNeeded: string, codeActions: CodeAction[]) {
-		const dataFieldForMissingDjVarConstraintsDiagnostic: DataFieldForMissingDjVarConstraintsDiagnostic =
-			<DataFieldForMissingDjVarConstraintsDiagnostic>diagnostic.data;
-		// const missingDjVarConstraints = dataFieldForMissingDjVarConstraintsDiagnostic.missingDjVarConstraints;
-		// const var1 = missingDjVarConstraints.var1;
-		// const var2 = missingDjVarConstraints.var2;
-		const var1 = dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar1;
-		const var2 = dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar2;
-
-		// const statementText = `$. ${var1} ${var2}`;
-		const statementText = MmpDisjVarStatement.textForTwoVars(var1, var2);
-
-
-		//TODO add test for this text
-		// const text: string = carriageReturnIfNeeded + new DisjVarUStatement(var1, var2).toText();
-		const text: string = carriageReturnIfNeeded + statementText;
+	private addCodeAction(title: string, range: Range, text: string, diagnostic: Diagnostic, codeActions: CodeAction[]) {
 		const textEdit: TextEdit = {
 			range: range,
 			newText: text
 		};
 		const documentUri: string = this.params.textDocument.uri;
+
 		const changesObj: {
 			[uri: string]: TextEdit[];
 		} = {};
 		changesObj[documentUri] = [textEdit];
+
 		const codeAction: CodeAction = {
-			title: `Add disjoint var constraint <${var1},${var2}>`,
+			title: title,
 			edit: {
 				changes: changesObj
 			},
@@ -89,6 +75,28 @@ export class CodeActionForDiagnostic {
 			diagnostics: [diagnostic]
 		};
 		codeActions.push(codeAction);
+	}
+
+	private addCodeActionForMissingDjVarsStatement(diagnostic: Diagnostic, range: Range,
+		carriageReturnIfNeeded: string, codeActions: CodeAction[]) {
+		const dataFieldForMissingDjVarConstraintsDiagnostic: DataFieldForMissingDjVarConstraintsDiagnostic =
+			<DataFieldForMissingDjVarConstraintsDiagnostic>diagnostic.data;
+		const var1 = dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar1;
+		const var2 = dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar2;
+		const statementText = MmpDisjVarStatement.textForTwoVars(var1, var2);
+		//TODO add test for this text
+		const text: string = carriageReturnIfNeeded + statementText;
+
+		const title = `Add disjoint var constraint <${var1},${var2}>`;
+
+		this.addCodeAction(title, range, text, diagnostic, codeActions);
+	}
+
+	private addCodeActionForDiscouragedStatement(diagnostic: Diagnostic, codeActions: CodeAction[]) {
+		const range: Range = { start: { line: 1, character: 0 }, end: { line: 1, character: 0 } };
+		const text = '$allowdiscouraged\n';
+		const title = `Add '$allowdiscouraged' statement`;
+		this.addCodeAction(title, range, text, diagnostic, codeActions);
 	}
 
 	//#region codeActionForAddAllMissingDjVarsConstraint
@@ -114,20 +122,21 @@ export class CodeActionForDiagnostic {
 	//#endregion codeActionForAddAllMissingDjVarsConstraint
 
 	buildCodeActions() {
-		const range: Range = this.calculateRange();
+		const rangeToAddAtTheEnd: Range = this.calculateRangeToAddAtTheEnd();
 		const codeActions: CodeAction[] = [];
 		const carriageReturnIfNeeded: string = (this._text[this._text.length - 1] == "\n" ? "" : "\n");
 
 		let containsAtLeastAMissingDjVarsDiagnostic = false;
 		this.params.context.diagnostics.forEach((diagnostic: Diagnostic) => {
 			if (diagnostic.code == MmpParserWarningCode.missingDjVarsStatement) {
-				this.addCodeAction(diagnostic, range, carriageReturnIfNeeded, codeActions);
+				this.addCodeActionForMissingDjVarsStatement(diagnostic, rangeToAddAtTheEnd, carriageReturnIfNeeded, codeActions);
 				containsAtLeastAMissingDjVarsDiagnostic = true;
-			}
+			} else if (diagnostic.code == MmpParserWarningCode.isDiscouraged)
+				this.addCodeActionForDiscouragedStatement(diagnostic, codeActions);
 		});
 
 		if (containsAtLeastAMissingDjVarsDiagnostic) {
-			const codeActionAddAllMissing: CodeAction = this.codeActionForAddAllMissingDjVarsConstraint(range,
+			const codeActionAddAllMissing: CodeAction = this.codeActionForAddAllMissingDjVarsConstraint(rangeToAddAtTheEnd,
 				carriageReturnIfNeeded);
 			codeActions.push(codeActionAddAllMissing);
 		}

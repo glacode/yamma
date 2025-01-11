@@ -7,7 +7,7 @@ import { MmpParserWarningCode } from '../mmp/MmpParser';
 const mockPosition: Position = { line: 0, character: 0 };
 const mockRange: Range = { start: mockPosition, end: mockPosition };
 
-test("Expect 3 CodeAcion(s) ", () => {
+test("Expect 3 CodeAcion(s) for missing dj vars and 1 CodeAction for isDiscouraged", () => {
 	const dataField1: DataFieldForMissingDjVarConstraintsDiagnostic =
 	{
 		missingDisjVar1: 'A',
@@ -26,13 +26,17 @@ test("Expect 3 CodeAcion(s) ", () => {
 		// missingDjVarConstraints: new DisjVarUStatement("x", "y")
 	};
 	const diagnostic2: Diagnostic = {
-		message: "Diag message 1", range: mockRange,
+		message: "Diag message 2", range: mockRange,
 		code: MmpParserWarningCode.missingDjVarsStatement,
 		data: dataField2
 	};
+	const diagnostic3: Diagnostic = {
+		message: "Diag message 3", range: mockRange,
+		code: MmpParserWarningCode.isDiscouraged
+	};
 
 	const context: CodeActionContext = {
-		diagnostics: [diagnostic1, diagnostic2]
+		diagnostics: [diagnostic1, diagnostic2,diagnostic3]
 	};
 	const text = "qed:ax-5 |- ( x e. A -> A. y x e. A )";
 	const testURI = "testURI";
@@ -55,7 +59,7 @@ test("Expect 3 CodeAcion(s) ", () => {
 	const codeActionForDiagnostic: CodeActionForDiagnostic = new CodeActionForDiagnostic(params, textDocuments);
 	const codeActions: CodeAction[] = codeActionForDiagnostic.buildCodeActions();
 
-	expect(codeActions.length).toBe(3);
+	expect(codeActions.length).toBe(4);
 	const codeAction1: CodeAction = codeActions[0];
 	expect(codeAction1.title).toEqual("Add disjoint var constraint <A,y>");
 	expect(codeAction1.edit?.changes![testURI].length).toBe(1);
@@ -68,15 +72,28 @@ test("Expect 3 CodeAcion(s) ", () => {
 
 	const codeAction2: CodeAction = codeActions[1];
 	expect(codeAction2.title).toEqual("Add disjoint var constraint <x,y>");
-	const codeAction3: CodeAction = codeActions[2];
-	expect(codeAction3.title).toEqual("Add all missing disjoint var constraints");
+
+	// the CodeAction for "Add all missing disjoint var constraints" is at the end of all CodeActions
+	const codeAction4: CodeAction = codeActions[3];
+	expect(codeAction4.title).toEqual("Add all missing disjoint var constraints");
 	const expectedEditTex3 = `
 $d A y
 $d x y
 `;
 
+	const textEdit4: TextEdit = <TextEdit>codeAction4.edit?.changes![testURI][0];
+	expect(textEdit4.newText).toEqual(expectedEditTex3);
+
+	const codeAction3: CodeAction = codeActions[2];
+	expect(codeAction3.title).toEqual("Add '$allowdiscouraged' statement");
+	expect(codeAction3.edit?.changes![testURI].length).toBe(1);
 	const textEdit3: TextEdit = <TextEdit>codeAction3.edit?.changes![testURI][0];
-	expect(textEdit3.newText).toEqual(expectedEditTex3);
+	expect(textEdit3.newText).toEqual("$allowdiscouraged\n");
+	expect(textEdit3.range.start.line).toBe(1);
+	expect(textEdit3.range.start.character).toBe(0);
+	expect(textEdit3.range.end.line).toBe(1);
+	expect(textEdit3.range.end.character).toBe(0);
+
 
 
 	spy.mockClear();
