@@ -166,20 +166,26 @@ qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	// I've not checked that the results below are correct (it would be too time consuming to do),
 	// but they are returned by a test 'on the field' and are coherent with what I would expect.
 	// I've inclueded these tests to get an alert if things are unwittingly changed.
-	expect(completionItems.length).toBe(17);
-	expect(completionItems[13].label).toEqual('con4i');
-	expect(completionItems[13].kind).toBe(CompletionItemKind.Text);
-	expect(completionItems[13].command).toBeDefined();
-	expect(completionItems[13].detail).toBeUndefined();
-	expect(completionItems[14].label).toEqual('con2i');
-	expect(completionItems[14].kind).toBe(CompletionItemKind.Text);
-	expect(completionItems[14].detail).toBeUndefined();
-	expect(completionItems[15].label).toEqual('con1i');
-	expect(completionItems[15].kind).toBe(CompletionItemKind.Text);
-	expect(completionItems[15].detail).toBeUndefined();
-	expect(completionItems[16].label).toEqual('con3i');
-	expect(completionItems[16].kind).toBe(CompletionItemKind.Text);
-	expect(completionItems[16].detail).toBeUndefined();
+	expect(completionItems.length).toBe(4);
+	expect(completionItems[0].label).toEqual('con3i');
+	expect(completionItems[0].kind).not.toBe(CompletionItemKind.Text);
+	expect(completionItems[1].label).toEqual('con2i');
+	expect(completionItems[1].kind).not.toBe(CompletionItemKind.Text);
+	expect(completionItems[2].detail).toBeUndefined();
+	expect(completionItems.length).toBe(4);
+	expect(completionItems[2].label).toEqual('con4i');
+	expect(completionItems[2].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[2].command).toBeDefined();
+	expect(completionItems[2].detail).toBeUndefined();
+	// expect(completionItems[14].label).toEqual('con2i');
+	// expect(completionItems[14].kind).toBe(CompletionItemKind.Text);
+	// expect(completionItems[14].detail).toBeUndefined();
+	expect(completionItems[3].label).toEqual('con1i');
+	expect(completionItems[3].kind).toBe(CompletionItemKind.Text);
+	expect(completionItems[3].detail).toBeUndefined();
+	// expect(completionItems[16].label).toEqual('con3i');
+	// expect(completionItems[16].kind).toBe(CompletionItemKind.Text);
+	// expect(completionItems[16].detail).toBeUndefined();
 
 });
 

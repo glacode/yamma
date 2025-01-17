@@ -99,11 +99,19 @@ export class StepSuggestion {
 	private getUnifiableStepSuggestions(stepSuggestions: IStepSuggestion[]): IStepSuggestion[] {
 		const unifiableStepSuggestions: IStepSuggestion[] = [];
 		stepSuggestions.forEach((stepSuggestion: IStepSuggestion) => {
-			// if (this.isUnifiable(stepSuggestion))
-			if (this.isUnifiable(stepSuggestion.label))
+			// if (this.isUnifiable(stepSuggestion.label))
+			if (this.isUnifiable(stepSuggestion.label) && this.doesLabelMatchTheProofStepLabel(stepSuggestion.label))
 				unifiableStepSuggestions.push(stepSuggestion);
 		});
 		return unifiableStepSuggestions;
+	}
+	doesLabelMatchTheProofStepLabel(label: string) {
+		let result = this.mmpProofStep.label == undefined;
+		if (!result) {
+			const regExp: RegExp = StepSuggestion.buildRegExp(this.mmpProofStep.label!.value);
+			result = regExp.test(label);
+		}
+		return result;
 	}
 	//#endregion getUnifiableStepSuggestions
 
@@ -148,6 +156,7 @@ export class StepSuggestion {
 		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(stepSuggestion.label);
 		const completionItem: CompletionItem = {
 			label: stepSuggestion.label,
+			filterText: this.mmpProofStep.label?.value,
 			command: this.command,
 			detail: detail,
 			//TODO see if LSP supports a way to disable client side sorting
@@ -174,19 +183,7 @@ export class StepSuggestion {
 		return completionItems;
 	}
 	//#endregion getCompletionItemsFromStepSuggestions
-	completionItemsFromClassifier(formulaClassifier: IFormulaClassifier): CompletionItem[] {
-		let completionItemsFromClassifier: CompletionItem[] = [];
-		const formulaClusterId: string | undefined = this.classifyProofStepFormula(formulaClassifier);
-		if (formulaClusterId != undefined) {
-			// the cursor is on a proof step that has a valid parse node
-			const stepSuggestions: IStepSuggestion[] | undefined =
-				this.stepSuggestionMap.getStepSuggestions(formulaClassifier.id, formulaClusterId);
-			if (stepSuggestions != undefined)
-				// the model does not have step suggestions, for this classifier and this parse node
-				completionItemsFromClassifier = this.getCompletionItemsFromStepSuggestions(stepSuggestions);
-		}
-		return completionItemsFromClassifier;
-	}
+
 	//#endregion completionItemsFromClassifier
 
 	//#region getStepSuggestionsFromAllModels
@@ -223,7 +220,9 @@ export class StepSuggestion {
 	}
 	//#endregion orderStepSuggestionsByWilsonScore
 
-	getStepSuggestionsWithoutDuplication(stepSuggestions: IStepSuggestion[]): IStepSuggestion[] {
+	getStepSuggestionsFromModelsWithoutDuplication(stepSuggestions: IStepSuggestion[]): {
+		stepSuggestionsWithoutDuplication: IStepSuggestion[], alreadyAddedLabels: Set<string>
+	} {
 		const stepSuggestionsWithoutDuplication: IStepSuggestion[] = [];
 		const alreadyAddedLabels: Set<string> = new Set<string>();
 		stepSuggestions.forEach((stepSuggestion: IStepSuggestion) => {
@@ -232,10 +231,12 @@ export class StepSuggestion {
 				alreadyAddedLabels.add(stepSuggestion.label);
 			}
 		});
-		return stepSuggestionsWithoutDuplication;
+		return { stepSuggestionsWithoutDuplication, alreadyAddedLabels };
 	}
 
-	private getCompletionItemsFromModels(): CompletionItem[] {
+	private getCompletionItemsFromModels(): {
+		completionItems: CompletionItem[], labelsAddedFromModels: Set<string>
+	} {
 		//TODO this is an example to add a snippet, you will use it later
 		// const testSnippet: CompletionItem = {
 		// 	label: "func",
@@ -252,9 +253,10 @@ export class StepSuggestion {
 
 		const stepSuggestions: IStepSuggestion[] = this.getStepSuggestionsFromAllModels();
 		this.orderStepSuggestionsByWilsonScore(stepSuggestions);
-		const stepSuggestionsWithoutDuplication: IStepSuggestion[] =
-			this.getStepSuggestionsWithoutDuplication(stepSuggestions);
-		const completionItemsFromModels = this.getCompletionItemsFromStepSuggestions(stepSuggestionsWithoutDuplication);
+		const { stepSuggestionsWithoutDuplication, alreadyAddedLabels } =
+			this.getStepSuggestionsFromModelsWithoutDuplication(stepSuggestions);
+		const completionItemsFromModels = this.getCompletionItemsFromStepSuggestions(
+			stepSuggestionsWithoutDuplication);
 
 		// const completionItemsFromModels: CompletionItem[] = [];
 		// this.formulaClassifiers.forEach((formulaClassifier: IFormulaClassifier) => {
@@ -264,7 +266,7 @@ export class StepSuggestion {
 
 		// });
 
-		return completionItemsFromModels;
+		return { completionItems: completionItemsFromModels, labelsAddedFromModels: alreadyAddedLabels };
 	}
 	//#endregion getCompletionItemsFromModels
 
@@ -272,22 +274,20 @@ export class StepSuggestion {
 	public static buildRegExp(partialLabel: string): RegExp {
 		const c0: string = partialLabel[0];
 		let strReg = `.*${c0}.*`;
-		if (partialLabel.length > 1)
-			strReg += `${partialLabel[1]}.*`;
-		if (partialLabel.length > 2)
-			strReg += `${partialLabel[2]}.*`;
-		// const c1: string = partialLabel[1];
-		// const c2: string = partialLabel[2];
-		// const regExp = new RegExp(`.*${c0}.*${c1}.*${c2}.*`);
+		for (let i = 1; i < partialLabel.length; i++) {
+			const ci: string = partialLabel[i];
+			strReg += `${ci}.*`;
+		}
 
 		const regExp = new RegExp(strReg);
 
 		return regExp;
 	}
-	createAndAddItemFromPartialLabel(label: string, i: number, completionItems: CompletionItem[]) {
+	createAndAddItemFromPartialLabel(partialLabel: string, label: string, i: number, completionItems: CompletionItem[]) {
 		const insertReplaceEdit: InsertReplaceEdit | undefined = this.insertReplaceEdit(label);
 		const completionItem: CompletionItem = {
 			label: label,
+			filterText: partialLabel,
 			command: this.command,
 			sortText: this.sortText(this.completionItemKindForPartialLabel, i),
 			textEdit: insertReplaceEdit,
@@ -295,15 +295,17 @@ export class StepSuggestion {
 		};
 		completionItems.push(completionItem);
 	}
-	private addCompletionItemsFromPartialLabelActually(partialLabel: string, completionItems: CompletionItem[]) {
+	private addCompletionItemsFromPartialLabelActually(
+		partialLabel: string, completionItems: CompletionItem[], labelsAddedFromModels: Set<string>) {
 		const regExp: RegExp = StepSuggestion.buildRegExp(partialLabel);
 		let i = 0;
 		this.mmParser.labelToNonSyntaxAssertionMap.forEach((_assertion: AssertionStatement, label: string) => {
-			if (regExp.test(label) && (this.mmpProofStep.formula == undefined || this.isUnifiable(label))) {
+			if (!labelsAddedFromModels.has(label) && regExp.test(label) &&
+				(this.mmpProofStep.formula == undefined || this.isUnifiable(label))) {
 				// the current assertion's label contains the partial label input by the user
 				// and either the proof step has no formula, or the current assertion is unifiable with
 				// the current mmp statement
-				this.createAndAddItemFromPartialLabel(label, i++, completionItems);
+				this.createAndAddItemFromPartialLabel(partialLabel, label, i++, completionItems);
 			}
 		});
 	}
@@ -311,16 +313,17 @@ export class StepSuggestion {
 	 * a general algorithm that does not depend on a trained model: all 'matching' assertions
 	 * are returned
 	 */
-	private addCompletionItemsFromPartialLabel(completionItems: CompletionItem[]) {
+	private addCompletionItemsFromPartialLabel(completionItems: CompletionItem[], labelsAddedFromModels: Set<string>) {
 		if (this.mmpProofStep != undefined && this.mmpProofStep.label != undefined &&
 			this.mmpProofStep.label.value.length >= Parameters.numberOfCharsTriggeringCompletionItemsFromPartialLabel)
-			this.addCompletionItemsFromPartialLabelActually(this.mmpProofStep.label.value, completionItems);
+			this.addCompletionItemsFromPartialLabelActually(this.mmpProofStep.label.value, completionItems,
+				labelsAddedFromModels);
 	}
 	//#endregion addCompletionItemsFromPartialLabel
 
 	completionItems(): CompletionItem[] {
-		const completionItems = this.getCompletionItemsFromModels();
-		this.addCompletionItemsFromPartialLabel(completionItems);
+		const { completionItems, labelsAddedFromModels } = this.getCompletionItemsFromModels();
+		this.addCompletionItemsFromPartialLabel(completionItems, labelsAddedFromModels);
 
 		return completionItems;
 	}
