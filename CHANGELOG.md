@@ -69,3 +69,17 @@
   - Excluded formulas containing working variables from the cache to prevent invalid cache usage.  
   - This addresses issues caused by the unification algorithm modifying these formulas during operations.  
 
+### Version 0.0.17 (2025-01-25)
+
+#### Added
+- A new diagnostic warning is added when a mmp proof step is justified using a label that refers to a statement with a 'new usage is discouraged' tag.
+- Introduced the `$allowdiscouraged` directive in `.mmp` proofs.
+  - Proofs containing this directive will bypass warnings when using labels tagged with 'new usage is discouraged.'
+  - Proofs with the `$allowdiscouraged` directive will be generated if they are complete.
+- The new diagnostic contains a 'Quick Fix' that automatically adds the $allowdiscouraged directive
+
+#### Changed
+- Proofs that use labels tagged as 'new usage is discouraged' are no longer generated, even if complete, unless the `$allowdiscouraged` flag is present.
+
+#### Improved
+- CompletionItems for step suggestions are now completely filtered on the server and additional client side filtering is disabled (previously, useful label suggestions were filtered out by VSCode, and not shown to the user)
