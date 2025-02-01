@@ -1,5 +1,5 @@
 import { DisjointVarMap } from '../mm/DisjointVarMap';
-import { MmParser, MmParserErrorCode } from "../mm/MmParser";
+import { MmParser, MmParserErrorCode, MmParserWarningCode } from "../mm/MmParser";
 import { ProvableStatement } from "../mm/ProvableStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
@@ -251,7 +251,6 @@ test("expect not a label of an assertion or optional hypothesis", () => {
 
 // Test impbii-bad , expect error for con3d, but pm3.2im, that comes later and does not depend on con3d,
 // should be added to the theory. con3rr3 depends on con3d and should have a diagnostic
-//TODO 1 NOV 18
 test('Test impbii-bad , see comment above', () => {
     const parser: MmParser = createMmParser('impbii-bad.mm');
     expect(parser.parseFailed).toBeTruthy();
@@ -319,5 +318,34 @@ test("Test (New usage is discouraged.)", () => {
 
     const id: AssertionStatement = <AssertionStatement>impbiiMmParser.labelToStatementMap.get('id');
     const isIdDiscouraged: boolean = id.isDiscouraged;
-    expect(isIdDiscouraged).toBeFalsy(); 
+    expect(isIdDiscouraged).toBeFalsy();
+});
+
+// Test questionmark
+// expect warning missing proof for a21
+// for the time being, we don't emit warnings for other theorems that depend on a theorem with missing proof
+test('Test questionmark , see comment above', () => {
+    const parser: MmParser = createMmParser('questionmark.mm');
+    expect(parser.parseFailed).toBeFalsy();
+    const labelToStatementMap: Map<string, LabeledStatement> = parser.labelToStatementMap;
+    expect(labelToStatementMap.size).toBeGreaterThan(0);
+    const a1i: LabeledStatement | undefined = labelToStatementMap.get('a1i');
+    expect(a1i).toBeDefined();
+    expect((<ProvableStatement>a1i).isProofVerified).toBeTruthy();
+    expect((<ProvableStatement>a1i).isProofVerificationFailed).toBeFalsy();
+    const a2i: LabeledStatement | undefined = labelToStatementMap.get('a2i');
+    expect(a2i).toBeDefined();
+    expect((<ProvableStatement>a2i).isProofVerified).toBeFalsy();
+    expect((<ProvableStatement>a2i).isProofVerificationFailed).toBeFalsy();
+    const mpd: LabeledStatement | undefined = labelToStatementMap.get('mpd');
+    expect(mpd).toBeDefined();
+    expect((<ProvableStatement>mpd).isProofVerified).toBeTruthy();
+    expect((<ProvableStatement>mpd).isProofVerificationFailed).toBeFalsy();
+    const syl: LabeledStatement | undefined = labelToStatementMap.get('syl');
+    expect(syl).toBeDefined();
+    expect((<ProvableStatement>syl).isProofVerified).toBeTruthy();
+    expect((<ProvableStatement>syl).isProofVerificationFailed).toBeFalsy();
+    expect(parser.diagnostics.length).toBe(1);
+    expect(parser.diagnostics[0].provableStatementLabel).toBe('a2i');
+    expect(parser.diagnostics[0].code).toBe(MmParserWarningCode.unprovenStatement);
 });

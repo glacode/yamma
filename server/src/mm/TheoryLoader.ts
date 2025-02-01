@@ -3,7 +3,7 @@ import url = require('url');
 import { Connection, Diagnostic, PublishDiagnosticsParams, WorkDoneProgress, WorkDoneProgressCreateRequest, WorkspaceFolder } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { MmParser, MmParserEvents, ParsingProgressArgs } from './MmParser';
-import { notifyError, notifyInformation } from './Utils';
+import { notifyError, notifyInformation, notifyWarning } from './Utils';
 import * as fs from "fs";
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { ModelLoader } from '../stepSuggestion/ModelLoader';
@@ -75,12 +75,15 @@ export class TheoryLoader {
 		if (this.mmParser.parseFailed) {
 			message = `The theory file ${mmFilePath} has NOT been successfully parsed. See the ` +
 				`PROBLEMS tab for a list of diagnostics`;
-			notifyError(message, this.connection);
 			this.sendDiagnostics(mmFilePath, this.mmParser.diagnostics);
+			notifyError(message, this.connection);
 		}
-		else {
-			// this.globalState.mmFilePath = mmFilePath;
-			// this.globalState.mmParser = this.mmParser!;
+		else if (this.mmParser.containsUnprovenStatements) {
+			message = `The theory file ${mmFilePath} has been successfully parsed, but it contains ` +
+				`unproven statements. See the PROBLEMS tab for a list of diagnostics`;
+			this.sendDiagnostics(mmFilePath, this.mmParser.diagnostics);
+			notifyWarning(message, this.connection);
+		} else {
 			message = `The theory file ${mmFilePath} has been successfully parsed and verified`;
 			notifyInformation(message, this.connection);
 		}

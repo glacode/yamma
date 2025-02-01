@@ -12,7 +12,7 @@ import { MmToken } from '../grammar/MmLexer';
 import { Grammar } from 'nearley';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { Range } from 'vscode-languageserver-textdocument';
-import { Connection, Diagnostic } from 'vscode-languageserver';
+import { Connection, Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
 import { EHyp } from './EHyp';
@@ -33,6 +33,10 @@ export enum MmParserErrorCode {
     missingCloseParenthesisInPStatement = "missingCloseParenthesisInPStatement",
     notALabelOfAssertionOrOptionalHyp = "notALabelOfAssertionOrOptionalHyp",
     labelOfAProvableStatementWithFailedVerification = "labelOfAProvableStatementWithFailedVerification",
+}
+
+export enum MmParserWarningCode {
+    unprovenStatement = "unprovenStatement"
 }
 
 export enum MmParserEvents {
@@ -81,6 +85,9 @@ export class MmParser extends EventEmitter {
      * be ready
      */
     areAllParseNodesComplete: boolean;
+
+    /** it will be true if at least one theorme has a $= ? $. unproven marker */
+    containsUnprovenStatements = false;
 
     public get grammar() {
         if (this._grammar == undefined)
@@ -139,12 +146,26 @@ export class MmParser extends EventEmitter {
     public static addDiagnosticError(message: string, range: Range, code: MmParserErrorCode,
         diagnostics: MmDiagnostic[], provableStatementLabel?: string) {
         const diagnostic: MmDiagnostic = {
+            severity: DiagnosticSeverity.Error,
             message: message,
             range: range,
             code: code,
             provableStatementLabel: provableStatementLabel
         };
         diagnostics.push(diagnostic);
+    }
+
+    addDiagnosticWarning(message: string, range: Range, code: MmParserWarningCode,
+        provableStatementLabel?: string
+    ) {
+        const diagnostic: MmDiagnostic = {
+            severity: DiagnosticSeverity.Warning,
+            message: message,
+            range: range,
+            code: code,
+            provableStatementLabel: provableStatementLabel
+        };
+        this.diagnostics.push(diagnostic);
     }
 
     //#region buildLabelToStatementMap
@@ -274,9 +295,17 @@ export class MmParser extends EventEmitter {
                 const statement: ProvableStatement =
                     new ProvableStatement(label, statementContent, currentBlock, toks.lastComment);
                 Frame.createFrame(statement);
-                const verifier: Verifier = new Verifier(this.diagnostics);
-                verifier.verify(statement, proof, this.labelToStatementMap);
-                this.parseFailed ||= verifier.verificationFailed;
+                if (proof.length === 1 && proof[0] === '?') {
+                    // this is an unproven $p statement
+                    this.addDiagnosticWarning('Unproven $p statement', label.range,
+                        MmParserWarningCode.unprovenStatement, label.value);
+                    this.containsUnprovenStatements = true;
+                }
+                else {
+                    const verifier: Verifier = new Verifier(this.diagnostics);
+                    verifier.verify(statement, proof, this.labelToStatementMap);
+                    this.parseFailed ||= verifier.verificationFailed;
+                }
 
                 // if (!verifier.verificationFailed) {
                 this.labelToStatementMap.set(label.value, statement);
@@ -288,7 +317,6 @@ export class MmParser extends EventEmitter {
                     mmParser: this
                 };
                 this.emit(MmParserEvents.newProvableStatement, newAssertionParams);
-                // }
             }
         }
     }
