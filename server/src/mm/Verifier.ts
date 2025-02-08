@@ -1,4 +1,4 @@
-import { Diagnostic, Range } from 'vscode-languageserver';
+import { Diagnostic, DiagnosticSeverity, Range } from 'vscode-languageserver';
 import { BlockStatement } from './BlockStatement';
 import { Frame } from "./Frame";
 import { MmDiagnostic, MmParserErrorCode } from './MmParser';
@@ -29,10 +29,12 @@ export class Verifier {
             const completeMessage = `Theorem ${assertionStatement.Label} : ${message}`;
             const diagnosticRange: Range = range != undefined ? range : assertionStatement.labelToken.range;
             const diagnostic: MmDiagnostic = {
+                severity: DiagnosticSeverity.Error,
                 message: completeMessage,
                 range: diagnosticRange,
                 code: code,
-                provableStatementLabel: assertionStatement.Label
+                provableStatementLabel: assertionStatement.Label,
+                mmFilePath: assertionStatement.labelToken.filePath
             };
             this.diagnostics.push(diagnostic);
             this.verificationFailed = true;

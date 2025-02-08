@@ -1,13 +1,13 @@
-$( a2i is not proven: a question mark is placed instead of a proof $)
-  $c ( $.  
-  $c ) $.  
-  $c -> $. 
-  $c -. $. 
-  $c wff $. 
+$[ included1.mm $]
+  $c -> $.
+  $c -. $.
+  $c wff $.
   $c |- $.
-  $v ph $.  
-  $v ps $.  
-  $v ch $.  
+  $v ph $.
+  $v ps $.
+  $v ch $.
+
+$( this should be skipped because in comment $[ incomment.mm $] $)
 
   wph $f wff ph $.
   
@@ -37,19 +37,9 @@ $( a2i is not proven: a question mark is placed instead of a proof $)
     a1i $p |- ( ps -> ph ) $=
       ( wi ax-1 ax-mp ) ABADCABEF $.
   $}
-  ${
-    a2i.1 $e |- ( ph -> ( ps -> ch ) ) $.
-    
-    a2i $p |- ( ( ph -> ps ) -> ( ph -> ch ) ) $=
-      ? $.
-  $}
-  ${
-    mpd.1 $e |- ( ph -> ps ) $.
-    mpd.2 $e |- ( ph -> ( ps -> ch ) ) $.
-    
-    mpd $p |- ( ph -> ch ) $=
-      ( wi a2i ax-mp ) ABFACFDABCEGH $.
-  $}
+
+$[ included2.mm $]
+
   ${
     
     syl.1 $e |- ( ph -> ps ) $.

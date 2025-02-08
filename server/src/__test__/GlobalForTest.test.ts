@@ -37,7 +37,8 @@ export function readTestFile(fileName: string): string {
 export function createMmParser(fileName: string): MmParser {
 	const theoryText: string = readTestFile(fileName);
 	const mmParser: MmParser = new MmParser(globalState);
-	mmParser.ParseText(theoryText);
+	const mmFilePath = fullPathForTestFile(fileName);
+	mmParser.ParseText(theoryText, mmFilePath);
 	return mmParser;
 }
 

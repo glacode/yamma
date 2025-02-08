@@ -1,10 +1,7 @@
 import * as fs from 'fs';
 import { MmToken } from '../grammar/MmLexer';
-import { splitToTokensDefaultInLine } from './Utils';
 
 export class TokenReader {
-    lines_buf: string[]   // TODO remove, slow method
-    tokbuf: string[]    // TODO remove, slow method
     tokens: MmToken[]
     indexForNextToken = 0
     imported_files: Set<any>
@@ -18,33 +15,14 @@ export class TokenReader {
     }
     
 
-    constructor(readLines: string[]) {
-        this.lines_buf = readLines;
-        this.tokbuf = [];
+    constructor(tokens: MmToken[]) {
         this.imported_files = new Set();
 
-        // const dateTime = new Date();
-        // console.log("inizio prova" + dateTime);
-        this.tokens = this.provaSplit();
+        this.tokens = tokens;
         this._lastComment = [];
 
         // console.log("fine prova");
     }
-
-    provaSplit(): MmToken[] {
-        const prova: MmToken[] = [];
-        for (let i = 0; i < this.lines_buf.length; i++) {
-            const line = this.lines_buf[i];
-            // const lineTokens = splitToTokensDefault(line);
-            const lineTokens = splitToTokensDefaultInLine(line, i);
-            lineTokens.forEach(token => {
-                prova.push(token);
-            });
-        }
-        return prova;
-    }
-
-
 
     // reads the next token and increases the index for the next token
     Read(): MmToken | undefined {

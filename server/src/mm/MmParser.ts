@@ -6,7 +6,6 @@ import { AxiomStatement } from "./AxiomStatement";
 import { ProvableStatement } from "./ProvableStatement";
 import { LabeledStatement } from "./LabeledStatement";
 import { AssertionStatement } from "./AssertionStatement";
-import { TokenReader } from "./TokenReader";
 import { Verifier } from "./Verifier";
 import { MmToken } from '../grammar/MmLexer';
 import { Grammar } from 'nearley';
@@ -21,6 +20,8 @@ import * as events from 'events';
 import { creaParseNodesInANewThread } from '../parseNodesCreatorThread/ParseNodesCreator';
 import { EventEmitter } from 'stream';
 import { IExtensionSettings } from './ConfigurationManager';
+import { TokenReader } from './TokenReader';
+import { TokensCreator } from './TokensCreator';
 
 
 export enum MmParserErrorCode {
@@ -59,6 +60,7 @@ export type ParsingProgressArgs = {
 export interface MmDiagnostic extends Diagnostic {
     /** when defined, it is the label of the ProvableStatement of the proof the raises the Diagnostic */
     provableStatementLabel?: string
+    mmFilePath?: string
 }
 
 // Parser for .mm files
@@ -144,26 +146,27 @@ export class MmParser extends EventEmitter {
     }
 
     public static addDiagnosticError(message: string, range: Range, code: MmParserErrorCode,
-        diagnostics: MmDiagnostic[], provableStatementLabel?: string) {
+        diagnostics: MmDiagnostic[], provableStatementLabel?: string, filePath?: string) {
         const diagnostic: MmDiagnostic = {
             severity: DiagnosticSeverity.Error,
             message: message,
             range: range,
             code: code,
-            provableStatementLabel: provableStatementLabel
+            provableStatementLabel: provableStatementLabel,
+            mmFilePath: filePath
         };
         diagnostics.push(diagnostic);
     }
 
     addDiagnosticWarning(message: string, range: Range, code: MmParserWarningCode,
-        provableStatementLabel?: string
-    ) {
+        provableStatementLabel?: string, filePath?: string) {
         const diagnostic: MmDiagnostic = {
             severity: DiagnosticSeverity.Warning,
             message: message,
             range: range,
             code: code,
-            provableStatementLabel: provableStatementLabel
+            provableStatementLabel: provableStatementLabel,
+            mmFilePath: filePath
         };
         this.diagnostics.push(diagnostic);
     }
@@ -298,7 +301,8 @@ export class MmParser extends EventEmitter {
                 if (proof.length === 1 && proof[0] === '?') {
                     // this is an unproven $p statement
                     this.addDiagnosticWarning('Unproven $p statement', label.range,
-                        MmParserWarningCode.unprovenStatement, label.value);
+                        MmParserWarningCode.unprovenStatement, label.value,
+                        label.filePath);
                     this.containsUnprovenStatements = true;
                 }
                 else {
@@ -423,7 +427,10 @@ export class MmParser extends EventEmitter {
                 console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
 
                 console.log("inizio parsing: " + new Date());
-                const toks = new TokenReader(fileLines);
+                const tokensCreator: TokensCreator = new TokensCreator();
+                const mmTokens: MmToken[] = tokensCreator.createTokensFromFile(localFileName);
+                const toks: TokenReader = new TokenReader(mmTokens);
+                // const toks = new TokenReader(fileLines);
 
                 // const outermostBlock: BlockStatement = new BlockStatement(undefined, parser);
 
@@ -444,11 +451,20 @@ export class MmParser extends EventEmitter {
     //#region ParseFileSync
 
     // the synchronous version of ParseFile
-    private parseLines(fileLines: string[]) {
-        const toks = new TokenReader(fileLines);
+    // private parseLines(fileLines: string[]) {
+    //     const toks = new TokenReader(fileLines);
+    //     this.isParsingComplete = false;
+    //     this.outermostBlock.mmParser = this;
+    //     this.Parse(toks, this.outermostBlock);
+    //     this.outermostBlock.grammar = this.grammar;
+    //     this.isParsingComplete = true;
+    // }
+
+    private parseFromTokenReader(tokenReader: TokenReader) {
+
         this.isParsingComplete = false;
         this.outermostBlock.mmParser = this;
-        this.Parse(toks, this.outermostBlock);
+        this.Parse(tokenReader, this.outermostBlock);
         this.outermostBlock.grammar = this.grammar;
         this.isParsingComplete = true;
     }
@@ -457,8 +473,8 @@ export class MmParser extends EventEmitter {
         try {
 
 
-            const fileLines: string[] = fs.readFileSync(localFileName, 'utf-8')
-                .split('\n');
+            // const fileLines: string[] = fs.readFileSync(localFileName, 'utf-8')
+            //     .split('\n');
 
             console.log('ParseFileSync: Reading file line by line with readline done.');
             const used = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -466,7 +482,12 @@ export class MmParser extends EventEmitter {
 
             console.log("inizio parsing: " + new Date());
 
-            this.parseLines(fileLines);
+            // this.parseLines(fileLines);
+
+            const tokensCreator: TokensCreator = new TokensCreator();
+            const mmTokens: MmToken[] = tokensCreator.createTokensFromFile(localFileName);
+            const tokenReader: TokenReader = new TokenReader(mmTokens);
+            this.parseFromTokenReader(tokenReader);
 
 
             console.log("fine parsing: " + new Date());
@@ -479,9 +500,14 @@ export class MmParser extends EventEmitter {
     //#endregion ParseFileSync
 
     // parses a text: useful for testing
-    ParseText(text: string) {
-        const fileLines: string[] = text.split('\n');
-        this.parseLines(fileLines);
+    ParseText(text: string, mmFileFullPath?: string) {
+        // const fileLines: string[] = text.split('\n');
+        // this.parseLines(fileLines);
+
+        const tokensCreator: TokensCreator = new TokensCreator();
+        const mmTokens: MmToken[] = tokensCreator.createTokensFromText(text, mmFileFullPath);
+        const tokenReader: TokenReader = new TokenReader(mmTokens);
+        this.parseFromTokenReader(tokenReader);
     }
 
     //#region createParseNodesForAssertions

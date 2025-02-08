@@ -71,7 +71,7 @@ export class ProofCompressor {
 Theorem ${provableStatement.Label} : '${labelToken.value}' is not the label of an assertion or optional hypothesis`;
         MmParser.addDiagnosticError(message, labelToken.range,
             MmParserErrorCode.notALabelOfAssertionOrOptionalHyp, this.diagnostics,
-            provableStatement.Label);
+            provableStatement.Label, labelToken.filePath);
         this.failed = true;
     }
     private addDiagnosticForLabelOfAProvableStatementWithFailedVerification(
@@ -81,7 +81,7 @@ Theorem ${provableStatement.Label} : '${labelToken.value}' is not the label of a
             `theory, but its verification failed`;
         MmParser.addDiagnosticError(message, labelToken.range,
             MmParserErrorCode.labelOfAProvableStatementWithFailedVerification, this.diagnostics,
-            provableStatement.Label);
+            provableStatement.Label, labelToken.filePath);
     }
 
 

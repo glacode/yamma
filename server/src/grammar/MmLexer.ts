@@ -33,7 +33,7 @@ export class MmToken {
 		return range;
 	}
 
-	constructor(value: string, line: number, column: number, type?: string) {
+	constructor(value: string, line: number, column: number, type?: string, public filePath?: string) {
 		this.value = value;
 		this.line = line;
 		this.column = column;

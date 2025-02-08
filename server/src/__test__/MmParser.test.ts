@@ -3,37 +3,25 @@ import { MmParser, MmParserErrorCode, MmParserWarningCode } from "../mm/MmParser
 import { ProvableStatement } from "../mm/ProvableStatement";
 import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
-import { TokenReader } from "../mm/TokenReader";
-import { doesDiagnosticsContain, rebuildOriginalStringFromTokens } from '../mm/Utils';
+                                                                                                                                                import { doesDiagnosticsContain, rebuildOriginalStringFromTokens } from '../mm/Utils';
 import { createMmParser, impbiiMmParser, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
-import { Diagnostic } from 'vscode-languageserver';
+import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
+import { TokensCreator } from '../mm/TokensCreator';
+import { MmToken } from '../grammar/MmLexer';
+import { TokenReader } from '../mm/TokenReader';
 
 test("Parsing two $f statements", () => {
     const parser: MmParser = new MmParser();
-    const readLines: string[] = [
-        "$c wff $.",
-        "$v ph $.",
-        "$v ps $.",
-        "wph $f wff ph $.",
-        "wps $f wff ps $."
-    ];
-    const tokenReader: TokenReader = new TokenReader(readLines);
-    parser.Parse(tokenReader);
-    expect(parser.outermostBlock.fHyps.length).toBe(2);
-    expect(parser.outermostBlock.fHyps[0].Variable).toBe("ph");
-    expect(parser.outermostBlock.fHyps[1].Variable).toBe("ps");
-});
-
-test("Parsing two $f statements", () => {
-    const parser: MmParser = new MmParser();
-    const readLines: string[] = [
-        "$c wff $.",
-        "$v ph $.",
-        "$v ps $.",
-        "wph $f wff ph $.",
-        "wps $f wff ps $."
-    ];
-    const tokenReader: TokenReader = new TokenReader(readLines);
+    const text = `\
+$c wff $.
+$v ph $.
+$v ps $.
+wph $f wff ph $.
+wps $f wff ps $.
+`;
+    const tokensCreator: TokensCreator = new TokensCreator();
+    const mmTokens: MmToken[] = tokensCreator.createTokensFromText(text);
+    const tokenReader: TokenReader = new TokenReader(mmTokens);
     parser.Parse(tokenReader);
     expect(parser.outermostBlock.fHyps.length).toBe(2);
     expect(parser.outermostBlock.fHyps[0].Variable).toBe("ph");
@@ -347,5 +335,35 @@ test('Test questionmark , see comment above', () => {
     expect((<ProvableStatement>syl).isProofVerificationFailed).toBeFalsy();
     expect(parser.diagnostics.length).toBe(1);
     expect(parser.diagnostics[0].provableStatementLabel).toBe('a2i');
+    expect(parser.diagnostics[0].severity).toBe(DiagnosticSeverity.Warning);
     expect(parser.diagnostics[0].code).toBe(MmParserWarningCode.unprovenStatement);
+    expect(parser.diagnostics[0].message).toBe("Unproven $p statement");
+    expect(parser.diagnostics[0].mmFilePath).toContain('server/src/__test__/../mmTestFiles/questionmark.mm');
+});
+
+test('Test file inclusion', () => {
+    const parser: MmParser = createMmParser('include.mm');
+    expect(parser.parseFailed).toBeFalsy();
+    const labelToStatementMap: Map<string, LabeledStatement> = parser.labelToStatementMap;
+    expect(labelToStatementMap.size).toBeGreaterThan(0);
+    const a1i: LabeledStatement | undefined = labelToStatementMap.get('a1i');
+    expect(a1i).toBeDefined();
+    expect((<ProvableStatement>a1i).isProofVerified).toBeTruthy();
+    expect((<ProvableStatement>a1i).isProofVerificationFailed).toBeFalsy();
+    const a2i: LabeledStatement | undefined = labelToStatementMap.get('a2i');
+    expect(a2i).toBeDefined();
+    expect((<ProvableStatement>a2i).isProofVerified).toBeFalsy();
+    expect((<ProvableStatement>a2i).isProofVerificationFailed).toBeFalsy();
+    const mpd: LabeledStatement | undefined = labelToStatementMap.get('mpd');
+    expect(mpd).toBeDefined();
+    expect((<ProvableStatement>mpd).isProofVerified).toBeTruthy();
+    expect((<ProvableStatement>mpd).isProofVerificationFailed).toBeFalsy();
+    const syl: LabeledStatement | undefined = labelToStatementMap.get('syl');
+    expect(syl).toBeDefined();
+    expect((<ProvableStatement>syl).isProofVerified).toBeTruthy();
+    expect((<ProvableStatement>syl).isProofVerificationFailed).toBeFalsy();
+    expect(parser.diagnostics.length).toBe(1);
+    expect(parser.diagnostics[0].provableStatementLabel).toBe('a2i');
+    expect(parser.diagnostics[0].code).toBe(MmParserWarningCode.unprovenStatement);
+    expect(parser.diagnostics[0].mmFilePath).toContain('server/src/__test__/../mmTestFiles/included2.mm');
 });

@@ -2,7 +2,7 @@ import path = require('path');
 import url = require('url');
 import { Connection, Diagnostic, PublishDiagnosticsParams, WorkDoneProgress, WorkDoneProgressCreateRequest, WorkspaceFolder } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
-import { MmParser, MmParserEvents, ParsingProgressArgs } from './MmParser';
+import { MmDiagnostic, MmParser, MmParserEvents, ParsingProgressArgs } from './MmParser';
 import { notifyError, notifyInformation, notifyWarning } from './Utils';
 import * as fs from "fs";
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
@@ -51,16 +51,48 @@ export class TheoryLoader {
 		this.globalState.mmParser = undefined;
 	}
 	//#region loadTheoryFromMmFile
-	sendDiagnostics(mmFilePath: string, diagnostics: Diagnostic[]) {
-		if (diagnostics.length > 0) {
-			const fileUri: string = url.pathToFileURL(mmFilePath).href;
+
+	//#region sendDiagnostics
+	private buildDiagnosticsForEachFile(mmFilePath: string, diagnostics: MmDiagnostic[]): Map<string, Diagnostic[]> {
+		const diagnosticsForEachFile: Map<string, Diagnostic[]> = new Map<string, Diagnostic[]>();
+		diagnostics.forEach((diagnostic: MmDiagnostic) => {
+			const diagnosticFilePath: string = diagnostic.mmFilePath || mmFilePath;
+			let diagnosticsForCurrentFile: Diagnostic[] | undefined = diagnosticsForEachFile.get(diagnosticFilePath);
+			if (!diagnosticsForCurrentFile) {
+				diagnosticsForCurrentFile = [];
+				diagnosticsForEachFile.set(diagnosticFilePath, diagnosticsForCurrentFile);
+			}
+			diagnosticsForCurrentFile.push(diagnostic);
+		});
+		return diagnosticsForEachFile;
+	}
+	private sendDiagnostiForSingleMmFile(diagnosticsForEachFile: Map<string, Diagnostic[]>) {
+		diagnosticsForEachFile.forEach((diagnostics: Diagnostic[], filePath: string) => {
+			const fileUri: string = url.pathToFileURL(filePath).href;
 			const publishDiagnosticsParams: PublishDiagnosticsParams = {
 				diagnostics: diagnostics,
 				uri: fileUri
 			};
 			this.connection.sendDiagnostics(publishDiagnosticsParams);
-		}
+		});
 	}
+	sendDiagnostics(mmFilePath: string, diagnostics: MmDiagnostic[]) {
+		const diagnosticsForEachFile: Map<string, Diagnostic[]> =
+			this.buildDiagnosticsForEachFile(mmFilePath, diagnostics);
+		this.sendDiagnostiForSingleMmFile(diagnosticsForEachFile);
+		// if (diagnostics.length > 0) {
+		// 	const fileUri: string = url.pathToFileURL(mmFilePath).href;
+		// 	const publishDiagnosticsParams: PublishDiagnosticsParams = {
+		// 		diagnostics: diagnostics,
+		// 		uri: fileUri
+		// 	};
+		// 	this.connection.sendDiagnostics(publishDiagnosticsParams);
+		// }
+	}
+
+
+	//#endregion sendDiagnostics
+
 	async loadTheoryFromMmFile(mmFilePath: string) {
 		const random: number = Math.floor(Math.random() * 1000000);
 		const progressToken: string = 'TEST-PROGRESS-TOKEN' + random.toString();
