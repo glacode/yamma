@@ -83,3 +83,18 @@
 
 #### Improved
 - CompletionItems for step suggestions are now completely filtered on the server and additional client side filtering is disabled (previously, useful label suggestions were filtered out by VSCode, and not shown to the user)
+
+### Version 0.0.18 (2025-02-09)
+
+#### Added
+- **Support for unproven statements and warnings in `MmParser`**  
+  - Introduced `MmParserWarningCode.unprovenStatement` to detect unproven statements (`$= ? $`).
+  - Added the `containsUnprovenStatements` flag in `MmParser` to track theories with unproven statements.
+  - Implemented `addDiagnosticWarning` to emit warnings for unproven statements during parsing.
+  - Updated `TheoryLoader` to notify users when a theory contains unproven statements.
+
+- **Support for the file inclusion command (Metamath Book, Section 4.1.2: 'Preprocessing')**  
+  - Multiple `include` statements are supported, but each must be written on a single line (i.e., it cannot span multiple lines).  
+  - Recursive file inclusion is supported.  
+  - `.mm` tokens now retain information about the `.mm` file they originate from.  
+  - Diagnostic errors and warnings are reported for each specific `.mm` file.  
