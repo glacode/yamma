@@ -116,9 +116,10 @@ export class ConfigurationManager implements IConfigurationManager {
 		// const settings: IExtensionSettings = await this._connection.workspace.getConfiguration();
 		// const settings: IExtensionSettings = _change.settings;
 		const previousMmFilePath = this.globalState.mmFilePath;
-		console.log( ` previousMmFilePath: ${previousMmFilePath}`);
-		console.log( ` currentMmFilePath: ${currentConfiguration.mmFileFullPath}`);
-		if (currentConfiguration.mmFileFullPath != previousMmFilePath) {
+		console.log(` previousMmFilePath: ${previousMmFilePath}`);
+		console.log(` currentMmFilePath: ${currentConfiguration.mmFileFullPath}`);
+		if (!previousMmFilePath || (currentConfiguration.mmFileFullPath != '' &&
+			currentConfiguration.mmFileFullPath != previousMmFilePath)) {
 			this.setGlobalStateSettings();
 			const theoryLoader: TheoryLoader = new TheoryLoader(currentConfiguration.mmFileFullPath, this._connection,
 				this.globalState);
