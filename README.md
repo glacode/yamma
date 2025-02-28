@@ -7,6 +7,7 @@ A language server for .mmp files (metamath proof files).
 ## Features
 
 - **Completions**: syntax suggestions, step suggestions, search results
+![Syntax Suggestions](images/rexgt5.mmp.gif)
 - **Diagnostics**
 - **Code Actions**
 - **Quick Fixes**: missing disjoint vars statements
@@ -18,10 +19,6 @@ A language server for .mmp files (metamath proof files).
 - **Model Generation**
 - **Proof Generation**
 - **Load/Save additional** theorems in .mm compatible format
-
-## Prerequisites
-
-To use this extension, you need to have Node.js installed on your machine. If Node.js is not yet installed, follow the official installation guide: [Node.js Installation Guide](https://nodejs.org).
 
 ## Installation
 
