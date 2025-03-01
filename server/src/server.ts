@@ -424,22 +424,26 @@ documents.onDidChangeContent(async change => {
 	//consoleLogWithTimestamp('validateTextDocument mar 12 before setTimeout');
 	//uncomment the following line, for debugging (otherwise the theory is loaded before the debugger is attached)
 	// await new Promise((resolve) => { setTimeout(resolve, 2000); });
-	// consoleLogWithTimestamp('validateTextDocument mar 12 afer setTimeout');
-	if (globalState.mmParser == undefined)
+	if (globalState.mmParser == undefined) {
 		await configurationManager.updateTheoryIfTheCase();
+		// the following line is meant to force a semantic tokenization
+		// after the theory is updated; not sure if it actually does anything
+		connection.sendRequest('workspace/semanticTokens/refresh');
+	}
 	if (globalState.mmParser != undefined)
 		await validateTextDocument(change.document);
 });
 //#endregion onDidChangeContent
 
-//TODO I believe this is not triggered by a tab click
-documents.onDidOpen(async change => {
-	console.log('documents.onDidOpen : ' + change.document.uri);
-	globalState.lastMmpParser = undefined;
-	// await parseMainMMfile(change.document.uri);
-	// if (GlobalState.mmParser != undefined)
-	// 	validateTextDocument(change.document);
-});
+//TODO I believe this is not triggered by a tab click, it is only triggered when a document
+// is opened for the first time
+// documents.onDidOpen(async change => {
+// 	console.log('documents.onDidOpen : ' + change.document.uri);
+// 	globalState.lastMmpParser = undefined;
+// 	// await parseMainMMfile(change.document.uri);
+// 	// if (GlobalState.mmParser != undefined)
+// 	// 	validateTextDocument(change.document);
+// });
 
 connection.onDidChangeWatchedFiles(_change => {
 	// Monitored files have change in VSCode
@@ -508,7 +512,8 @@ connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticToken
 	let mmpParser: MmpParser | undefined = globalState.lastMmpParser;
 	//TODO move all this handler onSemanticTokensHandler.semanticTokens (pass documents to the
 	// OnSemanticTokensHandler constructor) 
-	if (mmParser != undefined && mmpParser == undefined) {
+	if (mmParser != undefined && ( mmpParser == undefined || mmpParser.documentUri != semanticTokenParams.textDocument.uri)) {
+		// the handler has been invoked before the .mmp file has been parsed
 		const textDocument: TextDocument = documents.get(semanticTokenParams.textDocument.uri)!;
 		await validateTextDocument(textDocument);
 		mmpParser = globalState.lastMmpParser;

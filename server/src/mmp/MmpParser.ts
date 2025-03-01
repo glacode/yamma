@@ -116,7 +116,8 @@ export class MmpParser {
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
 	constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars,
 		public formulaToParseNodeCache?: FormulaToParseNodeCache,
-		diagnosticMessageForSyntaxError?: IDiagnosticMessageForSyntaxError) {
+		diagnosticMessageForSyntaxError?: IDiagnosticMessageForSyntaxError,
+		public documentUri?: string) {
 		// this.textDocument = textDocument;
 		this.textToParse = textToParse;
 		this.mmParser = mmParser;

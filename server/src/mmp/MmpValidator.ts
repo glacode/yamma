@@ -49,14 +49,15 @@ export class MmpValidator {
 
 	// validateFullDocumentText(textToValidate: string, labelToStatementMap: Map<string, LabeledStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
-	validateFullDocumentText(textToValidate: string, mmParser: MmParser, workingVars: WorkingVars) {
+	validateFullDocumentText(textToValidate: string, textDocumentUri: string,
+		mmParser: MmParser, workingVars: WorkingVars) {
 		// const mmpParser: MmpParser = new MmpParser(textToValidate, mmParser, workingVars,
 		const diagnosticMessageForSyntaxError: IDiagnosticMessageForSyntaxError =
 			(this.diagnosticMessageForSyntaxError == DiagnosticMessageForSyntaxError.verbose) ?
 				new VerboseDiagnosticMessageForSyntaxError() : new ShortDiagnosticMessageForSyntaxError(
 					mmParser.outermostBlock.c, mmParser.outermostBlock.v, 30);
 		this.mmpParser = new MmpParser(textToValidate, mmParser, workingVars,
-			this.formulaToParseNodeCache, diagnosticMessageForSyntaxError);
+			this.formulaToParseNodeCache, diagnosticMessageForSyntaxError, textDocumentUri);
 		console.log('before mmpParser.parse()');
 		this.mmpParser.parse();
 		console.log('after mmpParser.parse()');
@@ -77,7 +78,8 @@ export class MmpValidator {
 				// this.validateFullDocumentText(textToValidate,
 				// 	this.mmParser.labelToStatementMap, this.mmParser.outermostBlock,
 				// 	this.mmParser.grammar, this.mmParser.workingVars);
-				this.validateFullDocumentText(textToValidate, this.mmParser, this.mmParser.workingVars);
+				this.validateFullDocumentText(textToValidate, textDocument.uri,
+					this.mmParser, this.mmParser.workingVars);
 		}
 		// const mmpUnifier = new MmpUnifier(this.mmParser.labelToStatementMap, this.mmParser.outermostBlock);
 		// const textToParse: string = textDocument.getText();
