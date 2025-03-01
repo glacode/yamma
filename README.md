@@ -7,7 +7,7 @@ A language server for .mmp files (metamath proof files).
 ## Features
 
 - **Completions**: syntax suggestions, step suggestions, search results
-![Syntax Suggestions](images/rexgt5.mmp.gif)
+![Syntax Suggestions](images/syntaxsuggestions.gif)
 - **Diagnostics**
 - **Code Actions**
 - **Quick Fixes**: missing disjoint vars statements
@@ -16,6 +16,7 @@ A language server for .mmp files (metamath proof files).
 - **Unification**: standard reformatting, renumbering, step completion, step derivation
 - **Search** in the theory
 - **Step Suggestions** (Model Based)
+![Step Suggestions](images/stepsuggestions.gif)
 - **Model Generation**
 - **Proof Generation**
 - **Load/Save additional** theorems in .mm compatible format
