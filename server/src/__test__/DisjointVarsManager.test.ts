@@ -6,6 +6,7 @@ import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpP
 import { doesDiagnosticsContain } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
+import { eqeq1iMmParser, kindToPrefixMap } from './GlobalForTest.test';
 
 export const theoryToTestDjVarViolation = ' $c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. $v ps $. ' +
 	'wph $f wff ph $. wps $f wff ps $. wi $a wff ( ph -> ps ) $. $c A. $. $c setvar $. $c class $. ' +
@@ -113,15 +114,15 @@ test("Expect Disjoint Var automatic completion ", () => {
 	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.missingDjVarsStatement)).toBeTruthy();
 	expect(mmpParser.diagnostics.length).toBe(2);
 	const diagnostic: Diagnostic = mmpParser.diagnostics[0];
-	expect(diagnostic.code).toBe(MmpParserWarningCode.missingDjVarsStatement);
+	expect(diagnostic.code).toBe(MmpParserWarningCode.missingMandatoryDisjVarsStatement);
 	expect((<DataFieldForMissingDjVarConstraintsDiagnostic>diagnostic.data).missingDisjVar1).toEqual('x');
 	expect((<DataFieldForMissingDjVarConstraintsDiagnostic>diagnostic.data).missingDisjVar2).toEqual('y');
-	const errMsg = "Substitution (to) vars subject to DjVars restriction by proof step but " +
+	const errMsg = "Substitution (to) vars subject to Mandatory DjVars restriction by proof step but " +
 		"not listed as DjVars in theorem to be proved: <x,y>";
 	expect(diagnostic.message).toEqual(errMsg);
 	const diagnostic1: Diagnostic = mmpParser.diagnostics[1];
-	expect(diagnostic1.code).toBe(MmpParserWarningCode.missingDjVarsStatement);
-	const errMsg1 = "Substitution (to) vars subject to DjVars restriction by proof step but " +
+	expect(diagnostic1.code).toBe(MmpParserWarningCode.missingMandatoryDisjVarsStatement);
+	const errMsg1 = "Substitution (to) vars subject to Mandatory DjVars restriction by proof step but " +
 		"not listed as DjVars in theorem to be proved: <A,x>";
 	expect(diagnostic1.message).toEqual(errMsg1);
 
@@ -135,6 +136,41 @@ test("Expect Disjoint Var automatic completion ", () => {
 	// 		expect(diagnostic.range.end.character).toBe(11);
 	// 	}
 	// });
+});
+
+test("Expect Dummy Disj Var Constraint for albidv ", () => {
+	const mmpSource =`\
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+`;
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.missingDjVarsStatement)).toBeTruthy();
+	expect(mmpParser.diagnostics.length).toBe(3);
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserWarningCode.missingMandatoryDisjVarsStatement)).toBeTruthy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserWarningCode.missingDummyDisjVarsStatement)).toBeTruthy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserWarningCode.missingMandatoryDisjVarsStatement) {
+			const errMsg = "Substitution (to) vars subject to Mandatory DjVars restriction by proof step but " +
+				"not listed as DjVars in theorem to be proved: <x,z>";
+			expect(diagnostic.message).toEqual(errMsg);
+			expect(diagnostic.range.start.line).toBe(2);
+			expect(diagnostic.range.start.character).toBe(4);
+			expect(diagnostic.range.end.line).toBe(2);
+			expect(diagnostic.range.end.character).toBe(10);
+		}
+		if (diagnostic.code == MmpParserWarningCode.missingDummyDisjVarsStatement) {
+			const errMsg = "Substitution (to) vars subject to Dummy DjVars restriction by proof step but " +
+				"not listed as DjVars in theorem to be proved: <w,z>";
+			expect(diagnostic.message).toEqual(errMsg);
+			expect(diagnostic.range.start.line).toBe(2);
+			expect(diagnostic.range.start.character).toBe(4);
+			expect(diagnostic.range.end.line).toBe(2);
+			expect(diagnostic.range.end.character).toBe(10);
+		}
+	});
 });
 
 

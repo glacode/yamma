@@ -87,7 +87,10 @@ export class CodeActionForDiagnostic {
 		//TODO add test for this text
 		const text: string = carriageReturnIfNeeded + statementText;
 
-		const title = `Add disjoint var constraint <${var1},${var2}>`;
+		// const title = `Add disjoint var constraint <${var1},${var2}>`;
+		const title = (diagnostic.code == MmpParserWarningCode.missingMandatoryDisjVarsStatement ?
+			`Add mandatory disjoint var constraint <${var1},${var2}>` :
+			`Add dummy disjoint var constraint <${var1},${var2}>`);
 
 		this.addCodeAction(title, range, text, diagnostic, codeActions);
 	}
@@ -103,7 +106,8 @@ export class CodeActionForDiagnostic {
 	editTextForAddAllMissingDjVarsConstraints(carriageReturnIfNeeded: string): string {
 		let editText: string = carriageReturnIfNeeded;
 		this.params.context.diagnostics.forEach((diagnostic: Diagnostic) => {
-			if (diagnostic.code == MmpParserWarningCode.missingDjVarsStatement) {
+			if (diagnostic.code == MmpParserWarningCode.missingMandatoryDisjVarsStatement ||
+				diagnostic.code == MmpParserWarningCode.missingDummyDisjVarsStatement) {
 				const dataFieldForMissingDjVarConstraintsDiagnostic: DataFieldForMissingDjVarConstraintsDiagnostic =
 					<DataFieldForMissingDjVarConstraintsDiagnostic>diagnostic.data;
 				editText += MmpDisjVarStatement.textForTwoVars(dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar1,
@@ -128,7 +132,8 @@ export class CodeActionForDiagnostic {
 
 		let containsAtLeastAMissingDjVarsDiagnostic = false;
 		this.params.context.diagnostics.forEach((diagnostic: Diagnostic) => {
-			if (diagnostic.code == MmpParserWarningCode.missingDjVarsStatement) {
+			if (diagnostic.code == MmpParserWarningCode.missingMandatoryDisjVarsStatement
+				|| diagnostic.code == MmpParserWarningCode.missingDummyDisjVarsStatement) {
 				this.addCodeActionForMissingDjVarsStatement(diagnostic, rangeToAddAtTheEnd, carriageReturnIfNeeded, codeActions);
 				containsAtLeastAMissingDjVarsDiagnostic = true;
 			} else if (diagnostic.code == MmpParserWarningCode.isDiscouraged)

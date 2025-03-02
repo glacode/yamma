@@ -58,14 +58,14 @@ export class ProofNode {
 	//#region addProofNodesForFStatements
 	private static addProofNodesForFStatements(mmpProofStep: MmpProofStep, proofNodes: ProofNode[]) {
 		const mandatoryVarsInRPNorder: string[] =
-			mmpProofStep.getMandatoryVarsInRPNorder(mmpProofStep.uProof.outermostBlock);
+			mmpProofStep.getMandatoryVarsInRPNorder(mmpProofStep.mmpProof.outermostBlock);
 		mandatoryVarsInRPNorder.forEach((logicalVar: string) => {
 			const logicalVarSubstitutionNode: InternalNode =
 				<InternalNode>mmpProofStep.substitution?.get(logicalVar);
 			// const proofNode: ProofNode = logicalVarSubstitutionNode.proofNode(
 			// 	mmpProofStep.uProof.outermostBlock, <Grammar>mmpProofStep.uProof.outermostBlock.grammar);
 			const proofNode: ProofNode = ProofNode.proofNodeForParseNode(logicalVarSubstitutionNode,
-				mmpProofStep.uProof.outermostBlock);
+				mmpProofStep.mmpProof.outermostBlock);
 			proofNodes.push(proofNode);
 		});
 	}

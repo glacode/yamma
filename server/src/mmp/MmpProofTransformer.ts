@@ -178,14 +178,14 @@ export class MmpProofTransformer {
 	foundDisjVarConstraintViolation(uProofStep: MmpProofStep): boolean {
 		const disjointVarsManager: DisjointVarsManager =
 			new DisjointVarsManager(uProofStep.assertion!, uProofStep.substitution!,
-				this.outermostBlock, false);
+				this.outermostBlock, new Set<string>(), false);
 		disjointVarsManager.checkDisjVarsConstraintsViolation();
 		return disjointVarsManager.foundDisjVarsConstraintViolation;
 	}
 	missingDisjVarConstraints(uProofStep: MmpProofStep): boolean {
 		const disjointVarsManager: DisjointVarsManager =
 			new DisjointVarsManager(uProofStep.assertion!, uProofStep.substitution!,
-				this.outermostBlock, false);
+				this.outermostBlock, uProofStep.mmpProof.mandatoryVars, false);
 		disjointVarsManager.checkMissingDisjVarsConstraints(this.uProof);
 		//TODO you should add this logic:
 		//- if a dv constraints does not involve a mandatory var, don't consider it

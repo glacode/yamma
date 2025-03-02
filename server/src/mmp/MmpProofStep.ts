@@ -15,7 +15,7 @@ import { LabeledStatement } from "../mm/LabeledStatement";
 import { AssertionStatement } from "../mm/AssertionStatement";
 
 export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSignature {
-	uProof: MmpProof;
+	mmpProof: MmpProof;
 
 	//the first token is not parsable if, for instance, it contains 3 or more colons
 	isFirstTokenParsable: boolean;
@@ -82,7 +82,7 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 
 	public get assertion(): AssertionStatement | undefined {
 		if (this._assertion == undefined) {
-			const labelToStatementMap = this.uProof!.outermostBlock.mmParser!.labelToStatementMap;
+			const labelToStatementMap = this.mmpProof!.outermostBlock.mmParser!.labelToStatementMap;
 			// const statement: LabeledStatement | undefined = labelToStatementMap.get()
 			let statement: LabeledStatement | undefined = undefined;
 			if (this.stepLabel != undefined) {
@@ -153,7 +153,7 @@ export class MmpProofStep implements IMmpStatementWithRange, ILabeledStatementSi
 		const actualEHypMmpSteps: (MmpProofStep | undefined)[] = (eHypMmpSteps == undefined ? [] : eHypMmpSteps);
 		// super(uProof, isFirstTokenParsable, isEHyp, stepRefToken?.value, actualEHypMmpSteps,
 		// 	eHypRefs, stepLabelToken, stepFormula, formulaParseNode);
-		this.uProof = uProof;
+		this.mmpProof = uProof;
 		this.isEHyp = isEHyp;
 		this.isFirstTokenParsable = isFirstTokenParsable;
 		this.stepRef = stepRefToken?.value;

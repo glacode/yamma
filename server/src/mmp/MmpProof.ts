@@ -132,7 +132,8 @@ export class MmpProof implements ITheoremSignature {
 	get mandatoryVars(): Set<string> {
 		const result: Set<string> = new Set<string>();
 		this.mmpStatements.forEach((uStatement: IMmpStatement) => {
-			if (uStatement instanceof MmpProofStep && (uStatement.isEHyp || uStatement.stepRef == "qed")) {
+			if (uStatement instanceof MmpProofStep && (uStatement.isEHyp || uStatement.stepRef == "qed")
+				&& uStatement.parseNode != undefined) {
 				const mandatoryVarsForThisStatement: Set<string> =
 					uStatement.parseNode!.symbolsSubsetOf(this.outermostBlock.v);
 				mandatoryVarsForThisStatement.forEach((mandatoryVar: string) => {

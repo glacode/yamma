@@ -69,7 +69,8 @@ export enum MmpParserWarningCode {
 	missingFormula = "missingFormula",
 	missingRef = "missingRef",
 	missingEHyps = "missingEHyps",
-	missingDjVarsStatement = "missingDjVarsStatement",
+	missingMandatoryDisjVarsStatement = "missingMandatoryDisjVarsStatement",
+	missingDummyDisjVarsStatement = "missingDummyDisjVarsStatement",
 	missingTheoremLabel = "missingTheoremLabel",
 	lastStatementShouldBeQed = "lastStatementShouldBeQED",
 	missingComment = "missingComment",
@@ -668,7 +669,9 @@ export class MmpParser {
 	protected checkDisjVarConstraints(assertion: AssertionStatement, substitution: Map<string, InternalNode>,
 		stepLabelToken: MmToken, stepRef: string) {
 		const disjointVarsManager: DisjointVarsManager =
-			new DisjointVarsManager(assertion, substitution, this.outermostBlock, true, stepLabelToken, stepRef, this.mmpProof);
+			new DisjointVarsManager(assertion, substitution, this.outermostBlock,
+				this.mmpProof!.mandatoryVars,
+				true, stepLabelToken, stepRef, this.mmpProof);
 		disjointVarsManager.checkDisjVarsConstraintsViolation();
 		disjointVarsManager.checkMissingDisjVarsConstraints(<MmpProof>this.mmpProof);
 		this.diagnostics = this.diagnostics.concat(...disjointVarsManager.diagnostics);

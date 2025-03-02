@@ -91,8 +91,8 @@ export class WorkingVarsUnifierApplier {
 	rebuildSubstitution(mmpProofStep: MmpProofStep) {
 		if (mmpProofStep.assertion != undefined) {
 			const uSubstitutionBuilder: MmpSubstitutionBuilder = new MmpSubstitutionBuilder(mmpProofStep,
-				mmpProofStep.assertion, mmpProofStep.uProof.outermostBlock,
-				mmpProofStep.uProof.workingVars, mmpProofStep.uProof.outermostBlock.grammar!, []);
+				mmpProofStep.assertion, mmpProofStep.mmpProof.outermostBlock,
+				mmpProofStep.mmpProof.workingVars, mmpProofStep.mmpProof.outermostBlock.grammar!, []);
 			const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
 			if (substitutionResult.hasBeenFound)
 				mmpProofStep.substitution = substitutionResult.substitution!;

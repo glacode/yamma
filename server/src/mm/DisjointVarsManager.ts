@@ -43,7 +43,9 @@ export class DisjointVarsManager {
 	missingDisjVarConstraints: DisjointVarMap | undefined;
 
 	constructor(assertion: AssertionStatement, substitution: Map<string, InternalNode>,
-		outermostBlock: BlockStatement, produceDiagnostics: boolean,
+		outermostBlock: BlockStatement,
+		private mandatoryVars: Set<string>,
+		produceDiagnostics: boolean,
 		stepLabelToken?: MmToken, stepRef?: string, uProof?: MmpProof) {
 		this.assertion = assertion;
 		this.substitution = substitution;
@@ -165,13 +167,25 @@ export class DisjointVarsManager {
 	//#endregion getMissingDisjVarConstraints
 
 	//#region addDiagnosticsForMissingDjVarConstraints
+	isDummy(variable: string): boolean {
+		return !this.mandatoryVars.has(variable);
+	}
 	addMissingDjVarConstraint(var1: string, var2: string) {
 		//Step 59: Substitution (to) vars subject to DjVars restriction by proof step but
 		//not listed as DjVars in theorem to be proved: [<j,ph>, <M,j>, <Z,j>]
+		const isDummyConstraint: boolean = this.isDummy(var1) || this.isDummy(var2);
+		const message: string = (isDummyConstraint ?
+			`Substitution (to) vars subject to Dummy DjVars restriction by proof step but ` +
+			`not listed as DjVars in theorem to be proved: <${var1},${var2}>` :
+			`Substitution (to) vars subject to Mandatory DjVars restriction by proof step but ` +
+			`not listed as DjVars in theorem to be proved: <${var1},${var2}>`);
+		const diagnosticCode: MmpParserWarningCode = (isDummyConstraint ?
+			MmpParserWarningCode.missingDummyDisjVarsStatement :
+			MmpParserWarningCode.missingMandatoryDisjVarsStatement);
 		//TODO you can add a more detailed message if you use the original logical vars and the
 		//substitution
-		const message = `Substitution (to) vars subject to DjVars restriction by proof step but ` +
-			`not listed as DjVars in theorem to be proved: <${var1},${var2}>`;
+		// const message = `Substitution (to) vars subject to DjVars restriction by proof step but ` +
+		// 	`not listed as DjVars in theorem to be proved: <${var1},${var2}>`;
 		const dataFieldForMissingDjVarConstraintsDiagnostic: DataFieldForMissingDjVarConstraintsDiagnostic = {
 			// missingDjVarConstraints: new DisjVarUStatement(var1, var2),
 			missingDisjVar1: var1,
@@ -181,7 +195,7 @@ export class DisjointVarsManager {
 			severity: DiagnosticSeverity.Warning,
 			message: message,
 			range: this.stepLabelToken!.range,
-			code: MmpParserWarningCode.missingDjVarsStatement,
+			code: diagnosticCode,
 			data: dataFieldForMissingDjVarConstraintsDiagnostic
 		};
 		this.diagnostics.push(diagnostic);

@@ -476,12 +476,16 @@ connection.onCompletionResolve(
 );
 
 //#region onCodeAction
-function onCodeActionHandler(params: CodeActionParams): CodeAction[] {
+// function onCodeActionHandler(params: CodeActionParams): CodeAction[] {
+// 	const onCodeActionHandler: OnCodeActionHandler = new OnCodeActionHandler(documents);
+// 	return onCodeActionHandler.onCodeActionHandler(params);
+// }
+// connection.onCodeAction(onCodeActionHandler);
+connection.onCodeAction((params: CodeActionParams) => {
 	const onCodeActionHandler: OnCodeActionHandler = new OnCodeActionHandler(documents);
-	return onCodeActionHandler.onCodeActionHandler(params);
-}
-// connection.onCodeAction(OnCodeActionHandler.onCodeActionHandler);
-connection.onCodeAction(onCodeActionHandler);
+	const result: CodeAction[] = onCodeActionHandler.onCodeActionHandler(params);
+	return result;
+});
 //#endregion onCodeAction
 
 //#region onHover
@@ -512,7 +516,7 @@ connection.languages.semanticTokens.on(async (semanticTokenParams: SemanticToken
 	let mmpParser: MmpParser | undefined = globalState.lastMmpParser;
 	//TODO move all this handler onSemanticTokensHandler.semanticTokens (pass documents to the
 	// OnSemanticTokensHandler constructor) 
-	if (mmParser != undefined && ( mmpParser == undefined || mmpParser.documentUri != semanticTokenParams.textDocument.uri)) {
+	if (mmParser != undefined && (mmpParser == undefined || mmpParser.documentUri != semanticTokenParams.textDocument.uri)) {
 		// the handler has been invoked before the .mmp file has been parsed
 		const textDocument: TextDocument = documents.get(semanticTokenParams.textDocument.uri)!;
 		await validateTextDocument(textDocument);
