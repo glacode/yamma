@@ -15,10 +15,27 @@ import { Parameters } from '../general/Parameters';
 
 export class MmpDisjVarStatementsReorganizer {
 	//#region reorganizeDisjointVarConstraintsStatements
-	private static getMandatoryAndDummyDisjVarStatements(mmpProof: MmpProof, mandatoryDisjVarStatements: MmpDisjVarStatement[], dummyDisjVarStatements: MmpDisjVarStatement[]) {
+	//#region getMandatoryAndDummyDisjVarStatementsWithoutDuplicates
+	static removeDuplicate(disjVarStatements: MmpDisjVarStatement[]): MmpDisjVarStatement[] {
+		const alreadyPresent: Set<string> = new Set<string>();
+		// remove duplicates
+		const disjVarStatementsWithoutDuplicates: MmpDisjVarStatement[] = [];
+		disjVarStatements.forEach((disjVarStatement: MmpDisjVarStatement) => {
+			const key: string = disjVarStatement.toText();
+			if (!alreadyPresent.has(key)) {
+				alreadyPresent.add(key);
+				disjVarStatementsWithoutDuplicates.push(disjVarStatement);
+			}
+		});
+		return disjVarStatementsWithoutDuplicates;
+	}
+	private static getMandatoryAndDummyDisjVarStatementsWithoutDuplicates(mmpProof: MmpProof,
+		mandatoryDisjVarStatements: MmpDisjVarStatement[], dummyDisjVarStatements: MmpDisjVarStatement[]) {
 		const disjVarStatements: MmpDisjVarStatement[] =
 			mmpProof.mmpStatements.filter((statement: IMmpStatement) => statement instanceof MmpDisjVarStatement) as MmpDisjVarStatement[];
-		disjVarStatements.forEach((disjVarStatement: MmpDisjVarStatement) => {
+		const disjVarStatementsWithoutDuplicates: MmpDisjVarStatement[] =
+			MmpDisjVarStatementsReorganizer.removeDuplicate(disjVarStatements);
+		disjVarStatementsWithoutDuplicates.forEach((disjVarStatement: MmpDisjVarStatement) => {
 			if (mmpProof.mandatoryVars.has(disjVarStatement.disjointVars[0].value) &&
 				mmpProof.mandatoryVars.has(disjVarStatement.disjointVars[1].value))
 				mandatoryDisjVarStatements.push(disjVarStatement);
@@ -26,6 +43,7 @@ export class MmpDisjVarStatementsReorganizer {
 				dummyDisjVarStatements.push(disjVarStatement);
 		});
 	}
+	//#endregion getMandatoryAndDummyDisjVarStatementsWithoutDuplicates
 	static sortDisjVarStatements(mandatoryDisjVarStatements: MmpDisjVarStatement[]) {
 		mandatoryDisjVarStatements.sort((disjVarStatement1: MmpDisjVarStatement,
 			disjVarStatement2: MmpDisjVarStatement) => {
@@ -117,7 +135,7 @@ export class MmpDisjVarStatementsReorganizer {
 		isCommentForDummyConstraintToBeInserted: boolean) {
 		const mandatoryDisjVarStatements: MmpDisjVarStatement[] = [];
 		const dummyDisjVarStatements: MmpDisjVarStatement[] = [];
-		MmpDisjVarStatementsReorganizer.getMandatoryAndDummyDisjVarStatements(
+		MmpDisjVarStatementsReorganizer.getMandatoryAndDummyDisjVarStatementsWithoutDuplicates(
 			mmpProof, mandatoryDisjVarStatements, dummyDisjVarStatements);
 		MmpDisjVarStatementsReorganizer.sortDisjVarStatements(mandatoryDisjVarStatements);
 		MmpDisjVarStatementsReorganizer.sortDisjVarStatements(dummyDisjVarStatements);

@@ -911,3 +911,52 @@ $d w z
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
 });
+
+test('remove duplicated constraints Dummy $d comment', () => {
+	const mmpSource = `\
+$theorem test
+
+* test
+
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+$d x z
+$d x z
+$d w z
+* Dummy $d constraints are listed below
+$d w z
+$d x z
+$d w z
+`;
+
+	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected = `\
+$theorem test
+
+* test
+
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+$d x z
+
+* Dummy $d constraints are listed below
+$d w z
+`;
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
