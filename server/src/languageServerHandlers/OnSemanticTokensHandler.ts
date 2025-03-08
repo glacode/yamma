@@ -5,9 +5,10 @@ import { MmParser } from '../mm/MmParser';
 import { MmpDisjVarStatement } from "../mmp/MmpDisjVarStatement";
 import { MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
-import { IMmpStatement, MmpComment, TextForProofStatement } from '../mmp/MmpStatement';
+import { IMmpStatement, TextForProofStatement } from '../mmp/MmpStatement';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
+import { MmpComment } from '../mmp/MmpComment';
 
 export const semanticTokenTypes: SemanticTokenTypes[] = [
 	SemanticTokenTypes.comment,  // comment

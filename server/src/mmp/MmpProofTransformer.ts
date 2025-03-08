@@ -27,6 +27,7 @@ import { MmpGetProofStatement } from './MmpGetProofStatement';
 import { MmToMmpConverter } from './MmToMmpConverter';
 import { LabeledStatement } from '../mm/LabeledStatement';
 import { UnusedStatementsRemover } from './UnusedStatementsRemover';
+import { MmpDisjVarStatementsReorganizer } from './MmpDisjVarStatementsReorganizer';
 
 export interface MmpProofTransformerArgs {
 	mmpParser: MmpParser;
@@ -62,6 +63,7 @@ export class MmpProofTransformer {
 	// working var substitution for the first round of the MGU finder, for the working vars 
 
 	private _orderedPairsOfNodesForMGUalgorithm: OrderedPairOfNodes[];
+	private containsGetProof = false; // true if the proof contains a getproof statement
 
 	public get orderedPairOfNodes() {
 		return this._orderedPairsOfNodesForMGUalgorithm;
@@ -385,6 +387,7 @@ export class MmpProofTransformer {
 			} else if (currentMmpStatement instanceof MmpGetProofStatement) {
 				// currentMmpStatement requires a mmp proof to be inserted
 				i = this.getProof(i, currentMmpStatement);
+				this.containsGetProof = true;
 			} else {
 				if (currentMmpStatement instanceof TextForProofStatement ||
 					currentMmpStatement instanceof MmpSearchStatement)
@@ -415,7 +418,14 @@ export class MmpProofTransformer {
 		if (this.renumber)
 			RefNumberManager.renumber(this.uProof);
 	}
-
+	reorganizeDisjointVarConstraintsStatements() {
+		// we don't discriminate beetwen mandatory and dummy constraints, when
+		// a proof is imported, because it wouldn't be worth the effort
+		// The next unification will take care of it
+		const isCommentForDummyConstraintToBeInserted = !this.containsGetProof;
+		MmpDisjVarStatementsReorganizer.reorganizeDisjointVarConstraintsStatements(this.uProof,
+			isCommentForDummyConstraintToBeInserted);
+	}
 	private removeUnusedStatementsIfRequired() {
 		if (this.removeUnusedStatements)
 			UnusedStatementsRemover.removeUnusedStatements(this.uProof);
@@ -426,6 +436,7 @@ export class MmpProofTransformer {
 		this.unifyWorkingVars();
 		this.removeStepDuplicates();
 		this.renumberIfRequired();
+		this.reorganizeDisjointVarConstraintsStatements();
 		this.removeUnusedStatementsIfRequired();
 	}
 	//#endregion transformUProof

@@ -1,8 +1,8 @@
 import { Parameters } from '../general/Parameters';
-import { splitToTokensDefault } from '../mm/Utils';
 import { MmpAllowDiscouraged } from './MmpAllowDiscouraged';
+import { MmpComment } from './MmpComment';
 import { MmpProof } from './MmpProof';
-import { IMmpStatement, MmpComment } from './MmpStatement';
+import { IMmpStatement } from './MmpStatement';
 import { MmpTheoremLabel } from "./MmpTheoremLabel";
 
 export class MmpHeaderManager {
@@ -12,9 +12,10 @@ export class MmpHeaderManager {
 	}
 
 	buildDefaultComment(): MmpComment {
-		const defaultComment: string = Parameters.defaultComment;
-		const commentMmTokens = splitToTokensDefault(defaultComment);
-		const mmpComment: MmpComment = new MmpComment(commentMmTokens, defaultComment);
+		// const defaultComment: string = Parameters.defaultComment;
+		// const commentMmTokens = splitToTokensDefault(defaultComment);
+		// const mmpComment: MmpComment = new MmpComment(commentMmTokens, defaultComment);
+		const mmpComment: MmpComment = MmpComment.CreateMmpComment(Parameters.defaultComment);
 		return mmpComment;
 	}
 

@@ -5,12 +5,13 @@ import { MmToken } from '../grammar/MmLexer';
 import { ProofStepFirstTokenInfo } from './MmpStatements';
 import { MmpProofStep } from "./MmpProofStep";
 import { MmpDisjVarStatement } from "./MmpDisjVarStatement";
-import { IMmpStatement, MmpComment, TextForProofStatement } from './MmpStatement';
+import { IMmpStatement, TextForProofStatement } from './MmpStatement';
 import { MmpTheoremLabel } from "./MmpTheoremLabel";
 import { WorkingVars } from './WorkingVars';
 import { MmpProofFormatter } from './MmpProofFormatter';
 import { ITheoremSignature } from '../mmt/MmtParser';
 import { MmpAllowDiscouraged } from './MmpAllowDiscouraged';
+import { MmpComment } from './MmpComment';
 
 export class MmpProof implements ITheoremSignature {
 	outermostBlock: BlockStatement;
@@ -24,6 +25,7 @@ export class MmpProof implements ITheoremSignature {
 	// it is not used for now, but it could be, in the future
 
 	private _mandatoryHypLabels?: Set<string>;
+	private _mandatoryVars?: Set<string>;
 
 	/** the theorem label is expected to be the first statement */
 	public get theoremLabel(): MmToken | undefined {
@@ -35,6 +37,9 @@ export class MmpProof implements ITheoremSignature {
 	}
 
 	public mainComment?: MmpComment;
+	/** If dummy constraints (denoted by $d) are present, this comment precedes them. */
+	public commentForDummyConstraints?: MmpComment;
+
 
 	/**
 	 * The main comment is expected to be the second statement, just after
@@ -128,8 +133,9 @@ export class MmpProof implements ITheoremSignature {
 	}
 
 
+	//#region mandatoryVars
 	/** the set of the mandatory vars for this UProof */
-	get mandatoryVars(): Set<string> {
+	private setMandatoryVars(): Set<string> {
 		const result: Set<string> = new Set<string>();
 		this.mmpStatements.forEach((uStatement: IMmpStatement) => {
 			if (uStatement instanceof MmpProofStep && (uStatement.isEHyp || uStatement.stepRef == "qed")
@@ -144,6 +150,12 @@ export class MmpProof implements ITheoremSignature {
 		});
 		return result;
 	}
+	get mandatoryVars(): Set<string> {
+		if (this._mandatoryVars == undefined)
+			this._mandatoryVars = this.setMandatoryVars();
+		return this._mandatoryVars;
+	}
+	//#endregion mandatoryVars
 
 	//#region disjVarUStatements
 

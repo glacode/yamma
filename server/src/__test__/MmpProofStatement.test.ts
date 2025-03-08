@@ -473,8 +473,8 @@ qed::ax-5          |- ( x e. A -> A. y x e. A )
 
 $=    vx cv cA wcel vy ax-5 $.
 
-$d x y
 $d A y
+$d x y
 `;
 
 	const textEdit: TextEdit = textEditArray[0];
@@ -574,8 +574,8 @@ qed::ax-5          |- ( x e. A -> A. y x e. A )
 
 $= ( cv wcel ax-5 ) ADCEBF $.
 
-$d x y
 $d A y
+$d x y
 `;
 
 	const textEdit: TextEdit = textEditArray[0];
@@ -1182,6 +1182,8 @@ $= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi id simprd
    IPVCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWA
    VIVHVTDCUKULVTDBUOUMBVTCFGUNSUPUQURABCDUSUT $.
 
+
+* Dummy $d constraints are listed below
 $d B x
 $d C x
 $d D x
@@ -1301,6 +1303,8 @@ $= ( vx cop wceq wa cvv wcel cpr csn syl eqtr3d dfopg prex preqr2 wi opth1 opi1
    VCVMVBVRIVOCDKKQOPVHVIVPCBRCDRSOVHCGUJZMZIZBVTIZTVJVETGDKVTDIZWBVJWCVEWDWAVI
    VHVTDCUKULVTDBUMUNBVTCFGUOSUPUQURABCDUSUT $.
 
+
+* Dummy $d constraints are listed below
 $d B x
 $d C x
 $d D x

@@ -11,21 +11,6 @@ export interface IMmpStatementWithRange extends IMmpStatement {
 	range: Range
 }
 
-export class MmpComment implements IMmpStatement {
-	/** comment tokens, exclued the startin '*' character */
-	contentTokens: MmToken[]
-	comment: string;
-
-	constructor(contentTokens: MmToken[], comment: string) {
-		this.contentTokens = contentTokens;
-		this.comment = comment;
-	}
-
-	toText() {
-		return this.comment;
-	}
-}
-
 export type UProofStatementStep = {
 	label: string,
 	parseNode: InternalNode;

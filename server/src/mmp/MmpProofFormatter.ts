@@ -96,6 +96,8 @@ export class MmpProofFormatter {
 					// uStatement instanceof UCompressedProofStatement ||
 					uStatement instanceof MmpCompressedProofStatementFromPackedProof)
 					uStatementText = `\n${uStatementText}\n`;
+				else if (uStatement == this.uProof.commentForDummyConstraints)
+					uStatementText = `\n${uStatementText}`;
 			}
 			text = text + uStatementText + "\n";
 		});

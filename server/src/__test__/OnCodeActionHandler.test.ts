@@ -66,7 +66,11 @@ test("Expect 3 CodeAcion(s) for missing dj vars and 1 CodeAction for isDiscourag
 	expect(codeAction1.title).toEqual("Add mandatory disjoint var constraint <A,y>");
 	expect(codeAction1.edit?.changes![testURI].length).toBe(1);
 	const textEdit1: TextEdit = <TextEdit>codeAction1.edit?.changes![testURI][0];
-	expect(textEdit1.newText).toEqual("\n$d A y");
+	expect(textEdit1.newText).toEqual(`\
+
+* The newly added $d constraints are listed below (unify to classify them as mandatory or dummy)
+$d A y
+`);
 	expect(textEdit1.range.start.line).toBe(2);
 	expect(textEdit1.range.start.character).toBe(0);
 	expect(textEdit1.range.end.line).toBe(2);
@@ -78,7 +82,9 @@ test("Expect 3 CodeAcion(s) for missing dj vars and 1 CodeAction for isDiscourag
 	// the CodeAction for "Add all missing disjoint var constraints" is at the end of all CodeActions
 	const codeAction4: CodeAction = codeActions[3];
 	expect(codeAction4.title).toEqual("Add all missing disjoint var constraints");
-	const expectedEditTex3 = `
+	const expectedEditTex3 = `\
+
+* The newly added $d constraints are listed below (unify to classify them as mandatory or dummy)
 $d A y
 $d x y
 `;
@@ -95,9 +101,6 @@ $d x y
 	expect(textEdit3.range.start.character).toBe(0);
 	expect(textEdit3.range.end.line).toBe(1);
 	expect(textEdit3.range.end.character).toBe(0);
-
-
-
 	spy.mockClear();
 });
 
@@ -143,14 +146,22 @@ qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
 	expect(codeAction0.title).toEqual("Add dummy disjoint var constraint <w,z>");
 	expect(codeAction0.edit?.changes!['file:///mock-document.txt'].length).toBe(1);
 	const textEdit0: TextEdit = <TextEdit>codeAction0.edit?.changes!['file:///mock-document.txt'][0];
-	expect(textEdit0.newText).toEqual("\n$d w z");
+	expect(textEdit0.newText).toEqual(`\
+
+* The newly added $d constraints are listed below (unify to classify them as mandatory or dummy)
+$d w z
+`);
 	expect(textEdit0.range.start.line).toBe(10);  // comes from the mock TextDocument
 	expect(textEdit0.range.start.character).toBe(0);
 	const codeAction1: CodeAction = codeActions[1];
 	expect(codeAction1.title).toEqual("Add mandatory disjoint var constraint <x,z>");
 	expect(codeAction1.edit?.changes!['file:///mock-document.txt'].length).toBe(1);
 	const textEdit1: TextEdit = <TextEdit>codeAction1.edit?.changes!['file:///mock-document.txt'][0];
-	expect(textEdit1.newText).toEqual("\n$d x z");
+	expect(textEdit1.newText).toEqual(`\
+
+* The newly added $d constraints are listed below (unify to classify them as mandatory or dummy)
+$d x z
+`);
 	expect(textEdit1.range.start.line).toBe(10);  // comes from the mock TextDocument
 	expect(textEdit1.range.start.character).toBe(0);
 

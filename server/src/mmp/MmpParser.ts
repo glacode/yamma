@@ -11,7 +11,7 @@ import { AssertionStatement } from "../mm/AssertionStatement";
 import { range, oneCharacterRange, concatTokenValuesWithSpaces, concatWithSpaces, splitToTokensAllowingForEmptyValues, AreArrayTheSame, rebuildOriginalStringFromTokens } from '../mm/Utils';
 import { WorkingVars } from './WorkingVars';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { IMmpStatement, MmpComment, TextForProofStatement } from './MmpStatement';
+import { IMmpStatement, TextForProofStatement } from './MmpStatement';
 import { MmpTheoremLabel } from "./MmpTheoremLabel";
 import { MmpProof } from './MmpProof';
 import { MmpSubstitutionBuilder, SubstitutionResult } from './MmpSubstitutionBuilder';
@@ -30,6 +30,7 @@ import { Parameters } from '../general/Parameters';
 import { IDiagnosticMessageForSyntaxError, ShortDiagnosticMessageForSyntaxError } from './DiagnosticMessageForSyntaxError';
 import { MmpGetProofStatement } from './MmpGetProofStatement';
 import { MmpAllowDiscouraged } from './MmpAllowDiscouraged';
+import { MmpComment } from './MmpComment';
 
 
 

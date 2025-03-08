@@ -30,4 +30,6 @@ export abstract class Parameters {
 	static maxNumberOfHypothesisDispositionsForStepDerivation = 100000;
 
 	static defaultComment = "* MissingComment";
+	static dummyConstraintsComment = "* Dummy $d constraints are listed below";
+	static newlyAddedConstraintComment = "* The newly added $d constraints are listed below (unify to classify them as mandatory or dummy)";
 }
