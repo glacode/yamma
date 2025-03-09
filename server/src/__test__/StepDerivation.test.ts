@@ -3,7 +3,7 @@ import { GlobalState } from '../general/GlobalState';
 import { AssertionStatement } from '../mm/AssertionStatement';
 import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { elexdMmParser, eqeq1iMmParser, kindToPrefixMap, mp2MmParser, opelcnMmParser, readTestFile } from './GlobalForTest.test';
@@ -16,7 +16,13 @@ h1::test.1 |- ps
 h2::test.2 |- ( ps -> ph )
 3:: |- ph
 qed:: |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -47,7 +53,13 @@ h1::test.1 |- ps
 h2::test.2 |- ( ps -> ph )
 3:2,1: |- ph
 qed:: |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -76,7 +88,13 @@ test('StepDerivation ax-ext', () => {
 
 50:: |- ( A. x ( x e. y <-> x e. z ) -> y = z )
 qed:50:df-cleq |- ( A = B <-> A. x ( x e. A <-> x e. B ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -106,7 +124,13 @@ test('StepDerivation 3syl', () => {
 4::                |- ( &W3 -> ps )
 5::               |- ( ph -> ps )
 qed::a |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -139,7 +163,13 @@ test('StepDerivation wrong EHyps order and missing single EHyp', () => {
 4::                |- ( &W3 -> ps )
 5:4,2:               |- ( ph -> ps )
 qed::a |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -178,7 +208,13 @@ qed::a |- ch`;
 	while (!mmParser.areAllParseNodesComplete)
 		await new Promise(r => setTimeout(r, 10));
 	// await new Promise(r => setTimeout(r, 1000));
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -214,7 +250,13 @@ d11:: |- ( ( ch /\\ ps ) -> th )
 d8:   |- ( ph -> th )
 qed:: |- ch
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -249,7 +291,13 @@ d13:: |- ( ph -> A e. B )
 d12:  |- ( ph -> A e. _V )
 qed:: |- ch
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: elexdMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -280,7 +328,13 @@ test('StepDerivation unknown eHyp ref', () => {
 4::                |- ( &W3 -> ps )
 5:9,2:               |- ( ph -> ps )
 qed::a |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -311,7 +365,13 @@ test('Derive eHps for existing label', () => {
 d1:: |- &W1
 d2:: |- ( &W1 -> ph )
 qed::ax-mp |- ph`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -341,7 +401,13 @@ test('Derive from wrong eHps and existing label', () => {
 d1:: |- &W1
 d2:: |- ( &W1 -> ph )
 qed:d2,d1:ax-mp |- ph`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -371,7 +437,13 @@ test('Derive 1 of 2 eHyps', () => {
 d1:: |- &W1
 d2:: |- ( &W1 -> ph )
 qed:,d2:ax-mp |- ph`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -401,7 +473,13 @@ test('Derive 2 eHps when 3 are given', () => {
 d1:: |- &W1
 d2:: |- ( &W1 -> ph )
 qed:d1,d1,d1:ax-mp |- ph`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -433,7 +511,13 @@ test('EHyps derivation, incomplete and with unknown eHyp ref', () => {
 4::                |- ( &W3 -> ps )
 5:9,:3syl               |- ( ph -> ps )
 qed::a |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -465,7 +549,13 @@ d1:: |- &W1
 d2:: |- ( &W1 -> ph )
 a:: |-ch
 qed:a,d1:ax-mp |- ph`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -498,7 +588,13 @@ test('StepDerivation for nonexistent label', () => {
 4:: |- ( &W3 -> ps )
 5::a |- ( ph -> ps )
 qed::b |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -530,7 +626,13 @@ d2::                |- &W2
 d3::                |- ( &W2 -> &W1 )
 d1:d3,d2:ax-mp     |- &W1
 qed::b |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -562,7 +664,13 @@ test('Ehyps derivation 3 with a candidate without a parse node', () => {
 
 a
 qed::  |- ( ph -> ps )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -599,7 +707,13 @@ test('a1ii should not be used to derive itself', () => {
 
 1::a1i   |- ( ph -> ch )
 qed:       |- ps`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, a1iiMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: a1iiMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, a1iiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -630,7 +744,13 @@ test('Step derivation at step 3 must not be tried because there is no formula', 
 3:1,2:ax-mp
 qed::b             |- ch
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -661,7 +781,13 @@ h2::nfxfr.2         |- F/ x ps
 3:1:nfbii           |- ( F/ x ph <-> F/ x ps )
 qed:2,3:mpbir      |- F/ x ph
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{

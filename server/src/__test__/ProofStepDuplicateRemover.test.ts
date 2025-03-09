@@ -1,6 +1,6 @@
 import { TextEdit } from 'vscode-languageserver';
 import { ProofMode } from '../mm/ConfigurationManager';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { mp2MmParser, kindToPrefixMap, impbiiMmParser } from './GlobalForTest.test';
@@ -18,7 +18,13 @@ qed::d |- ps
 `;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -52,9 +58,13 @@ h2::b               |- ( ps -> ph )
 5:1,3:ax-mp |- ph
 qed::d |- ps
 `;
-	// const parser: MmParser = new MmParser();
-	// parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -90,7 +100,13 @@ qed::d |- ps
 `;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: impbiiMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -126,7 +142,13 @@ qed::d |- ps
 `;
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: impbiiMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{

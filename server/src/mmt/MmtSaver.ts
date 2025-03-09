@@ -7,7 +7,7 @@ import { MmpDisjVarStatement } from "../mmp/MmpDisjVarStatement";
 import { GrammarManager } from '../grammar/GrammarManager';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { MmpProofStep } from "../mmp/MmpProofStep";
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { Parameters } from '../general/Parameters';
 import { splitToTokensDefault } from '../mm/Utils';
 import { MmToken } from '../grammar/MmLexer';
@@ -69,7 +69,13 @@ export class MmtSaver {
 
 	//#region tryToCreateTextToBeStored
 	buildUProof(mmpContent: string): MmpProof {
-		const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser, this.mmParser.workingVars);
+		const mmpParserParams : IMmpParserParams = {
+			textToParse: mmpContent,
+			mmParser: this.mmParser,
+			workingVars: this.mmParser.workingVars
+		};
+		const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+		// const mmpParser: MmpParser = new MmpParser(mmpContent, this.mmParser, this.mmParser.workingVars);
 		mmpParser.parse();
 		// const mmpUnifier: MmpUnifier = new MmpUnifier(mmpParser, ProofMode.compressed,
 		// 	Parameters.maxNumberOfHypothesisDispositionsForStepDerivation, false, undefined,

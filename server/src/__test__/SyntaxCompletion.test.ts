@@ -1,7 +1,7 @@
 import { CompletionItem } from 'vscode-languageserver';
 import { CursorContext } from "../mmp/CursorContext";
 import { MmStatistics } from '../mm/MmStatistics';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpStatistics } from '../mmp/MmpStatistics';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { SyntaxCompletion } from '../syntaxCompletion/SyntaxCompletion';
@@ -45,7 +45,13 @@ h50::impbii.1       |- ( ph -> ps )
 52::impbi           |- ( ( ph -> ps ) -> ( ( ps -> ph ) -> ( ph <-> ps ) ) )
 qed:50,51,52:mp2   |- ( ph <->   )`;
 	//           cursor context is here ^
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: impbiiMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmStatistics: MmStatistics = new MmStatistics(impbiiMmParser);
 	mmStatistics.buildStatistics();

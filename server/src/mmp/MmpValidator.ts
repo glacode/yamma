@@ -1,7 +1,7 @@
 import { Diagnostic, DiagnosticSeverity, TextDocuments } from 'vscode-languageserver';
 import { Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { MmParser } from '../mm/MmParser';
-import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from './MmpParser';
+import { IMmpParserParams, MmpParser, MmpParserErrorCode, MmpParserWarningCode } from './MmpParser';
 import { AssertionStatement } from "../mm/AssertionStatement";
 import { WorkingVars } from './WorkingVars';
 import { GlobalState } from '../general/GlobalState';
@@ -56,8 +56,17 @@ export class MmpValidator {
 			(this.diagnosticMessageForSyntaxError == DiagnosticMessageForSyntaxError.verbose) ?
 				new VerboseDiagnosticMessageForSyntaxError() : new ShortDiagnosticMessageForSyntaxError(
 					mmParser.outermostBlock.c, mmParser.outermostBlock.v, 30);
-		this.mmpParser = new MmpParser(textToValidate, mmParser, workingVars,
-			this.formulaToParseNodeCache, diagnosticMessageForSyntaxError, textDocumentUri);
+		const mmpParserParams: IMmpParserParams = {
+			textToParse: textToValidate,
+			mmParser: mmParser,
+			workingVars: workingVars,
+			formulaToParseNodeCache: this.formulaToParseNodeCache,
+			diagnosticMessageForSyntaxError: diagnosticMessageForSyntaxError,
+			documentUri: textDocumentUri
+		};
+		this.mmpParser = new MmpParser(mmpParserParams);
+		// this.mmpParser = new MmpParser(textToValidate, mmParser, workingVars,
+		// 	this.formulaToParseNodeCache, diagnosticMessageForSyntaxError, textDocumentUri);
 		console.log('before mmpParser.parse()');
 		this.mmpParser.parse();
 		console.log('after mmpParser.parse()');
@@ -120,8 +129,14 @@ export class MmpValidator {
 	//#region buildMmpParserFromUri
 	static buildMmpParserFromText(textToParse: string, mmParser: MmParser,
 		formulaToParseNodeCache: FormulaToParseNodeCache): MmpParser {
-		const mmpParser = new MmpParser(textToParse, mmParser,
-			mmParser.workingVars, formulaToParseNodeCache);
+		const mmpParserParams: IMmpParserParams = {
+			textToParse: textToParse,
+			mmParser: mmParser,
+			workingVars: mmParser.workingVars,
+			formulaToParseNodeCache: formulaToParseNodeCache,
+		};
+		const mmpParser = new MmpParser(mmpParserParams);
+		// const mmpParser = new MmpParser(textToParse, mmParser, mmParser.workingVars, formulaToParseNodeCache);
 		mmpParser.parse();
 		return mmpParser;
 	}

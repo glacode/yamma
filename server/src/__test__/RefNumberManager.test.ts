@@ -1,6 +1,6 @@
 import { TextEdit } from 'vscode-languageserver';
 import { ProofMode } from '../mm/ConfigurationManager';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
@@ -12,7 +12,13 @@ test('expect proper renumbering', () => {
 h50: |- ps
 a::a1i |- &W1
 qed:: |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: impbiiMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{

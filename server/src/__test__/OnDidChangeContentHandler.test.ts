@@ -1,7 +1,7 @@
 import { Diagnostic, Range } from 'vscode-languageserver';
 import { OnDidChangeContentHandler } from '../languageServerHandlers/OnDidChangeContentHandler';
 import { MmParser } from '../mm/MmParser';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { mp2Theory, kindToPrefixMap } from './GlobalForTest.test';
 
@@ -18,7 +18,7 @@ class OnDidChangeContentHandlerTest extends OnDidChangeContentHandler {
 }
 
 test("Cursor should go to step 53", () => {
-const mmpSource = `\
+	const mmpSource = `\
 h50::mp2.1 |- ph
 h51::mp2.2 |- ps
 h52::mp2.3 |- ( ph -> ( ps -> ch ) )
@@ -27,7 +27,13 @@ qed:51,53:ax-mp |- ch`;
 
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const range: Range | undefined = OnDidChangeContentHandlerTest.computeRangeForCursor(mmpParser.diagnostics, mmpParser);
 	expect(range).toBeDefined();
@@ -38,7 +44,7 @@ qed:51,53:ax-mp |- ch`;
 });
 
 test("Cursor should go to '$='", () => {
-const mmpSource = `\
+	const mmpSource = `\
 h50::mp2.1 |- ph
 h51::mp2.2 |- ps
 h52::mp2.3 |- ( ph -> ( ps -> ch ) )
@@ -48,7 +54,13 @@ $= ( bla bla bla3 ) $.`;
 
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const range: Range | undefined = OnDidChangeContentHandlerTest.computeRangeForCursor(mmpParser.diagnostics, mmpParser);
 	expect(range).toBeDefined();
@@ -67,7 +79,13 @@ test("Cursor should go to 'ax-mp' in step 53", () => {
 		"qed:51,53:ax-mp |- ch";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const range: Range | undefined = OnDidChangeContentHandlerTest.computeRangeForCursor(mmpParser.diagnostics, mmpParser);
 	expect(range).toBeDefined();

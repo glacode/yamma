@@ -1,6 +1,6 @@
 import { Position, Range } from 'vscode-languageserver';
 import { MmStatistics } from '../mm/MmStatistics';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { WorkingVars } from '../mmp/WorkingVars';
 import { SearchCommandHandler } from '../search/SearchCommandHandler';
@@ -29,7 +29,13 @@ test("expect proper string for search command", () => {
 51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
 52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
 qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[2];
 	const mmStatistics: MmStatistics = new MmStatistics(opelcnMmParser);
@@ -48,7 +54,13 @@ test("expect no working var (or other non-defined symbol) in the generated searc
 51:50:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
 52::          |- ( <. A , B >. e. ( R. X. &WC1 ) <-> ( A e. R. /\\ B e. R. ) )
 qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[2];
 	const mmStatistics: MmStatistics = new MmStatistics(opelcnMmParser);
@@ -68,7 +80,13 @@ test("expect proper position for search command below multiline", () => {
 52::          |- ( <. A , B >. e. 
                  ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
 qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpProofStep52: MmpProofStep = <MmpProofStep>mmpParser.mmpProof?.mmpStatements[2];
 	const positionForInsertionAbove52: Position =

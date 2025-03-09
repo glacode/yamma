@@ -2,7 +2,7 @@ import { MmtSaver, MmtSaverArgs } from '../mmt/MmtSaver';
 import { MmParser } from '../mm/MmParser';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
 import { elexdMmParser, kindToPrefixMap, mp2MmParser, mp2Theory } from './GlobalForTest.test';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
 import { MmpFifoLabelMapCreator } from '../mmp/proofCompression/MmpFifoLabelMapCreator';
@@ -260,7 +260,13 @@ $d A x
 $d A k
 $d A j
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: elexdMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 
 	const mmtSaverArgs: MmtSaverArgs = {

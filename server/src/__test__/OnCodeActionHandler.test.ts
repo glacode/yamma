@@ -2,7 +2,7 @@ import { CodeAction, CodeActionContext, CodeActionParams, Diagnostic, Position, 
 import { TextDocument, TextDocumentContentChangeEvent, TextEdit } from 'vscode-languageserver-textdocument';
 import { CodeActionForDiagnostic } from '../languageServerHandlers/OnCodeActionHandler';
 import { DataFieldForMissingDjVarConstraintsDiagnostic } from '../mm/DisjointVarsManager';
-import { MmpParser, MmpParserWarningCode } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser, MmpParserWarningCode } from '../mmp/MmpParser';
 import { eqeq1iMmParser, kindToPrefixMap } from './GlobalForTest.test';
 import { WorkingVars } from '../mmp/WorkingVars';
 
@@ -38,7 +38,7 @@ test("Expect 3 CodeAcion(s) for missing dj vars and 1 CodeAction for isDiscourag
 	};
 
 	const context: CodeActionContext = {
-		diagnostics: [diagnostic1, diagnostic2,diagnostic3]
+		diagnostics: [diagnostic1, diagnostic2, diagnostic3]
 	};
 	const text = "qed:ax-5 |- ( x e. A -> A. y x e. A )";
 	const testURI = "testURI";
@@ -108,13 +108,19 @@ $d x y
 test("Expect CodeAction for albidv ", () => {
 	//Step 59: Substitution (to) vars subject to DjVars restriction by proof step but
 	//not listed as DjVars in theorem to be proved: [<j,ph>, <M,j>, <Z,j>]
-	const mmpSource =`\
+	const mmpSource = `\
 1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
 2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
 3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
 qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.missingDjVarsStatement)).toBeTruthy();
 	expect(mmpParser.diagnostics.length).toBe(3);
@@ -128,7 +134,7 @@ qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
 			uri: 'file:///mock-document.txt',
 		}
 	};
-	
+
 	// Mock textDocuments
 	const textDocuments: TextDocuments<TextDocument> = {
 		get: jest.fn((_uri: string) => ({

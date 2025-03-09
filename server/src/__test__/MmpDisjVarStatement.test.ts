@@ -1,4 +1,4 @@
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { elexdMmParser, kindToPrefixMap } from './GlobalForTest.test';
 import { MmpDisjVarStatement } from '../mmp/MmpDisjVarStatement';
@@ -15,7 +15,13 @@ $d x y
 $d x z
 $d y z
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: elexdMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpDisjVarStatements: MmpDisjVarStatement[] =
 		MmpDisjVarStatement.buildEdgeCliqueCover(mmpParser.mmpProof!.disjVarMmpStatements);
@@ -38,7 +44,13 @@ $d x z
 $d z v
 $d y z
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: elexdMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpDisjVarStatements: MmpDisjVarStatement[] =
 		MmpDisjVarStatement.buildEdgeCliqueCover(mmpParser.mmpProof!.disjVarMmpStatements);
@@ -76,8 +88,13 @@ $d A x
 $d A k
 $d A j
 `;
-
-	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: elexdMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpDisjVarStatements: MmpDisjVarStatement[] =
 		MmpDisjVarStatement.buildEdgeCliqueCover(mmpParser.mmpProof!.disjVarMmpStatements);

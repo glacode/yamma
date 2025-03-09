@@ -1,4 +1,4 @@
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpSearchStatement } from '../mmp/MmpSearchStatement';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { WorkingVars } from '../mmp/WorkingVars';
@@ -12,7 +12,13 @@ SearchSymbols: R.
   X.   SearchComment: 
 52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
 qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const searchStatement: IMmpStatement | undefined = mmpParser.mmpProof?.mmpStatements[2];
 	expect(searchStatement instanceof MmpSearchStatement).toBeTruthy();
@@ -30,7 +36,13 @@ SearchSymbols: R.
   X.   ' <. A   , B  '   SearchComment: 
 52::          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
 qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const searchStatement: IMmpStatement | undefined = mmpParser.mmpProof?.mmpStatements[2];
 	expect(searchStatement instanceof MmpSearchStatement).toBeTruthy();
@@ -51,7 +63,13 @@ SearchSymbols:
   '  { x | ph } '   ' A e. V -> '   SearchComment: 
 qed::      |- ph
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const searchStatement: IMmpStatement | undefined = mmpParser.mmpProof?.mmpStatements[2];
 	expect(searchStatement instanceof MmpSearchStatement).toBeTruthy();

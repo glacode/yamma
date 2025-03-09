@@ -6,11 +6,11 @@ import { MmpUnifier } from '../mmp/MmpUnifier';
 import { MmpProof } from '../mmp/MmpProof';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { theoryToTestDjVarViolation } from './DisjointVarsManager.test';
-import { elexdMmParser, eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
+import { elexdMmParser, eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmToken } from '../grammar/MmLexer';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { InternalNode } from '../grammar/ParseNode';
 import { UProofStatementStep } from '../mmp/MmpStatement';
 import { UProofStatement } from '../mmp/UProofStatement';
@@ -39,9 +39,13 @@ h51::mp2.2 |- ps
 h52::mp2.3 |- ( ph -> ( ps -> ch ) )
 53:50,52:ax-mp |- ( ps -> ch )
 qed:51,53:ax-mp |- ch`;
-	const parser: MmParser = new MmParser();
-	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -82,9 +86,13 @@ qed:51,53:ax-mp |- ch
 
 $=    wps wch mp2.2 wph wps wch wi mp2.1 mp2.3 ax-mp ax-mp $.
 `;
-	const parser: MmParser = new MmParser();
-	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -184,9 +192,13 @@ h52::mp2.3 |- ( ph -> ( ps -> ch ) )
 qed:51,53:ax-mp |- ch`;
 
 	//below, we expect ( ax-mp wi ) because the default labelMapCreator is a MmpFifoLabelMapCreator
-	const parser: MmParser = new MmParser();
-	parser.ParseText(mp2Theory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
@@ -217,7 +229,13 @@ $= ( wi ax-mp ) BCEABCGDFHH $.
 	expect(textEdit.newText).toEqual(newTextExpected);
 
 	//below, we expect ( ax-mp wi ) because the default labelMapCreator is a MmpSortedByReferenceLabelMapCreator
-	const mmpParser2: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams2: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser2: MmpParser = new MmpParser(mmpParserParams2);
+	// const mmpParser2: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 	new MmpCompressedProofCreatorFromPackedProof(new MmpSortedByReferenceLabelMapCreator());
 	const mmpCompressedProofCreatorSortedByReference: MmpCompressedProofCreatorFromPackedProof =
@@ -249,7 +267,13 @@ $= ( ax-mp wi ) BCEABCHDFGG $.
 	expect(textEdit2.newText).toEqual(newTextExpected2);
 
 	//below, we expect ( wi ax-mp ) because the default labelMapCreator is a MmpLabelMapCreatorLikeMmj2
-	const mmpParser3: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams3: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser3: MmpParser = new MmpParser(mmpParserParams3);
+	// const mmpParser3: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser3.parse();
 	const mmpUnifierWithDefaultLabelMapCreator: MmpUnifier = new MmpUnifier(
 		{
@@ -299,7 +323,13 @@ qed:50,51:mpd |- ( ph -> ph )`;
 
 	const parser: MmParser = new MmParser();
 	parser.ParseText(idTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -332,7 +362,13 @@ test("alnex - Build normal proof for alnex", () => {
 
 50::df-ex |- ( E. x ph <-> -. A. x -. ph )
 qed:50:con2bii |- ( A. x -. ph <-> -. E. x ph )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: vexTheoryMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -365,7 +401,13 @@ test("vex - Build normal proof for vex", () => {
 51::df-v |- _V = { x | x = x }
 52:51:abeq2i |- ( x e. _V <-> x = x )
 qed:50,52:mpbir |- x e. _V`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: vexTheoryMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -413,8 +455,13 @@ test("vex - Build Compressed proof for vex", () => {
 51::df-v |- _V = { x | x = x }
 52:51:abeq2i |- ( x e. _V <-> x = x )
 qed:50,52:mpbir |- x e. _V`;
-
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: vexTheoryMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
@@ -454,7 +501,13 @@ $d A y`;
 
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -489,7 +542,13 @@ qed::ax-5 |- ( y e. A -> A. y y e. A )
 `;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -522,7 +581,13 @@ qed::ax-5 |- ( x e. A -> A. y x e. A )
 `;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -555,7 +620,13 @@ $d A y
 
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -600,7 +671,13 @@ qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )
 $d x z
 $d y z
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: vexTheoryMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpCompressedProofCreator: MmpCompressedProofCreatorFromPackedProof =
 		new MmpCompressedProofCreatorFromPackedProof(new MmpFifoLabelMapCreator());
@@ -638,8 +715,13 @@ $d y z
 `;
 	const textEdit: TextEdit = textEditArray[0];
 	expect(textEdit.newText).toEqual(newTextExpected);
-
-	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams2: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: vexTheoryMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser2: MmpParser = new MmpParser(mmpParserParams2);
+	// const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 
 	const mmpUnifier2 = new MmpUnifier(
@@ -702,7 +784,13 @@ qed:54,57:impbii   |- ( x = y <-> E. z ( z = x /\\ z = y ) )
 $d x z
 $d y z
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: vexTheoryMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -744,8 +832,13 @@ $d y z
 	// const defaultRightMargin: number = Parameters.defaultRightMarginForNormalProofs;
 	// Parameters.defaultRightMarginForNormalProofs = 30;
 
-
-	const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams2: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: vexTheoryMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser2: MmpParser = new MmpParser(mmpParserParams2);
+	// const mmpParser2: MmpParser = new MmpParser(mmpSource, vexTheoryMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser2.parse();
 
 	const mmpUnifier2 = new MmpUnifier(
@@ -816,7 +909,13 @@ test("Build proof for abid", () => {
 51::sbid            |- ( [ x / x ] ph <-> ph )
 qed:50,51:bitri    |- ( x e. { x | ph } <-> ph )
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const qedProofStep: MmpProofStep = <MmpProofStep>mmpParser.mmpProof!.mmpStatements[3];
 	const qedParseNode: InternalNode = qedProofStep.parseNode!;
@@ -856,7 +955,13 @@ test("Packed proof for eqeq1", () => {
 
 1::id              |- ( A = B -> A = B )
 qed:1:eqeq1d      |- ( A = B -> ( A = C <-> B = C ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -888,7 +993,13 @@ test("Packed proof for id", () => {
 50::ax-1            |- ( ph -> ( ph -> ph ) )
 51::ax-1            |- ( ph -> ( ( ph -> ph ) -> ph ) )
 qed:50,51:mpd      |- ( ph -> ph )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: impbiiMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -929,7 +1040,13 @@ h52::elabgf.3        |- ( x = A -> ( ph <-> ps ) )
 58::abid            |- ( x e. { x | ph } <-> ph )
 qed:50,55,57,58:vtoclgf
 				    |- ( A e. B -> ( A e. { x | ph } <-> ps ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -973,7 +1090,13 @@ test("Packed proof for opelcn", () => {
 2:1:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
 3::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
 qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -1009,7 +1132,13 @@ test("MmpSortedByReferenceLabelMapCreator", () => {
 2:1:eleq2i        |- ( <. A , B >. e. CC <-> <. A , B >. e. ( R. X. R. ) )
 3::opelxp          |- ( <. A , B >. e. ( R. X. R. ) <-> ( A e. R. /\\ B e. R. ) )
 qed:2,3:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier({
 		mmpParser: mmpParser, proofMode: ProofMode.packed,
@@ -1112,7 +1241,13 @@ qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )
 $d B x
 $d C x
 $d D x`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const labels: string[] = [
 		'vx', 'cop', 'wceq', 'wa', 'cvv', 'wcel', 'cpr', 'csn', 'syl', 'eqtr3d',
@@ -1232,7 +1367,13 @@ qed:31,32:impbii   |- ( <. A , B >. = <. C , D >. <-> ( A = C /\\ B = D ) )
 $d B x
 $d C x
 $d D x`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// const labels: string[] = [
 	// 	'vx', 'cop', 'wceq', 'wa', 'cvv', 'wcel', 'cpr', 'csn', 'syl', 'eqtr3d',
@@ -1324,7 +1465,13 @@ d4::elex            |- ( x e. &C1 -> x e. _V )
 qed:d3,d4:ax-mp    |- x e. _V`;
 	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
-	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: elexdMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -1361,7 +1508,13 @@ d4::elex            |- &W1
 qed:d3,d4:ax-mp    |- x e. _V`;
 	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
-	const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: elexdMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, elexdMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -1397,7 +1550,13 @@ h2::test2.2          |- A = B
 qed:3:elexi        |- (/) e. _V`;
 	// the bug produced this wrong proof (notice wvar_class that should NOT be there)
 	// $=  vx 1:cv cA wcel 1 cvv wcel test.1 1 wvar_class elex ax-mp $.
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{

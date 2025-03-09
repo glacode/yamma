@@ -5,7 +5,7 @@ import { ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { consoleLogWithTimestamp } from '../mm/Utils';
 import { MmpCompressedProofCreatorFromPackedProof } from '../mmp/proofCompression/MmpCompressedProofCreator';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
@@ -70,7 +70,13 @@ const kindToPrefixMap: Map<string, string> = new Map<string, string>();
 kindToPrefixMap.set('wff', 'W');
 kindToPrefixMap.set('class', 'C');
 kindToPrefixMap.set('setvar', 'S');
-const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+const mmpParserParams: IMmpParserParams = {
+	textToParse: mmpSource,
+	mmParser: opelcnMmParser,
+	workingVars: new WorkingVars(kindToPrefixMap)
+};
+const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 
 consoleLogWithTimestamp('mmpParser begin');
 mmpParser.parse();

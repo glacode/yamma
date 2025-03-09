@@ -1,5 +1,5 @@
 import { CompletionItem } from 'vscode-languageserver';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { mp2MmParser, kindToPrefixMap } from './GlobalForTest.test';
 import { CursorContext, CursorContextForCompletion } from '../mmp/CursorContext';
@@ -13,7 +13,13 @@ qed:: |- ph`;
 
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const cursorContext: CursorContext = new CursorContext(1, 10, mmpParser);
@@ -36,7 +42,13 @@ test("CompletionProviderForAfterGetProof partial label", () => {
 $theorem test
 $getproof b
 qed:: |- ph`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const cursorContext: CursorContext = new CursorContext(1, 10, mmpParser);

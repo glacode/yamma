@@ -2,7 +2,7 @@ import { CompletionItem } from 'vscode-languageserver';
 import { MmParser } from '../mm/MmParser';
 import { CompletionProviderForEmptyLine } from '../mmp/CompletionProviderForEmptyLine';
 import { CursorContext, CursorContextForCompletion } from '../mmp/CursorContext';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { mp2MmParser, kindToPrefixMap } from './GlobalForTest.test';
 
@@ -12,7 +12,13 @@ test("MmpStatement suggestion for empty line", () => {
 
 
 qed: |- ps`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(1);
@@ -35,7 +41,13 @@ test("No suggestion for $theorem, because it is already present", () => {
 $theorem test
 
 qed: |- ps`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(2);
@@ -57,7 +69,13 @@ test("MmpStatement suggestion when $ is inserted", () => {
 
 $
 qed: |- ps`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(1);

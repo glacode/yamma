@@ -78,6 +78,16 @@ export enum MmpParserWarningCode {
 	isDiscouraged = "isDiscouraged"
 }
 
+
+export interface IMmpParserParams {
+	textToParse: string;
+	mmParser: MmParser;
+	workingVars: WorkingVars;
+	formulaToParseNodeCache?: FormulaToParseNodeCache;
+	diagnosticMessageForSyntaxError?: IDiagnosticMessageForSyntaxError;
+	documentUri?: string;
+}
+
 // Parser for .mmp files
 export class MmpParser {
 
@@ -112,23 +122,35 @@ export class MmpParser {
 	 * duplication
 	 */
 	private eHypLabels: Set<string> = new Set<string>();
+	public formulaToParseNodeCache: FormulaToParseNodeCache | undefined;
+	public documentUri: string | undefined;
 
 	//#region constructor
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
-	constructor(textToParse: string, mmParser: MmParser, workingVars: WorkingVars,
-		public formulaToParseNodeCache?: FormulaToParseNodeCache,
-		diagnosticMessageForSyntaxError?: IDiagnosticMessageForSyntaxError,
-		public documentUri?: string) {
-		// this.textDocument = textDocument;
-		this.textToParse = textToParse;
-		this.mmParser = mmParser;
-		this.labelToStatementMap = mmParser.labelToStatementMap;
-		this.outermostBlock = mmParser.outermostBlock;
-		this.grammar = mmParser.grammar;
-		this.workingVars = workingVars;
+	constructor(textToParseOrParams: IMmpParserParams) {
+		// this.textToParse = textToParse;
+		// this.mmParser = mmParser;
+		// this.labelToStatementMap = mmParser.labelToStatementMap;
+		// this.outermostBlock = mmParser.outermostBlock;
+		// this.grammar = mmParser.grammar;
+		// this.workingVars = workingVars;
 
-		this.mmLexer = new MmLexer(workingVars);
+		// Handle the new interface case
+		const params = textToParseOrParams;
+		this.textToParse = params.textToParse;
+		this.mmParser = params.mmParser;
+		this.workingVars = params.workingVars;
+		this.formulaToParseNodeCache = params.formulaToParseNodeCache;
+		this.documentUri = params.documentUri;
+		this.outermostBlock = this.mmParser.outermostBlock;
+		this.diagnosticMessageForSyntaxError = (params.diagnosticMessageForSyntaxError != undefined) ?
+			params.diagnosticMessageForSyntaxError : new ShortDiagnosticMessageForSyntaxError(
+				this.outermostBlock.c, this.outermostBlock.v, 30);
+		this.grammar = this.mmParser.grammar;
+		this.labelToStatementMap = this.mmParser.labelToStatementMap;
+
+		this.mmLexer = new MmLexer(this.workingVars);
 
 		// this.mmParser = mmParser;
 		this.refToProofStepMap = new Map<string, MmpProofStep>();
@@ -136,9 +158,7 @@ export class MmpParser {
 		//this.createMmpStatements(textToParse);
 		this._orderedPairsOfNodesForMGUalgorithm = [];
 
-		this.diagnosticMessageForSyntaxError = (diagnosticMessageForSyntaxError != undefined) ?
-			diagnosticMessageForSyntaxError : new ShortDiagnosticMessageForSyntaxError(
-				this.outermostBlock.c, this.outermostBlock.v, 30);
+
 	}
 
 	private addDiagnosticError(message: string, range: Range, code: MmpParserErrorCode) {

@@ -1,5 +1,5 @@
 import { CursorContext, CursorContextForCompletion } from '../mmp/CursorContext';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { impbiiMmParser, kindToPrefixMap } from './GlobalForTest.test';
 
@@ -11,7 +11,13 @@ SearchSymbols: x y   SearchComment:
 52::           |- ( ( ph -> ps ) ->
                        ( ( ps -> ph ) -> ( ph <-> ps ) ) )
 qed:50,51,52:mp2   |- ( ph <->   )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: impbiiMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const cursorContextSearch: CursorContext = new CursorContext(2, 5, mmpParser);
 	cursorContextSearch.buildContext();

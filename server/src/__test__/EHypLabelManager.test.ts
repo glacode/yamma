@@ -1,6 +1,6 @@
 import { TextEdit } from 'vscode-languageserver';
 import { ProofMode } from '../mm/ConfigurationManager';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { mp2MmParser, kindToPrefixMap, impbiiMmParser } from './GlobalForTest.test';
@@ -16,8 +16,13 @@ h3::   |- ( ps -> ph )
 hd1:   |- ch
 qed::  |- ps
 `;
-
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
@@ -58,10 +63,17 @@ qed::  |- ps
 
 	// const parser: MmParser = new MmParser();
 	// parser.ParseText(axmpTheory);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal,
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
 			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
 			renumber: false,
 			removeUnusedStatements: false
@@ -95,10 +107,17 @@ h3::example.1   |- ( ps -> ph )
 hd1:   |- ch
 qed::  |- ps
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal,
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
 			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
 			renumber: false,
 			removeUnusedStatements: false
@@ -134,11 +153,17 @@ h3::mp2.3            |- ( ph -> ( ps -> ch ) )
 4:1,3:ax-mp
 qed:2,4:ax-mp       |- ch
 `;
-
-	const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: impbiiMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, impbiiMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
-		{ mmpParser: mmpParser, proofMode: ProofMode.normal,
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
 			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
 			renumber: false,
 			removeUnusedStatements: false

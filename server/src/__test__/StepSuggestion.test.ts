@@ -1,7 +1,7 @@
 import { CompletionItem, CompletionItemKind, InsertReplaceEdit } from 'vscode-languageserver';
 import { MmParser } from '../mm/MmParser';
 import { CursorContext, CursorContextForCompletion } from "../mmp/CursorContext";
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { WorkingVars } from '../mmp/WorkingVars';
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
@@ -21,7 +21,13 @@ test("test 1 SyntaxTreeClassifierFull", () => {
 qed:51,52:bitri    |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
 	// opthg2 $p | - ((C e.V /\ D e.W ) ->
 	// 	(<.A , B >. = <.C , D >. <-> (A = C /\ B = D ) ) ) $ =
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const cursorContext: CursorContext = new CursorContext(2, 4, mmpParser);
@@ -55,7 +61,13 @@ test("test 2 SyntaxTreeClassifierFull and SyntaxTreeClassifierImp", () => {
 50::df-c |- CC = ( R. X. R. )
 52:: |- ( -. &W1 -> -. &W3 )
 qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const cursorContext: CursorContext = new CursorContext(1, 4, mmpParser);
@@ -127,7 +139,13 @@ test("test completion items from partial label", () => {
 	const mmpSource = `50::df-c |- CC = ( R. X. R. )
 52::coi |- ( -. &W1 -> -. &W3 )
 qed: |- ( <. A , B >. e. CC <-> ( A e. R. /\\ B e. R. ) )`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const cursorContext: CursorContext = new CursorContext(1, 4, mmpParser);
@@ -196,7 +214,13 @@ test("step suggestion for empty parse node from partial label", () => {
 	const mmpSource = `\
 ax-
 qed: |- ps`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mmParser, new WorkingVars(kindToPrefixMap));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.mmpProof?.mmpStatements.length).toBe(2);

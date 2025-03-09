@@ -2,7 +2,7 @@ import { SemanticTokens, SemanticTokensParams } from 'vscode-languageserver';
 import { OnSemanticTokensHandler, semanticTokenTypes } from '../languageServerHandlers/OnSemanticTokensHandler';
 import { IConfigurationManager, IVariableKindConfiguration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { opelcnMmParser } from './GlobalForTest.test';
 
 
@@ -14,7 +14,7 @@ class TestOnSemanticTokensHandler extends OnSemanticTokensHandler {
 }
 
 test('semantic tokens', () => {
-const mmpSource = `\
+	const mmpSource = `\
 ax-mp |- ph
 * comment
 d1: |- ( A. x e. A -> x e. B )
@@ -38,7 +38,13 @@ d x y`;
 		1, 2, 1, 2, 0,  // third x : 2 stands for 'string' i.e. 'setvar'
 		0, 2, 1, 2, 0  // y : 2 stands for 'string' i.e. 'setvar'
 	];
-	const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, opelcnMmParser.workingVars);
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: opelcnMmParser,
+		workingVars: opelcnMmParser.workingVars
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, opelcnMmParser, opelcnMmParser.workingVars);
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	const semanticTokenParams: SemanticTokensParams = { textDocument: { uri: '' } };

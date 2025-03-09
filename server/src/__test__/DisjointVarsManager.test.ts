@@ -2,7 +2,7 @@ import { Diagnostic } from 'vscode-languageserver';
 import { DataFieldForMissingDjVarConstraintsDiagnostic } from '../mm/DisjointVarsManager';
 // import { DiagnosticForMissingDjVarConstraint } from '../mmparser/DisjointVarsManager';
 import { MmParser } from '../mm/MmParser';
-import { MmpParser, MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser, MmpParserErrorCode, MmpParserWarningCode } from '../mmp/MmpParser';
 import { doesDiagnosticsContain } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
@@ -24,7 +24,13 @@ test("Expect Disjoint Constraint violation", () => {
 		"qed:ax-5 |- ( x e. A -> A. x x e. A )";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(new Map<string, string>())
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.djVarsRestrictionViolated)).toBeTruthy();
@@ -63,7 +69,13 @@ test("Expect y Disjoint Constraint violation", () => {
 		"qed:ax-5 |- ( y e. A -> A. y y e. A )";
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(new Map<string, string>())
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.djVarsRestrictionViolated)).toBeTruthy();
@@ -87,13 +99,19 @@ test("Expect y Disjoint Constraint violation", () => {
 test("Parse Disjoint Vars", () => {
 	//Step 59: Substitution (to) vars subject to DjVars restriction by proof step but
 	//not listed as DjVars in theorem to be proved: [<j,ph>, <M,j>, <Z,j>]
-const mmpSource = `
+	const mmpSource = `
 qed:ax-5 |- ( y e. A -> A. x y e. A )
 $d A x
 $d x y`;
 	const parser: MmParser = new MmParser();
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(new Map<string, string>())
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	expect(mmpParser.mmpProof!.containsDjVarStatement("A", "x")).toBeTruthy();
@@ -108,7 +126,13 @@ test("Expect Disjoint Var automatic completion ", () => {
 		"qed:ax-5 |- ( y e. A -> A. x y e. A )";
 	const parser: MmParser = new MmParser(new GlobalState());
 	parser.ParseText(theoryToTestDjVarViolation);
-	const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: parser,
+		workingVars: new WorkingVars(new Map<string, string>())
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, parser, new WorkingVars(new Map<string, string>()));
 	// const outermostBlock: BlockStatement = new BlockStatement(null);
 	mmpParser.parse();
 	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.missingDjVarsStatement)).toBeTruthy();
@@ -139,13 +163,19 @@ test("Expect Disjoint Var automatic completion ", () => {
 });
 
 test("Expect Dummy Disj Var Constraint for albidv ", () => {
-	const mmpSource =`\
+	const mmpSource = `\
 1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
 2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
 3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
 qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
 `;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.missingDjVarsStatement)).toBeTruthy();
 	expect(mmpParser.diagnostics.length).toBe(3);

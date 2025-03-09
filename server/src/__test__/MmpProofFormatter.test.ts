@@ -1,7 +1,7 @@
 
 import { TextEdit } from 'vscode-languageserver';
 import { ProofMode } from '../mm/ConfigurationManager';
-import { MmpParser } from '../mmp/MmpParser';
+import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { MmpProofFormatter } from '../mmp/MmpProofFormatter';
@@ -22,7 +22,13 @@ h51::mp2.2 |- ps
 h52::mp2.3 |- ( ph -> ( ps -> ch ) )
 53:50,52:ax-mp |- ( ps -> ch )
 qed:51,53:ax-mp |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpProofFormatter: TestMmpProofFormatter = new TestMmpProofFormatter(mmpParser.mmpProof!);
 	mmpProofFormatter.computeIndentationLevels();
@@ -52,7 +58,13 @@ h51::mp2.2 |- ps
 h52::mp2.3 |- ( ph -> ( ps -> ch ) )
 53:50,52:ax-mp |- ( ps -> ch )
 qed:51,53:ax-mp |- ch`;
-	const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mp2MmParser,
+		workingVars: new WorkingVars(kindToPrefixMap)
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, mp2MmParser, new WorkingVars(kindToPrefixMap));
 	mmpParser.parse();
 	const mmpUnifier: MmpUnifier = new MmpUnifier(
 		{
