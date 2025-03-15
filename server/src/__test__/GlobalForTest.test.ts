@@ -1,4 +1,4 @@
-import DiagnosticMessageForSyntaxError, { IExtensionSettings, IVariableKindConfiguration, LabelsOrderInCompressedProof, ProofMode } from '../mm/ConfigurationManager';
+import DiagnosticMessageForSyntaxError, { DisjVarAutomaticGeneration, IExtensionSettings, IVariableKindConfiguration, LabelsOrderInCompressedProof, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import * as fs from 'fs';
 import { MmStatistics } from '../mm/MmStatistics';
@@ -14,6 +14,7 @@ variableKindsConfiguration.set('setvar', { workingVarPrefix: 'S', lspSemantictok
 variableKindsConfiguration.set('class', { workingVarPrefix: 'C', lspSemantictokenType: 'keyword' });
 export const lastFetchedSettings: IExtensionSettings = {
 	maxNumberOfProblems: 100, mmFileFullPath: '',
+	disjVarAutomaticGeneration: DisjVarAutomaticGeneration.GenerateNone,
 	proofMode: ProofMode.normal,
 	labelsOrderInCompressedProof: LabelsOrderInCompressedProof.mostReferencedFirstAndNiceFormatting,
 	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError.short,

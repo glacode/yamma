@@ -5,6 +5,7 @@ import { MmpProofStep } from './MmpProofStep';
 import { MmpProof } from './MmpProof';
 import { IMmpStatement } from './MmpStatement';
 import { MmpCompressedProofStatementFromPackedProof } from './proofCompression/MmpCompressedProofStatementFromPackedProof';
+import { MmpDisjVarStatement } from './MmpDisjVarStatement';
 
 export class MmpProofFormatter {
 	uProof: MmpProof;
@@ -86,7 +87,7 @@ export class MmpProofFormatter {
 	textWithIndentedProof() {
 		this.computeIndentationLevels();
 		let text = "";
-		this.uProof.mmpStatements.forEach((uStatement: IMmpStatement) => {
+		this.uProof.mmpStatements.forEach((uStatement: IMmpStatement, i: number) => {
 			let uStatementText: string;
 			if (uStatement instanceof MmpProofStep)
 				uStatementText = this.textForUProofStep(uStatement);
@@ -96,7 +97,8 @@ export class MmpProofFormatter {
 					// uStatement instanceof UCompressedProofStatement ||
 					uStatement instanceof MmpCompressedProofStatementFromPackedProof)
 					uStatementText = `\n${uStatementText}\n`;
-				else if (uStatement == this.uProof.commentForDummyConstraints)
+				else if (uStatement == this.uProof.commentForDummyConstraints ||
+					(uStatement instanceof MmpDisjVarStatement && this.uProof.mmpStatements[i - 1] == this.uProof.lastMmpProofStep))
 					uStatementText = `\n${uStatementText}`;
 			}
 			text = text + uStatementText + "\n";

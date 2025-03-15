@@ -19,7 +19,7 @@ import { MmpSubstitutionApplier } from './MmpSubstitutionApplier';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { OrderedPairOfNodes, UnificationAlgorithmState, WorkingVarsUnifierFinder } from './WorkingVarsUnifierFinder';
 import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
-import { DisjointVarsManager } from '../mm/DisjointVarsManager';
+import { DataFieldForMissingDjVarConstraintsDiagnostic, DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmLexerFromTokens } from '../grammar/MmLexerFromTokens';
 import { TheoremCoherenceChecker } from '../mmt/TeoremCoherenceChecker';
 import { MmpSearchStatement } from './MmpSearchStatement';
@@ -31,6 +31,8 @@ import { IDiagnosticMessageForSyntaxError, ShortDiagnosticMessageForSyntaxError 
 import { MmpGetProofStatement } from './MmpGetProofStatement';
 import { MmpAllowDiscouraged } from './MmpAllowDiscouraged';
 import { MmpComment } from './MmpComment';
+import { MmpDisjVarStatement } from './MmpDisjVarStatement';
+import { DisjVarAutomaticGeneration } from '../mm/ConfigurationManager';
 
 
 
@@ -83,6 +85,7 @@ export interface IMmpParserParams {
 	textToParse: string;
 	mmParser: MmParser;
 	workingVars: WorkingVars;
+	disjVarAutomaticGeneration?: DisjVarAutomaticGeneration
 	formulaToParseNodeCache?: FormulaToParseNodeCache;
 	diagnosticMessageForSyntaxError?: IDiagnosticMessageForSyntaxError;
 	documentUri?: string;
@@ -116,6 +119,11 @@ export class MmpParser {
 	allowDiscouraged = false; // true iff the $allowdiscouraged statement is present
 
 	diagnostics: Diagnostic[] = [] // diagnostics built while parsing
+
+	public disjVarAutomaticGeneration: DisjVarAutomaticGeneration;
+	/** it will conatin the $d statements that are generated in place of warnings */
+	disjVarStatementsAutomaticallyGenerated: MmpDisjVarStatement[] = [];
+
 	mmpProof: MmpProof | undefined;
 
 	/** the set of eHyp labels, for this theorem; used to check if there is an eHyp label
@@ -128,7 +136,7 @@ export class MmpParser {
 	//#region constructor
 	// constructor(textToParse: string, labelToStatementMap: Map<string, LabeledStatement>,
 	// 	outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {
-	constructor(textToParseOrParams: IMmpParserParams) {
+	constructor(public params: IMmpParserParams) {
 		// this.textToParse = textToParse;
 		// this.mmParser = mmParser;
 		// this.labelToStatementMap = mmParser.labelToStatementMap;
@@ -137,8 +145,7 @@ export class MmpParser {
 		// this.workingVars = workingVars;
 
 		// Handle the new interface case
-		const params = textToParseOrParams;
-		this.textToParse = params.textToParse;
+		this.textToParse = this.params.textToParse;
 		this.mmParser = params.mmParser;
 		this.workingVars = params.workingVars;
 		this.formulaToParseNodeCache = params.formulaToParseNodeCache;
@@ -149,6 +156,12 @@ export class MmpParser {
 				this.outermostBlock.c, this.outermostBlock.v, 30);
 		this.grammar = this.mmParser.grammar;
 		this.labelToStatementMap = this.mmParser.labelToStatementMap;
+
+		// if the automatic generation of disj var constraints is not specified, then it is set to GenerateNone
+		// The Configuration default will probably be GenerateDummy, but we want this class to generate
+		// all warnings, by default
+		this.disjVarAutomaticGeneration = (params.disjVarAutomaticGeneration == undefined ?
+			DisjVarAutomaticGeneration.GenerateNone : params.disjVarAutomaticGeneration);
 
 		this.mmLexer = new MmLexer(this.workingVars);
 
@@ -677,6 +690,43 @@ export class MmpParser {
 			this._orderedPairsOfNodesForMGUalgorithm.concat(...startingPairsForMGUAlgorthm);
 	}
 
+	//#region checkDisjVarConstraints
+	//#region addDiagnosticsOrGenerateDisjVarStatements
+	isMissingDisjVar(diagnostic: Diagnostic): boolean {
+		const result: boolean = (diagnostic.code == MmpParserWarningCode.missingDummyDisjVarsStatement
+			|| diagnostic.code == MmpParserWarningCode.missingMandatoryDisjVarsStatement);
+		return result;
+	}
+	isDiagnosticToBeAdded(diagnostic: Diagnostic) {
+		let result = !this.isMissingDisjVar(diagnostic);
+		if (!result) {
+			// current diagnostic is for a missing $d statement
+			const disjVarAutomaticGeneration: DisjVarAutomaticGeneration = this.disjVarAutomaticGeneration;
+			result = (disjVarAutomaticGeneration == DisjVarAutomaticGeneration.GenerateNone ||
+				(disjVarAutomaticGeneration == DisjVarAutomaticGeneration.GenerateDummy &&
+					diagnostic.code == MmpParserWarningCode.missingMandatoryDisjVarsStatement)
+			);
+		}
+		return result;
+	}
+	generateDisjVarStatement(dataFieldForMissingDjVarConstraintsDiagnostic: DataFieldForMissingDjVarConstraintsDiagnostic) {
+		const disjVarStatement: MmpDisjVarStatement = MmpDisjVarStatement.CreateMmpDisjVarStatement(
+			dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar1,
+			dataFieldForMissingDjVarConstraintsDiagnostic.missingDisjVar2);
+		this.disjVarStatementsAutomaticallyGenerated.push(disjVarStatement);
+	}
+	addDiagnosticsOrGenerateDisjVarStatements(diagnostics: Diagnostic[]) {
+		diagnostics.forEach((diagnostic: Diagnostic) => {
+			if (this.isDiagnosticToBeAdded(diagnostic))
+				this.diagnostics.push(diagnostic);
+			else if (this.isMissingDisjVar(diagnostic))
+				// if (this.isMissingDisjVar(diagnostic)) is not needed, because in the else branch it will always be true
+				// But we add the check anyway, in the case the isDiagnosticToBeAdded() logic had to change
+				this.generateDisjVarStatement(diagnostic.data as DataFieldForMissingDjVarConstraintsDiagnostic);
+		});
+	}
+	//#endregion addDiagnosticsOrGenerateDisjVarStatements
+
 	//TODO this method returns a single pair of Diagnostic for every DjVars constraint violation.
 	// The reason is that we have a single substitution for every logical var: it is consistent,
 	// thus, in principle, we could have multiple substitutions and then a Diagnostic for violating
@@ -695,8 +745,10 @@ export class MmpParser {
 				true, stepLabelToken, stepRef, this.mmpProof);
 		disjointVarsManager.checkDisjVarsConstraintsViolation();
 		disjointVarsManager.checkMissingDisjVarsConstraints(<MmpProof>this.mmpProof);
-		this.diagnostics = this.diagnostics.concat(...disjointVarsManager.diagnostics);
+		this.addDiagnosticsOrGenerateDisjVarStatements(disjointVarsManager.diagnostics);
+		// this.diagnostics = this.diagnostics.concat(...disjointVarsManager.diagnostics);
 	}
+	//#endregion checkDisjVarConstraints
 
 	checkUnificationWithUSubstitutionManager(mmpProofStep: MmpProofStep,
 		outermostBlock: BlockStatement, grammar: Grammar, workingVars: WorkingVars) {

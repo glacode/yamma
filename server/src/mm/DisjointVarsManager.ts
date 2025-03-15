@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
+import { Diagnostic, DiagnosticSeverity, Range } from 'vscode-languageserver';
 import { BlockStatement } from './BlockStatement';
 import { DisjointVarMap } from './DisjointVarMap';
 import { GrammarManager } from '../grammar/GrammarManager';
@@ -8,6 +8,7 @@ import { MmpValidator } from '../mmp/MmpValidator';
 import { InternalNode } from '../grammar/ParseNode';
 import { AssertionStatement } from "./AssertionStatement";
 import { MmpProof } from '../mmp/MmpProof';
+import { dummyRange } from './Utils';
 
 export interface DataFieldForMissingDjVarConstraintsDiagnostic {
 	missingDisjVar1: string
@@ -191,10 +192,13 @@ export class DisjointVarsManager {
 			missingDisjVar1: var1,
 			missingDisjVar2: var2
 		};
+		// below, this.stepLabelToken could be undefined if the method checkMissingDisjVarsConstraints
+		// is invoked by the MmpTransformer (if it's invoked by the MmpParser, this.stepLabelToken is always defined)
+		const range: Range = ( this.stepLabelToken != undefined ? this.stepLabelToken.range : dummyRange);
 		const diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Warning,
 			message: message,
-			range: this.stepLabelToken!.range,
+			range: range,
 			code: diagnosticCode,
 			data: dataFieldForMissingDjVarConstraintsDiagnostic
 		};
@@ -216,10 +220,10 @@ export class DisjointVarsManager {
 		// const mandatoryVars: Set<string> = this.assertion.mandatoryVars(this.outermostBlock);
 		// const missingDisjVarConstraints: DisjointVarMap = this.getMissingDisjVarConstraints(uProof);
 		this.missingDisjVarConstraints = this.getMissingDisjVarConstraints(uProof);
-		if (this.stepLabelToken != undefined)
-			// the method has been called by the MmpParser; only in this case
-			// Diagnostics have to be computed
-			this.addDiagnosticsForMissingDjVarConstraints(this.missingDisjVarConstraints);
+		// if (this.stepLabelToken != undefined)
+		// the method has been called by the MmpParser; only in this case
+		// Diagnostics have to be computed
+		this.addDiagnosticsForMissingDjVarConstraints(this.missingDisjVarConstraints);
 
 	}
 	//#endregion checkMissingDisjVarsConstraints

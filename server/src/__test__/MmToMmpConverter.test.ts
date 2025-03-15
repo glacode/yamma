@@ -193,6 +193,7 @@ $theorem dfcleq
 * Comment for dfcleq for unit test
 1::axext3           |- ( A. x ( x e. y <-> x e. z ) -> y = z )
 qed:1:df-cleq      |- ( A = B <-> A. x ( x e. A <-> x e. B ) )
+
 $d A x
 $d B x
 $d x y

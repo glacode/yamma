@@ -16,7 +16,7 @@ import { WorkingVarsUnifierInitializer } from './WorkingVarsUnifierInitializer';
 import { DisjointVarsManager } from '../mm/DisjointVarsManager';
 import { MmpProofStep } from "./MmpProofStep";
 import { StepDerivation } from '../stepDerivation/StepDerivation';
-import { MmpParser } from './MmpParser';
+import { MmpParser, MmpParserWarningCode } from './MmpParser';
 import { MmpSearchStatement } from './MmpSearchStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { BuildNewLabelArgs, EHypLabelManager } from './EHypLabelManager';
@@ -28,6 +28,7 @@ import { MmToMmpConverter } from './MmToMmpConverter';
 import { LabeledStatement } from '../mm/LabeledStatement';
 import { UnusedStatementsRemover } from './UnusedStatementsRemover';
 import { MmpDisjVarStatementsReorganizer } from './MmpDisjVarStatementsReorganizer';
+import { DisjVarAutomaticGeneration } from '../mm/ConfigurationManager';
 
 export interface MmpProofTransformerArgs {
 	mmpParser: MmpParser;
@@ -195,8 +196,15 @@ export class MmpProofTransformer {
 		//is for "GenerateDvConstraints", don't consider it
 		//In other words, result should be true iff at least one constraint involves a mandatory var and
 		//the configuration is Report
-		const result = disjointVarsManager.missingDisjVarConstraints!.map.size > 0;
-		return result;
+		// const result = disjointVarsManager.missingDisjVarConstraints!.map.size > 0;
+		const disjVarAutomaticGeneration: DisjVarAutomaticGeneration = this.mmpParser.disjVarAutomaticGeneration;
+		if (disjVarAutomaticGeneration != DisjVarAutomaticGeneration.GenerateAll &&
+			disjointVarsManager.diagnostics.some(diagnostic => 
+				diagnostic.code == MmpParserWarningCode.missingMandatoryDisjVarsStatement ||
+				disjVarAutomaticGeneration == DisjVarAutomaticGeneration.GenerateNone)) {
+			return true;
+		}
+		return false;
 	}
 	setIsProvenIfTheCase(uProofStep: MmpProofStep, numberOfLogicalEHyps: number) {
 		let isProven = uProofStep.parseNode != undefined && uProofStep.eHypUSteps.length == numberOfLogicalEHyps;
@@ -424,7 +432,7 @@ export class MmpProofTransformer {
 		// The next unification will take care of it
 		const isCommentForDummyConstraintToBeInserted = !this.containsGetProof;
 		MmpDisjVarStatementsReorganizer.reorganizeDisjointVarConstraintsStatements(this.uProof,
-			isCommentForDummyConstraintToBeInserted);
+			isCommentForDummyConstraintToBeInserted, this.mmpParser.disjVarStatementsAutomaticallyGenerated);
 	}
 	private removeUnusedStatementsIfRequired() {
 		if (this.removeUnusedStatements)

@@ -23,6 +23,12 @@ export class MmpDisjVarStatement implements IMmpStatementWithRange {
         return range;
     }
 
+    /** creates a MmpDisjVarStatement with dummy ranges */
+    static CreateMmpDisjVarStatement(var1: string, var2: string): MmpDisjVarStatement {
+        const disjVarStatement: MmpDisjVarStatement = new MmpDisjVarStatement([new MmToken(var1, 0, 0), new MmToken(var2, 0, 0)]);
+        return disjVarStatement;
+    }
+
     toText() {
         if (this._toText == undefined) {
             const statementContent: string = concatTokenValuesWithSpaces(this.disjointVars);

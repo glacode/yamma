@@ -1,28 +1,11 @@
-import { Connection } from 'vscode-languageserver';
 import { TextEdit } from 'vscode-languageserver-textdocument';
-import { GlobalState } from '../general/GlobalState';
-import DiagnosticMessageForSyntaxError, { ConfigurationManager, IExtensionSettings, ProofMode, IVariableKindConfiguration, LabelsOrderInCompressedProof } from '../mm/ConfigurationManager';
+import { ProofMode, DisjVarAutomaticGeneration } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { MmpUnifier } from '../mmp/MmpUnifier';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, mp2Theory, opelcnMmParser, vexTheoryMmParser } from './GlobalForTest.test';
-
-
-const exampleSettings: IExtensionSettings = {
-	maxNumberOfProblems: 100,
-	proofMode: ProofMode.normal,
-	labelsOrderInCompressedProof: LabelsOrderInCompressedProof.mostReferencedFirstAndNiceFormatting,
-	diagnosticMessageForSyntaxError: DiagnosticMessageForSyntaxError.short,
-	mmFileFullPath: '',
-	variableKindsConfiguration: new Map<string, IVariableKindConfiguration>()
-};
-
-let dummyConnection: unknown;
-
-export const exampleConfigurationManager: ConfigurationManager = new ConfigurationManager(true, true, exampleSettings, exampleSettings,
-	<Connection>dummyConnection, new GlobalState());
 
 test('buildNewProof()', () => {
 	const mmpSource = `
@@ -1074,6 +1057,7 @@ $theorem test
 2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
 3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
 qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+
 $d x z
 
 * Dummy $d constraints are listed below
@@ -1128,6 +1112,103 @@ $theorem test
 2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
 3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
 qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+
+$d x z
+
+* Dummy $d constraints are listed below
+$d w z
+`;
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test('Expect Dummy $d constraints to be generated because of DisjVarAutomaticGeneration.GenerateDummy', () => {
+	const mmpSource = `\
+$theorem test
+
+* test
+
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+`;
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap),
+		disjVarAutomaticGeneration: DisjVarAutomaticGeneration.GenerateDummy
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected = `\
+$theorem test
+
+* test
+
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+
+* Dummy $d constraints are listed below
+$d w z
+`;
+	const textEdit: TextEdit = textEditArray[0];
+	expect(textEdit.newText).toEqual(newTextExpected);
+});
+
+test('Expect all $d constraints to be generated because of DisjVarAutomaticGeneration.GenerateAll', () => {
+	const mmpSource = `\
+$theorem test
+
+* test
+
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+`;
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap),
+		disjVarAutomaticGeneration: DisjVarAutomaticGeneration.GenerateAll
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 0,
+			renumber: false,
+			removeUnusedStatements: false
+		});
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	expect(textEditArray.length).toBe(1);
+	const newTextExpected = `\
+$theorem test
+
+* test
+
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+
 $d x z
 
 * Dummy $d constraints are listed below

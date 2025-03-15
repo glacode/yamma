@@ -51,6 +51,17 @@
 					"default": "",
 					"description": "The .mm file containing the main theory."
 				},
+				"yamma.disjVarAutomaticGeneration": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"GenerateNone",
+						"GenerateDummy",
+						"GenerateAll"
+					],
+					"default": "GenerateDummy",
+					"description": "Generate $d statements automatically"
+				},
 				"yamma.kindConfigurations": {
 					"scope": "resource",
 					"type": "array",
@@ -235,7 +246,8 @@
 		"watch": "tsc -b -w",
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-		"test": "npm test --prefix=server && npm run compile && node ./client/out/test/runTest.js"
+		"test": "npm test --prefix=server",
+		"testalsoclientbutdownloadsvscode": "npm test --prefix=server && npm run compile && node ./client/out/test/runTest.js"
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",

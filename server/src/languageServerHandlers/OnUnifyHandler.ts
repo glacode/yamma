@@ -116,6 +116,7 @@ export class OnUnifyHandler {
 			const mmpParser: MmpParser | undefined = MmpValidator.buildMmpParserFromUri(
 				unifyAndValidateArgs.textDocumentUri,
 				unifyAndValidateArgs.documents,
+				unifyAndValidateArgs.globalState.configurationManager.globalSettings.disjVarAutomaticGeneration,
 				unifyAndValidateArgs.globalState.mmParser,
 				unifyAndValidateArgs.globalState.formulaToParseNodeCache);
 			if (mmpParser != undefined) {

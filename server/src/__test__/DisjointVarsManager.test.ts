@@ -7,6 +7,7 @@ import { doesDiagnosticsContain } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { GlobalState } from '../general/GlobalState';
 import { eqeq1iMmParser, kindToPrefixMap } from './GlobalForTest.test';
+import { DisjVarAutomaticGeneration } from '../mm/ConfigurationManager';
 
 export const theoryToTestDjVarViolation = ' $c ( $. $c ) $. $c -> $. $c wff $. $c |- $. $v ph $. $v ps $. ' +
 	'wph $f wff ph $. wps $f wff ps $. wi $a wff ( ph -> ps ) $. $c A. $. $c setvar $. $c class $. ' +
@@ -203,4 +204,58 @@ qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
 	});
 });
 
+test("Expect Mandatory Disj Var missing warning only because of DisjVarAutomaticGeneration.GenerateDummy", () => {
+	const mmpSource = `\
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+`;
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap),
+		disjVarAutomaticGeneration: DisjVarAutomaticGeneration.GenerateDummy
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.missingDjVarsStatement)).toBeTruthy();
+	expect(mmpParser.diagnostics.length).toBe(2);
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserWarningCode.missingMandatoryDisjVarsStatement)).toBeTruthy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserWarningCode.missingDummyDisjVarsStatement)).toBeFalsy();
+	mmpParser.diagnostics.forEach((diagnostic: Diagnostic) => {
+		if (diagnostic.code == MmpParserWarningCode.missingMandatoryDisjVarsStatement) {
+			const errMsg = "Substitution (to) vars subject to Mandatory DjVars restriction by proof step but " +
+				"not listed as DjVars in theorem to be proved: <x,z>";
+			expect(diagnostic.message).toEqual(errMsg);
+			expect(diagnostic.range.start.line).toBe(2);
+			expect(diagnostic.range.start.character).toBe(4);
+			expect(diagnostic.range.end.line).toBe(2);
+			expect(diagnostic.range.end.character).toBe(10);
+		}
+	});
+});
+
+test("Expect NO Disj Var missing warning only because of DisjVarAutomaticGeneration.GenerateAll", () => {
+	const mmpSource = `\
+1::elequ2            |- ( w = x -> ( z e. w <-> z e. x ) )
+2:1:bibi1d          |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3:2:albidv         |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+qed::              |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+`;
+	const mmpParserParams : IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap),
+		disjVarAutomaticGeneration: DisjVarAutomaticGeneration.GenerateAll
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	// expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserErrorCode.missingDjVarsStatement)).toBeTruthy();
+	expect(mmpParser.diagnostics.length).toBe(1);
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserWarningCode.missingMandatoryDisjVarsStatement)).toBeFalsy();
+	expect(doesDiagnosticsContain(mmpParser.diagnostics, MmpParserWarningCode.missingDummyDisjVarsStatement)).toBeFalsy();
+});
 

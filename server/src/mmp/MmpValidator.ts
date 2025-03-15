@@ -9,7 +9,7 @@ import { MmpStatistics } from './MmpStatistics';
 import { consoleLogWithTimestamp } from '../mm/Utils';
 import { FormulaToParseNodeCache } from './FormulaToParseNodeCache';
 import { IDiagnosticMessageForSyntaxError, ShortDiagnosticMessageForSyntaxError, VerboseDiagnosticMessageForSyntaxError } from './DiagnosticMessageForSyntaxError';
-import DiagnosticMessageForSyntaxError from '../mm/ConfigurationManager';
+import DiagnosticMessageForSyntaxError, { DisjVarAutomaticGeneration } from '../mm/ConfigurationManager';
 
 /** validates a .mmp files and returns diagnostics
  * for the language server event handlers
@@ -59,6 +59,7 @@ export class MmpValidator {
 		const mmpParserParams: IMmpParserParams = {
 			textToParse: textToValidate,
 			mmParser: mmParser,
+			disjVarAutomaticGeneration: this.globalState.configurationManager?.globalSettings.disjVarAutomaticGeneration,
 			workingVars: workingVars,
 			formulaToParseNodeCache: this.formulaToParseNodeCache,
 			diagnosticMessageForSyntaxError: diagnosticMessageForSyntaxError,
@@ -127,10 +128,11 @@ export class MmpValidator {
 	}
 
 	//#region buildMmpParserFromUri
-	static buildMmpParserFromText(textToParse: string, mmParser: MmParser,
-		formulaToParseNodeCache: FormulaToParseNodeCache): MmpParser {
+	static buildMmpParserFromText(textToParse: string, disjVarAutomaticGeneration: DisjVarAutomaticGeneration,
+		mmParser: MmParser, formulaToParseNodeCache: FormulaToParseNodeCache): MmpParser {
 		const mmpParserParams: IMmpParserParams = {
 			textToParse: textToParse,
+			disjVarAutomaticGeneration: disjVarAutomaticGeneration,
 			mmParser: mmParser,
 			workingVars: mmParser.workingVars,
 			formulaToParseNodeCache: formulaToParseNodeCache,
@@ -142,12 +144,13 @@ export class MmpValidator {
 	}
 
 	static buildMmpParserFromUri(textDocumentUri: string, documents: TextDocuments<TextDocument>,
+		disjVarAutomaticGeneration: DisjVarAutomaticGeneration,
 		mmParser: MmParser, formulaToParseNodeCache: FormulaToParseNodeCache): MmpParser | undefined {
 		const textToParse: string | undefined = documents.get(textDocumentUri)?.getText();
 		let mmpParser: MmpParser | undefined;
 		if (textToParse != undefined) {
 			mmpParser = MmpValidator.buildMmpParserFromText(
-				textToParse, mmParser, formulaToParseNodeCache);
+				textToParse, disjVarAutomaticGeneration, mmParser, formulaToParseNodeCache);
 			return mmpParser;
 		}
 		//#endregion buildMmpParserFromUri

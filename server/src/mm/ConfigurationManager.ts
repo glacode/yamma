@@ -8,6 +8,12 @@ export enum ProofMode {
 	compressed = "compressed"
 }
 
+export enum DisjVarAutomaticGeneration {
+	GenerateNone = "GenerateNone",
+	GenerateDummy = "GenerateDummy",
+	GenerateAll = "GenerateAll"
+}
+
 export enum LabelsOrderInCompressedProof {
 	fifo = 'fifo',
 	mostReferencedFirst = 'mostReferencedFirst',
@@ -38,6 +44,7 @@ interface IKindConfiguration {
 */
 interface IExtensionConfiguration {
 	mmFileFullPath: string;
+	disjVarAutomaticGeneration: DisjVarAutomaticGeneration;
 	maxNumberOfProblems: number;
 	proofMode: ProofMode;
 	labelsOrderInCompressedProof: LabelsOrderInCompressedProof;
@@ -52,6 +59,7 @@ interface IExtensionConfiguration {
  */
 export interface IExtensionSettings {
 	mmFileFullPath: string;
+	disjVarAutomaticGeneration: DisjVarAutomaticGeneration;
 	maxNumberOfProblems: number;
 	proofMode: ProofMode;
 	labelsOrderInCompressedProof: LabelsOrderInCompressedProof;
@@ -64,6 +72,7 @@ export interface IExtensionSettings {
 // but could happen with other clients.
 export const defaultSettings: IExtensionSettings = {
 	maxNumberOfProblems: 1000,
+	disjVarAutomaticGeneration: DisjVarAutomaticGeneration.GenerateNone,
 	proofMode: ProofMode.normal,
 	labelsOrderInCompressedProof: LabelsOrderInCompressedProof.mostReferencedFirstAndNiceFormatting,
 	mmFileFullPath: "",
@@ -110,7 +119,7 @@ export class ConfigurationManager implements IConfigurationManager {
 	// }
 
 	//#region didChangeConfiguration
-	async updateTheoryIfTheCase(_change?: DidChangeConfigurationParams) {
+	async updateTheoryIfTheCase() {
 		// const settings: any = await this._connection.workspace.getConfiguration('yamma');
 		const currentConfiguration: IExtensionConfiguration = await this.currentConfiguration();
 		// const settings: IExtensionSettings = await this._connection.workspace.getConfiguration();
@@ -120,7 +129,7 @@ export class ConfigurationManager implements IConfigurationManager {
 		console.log(` currentMmFilePath: ${currentConfiguration.mmFileFullPath}`);
 		if (!previousMmFilePath || (currentConfiguration.mmFileFullPath != '' &&
 			currentConfiguration.mmFileFullPath != previousMmFilePath)) {
-			this.setGlobalStateSettings();
+			this.setGlobalStateSettings(currentConfiguration);
 			const theoryLoader: TheoryLoader = new TheoryLoader(currentConfiguration.mmFileFullPath, this._connection,
 				this.globalState);
 			await theoryLoader.loadNewTheoryIfNeededAndThenTheStepSuggestionModel();
@@ -130,8 +139,9 @@ export class ConfigurationManager implements IConfigurationManager {
 		if (this.hasConfigurationCapability) {
 			// Reset all cached document settings
 			this._documentSettings.clear();
+			this.updateGlobalSettings();
 			console.log('didChangeConfiguration - going to updateTheoryIfTheCase');
-			await this.updateTheoryIfTheCase(change);
+			await this.updateTheoryIfTheCase();
 		} else {
 			this.globalSettings = <IExtensionSettings>(
 				(change.settings.yamma || this.defaultSettings)
@@ -162,6 +172,7 @@ export class ConfigurationManager implements IConfigurationManager {
 	private extensionSettings(currentConfiguration: IExtensionConfiguration): IExtensionSettings {
 		const extensionSettings: IExtensionSettings = {
 			maxNumberOfProblems: currentConfiguration.maxNumberOfProblems,
+			disjVarAutomaticGeneration: currentConfiguration.disjVarAutomaticGeneration,
 			mmFileFullPath: currentConfiguration.mmFileFullPath,
 			proofMode: currentConfiguration.proofMode,
 			labelsOrderInCompressedProof: currentConfiguration.labelsOrderInCompressedProof,
@@ -171,13 +182,19 @@ export class ConfigurationManager implements IConfigurationManager {
 		return extensionSettings;
 	}
 
-	private async setGlobalStateSettings() {
+	private async setGlobalStateSettings(currentConfiguration: IExtensionConfiguration) {
 		if (this.hasConfigurationCapability) {
 			// const currentConfiguration: IExtensionConfiguration = await this._connection.workspace.getConfiguration('yamma');
-			const currentConfiguration: IExtensionConfiguration = await this.currentConfiguration();
+			// const currentConfiguration: IExtensionConfiguration = await this.currentConfiguration();
 			const extensionSettings: IExtensionSettings = this.extensionSettings(currentConfiguration);
+			this.globalSettings = extensionSettings;
 			this.globalState.lastFetchedSettings = extensionSettings;
 		}
+	}
+
+	private async updateGlobalSettings() {
+		const currentConfiguration: IExtensionConfiguration = await this.currentConfiguration();
+		this.setGlobalStateSettings(currentConfiguration);
 	}
 
 	private async getScopeUriSettings(scopeUri: string): Promise<IExtensionSettings> {

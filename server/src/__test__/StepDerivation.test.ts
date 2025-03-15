@@ -1,7 +1,7 @@
 import { TextEdit } from 'vscode-languageserver';
 import { GlobalState } from '../general/GlobalState';
 import { AssertionStatement } from '../mm/AssertionStatement';
-import { ProofMode } from '../mm/ConfigurationManager';
+import { DisjVarAutomaticGeneration, ProofMode } from '../mm/ConfigurationManager';
 import { MmParser } from '../mm/MmParser';
 import { IMmpParserParams, MmpParser } from '../mmp/MmpParser';
 import { MmpUnifier } from '../mmp/MmpUnifier';
@@ -111,6 +111,89 @@ qed:50:df-cleq |- ( A = B <-> A. x ( x e. A <-> x e. B ) )`;
 
 50::ax-ext          |- ( A. x ( x e. y <-> x e. z ) -> y = z )
 qed:50:df-cleq     |- ( A = B <-> A. x ( x e. A <-> x e. B ) )
+`;
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
+test('Also Adds Dummy $d constraints for ax-ext', () => {
+	const mmpSource = `
+* test comment
+
+50:: |- ( A. x ( x e. y <-> x e. z ) -> y = z )
+qed:50:df-cleq |- ( A = B <-> A. x ( x e. A <-> x e. B ) )`;
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap),
+		disjVarAutomaticGeneration: DisjVarAutomaticGeneration.GenerateDummy
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 100,
+			renumber: false,
+			removeUnusedStatements: false
+		});
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText = `
+* test comment
+
+50::ax-ext          |- ( A. x ( x e. y <-> x e. z ) -> y = z )
+qed:50:df-cleq     |- ( A = B <-> A. x ( x e. A <-> x e. B ) )
+
+* Dummy $d constraints are listed below
+$d x y
+$d x z
+$d y z
+`;
+	expect(textEdit.newText).toEqual(expectedText);
+});
+
+test('Adds Mandatory and Dummy $d constraints and the proof', () => {
+	const mmpSource = `
+* test comment
+
+50:: |- ( A. x ( x e. y <-> x e. z ) -> y = z )
+qed:50:df-cleq |- ( A = B <-> A. x ( x e. A <-> x e. B ) )`;
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: eqeq1iMmParser,
+		workingVars: new WorkingVars(kindToPrefixMap),
+		disjVarAutomaticGeneration: DisjVarAutomaticGeneration.GenerateAll
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	// const mmpParser: MmpParser = new MmpParser(mmpSource, eqeq1iMmParser, new WorkingVars(kindToPrefixMap));
+	mmpParser.parse();
+	const mmpUnifier: MmpUnifier = new MmpUnifier(
+		{
+			mmpParser: mmpParser, proofMode: ProofMode.normal,
+			maxNumberOfHypothesisDispositionsForStepDerivation: 100,
+			renumber: false,
+			removeUnusedStatements: false
+		});
+	mmpUnifier.unify();
+	const textEditArray: TextEdit[] = mmpUnifier.textEditArray;
+	const textEdit: TextEdit = textEditArray[0];
+	const expectedText = `
+* test comment
+
+50::ax-ext          |- ( A. x ( x e. y <-> x e. z ) -> y = z )
+qed:50:df-cleq     |- ( A = B <-> A. x ( x e. A <-> x e. B ) )
+
+$=    vx vy vz cA cB vy vz vx ax-ext df-cleq $.
+
+$d A x
+$d B x
+
+* Dummy $d constraints are listed below
+$d x y
+$d x z
+$d y z
 `;
 	expect(textEdit.newText).toEqual(expectedText);
 });
