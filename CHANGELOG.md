@@ -97,4 +97,37 @@
   - Multiple `include` statements are supported, but each must be written on a single line (i.e., it cannot span multiple lines).  
   - Recursive file inclusion is supported.  
   - `.mm` tokens now retain information about the `.mm` file they originate from.  
-  - Diagnostic errors and warnings are reported for each specific `.mm` file.  
+  - Diagnostic errors and warnings are reported for each specific `.mm` file.
+
+### Version 0.0.19 (2025-03-19)
+#### Added
+- **Automatic Generation of Disjoint Variable Constraints**: 
+  - Introduced a new configuration option `yamma.disjVarAutomaticGeneration` in `package.json` to control the automatic generation of disjoint variable (`$d`) constraints. The available options are:
+    - `GenerateNone`: No automatic generation of `$d` statements.
+    - `GenerateDummy`: Automatically generates dummy `$d` statements for non-mandatory disjoint variable constraints (default configuration)
+    - `GenerateAll`: Automatically generates all required `$d` statements, including mandatory ones.
+- **Enhanced README.md Documentation**:
+  - **Removed Node.js Prerequisite**: Updated the `README.md` to clarify that Node.js is not required for installation, as it was never a prerequisite.
+  - Added **CTRL+R** shortcut for **Unify and Renumber** functionality.
+  - Added **CTRL+SPACE** shortcut for **Step Suggestions**.
+  - Included **animated GIFs** to demonstrate:
+    - **Syntax Suggestions** feature.
+    - **Step Suggestions** feature.
+
+### Improve
+- Diagnostic for missing $d statements is now divided in **mandatory** and **dummy**
+  - Code actions are distinct for both cases
+- Quick fixes now keep clearly separated newly generated $d statements 
+- At the bottom of the proof, $d statements are **automatically classified in mandatory or dummy**
+  - Within each group, $d statements are now reordered alphabetically
+- Eliminated redundant $d constraints to improve consistency and readability of constraint declarations
+
+### Fix
+- Prevent multiple theory loads when mmFileFullPath is empty and the semantic tokenization is triggered while the TheoryLoader is still processing
+- Fix **semantic tokenization** timing:
+      - Perform semantic tokenization just after the theory is downloaded.
+      - Ensure tokenization is correctly triggered when a tab is clicked.
+
+### Performance
+- **Optimized Test Suite Execution**: Introduced the `--runInBand` parameter to enhance performance by running tests sequentially, preventing resource depletion and improving stability during test execution.
+- MmpParser.mandatoryVars is now computed once and cached
