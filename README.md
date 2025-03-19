@@ -41,5 +41,7 @@ A language server for .mmp files (metamath proof files).
 Yamma provides the following keyboard commands (on a Mac we may need to use the command key rather than the CTRL key):
 
 * CTRL+U Unify
+* CTRL+R Unify and Renumber
 * CTRL+H Search
+* CTRL+SPACE Get Step Suggestions
 
