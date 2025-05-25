@@ -208,11 +208,12 @@ export class ModelBuilder extends EventEmitter {
 	}
 	//#endregion addDecompressedProofToModel
 
-
 	private addSingleProofToModel(provableStatement: ProvableStatement) {
-		const proofCompressor: ProofCompressor = new ProofCompressor([]);
-		const proof: Statement[] = proofCompressor.DecompressProof(provableStatement, this._mmParser!.labelToStatementMap);
-		this.addDecompressedProofToModel(proof);
+		if (!provableStatement.isUnproven) {
+			const proofCompressor: ProofCompressor = new ProofCompressor([]);
+			const proof: Statement[] = proofCompressor.DecompressProof(provableStatement, this._mmParser!.labelToStatementMap);
+			this.addDecompressedProofToModel(proof);
+		}
 	}
 	//#endregion addSingleProofToModel
 

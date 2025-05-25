@@ -90,4 +90,8 @@ export class ProvableStatement extends AssertionStatement {
         const proofLabels = proofStrings.slice(1, closingParIndex);
         return proofLabels;
     }
+
+    get isUnproven() {
+        return this.Proof.length == 1 && this.Proof[0] == "?";
+    }
 }

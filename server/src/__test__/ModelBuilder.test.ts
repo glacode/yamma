@@ -39,3 +39,29 @@ test("test 1 ModelBuilder for opelcn.mm", () => {
 	multiplicityForLabel = mapForClusterId.get('biimpi')!;
 	expect(multiplicityForLabel).toBe(11);
 });
+
+test("ModelBuilder for questionmark.mm should not crash", () => {
+	const fomulaClassifiers: IFormulaClassifier[] = formulaClassifiersForTest();
+	const mmFilePath = fullPathForTestFile('questionmark.mm');
+	const modelBuilder: TestModelBuilder = new TestModelBuilder(mmFilePath, fomulaClassifiers, false);
+	// modelBuilder.buildModel();
+	modelBuilder.buildStepSuggestionTripleMap();
+	const stepSuggestionTripleMap: StepSuggestionTripleMap = modelBuilder.stepSuggestionTripleMap;
+	// I've not checked that the results below are correct (it would be too time consuming to do)
+	// but this test previously crashed, so I just want to check that it does not crash anymore.
+	const mapForClassifier0: Map<string, Map<string, number>> =
+		stepSuggestionTripleMap.map.get(fomulaClassifiers[0].id)!;
+	let mapForClusterId: Map<string, number> = mapForClassifier0.get('wff wff wi TOP')!;
+	let multiplicityForLabel: number = mapForClusterId.get('ax-mp')!;
+	expect(multiplicityForLabel).toBe(2);
+	multiplicityForLabel = mapForClusterId.get('mpd')!;
+	expect(multiplicityForLabel).toBe(1);
+	mapForClusterId = mapForClassifier0.get('wff wff wff wi wi TOP')!;
+	multiplicityForLabel = mapForClusterId.get('a1i')!;
+	expect(multiplicityForLabel).toBe(1);
+	const mapForClassifier1: Map<string, Map<string, number>> =
+		stepSuggestionTripleMap.map.get(fomulaClassifiers[1].id)!;
+	mapForClusterId = mapForClassifier1.get('wff')!;
+	multiplicityForLabel = mapForClusterId.get('mpd')!;
+	expect(multiplicityForLabel).toBe(1);
+});
