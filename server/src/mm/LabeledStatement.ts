@@ -27,7 +27,9 @@ export abstract class LabeledStatement extends NonBlockStatement {
             parseNode = parser.results[0];
         } catch (error: any) {
             // this error could also happen when a 'weird' $e statement is present
-            // even though the .mm file is valid; thus we don't throw an exception
+            // even though the .mm file is valid;
+            // it could also happen when a $a statement contains a non parsable formula (but the .mm file is still valid)
+            // thus we don't throw an exception
             // (the caller should check for parseNode being undefined)
             console.log("Unexpected error! - parseStrArray : " + formula);
             // throw new Error("Unexpected error! - parseStrArray : " + formula);
@@ -37,6 +39,9 @@ export abstract class LabeledStatement extends NonBlockStatement {
 
     // parses a formula, without producing diagnostics
     // we invoke it with theory formulas, thus no error is expected
+    // TODO Jul 6 2025: the above part of the comment is not accurate, because the theory formula might be invalid
+    // for example, it could happen when a 'weird' $e statement is present even though the .mm file is valid
+    // or it could happen when a $a statement contains a non parsable formula (but the .mm file is still valid)
     protected parseStrArray(theoryFormula: string[], grammar: Grammar, workingVars: WorkingVars): ParseNode | undefined {
         const formula: string = concatWithSpaces(theoryFormula);
         const parseNode: ParseNode | undefined = LabeledStatement.parseString(formula, grammar, workingVars);
