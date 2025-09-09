@@ -3,7 +3,7 @@ import { isMainThread, parentPort, Worker, workerData } from 'worker_threads';
 import { MmpRule } from '../grammar/GrammarManager';
 import { MmLexer } from '../grammar/MmLexer';
 import { InternalNode, ParseNode } from '../grammar/ParseNode';
-import { LabeledStatement } from '../mm/LabeledStatement';
+import { LabeledStatement, ParseResult } from '../mm/LabeledStatement';
 import { MmParser } from '../mm/MmParser';
 import { concatWithSpaces, notifyProgress } from '../mm/Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
@@ -35,9 +35,9 @@ function createGrammar(mmpRulesForThread: IMmpRuleForThread[], workingVars: Work
 export function createParseNodeForThread(formula: string, grammar:
 	Grammar, workingVars: WorkingVars): ParseNodeForThread | undefined {
 	let parseNodeForThread: ParseNodeForThread | undefined;
-	const parseNode: ParseNode | undefined = LabeledStatement.parseString(formula, grammar, workingVars);
-	if (parseNode != undefined)
-		parseNodeForThread = ParseNodeForThreadConverter.convertParseNode(parseNode);
+	const parseResult: ParseResult = LabeledStatement.parseString(formula, grammar, workingVars);
+	if (parseResult.parseNode != undefined)
+		parseNodeForThread = ParseNodeForThreadConverter.convertParseNode(parseResult.parseNode);
 	return parseNodeForThread;
 }
 
@@ -45,7 +45,8 @@ function getParseNodeForThread(formula: string, grammar: Grammar, workingVars: W
 	formulaToParseNodeForThreadCache: Map<string, ParseNodeForThread>): ParseNodeForThread | undefined {
 	let parseNodeForThread: ParseNodeForThread | undefined = formulaToParseNodeForThreadCache.get(formula);
 	if (parseNodeForThread == undefined) {
-		parseNodeForThread = LabeledStatement.parseString(formula, grammar, workingVars);
+		const parseResult: ParseResult = LabeledStatement.parseString(formula, grammar, workingVars);
+		parseNodeForThread = parseResult.parseNode;
 		if (parseNodeForThread != undefined)
 			formulaToParseNodeForThreadCache.set(formula, parseNodeForThread);
 	}

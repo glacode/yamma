@@ -74,13 +74,14 @@ export abstract class AssertionStatement extends LabeledStatement {
     //#region initializeEHypToNotYetUnifiedLogicalVarsMap
     private initializeSingleEHypToNotYetUnifiedLogicalVarsMap(eHyp: EHyp) {
         const logicalVariablesNotYetUnified: Set<string> = new Set<string>();
-        eHyp.logicalVariables.forEach((logicalVariable: string) => {
-            if (!this.logicalVariables.has(logicalVariable)) {
-                // the current logicalVariable is not in the assertion logical variables
-                logicalVariablesNotYetUnified.add(logicalVariable);
-                // alreadyUnifiedVariables.add(logicalVariable);
-            }
-        });
+        if (this.logicalVariables != undefined && eHyp.logicalVariables != undefined )
+            eHyp.logicalVariables.forEach((logicalVariable: string) => {
+                if (!this.logicalVariables!.has(logicalVariable)) {
+                    // the current logicalVariable is not in the assertion logical variables
+                    logicalVariablesNotYetUnified.add(logicalVariable);
+                    // alreadyUnifiedVariables.add(logicalVariable);
+                }
+            });
         this.eHypToNotYetUnifiedLogicalVarsMap?.set(eHyp, logicalVariablesNotYetUnified);
     }
     /** initializes this.eHypToNotYetUnifiedLogicalVarsMap with all the logical variables

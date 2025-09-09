@@ -25,15 +25,17 @@ import { TokensCreator } from './TokensCreator';
 
 
 export enum MmParserErrorCode {
-    varNotInActiveFStatement = "varNotInActiveFStatement",
-    stackHasMoreThanOneItemAtEndOfProof = "stackHasMoreThanOneItemAtEndOfProof",
-    stackUnderflow = "stackUnderflow",
-    assertionProvenDoesntMatch = "assertionProvenDoesntMatch",
-    eHypDoesntMatchTheStackEntry = "eHypDoesntMatchTheStackEntry",
-    missingDjVarsStatement = "missingDjVarsStatement",
-    missingCloseParenthesisInPStatement = "missingCloseParenthesisInPStatement",
-    notALabelOfAssertionOrOptionalHyp = "notALabelOfAssertionOrOptionalHyp",
-    labelOfAProvableStatementWithFailedVerification = "labelOfAProvableStatementWithFailedVerification",
+	varNotInActiveFStatement = "varNotInActiveFStatement",
+	stackHasMoreThanOneItemAtEndOfProof = "stackHasMoreThanOneItemAtEndOfProof",
+	stackUnderflow = "stackUnderflow",
+	assertionProvenDoesntMatch = "assertionProvenDoesntMatch",
+	eHypDoesntMatchTheStackEntry = "eHypDoesntMatchTheStackEntry",
+	missingDjVarsStatement = "missingDjVarsStatement",
+	missingCloseParenthesisInPStatement = "missingCloseParenthesisInPStatement",
+	notALabelOfAssertionOrOptionalHyp = "notALabelOfAssertionOrOptionalHyp",
+	labelOfAProvableStatementWithFailedVerification = "labelOfAProvableStatementWithFailedVerification",
+    // the formula in a $a or $e statement is not parsable wrt the grammar of the specific theory
+	formulaNonParsable = "FormulaNonParsable"
 }
 
 export enum MmParserWarningCode {
@@ -43,7 +45,7 @@ export enum MmParserWarningCode {
 export enum MmParserEvents {
     newAxiomStatement = "newAxiomStatement",
     newProvableStatement = "newProvableStatement",
-    parsingProgress = 'newParsingProgress'
+    parsingProgress = 'newParsingProgress' 
 }
 
 export type AssertionParsedArgs = {

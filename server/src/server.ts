@@ -54,6 +54,7 @@ import { SearchCommandHandler, ISearchCommandParameters } from './search/SearchC
 import { Parameters } from './general/Parameters';
 import { ILabelMapCreatorForCompressedProof, MmpCompressedProofCreatorFromPackedProof } from './mmp/proofCompression/MmpCompressedProofCreator';
 import { OnCreateModelHandler } from './commandHandlers/OnCreateModelHandler';
+import { DiagnosticEventHandler } from './mm/DiagnosticEventHandler';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -132,6 +133,11 @@ connection.onInitialize((params: InitializeParams) => {
 	configurationManager = new ConfigurationManager(hasConfigurationCapability,
 		hasDiagnosticRelatedInformationCapability, defaultSettings, globalSettings, connection, globalState);
 	globalState.configurationManager = configurationManager;
+
+	// DiagnosticEventHandler singleton initialization	
+	DiagnosticEventHandler.getInstance({
+		sendDiagnostics: (params) => connection.sendDiagnostics(params),
+	});
 
 
 

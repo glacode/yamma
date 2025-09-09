@@ -8,6 +8,8 @@ import * as fs from "fs";
 import { formulaClassifiersExample, IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { ModelLoader } from '../stepSuggestion/ModelLoader';
 import { MmStatistics } from './MmStatistics';
+import { DiagnosticEventHandler } from './DiagnosticEventHandler';
+import { LabeledStatementEvents } from './LabeledStatement';
 
 /** loads a new .mm file and updates the step suggestions model */
 export class TheoryLoader {
@@ -90,8 +92,18 @@ export class TheoryLoader {
 		// }
 	}
 
-
 	//#endregion sendDiagnostics
+	
+	/** Attach diagnostic listeners to all labeled statements */
+	private attachDiagnosticListeners( mmParser: MmParser): void {
+		const diagHandler = DiagnosticEventHandler.getInstance();
+		for (const stmt of mmParser.labelToStatementMap.values()) {
+			stmt.on(
+				LabeledStatementEvents.formulaNonParsable,
+				diagHandler.formulaNonParsableEventHandler
+			);
+		}
+	}
 
 	async loadTheoryFromMmFile(mmFilePath: string) {
 		const random: number = Math.floor(Math.random() * 1000000);
@@ -118,6 +130,7 @@ export class TheoryLoader {
 		} else {
 			message = `The theory file ${mmFilePath} has been successfully parsed and verified`;
 			notifyInformation(message, this.connection);
+			this.attachDiagnosticListeners(this.mmParser);
 		}
 		this.globalState.mmFilePath = mmFilePath;
 		this.globalState.mmParser = this.mmParser!;

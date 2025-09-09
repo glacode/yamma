@@ -108,7 +108,8 @@ export class MmpValidator {
 			severity: DiagnosticSeverity.Error,
 			message: message,
 			range: range,
-			code: code
+			code: code,
+			source: 'yamma'
 		};
 		diagnostics.push(diagnostic);
 	}
@@ -122,7 +123,8 @@ export class MmpValidator {
 			severity: DiagnosticSeverity.Warning,
 			message: message,
 			range: range,
-			code: code
+			code: code,
+			source: 'yamma'
 		};
 		diagnostics.push(diagnostic);
 	}

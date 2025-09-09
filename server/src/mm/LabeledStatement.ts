@@ -5,11 +5,36 @@ import { InternalNode, ParseNode } from '../grammar/ParseNode';
 import { concatWithSpaces, concatWithSpacesSkippingStart } from './Utils';
 import { WorkingVars } from '../mmp/WorkingVars';
 import { NonBlockStatement } from "./NonBlockStatement";
+import { EventEmitter } from 'stream';
+
+export interface FormulaNonParsableEventArgs {
+    labeledStatement: LabeledStatement;
+    parseResult: ParseResult;
+}
+
+export enum LabeledStatementEvents {
+    // a $a or $e statement has a non parsable formula wrt the specific theory this event is raised by the
+    // labeled statement when the parseNode is requested and it will not happen when the .mm file is parsed,
+    // because it would slow down the .mm parsing too much; it will happen when the MmpParser will try to parse
+    // an instance of the LabeledStatement in the .mmp file
+    formulaNonParsable = 'formulaNonParsable'
+}
 
 // statements with a label; blocks and '$d' statements
 // are NOT labeled
 
+export type ParseResult = {
+    parseNode?: ParseNode;
+    parser: Parser;
+    error?: Error;
+};
+
 export abstract class LabeledStatement extends NonBlockStatement {
+    private readonly emitter = new EventEmitter();
+
+    on = this.emitter.on.bind(this.emitter);
+    emit = this.emitter.emit.bind(this.emitter);
+
     Label: string;
 
     private _parseNode: InternalNode | undefined;
@@ -17,24 +42,33 @@ export abstract class LabeledStatement extends NonBlockStatement {
     /** statement number for labeled statements */
     statementNumber: number;
 
-    public static parseString(formula: string, grammar: Grammar, workingVars: WorkingVars) {
+    /** this is set to true when the formula is found to be non parsable
+     * this avoids trying to parse it again and again: it's tried only once
+     * and if it's not parsable, this is set to true and the parseNode is never set
+     * (it remains undefined)
+     */
+    isFormulaMarkedAsNonParsable = false;
+
+    public static parseString(formula: string, grammar: Grammar, workingVars: WorkingVars): ParseResult {
         let parseNode: ParseNode | undefined;
         grammar.lexer = new MmLexer(workingVars);
         const parser: Parser = new Parser(grammar);
+        let error: Error | undefined;
         // Parse something!
         try {
             parser.feed(formula);
             parseNode = parser.results[0];
-        } catch (error: any) {
+        } catch (err: any) {
             // this error could also happen when a 'weird' $e statement is present
             // even though the .mm file is valid;
             // it could also happen when a $a statement contains a non parsable formula (but the .mm file is still valid)
             // thus we don't throw an exception
             // (the caller should check for parseNode being undefined)
             console.log("Unexpected error! - parseStrArray : " + formula);
+            error = err;
             // throw new Error("Unexpected error! - parseStrArray : " + formula);
         }
-        return parseNode;
+        return { parseNode, parser, error };
     }
 
     // parses a formula, without producing diagnostics
@@ -44,8 +78,19 @@ export abstract class LabeledStatement extends NonBlockStatement {
     // or it could happen when a $a statement contains a non parsable formula (but the .mm file is still valid)
     protected parseStrArray(theoryFormula: string[], grammar: Grammar, workingVars: WorkingVars): ParseNode | undefined {
         const formula: string = concatWithSpaces(theoryFormula);
-        const parseNode: ParseNode | undefined = LabeledStatement.parseString(formula, grammar, workingVars);
-        return parseNode;
+        const parseResult: ParseResult = LabeledStatement.parseString(formula, grammar, workingVars);
+        if (parseResult.error) {
+            // notify the MmParser that a formula is not parsable
+            // this will be handled by the DiagnosticEventHandler that will produce a diagnostic
+            // (the .mm file is still valid, thus no exception is thrown)
+            // this part of the code will be executed when a 'weird' $e statement is present
+            // even though the .mm file is valid;
+            // it could also happen when a $a statement contains a non parsable formula (but the .mm file is still valid)
+            this.isFormulaMarkedAsNonParsable = true;
+            const formulaNonParsableEventArgs: FormulaNonParsableEventArgs = { labeledStatement: this, parseResult: parseResult };
+            this.emit(LabeledStatementEvents.formulaNonParsable, formulaNonParsableEventArgs);
+        }
+        return parseResult.parseNode;
     }
 
     public isParseNodeDefined(): boolean {
@@ -53,8 +98,8 @@ export abstract class LabeledStatement extends NonBlockStatement {
         return isDefined;
     }
 
-    public get parseNode(): InternalNode {
-        if (this._parseNode == undefined)
+    public get parseNode(): InternalNode | undefined {
+        if (this._parseNode == undefined && !this.isFormulaMarkedAsNonParsable)
             // this._parseNode = <InternalNode>this.parseStrArray(this.formula, grammar, new WorkingVars());
             this._parseNode = <InternalNode>this.parseStrArray(
                 this.formula, this.outermostBlock!.grammar!, this.outermostBlock!.mmParser!.workingVars);
@@ -68,8 +113,8 @@ export abstract class LabeledStatement extends NonBlockStatement {
 
     private _logicalVariables: Set<string> | undefined;
 
-    public get logicalVariables(): Set<string> {
-        if (this._logicalVariables == undefined)
+    public get logicalVariables(): Set<string> | undefined {
+        if (this._logicalVariables == undefined && this.parseNode)
             // this._parseNode = <InternalNode>this.parseStrArray(this.formula, grammar, new WorkingVars());
             this._logicalVariables = this.parseNode.logicalVariables(this.outermostBlock!);
         return this._logicalVariables;

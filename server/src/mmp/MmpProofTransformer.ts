@@ -241,6 +241,7 @@ export class MmpProofTransformer {
 	//#region transformUStep
 	tryToDeriveEHypsOnly(uStepIndex: number, mmpProofStep: MmpProofStep) {
 		if (mmpProofStep.assertion instanceof AssertionStatement
+			&& mmpProofStep.assertion.parseNode
 			&& !GrammarManager.isSyntaxAxiom2(mmpProofStep.assertion) &&
 			mmpProofStep.parseNode != undefined) {
 			const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
@@ -345,8 +346,10 @@ export class MmpProofTransformer {
 			this.deriveLabelAndHypotesis(uStepIndex, uProofStep);
 		this.tryToDeriveEhypsIfIncomplete(uStepIndex, uProofStep, uProofStep.assertion);
 		if (!uProofStep.containsUnknownStepRef && uProofStep.assertion instanceof AssertionStatement
+			&& uProofStep.assertion.parseNode
 			&& !GrammarManager.isSyntaxAxiom2(uProofStep.assertion)) {
 			// the proof step has a label for a valid assertion
+			// and the assertion is parsable w.r.t. the current grammar
 			// const nextUStepIndexIfNoProofStepIsAdded = nextUStepIndexToBeTransformed;
 			nextUStepIndexToBeTransformed = this.tranformProofStepWithValidAssertionLabel(
 				uStepIndex, uProofStep, uProofStep.assertion);

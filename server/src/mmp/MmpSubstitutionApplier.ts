@@ -163,7 +163,7 @@ export class MmpSubstitutionApplier {
 					this.eHypUSteps[i] = this.uProof.createEmptyUStepAndAddItBeforeIndex(indexToInsertNewEHyps++);
 				if (this.eHypUSteps[i]!.parseNode === undefined)
 					this.eHypUSteps[i]!.parseNode =
-						MmpSubstitutionApplier.createParseNodeForInternalNode(logicalSystemEHyp.parseNode,
+						MmpSubstitutionApplier.createParseNodeForInternalNode(logicalSystemEHyp.parseNode!,
 							this.substitution, this.outermostBlock);
 				// else
 				// 	this.eHypUSteps[i]!.parseNode = this.applySubstitutionToExistingNode(
@@ -171,7 +171,7 @@ export class MmpSubstitutionApplier {
 			} else {
 				// eHypUSteps.length <_ i
 				const newEHypUStep = this.uProof.createEmptyUStepAndAddItBeforeIndex(indexToInsertNewEHyps++);
-				newEHypUStep.parseNode = MmpSubstitutionApplier.createParseNodeForInternalNode(logicalSystemEHyp.parseNode,
+				newEHypUStep.parseNode = MmpSubstitutionApplier.createParseNodeForInternalNode(logicalSystemEHyp.parseNode!,
 					this.substitution, this.outermostBlock);
 				this.eHypUSteps.push(newEHypUStep);
 			}
@@ -190,7 +190,8 @@ export class MmpSubstitutionApplier {
 	 */
 	applySubstitution(): number {
 		const updatedeUStepIndex: number = this.applySubstitutionToEHypsAndAddMissingOnes();
-		this.applySubstitutionToSingleNode(this.uProofStep, this.assertion.parseNode);
+		if (this.assertion.parseNode)
+			this.applySubstitutionToSingleNode(this.uProofStep, this.assertion.parseNode);
 		return updatedeUStepIndex;
 	}
 }

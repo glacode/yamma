@@ -61,7 +61,13 @@ export enum MmpParserErrorCode {
 	doesntMatchTheoryFormula = "doesntMatchTheoryFormula",
 	disjVarConstraintNotInTheTheory = "disjVarConstraintNotInTheTheory",
 	wrongNumberOfEHypsForAlreadyExistingTheorem = "wrongNumberOfEHypsForAlreadyExistingTheorem",
-	disjVarWithItself = "disjVarWithItself"
+	disjVarWithItself = "disjVarWithItself",
+	/** The formula in a $a or $e statement is not parsable wrt the grammar of the specific theory.
+	The error is in the .mm file, not in the .mmp file, but we report it here also when we try to unify a proof step
+	with a label for which the formula in the .mm is not parsable and the .mmp does not
+	have a formula either, because the unifier is trying to create the unified formula,
+	but the formula in the theory cannot have a parse node and so the unification fails */
+	mmFormulaNonParsable = "FormulaNonParsable"
 }
 
 
@@ -403,6 +409,12 @@ export class MmpParser {
 				MmpValidator.addDiagnosticWarning(message, proofStepFirstTokenInfo.stepLabel.range,
 					MmpParserWarningCode.isDiscouraged, this.diagnostics);
 			}
+			else if (!labeledStatement.parseNode) {
+				const message = `\
+The formula in the .mm file for '${stepLabel.value}' is not parsable. See the problem tab for the .mm file, for a detailed error message`;
+				MmpValidator.addDiagnosticError(message, proofStepFirstTokenInfo.stepLabel.range,
+					MmpParserErrorCode.mmFormulaNonParsable, this.diagnostics);
+			}
 
 			else {
 				// labeledStatement instanceof AssertionStatement
@@ -617,12 +629,12 @@ export class MmpParser {
 	//#region  addDiagnisticsForSubstitution
 
 	//#region addDiagnisticsForSubstitutionInEHyps
-	addDiagnisticsForSubstitutionInEHyp(frameEHyp: EHyp, referencedEHypProofStep: MmpProofStep, range: Range,
+	addDiagnisticsForSubstitutionInEHyp(frameEHypParseNode: ParseNode, referencedEHypProofStep: MmpProofStep, range: Range,
 		substitution: Map<string, InternalNode>) {
 
 		// const expectedFormula: string[] =
 		// MmpSubstitutionManager.applySubstitution(frameEHyp.formula, substitution);
-		const expectedNode: ParseNode = MmpSubstitutionApplier.createParseNode(frameEHyp.parseNode,
+		const expectedNode: ParseNode = MmpSubstitutionApplier.createParseNode(frameEHypParseNode,
 			substitution, this.outermostBlock);
 		const expectedFormula: string[] = GrammarManager.buildStringArray(expectedNode);
 		const referencedFormula: MmToken[] | undefined = referencedEHypProofStep.stepFormula;
@@ -645,16 +657,16 @@ export class MmpParser {
 				const referencedEHypProofStep: MmpProofStep | undefined =
 					<MmpProofStep | undefined>proofStep.eHypUSteps[i];
 				// refToProofStepMap.get(proofStep.eHypRefs[i].value);
-				if (referencedEHypProofStep != undefined)
+				if (referencedEHypProofStep != undefined && frameEHyps[i].parseNode != undefined)
 					this.addDiagnisticsForSubstitutionInEHyp(
-						frameEHyps[i], referencedEHypProofStep, proofStep.eHypRefs[i].range, substitution);
+						frameEHyps[i].parseNode!, referencedEHypProofStep, proofStep.eHypRefs[i].range, substitution);
 			}
 		}
 	}
-	addDiagnisticsForAssertion(assertionStatement: AssertionStatement, proofStep: MmpProofStep,
+	addDiagnisticsForAssertion(assertionStatementParseNode: ParseNode, proofStep: MmpProofStep,
 		substitution: Map<string, InternalNode>) {
 		const expectedNode = MmpSubstitutionApplier.createParseNode(
-			assertionStatement.parseNode, substitution, this.outermostBlock);
+			assertionStatementParseNode, substitution, this.outermostBlock);
 		// const expectedFormula: string[] =
 		// 	MmpSubstitutionManager.applySubstitution(assertionStatement.formula, substitution);
 		const expectedFormula: string[] = GrammarManager.buildStringArray(expectedNode);
@@ -673,7 +685,8 @@ export class MmpParser {
 	}
 	addDiagnisticsForSubstitution(frameEHyps: EHyp[], assertionStatement: AssertionStatement,
 		proofStep: MmpProofStep, substitution: Map<string, InternalNode>) {
-		this.addDiagnisticsForAssertion(assertionStatement, proofStep, substitution);
+		if (assertionStatement.parseNode != undefined)
+			this.addDiagnisticsForAssertion(assertionStatement.parseNode, proofStep, substitution);
 		this.addDiagnisticsForSubstitutionInEHyps(frameEHyps, proofStep, substitution);
 	}
 	//#endregion addDiagnisticsForSubstitutionInEHyps

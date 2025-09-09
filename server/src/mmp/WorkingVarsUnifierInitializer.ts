@@ -95,7 +95,7 @@ export class WorkingVarsUnifierInitializer {
 	buildStartingPairsForMGUAlgorithm(): OrderedPairOfNodes[] {
 		this.addStartingPairsForMGUAlgorithmForEHyps();
 		if (this.uProofStep.parseNode != undefined)
-			this.addStartingPairsForMGUAlgorithmForParseNode(this.uProofStep.parseNode, this.assertion.parseNode);
+			this.addStartingPairsForMGUAlgorithmForParseNode(this.uProofStep.parseNode, this.assertion.parseNode!);
 		return this.startingPairsForMGUFinder;
 	}
 	//#endregion buildStartingPairsForMGUAlgorithm

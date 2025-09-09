@@ -93,7 +93,7 @@ export class StepDerivation {
 			this.mmpProofStep, assertion, this.outermostBlock, this.workingVars, this.grammar, [], true);
 		// const substitutionResult: SubstitutionResult = uSubstitutionBuilder.buildSubstitution();
 		const substitutionFound: boolean =
-			uSubstitutionBuilder.buildSubstitutionForSingleLine(assertion.parseNode, this.mmpProofStep.formula,
+			uSubstitutionBuilder.buildSubstitutionForSingleLine(assertion.parseNode!, this.mmpProofStep.formula,
 				this.mmpProofStep.parseNode, substitution);
 		if (substitutionFound) {
 			// assertion.parseNode has been succesfully unified with this.mmpProofStep.parseNode
@@ -110,7 +110,7 @@ export class StepDerivation {
 		// 	!GrammarManager.isSyntaxAxiom2(labeledStatement) &&
 		// 	!this.isWorstCaseTooSlow(labeledStatement))
 		// 	this.tryCurrentAssertion(labeledStatement);
-		if (!this.isWorstCaseTooSlow(labeledStatement))
+		if (!this.isWorstCaseTooSlow(labeledStatement) && labeledStatement.parseNode)
 			this.tryCurrentAssertionActually(labeledStatement);
 	}
 	//#endregion tryCurrentAssertion

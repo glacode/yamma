@@ -69,7 +69,7 @@ export class EHypsDerivation {
 	private isEHypUnifiableWithCurrentProofStep(currentEHyp: EHyp, eHypProofStepCandidate: MmpProofStep): boolean {
 		const substitutionFound: boolean =
 			eHypProofStepCandidate.parseNode != undefined &&
-			this.uSubstitutionBuilder.buildSubstitutionForSingleLine(currentEHyp.parseNode, eHypProofStepCandidate.formula,
+			this.uSubstitutionBuilder.buildSubstitutionForSingleLine(currentEHyp.parseNode!, eHypProofStepCandidate.formula,
 				eHypProofStepCandidate.parseNode, this.substitution);
 		return substitutionFound;
 	}
@@ -121,7 +121,7 @@ export class EHypsDerivation {
 	//#region searchCurrentEHypWithoutAdditionalVarsToBeUnified
 	buildFormulaForCurrentEHypProofStep(currentEHyp: EHyp): string {
 		const parseNode: InternalNode =
-			MmpSubstitutionApplier.createParseNodeForInternalNode(currentEHyp.parseNode, this.substitution, this.outermostBlock);
+			MmpSubstitutionApplier.createParseNodeForInternalNode(currentEHyp.parseNode!, this.substitution, this.outermostBlock);
 		const formula: string = parseNode.stringFormula;
 		return formula;
 	}

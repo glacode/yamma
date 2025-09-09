@@ -48,12 +48,6 @@ export class MmpUnifier {
 	protected textLastLine: number;
 
 
-	// the list of statements, after createMmpStatements() has been invoked
-	// mmpStatements: MmpStatement[] = []
-	// maps each proof step id to the proof step,  after createMmpStatements() has been invoked
-	// refToProofStepMap: Map<string, MmpProofStep>;
-	// the list of diagnostics, after createMmpStatements() has been invoked
-	diagnostics: Diagnostic[] = []
 	// the list of TextEdit, after createMmpStatements() has been invoked
 	textEditArray: TextEdit[] = []
 

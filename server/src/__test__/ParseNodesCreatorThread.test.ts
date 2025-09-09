@@ -24,14 +24,14 @@ test("Simulate working thread serialization, deserialization", () => {
 	const labelToParseNode: Map<string, InternalNode> = new Map<string, InternalNode>();
 	mmParser.labelToStatementMap.forEach((labeledStatement: LabeledStatement, label: string) => {
 		if (MmParser.isParsable(labeledStatement)) {
-			labelToParseNode.set(label, labeledStatement.parseNode);
+			labelToParseNode.set(label, labeledStatement.parseNode!);
 			labeledStatement.setParseNode(dummyNode);
 
 		}
 	});
 	buildParseNodesSimulated(mmParser);
 	const parseNode: InternalNode = labelToParseNode.get('axext3')!;
-	const parseNodeSimulated: InternalNode = mmParser.labelToStatementMap.get('axext3')!.parseNode;
+	const parseNodeSimulated: InternalNode = mmParser.labelToStatementMap.get('axext3')!.parseNode!;
 	const areEqual: boolean = GrammarManager.areParseNodesEqual(parseNode, parseNodeSimulated);
 	expect(areEqual).toBeTruthy();
 });

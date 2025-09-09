@@ -1,5 +1,5 @@
 import { Grammar, Rule } from 'nearley';
-import { Diagnostic, Range } from 'vscode-languageserver';
+import { Diagnostic, DiagnosticSeverity, PublishDiagnosticsParams, Range } from 'vscode-languageserver';
 import { BlockStatement } from '../mm/BlockStatement';
 import { GrammarManager } from '../grammar/GrammarManager';
 import { MmToken } from '../grammar/MmLexer';
@@ -7,13 +7,14 @@ import { IMmpParserParams, MmpParser, MmpParserErrorCode, MmpParserWarningCode }
 import { ProofStepFirstTokenInfo } from '../mmp/MmpStatements';
 import { MmpProofStep } from "../mmp/MmpProofStep";
 import { AxiomStatement } from "../mm/AxiomStatement";
-import { LabeledStatement } from "../mm/LabeledStatement";
+import { LabeledStatement, LabeledStatementEvents } from "../mm/LabeledStatement";
 import { WorkingVars } from '../mmp/WorkingVars';
 import { doesDiagnosticsContain, dummyToken } from '../mm/Utils';
 import { createMmParser, elexdMmParser, eqeq1iMmParser, impbiiMmParser, kindToPrefixMap, mp2MmParser, vexTheoryMmParser } from './GlobalForTest.test';
 import { IMmpStatement } from '../mmp/MmpStatement';
 import { VerboseDiagnosticMessageForSyntaxError } from '../mmp/DiagnosticMessageForSyntaxError';
-import { MmParser } from '../mm/MmParser';
+import { MmDiagnostic, MmParser, MmParserErrorCode } from '../mm/MmParser';
+import { DiagnosticEventHandler, IDiagnosticSink } from '../mm/DiagnosticEventHandler';
 
 const emptyLabelStatement = new AxiomStatement(dummyToken('x'), [], new BlockStatement());
 
@@ -1305,4 +1306,73 @@ qed:1,2:ax-mp      |- ch`;
 	// that could introduce other diagnostics
 	expect(doesDiagnosticsContain(
 		mmpParser.diagnostics, MmpParserWarningCode.isDiscouraged)).toBeFalsy();
+});
+
+/** This tests both .mm and .mmp diagnostic errors for LabelStatement with non-parsable formula.
+ * The non parsable formula is in the .mm file, but the .mm parser does not check if the formula
+ * is parsable w.r.t. the grammar of the logic, it only checks if the formula is a valid w.r.t.
+ * the Metamath syntax. So the .mm parser does not raise any diagnostic error.
+ * The .mmp parser, when it tries to unify the proof, discovers that the formula is not parsable,
+ * and raises both a .mm diagnostic error (in the .mm file) and a .mmp diagnostic error, in the current .mmp file.
+*/
+test('expect .mm diagnostic error for LabelStatement with non-parsable formula', () => {
+	const mmParser: MmParser = createMmParser('validButBadWff.mm');
+	expect(mmParser.isParsingComplete).toBe(true);
+	expect(mmParser.parseFailed).toBe(false);
+	expect(mmParser.diagnostics.length).toBe(0);
+	const badStatement = mmParser.labelToStatementMap.get('bad');
+	expect(badStatement).toBeDefined();
+	expect(badStatement).not.toBeNull();
+
+	const published: PublishDiagnosticsParams[] = [];
+	const sink: IDiagnosticSink = {
+		sendDiagnostics: (params: PublishDiagnosticsParams) => {
+			published.push(params);
+		},
+	};
+
+	const diagnosticEventHandler: DiagnosticEventHandler = new DiagnosticEventHandler(sink);
+	badStatement?.on(LabeledStatementEvents.formulaNonParsable, diagnosticEventHandler.formulaNonParsableEventHandler);
+
+	const mmpSource = `\
+1:bad
+qed:      |- ph`;
+
+	const mmpParserParams: IMmpParserParams = {
+		textToParse: mmpSource,
+		mmParser: mmParser,
+		workingVars: new WorkingVars(kindToPrefixMap),
+	};
+	const mmpParser: MmpParser = new MmpParser(mmpParserParams);
+	mmpParser.parse();
+
+	const diagnostic: Diagnostic = mmpParser.diagnostics[0];
+	expect(diagnostic.code).toBe(MmpParserErrorCode.mmFormulaNonParsable);
+	expect(diagnostic.message).toBe(`\
+The formula in the .mm file for 'bad' is not parsable. See the problem tab for the .mm file, for a detailed error message`);
+	expect(diagnostic.range.start.line).toBe(0);
+	expect(diagnostic.range.start.character).toBe(2);
+	expect(diagnostic.range.end.line).toBe(0);
+	expect(diagnostic.range.end.character).toBe(5);
+	expect(diagnostic.severity).toBe(DiagnosticSeverity.Error);
+	expect(diagnostic.source).toBe('yamma');
+
+	expect(published.length).toBe(1);
+	const mmDiagnostic: MmDiagnostic = published[0].diagnostics[0];
+	expect(mmDiagnostic.code).toBe(MmParserErrorCode.formulaNonParsable);
+	expect(mmDiagnostic.message).toBe(`\
+Formula in statement "bad" is not parsable 
+Unexpected "ps". I did not expect any more input. Here is the state of my parse table:
+
+    wff → "ph" ● 
+    provable → "|-" wff ● 
+`);
+	expect(mmDiagnostic.range.start.line).toBe(10);
+	expect(mmDiagnostic.range.start.character).toBe(13);
+	expect(mmDiagnostic.range.end.line).toBe(10);
+	expect(mmDiagnostic.range.end.character).toBe(15);
+	expect(mmDiagnostic.severity).toBe(DiagnosticSeverity.Error);
+	expect(mmDiagnostic.source).toBe('yamma');
+	expect(mmDiagnostic.mmFilePath?.endsWith('server/src/__test__/../mmTestFiles/validButBadWff.mm')).toBe(true);
+
 });

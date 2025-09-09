@@ -280,7 +280,7 @@ export class MmpSubstitutionBuilder {
 			if (i < this.eHypUSteps.length && this.eHypUSteps[i] !== undefined)
 				// eHypUSteps[i] is an actual step
 				hasFoundSubstitution = this.buildSubstitutionForSingleLine(
-					this.logicalSystemEHyps[i].parseNode, this.eHypUSteps[i]!.stepFormula, this.eHypUSteps[i]!.parseNode,
+					this.logicalSystemEHyps[i].parseNode!, this.eHypUSteps[i]!.stepFormula, this.eHypUSteps[i]!.parseNode,
 					substitution);
 			i++;
 		}
@@ -348,7 +348,7 @@ export class MmpSubstitutionBuilder {
 	buildSubstitutionForExistingParseNodes(): SubstitutionResult {
 		const substitution: Map<string, InternalNode> = new Map<string, InternalNode>();
 		let hasBeenFound = this.buildSubstitutionForEHyps(substitution);
-		if (hasBeenFound)
+		if (hasBeenFound && this.assertion.parseNode)
 			hasBeenFound = this.buildSubstitutionForSingleLine(this.assertion.parseNode,
 				this.uProofStep.stepFormula, this.uProofStep.parseNode, substitution);
 		return { hasBeenFound: hasBeenFound, substitution: substitution };
@@ -375,7 +375,7 @@ export class MmpSubstitutionBuilder {
 			this.addWorkingVarsForLogicalVarsWithoutASubstitutionForSingleParseNode(parseNode, substitution);
 		});
 	}
-	addWorkingVarsForLogicalVarsWithoutASubstitutionForSingleParseNode(parseNodeForLogicalSystemFormula: ParseNode,
+	addWorkingVarsForLogicalVarsWithoutASubstitutionForSingleParseNode(parseNodeForLogicalSystemFormula: ParseNode | undefined,
 		substitution: Map<string, InternalNode>) {
 		// if (parseNodeForLogicalSystemFormula instanceof MmToken)
 		// 	this.addWorkingVarsForLogicalVarsWithoutASubstitutionFor(
@@ -431,13 +431,13 @@ export class MmpSubstitutionBuilder {
 			if (this.eHypUSteps[i] !== undefined &&
 				this.eHypUSteps[i]!.parseNode != undefined) {
 				const hasFoundSubstitution: boolean = this.buildSubstitutionForInternalNode(
-					this.logicalSystemEHyps[i].parseNode, this.eHypUSteps[i]!.parseNode!,
+					this.logicalSystemEHyps[i].parseNode!, this.eHypUSteps[i]!.parseNode!,
 					substitution);
 				if (!hasFoundSubstitution)
-					nonUnifiableLogicalParseNodes.push(this.logicalSystemEHyps[i].parseNode);
+					nonUnifiableLogicalParseNodes.push(this.logicalSystemEHyps[i].parseNode!);
 			}
 		}
-		if (this.uProofStep.parseNode != undefined) {
+		if (this.uProofStep.parseNode != undefined && this.assertion.parseNode) {
 			const hasFoundSubstitution: boolean = this.buildSubstitutionForInternalNode(
 				this.assertion.parseNode, this.uProofStep.parseNode, substitution);
 			if (!hasFoundSubstitution)
@@ -449,10 +449,10 @@ export class MmpSubstitutionBuilder {
 		substitution: Map<string, InternalNode>, nonUnifiableLogicalParseNodes: InternalNode[]) {
 		for (let i = 0; i < this.logicalSystemEHyps.length; i++) {
 			const eHyp: EHyp = this.logicalSystemEHyps[i];
-			if (this.eHypUSteps[i]?.parseNode == undefined)
+			if (this.eHypUSteps[i]?.parseNode == undefined && eHyp.parseNode)
 				this.addWorkingVarsForLogicalVarsWithoutASubstitutionForSingleParseNode(eHyp.parseNode, substitution);
 		}
-		if (this.uProofStep.parseNode === undefined)
+		if (this.uProofStep.parseNode === undefined && this.assertion.parseNode)
 			this.addWorkingVarsForLogicalVarsWithoutASubstitutionForSingleParseNode(this.assertion.parseNode, substitution);
 		nonUnifiableLogicalParseNodes.forEach((nonUnifiableLogicalParseNode: InternalNode) => {
 			this.addWorkingVarsForLogicalVarsWithoutASubstitutionForSingleParseNode(nonUnifiableLogicalParseNode, substitution);
