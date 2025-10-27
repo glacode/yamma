@@ -9,12 +9,12 @@ import { IMmpStatement, UProofStatementStep } from './MmpStatement';
 import { UProofStatement } from "./UProofStatement";
 import { ProofMode } from '../mm/ConfigurationManager';
 import { Parameters } from '../general/Parameters';
-import { consoleLogWithTimestamp, doesDiagnosticsContain } from '../mm/Utils';
+import { doesDiagnosticsContain } from '../mm/Utils';
 import { MmpPackedProofStatement } from './proofCompression/MmpPackedProofStatement';
 import { IMmpCompressedProofCreator, MmpCompressedProofCreatorFromPackedProof } from './proofCompression/MmpCompressedProofCreator';
 import { MmpSortedByReferenceWithKnapsackLabelMapCreator } from './proofCompression/MmpSortedByReferenceWithKnapsackLabelMapCreator';
 
-interface MmpUnifierArgs {
+export interface MmpUnifierArgs {
 	mmpParser: MmpParser;
 	proofMode: ProofMode;
 	maxNumberOfHypothesisDispositionsForStepDerivation: number;
@@ -144,7 +144,7 @@ export class MmpUnifier {
 	buildProofStatementIfProofIsComplete(uProof: MmpProof, diagnostics: Diagnostic[]) {
 		// if (uProof.lastMmpProofStep?.stepRef == 'qed' && uProof.lastMmpProofStep.isProven) {
 		if (this.isProofToBeGenerated(uProof, diagnostics)) {
-			consoleLogWithTimestamp('buildProofStatementIfProofIsComplete begin');
+			// consoleLogWithTimestamp('buildProofStatementIfProofIsComplete begin');
 			if (this.proofMode == ProofMode.normal) {
 				const proofArray: UProofStatementStep[] = <UProofStatementStep[]>uProof.lastMmpProofStep!.proofArray(this.outermostBlock);
 				const proofStatement: UProofStatement = new UProofStatement(proofArray, this._charactersPerLine);
@@ -160,7 +160,7 @@ export class MmpUnifier {
 				// this.labelSequenceCreator);
 				uProof.insertProofStatement(proofStatement);
 			}
-			consoleLogWithTimestamp('buildProofStatementIfProofIsComplete end');
+			// consoleLogWithTimestamp('buildProofStatementIfProofIsComplete end');
 		}
 	}
 	//#endregion buildProofStatementIfProofIsComplete
