@@ -16,7 +16,7 @@
 		"vscode-languageserver-textdocument": "^1.0.1"
 	},
 	"scripts": {
-		"test": "jest --runInBand --detectOpenHandles",
+		"test": "tsc && jest --runInBand --detectOpenHandles",
 		"test2": "jest --detectOpenHandles",
 		"testcov": "jest --coverage --collectCoverageFrom=\"src/**\""
 	},

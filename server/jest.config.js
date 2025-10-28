@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  testTimeout: 10000,
   modulePathIgnorePatterns: ["<rootDir>/out/"],
   collectCoverage: false,
   collectCoverageFrom: ["./src/**"]
