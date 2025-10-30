@@ -9,6 +9,7 @@ import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
 import { TokensCreator } from '../mm/TokensCreator';
 import { MmToken } from '../grammar/MmLexer';
 import { TokenReader } from '../mm/TokenReader';
+import path = require('path');
 
 test("Parsing two $f statements", () => {
     const parser: MmParser = new MmParser();
@@ -338,7 +339,7 @@ test('Test questionmark , see comment above', () => {
     expect(parser.diagnostics[0].severity).toBe(DiagnosticSeverity.Warning);
     expect(parser.diagnostics[0].code).toBe(MmParserWarningCode.unprovenStatement);
     expect(parser.diagnostics[0].message).toBe("Unproven $p statement");
-    expect(parser.diagnostics[0].mmFilePath).toContain('server/src/__test__/../mmTestFiles/questionmark.mm');
+    expect(parser.diagnostics[0].mmFilePath).toContain(path.normalize('server/src/__test__/../mmTestFiles/questionmark.mm'));
 });
 
 test('Test file inclusion', () => {
@@ -365,5 +366,5 @@ test('Test file inclusion', () => {
     expect(parser.diagnostics.length).toBe(1);
     expect(parser.diagnostics[0].provableStatementLabel).toBe('a2i');
     expect(parser.diagnostics[0].code).toBe(MmParserWarningCode.unprovenStatement);
-    expect(parser.diagnostics[0].mmFilePath).toContain('server/src/__test__/../mmTestFiles/included2.mm');
+    expect(parser.diagnostics[0].mmFilePath).toContain(path.normalize('server/src/__test__/../mmTestFiles/included2.mm'));
 });

@@ -15,6 +15,7 @@ import { IMmpStatement } from '../mmp/MmpStatement';
 import { VerboseDiagnosticMessageForSyntaxError } from '../mmp/DiagnosticMessageForSyntaxError';
 import { MmDiagnostic, MmParser, MmParserErrorCode } from '../mm/MmParser';
 import { DiagnosticEventHandler, IDiagnosticSink } from '../mm/DiagnosticEventHandler';
+import path = require('path');
 
 const emptyLabelStatement = new AxiomStatement(dummyToken('x'), [], new BlockStatement());
 
@@ -1373,6 +1374,6 @@ Unexpected "ps". I did not expect any more input. Here is the state of my parse 
 	expect(mmDiagnostic.range.end.character).toBe(15);
 	expect(mmDiagnostic.severity).toBe(DiagnosticSeverity.Error);
 	expect(mmDiagnostic.source).toBe('yamma');
-	expect(mmDiagnostic.mmFilePath?.endsWith('server/src/__test__/../mmTestFiles/validButBadWff.mm')).toBe(true);
+	expect(mmDiagnostic.mmFilePath?.endsWith(path.normalize('server/src/__test__/../mmTestFiles/validButBadWff.mm'))).toBe(true);
 
 });
