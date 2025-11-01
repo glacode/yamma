@@ -1,6 +1,7 @@
 import { MmToken } from '../grammar/MmLexer';
 import { splitToTokensDefaultInLine } from './Utils';
 import * as fs from 'fs';
+import * as path from 'path';
 
 export class TokensCreator {
 	// lines_buf: string[]   // TODO remove, slow method
@@ -23,7 +24,8 @@ export class TokensCreator {
 
 	private addTokensFromIncludedFile(includedFileName: string, tokens: MmToken[], includingFileFullPath?: string) {
 		if (!this.imported_files.has(includedFileName) && includingFileFullPath) {
-			const includedFileFullPath: string = includingFileFullPath.replace(/[^/]*$/, includedFileName);
+			const parsedPath = {...path.parse(includingFileFullPath), base: includedFileName};
+			const includedFileFullPath: string = path.format(parsedPath);
 			const tokensCreator: TokensCreator = new TokensCreator();
 			tokensCreator.addTokensFromFile(includedFileFullPath, tokens);
 			this.imported_files.add(includedFileName);

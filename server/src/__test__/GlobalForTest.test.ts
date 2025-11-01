@@ -6,6 +6,7 @@ import { GlobalState } from '../general/GlobalState';
 import { IFormulaClassifier } from '../stepSuggestion/IFormulaClassifier';
 import { SyntaxTreeClassifierFull } from '../stepSuggestion/SyntaxTreeClassifierFull';
 import { SyntaxTreeClassifierImp } from '../stepSuggestion/SyntaxTreeClassifierImp';
+import * as path from 'path';
 
 
 const variableKindsConfiguration: Map<string, IVariableKindConfiguration> = new Map<string, IVariableKindConfiguration>();
@@ -25,7 +26,7 @@ export const globalState: GlobalState = new GlobalState();
 globalState.lastFetchedSettings = lastFetchedSettings;
 
 export function fullPathForTestFile(fileName: string): string {
-	const mmFilePath = __dirname.concat("/../mmTestFiles/" + fileName);
+	const mmFilePath = path.join(__dirname, "../mmTestFiles", fileName);
 	return mmFilePath;
 }
 
