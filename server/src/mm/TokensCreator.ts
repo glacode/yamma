@@ -24,11 +24,11 @@ export class TokensCreator {
 
 	private addTokensFromIncludedFile(includedFileName: string, tokens: MmToken[], includingFileFullPath?: string) {
 		if (!this.imported_files.has(includedFileName) && includingFileFullPath) {
-			this.imported_files.add(includedFileName);
 			const parsedPath = {...path.parse(includingFileFullPath), base: includedFileName};
 			const includedFileFullPath: string = path.format(parsedPath);
 			const tokensCreator: TokensCreator = new TokensCreator();
 			tokensCreator.addTokensFromFile(includedFileFullPath, tokens);
+			this.imported_files.add(includedFileName);
 		}
 	}
 
