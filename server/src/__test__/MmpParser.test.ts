@@ -15,7 +15,7 @@ import { IMmpStatement } from '../mmp/MmpStatement';
 import { VerboseDiagnosticMessageForSyntaxError } from '../mmp/DiagnosticMessageForSyntaxError';
 import { MmDiagnostic, MmParser, MmParserErrorCode } from '../mm/MmParser';
 import { DiagnosticEventHandler, IDiagnosticSink } from '../mm/DiagnosticEventHandler';
-import path = require('path');
+import * as path from 'path';
 
 const emptyLabelStatement = new AxiomStatement(dummyToken('x'), [], new BlockStatement());
 

@@ -9,7 +9,7 @@ import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
 import { TokensCreator } from '../mm/TokensCreator';
 import { MmToken } from '../grammar/MmLexer';
 import { TokenReader } from '../mm/TokenReader';
-import path = require('path');
+import * as path from 'path';
 
 test("Parsing two $f statements", () => {
     const parser: MmParser = new MmParser();
